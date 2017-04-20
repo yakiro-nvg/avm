@@ -48,13 +48,13 @@ typedef union {
     // Pop `n` elements from the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t n : 24;
+        int32_t n : 24;
     } pop;
     // AOC_GET_CONST
     // Push a constant from const pool at `idx` onto the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } get_const;
     // AOC_GET_NIL
     // Push a nil value onto the stack.
@@ -65,57 +65,57 @@ typedef union {
     // Push a bool value `val` onto the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t val : 8;
+        int32_t val : 8;
     } get_bool;
     // AOC_GET_LOCAL
     // Push a value from local pool at `idx` onto the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } get_local;
     // AOC_SET_LOCAL
     // Pop a value from the stack and set it into the local pool at `idx`.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } set_local;
     // AOC_GET_IMPORT
     // Push a value from import pool at `idx` onto the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } get_import;
     // AOC_GET_UPVALUE
     // Push a value from upvalue pool at `idx` onto the stack.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } get_upvalue;
     // AOC_SET_UPVALUE
     // Pop a value from the stack and set it into the upvalue pool at `idx`.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } set_upvalue;
     // AOC_JUMP
     // Unconditional jump, with signed `displacement`.
     struct {
         uint32_t _ : 8;
-        uint32_t displacement : 24;
+        int32_t displacement : 24;
     } jump;
     // AOC_JUMP_IF_NOT
     // Pop a boolean value from the stack and jump if it's nil or false,
     // with signed `displacement`.
     struct {
         uint32_t _ : 8;
-        uint32_t displacement : 24;
+        int32_t displacement : 24;
     } jump_if_not;
     // AOC_CALL
     // Pop `nargs` arguments and next a closure from the stack then call it,
     // the result will be pushed onto the stack after that.
     struct {
         uint32_t _ : 8;
-        uint32_t nargs : 24;
+        int32_t nargs : 24;
     } call;
     // AOC_RETURN
     // Returning from a function call,
@@ -129,21 +129,21 @@ typedef union {
     // by VM to manage upvalues, either AOC_CAPTURE_LOCAL or AOC_CAPTURE_UPVALE.  
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } closure;
     // AOC_CAPTURE_LOCAL
     // Pseudo-instruction for closure creating,
     // capture a local value at `idx` from local pool.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } capture_local;
     // AOC_CAPTURE_UPVALUE
     // Pseudo-instruction for closure creating,
     // capture a upvalue at `idx` from upvalue pool.
     struct {
         uint32_t _ : 8;
-        uint32_t idx : 24;
+        int32_t idx : 24;
     } capture_upvalue;
     // AOC_CLOSE
     // Closes all local variables in the stack from `offset` onwards (>=),
@@ -152,7 +152,7 @@ typedef union {
     // AOC_RETURN also does an implicit AOC_CLOSE.
     struct {
         uint32_t _ : 8;
-        uint32_t offset : 24;
+        int32_t offset : 24;
     } close;
 } ainstruction_t;
 
