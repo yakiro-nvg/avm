@@ -1,6 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <catch.hpp>
 
+#include <string.h>
 #include <any/string_table.h>
 #include <any/errno.h>
 

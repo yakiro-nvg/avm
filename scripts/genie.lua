@@ -3,6 +3,11 @@ newoption {
     description = "Enable building shared library."
 }
 
+newoption {
+    trigger = "with-tools",
+    description = "Enable building tools."
+}
+
 solution "any-vm"
     configurations { "Debug", "Release" }
     if _ACTION == "xcode4" then
@@ -12,6 +17,11 @@ solution "any-vm"
     end
     configuration { "Debug" }
         defines { "ANY_DEBUG=1" }
+    configuration { "Debug and linux-*" }
+        buildoptions { "-fsanitize=address" }
+        linkoptions { "-lasan" }
+    configuration { "gcc or clang" }
+        buildoptions_c { "-std=c99" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
     startproject "utest"
