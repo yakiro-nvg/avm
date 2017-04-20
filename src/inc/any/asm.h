@@ -19,25 +19,30 @@ ANY_API void any_asm_save(aasm_t* self);
 // Release all internal allocated memory, result as a *fresh* assembler.
 ANY_API void any_asm_free(aasm_t* self);
 
-// Emit instruction.
-ANY_API void any_asm_emit(aasm_t* self, ainstruction_t instruction);
+// Emit instruction, 
+// returns the index of emitted instruction.
+ANY_API int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction);
 
-// Add constant.
-ANY_API void any_asm_add_constant(aasm_t* self, aconstant_t constant);
+// Add constant,
+// returns the index of added constant.
+ANY_API int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant);
 
-// Add import.
-ANY_API void any_asm_add_import(aasm_t* self, aimport_t import);
+// Add import,
+// returns the index of added import.
+ANY_API int32_t any_asm_add_import(aasm_t* self, aimport_t import);
 
 // Create nested prototype,
-// a new context will be pushed onto the stack.
-ANY_API void any_asm_push(aasm_t* self);
+// a new context will be pushed onto the stack,
+// returns the index of added prototype. 
+ANY_API int32_t any_asm_push(aasm_t* self);
 
 // Open an existing nested prototype at `idx`,
 // a new context will be pushed onto the stack.
 ANY_API void any_asm_open(aasm_t* self, int32_t idx);
 
-// Remove current context, go back to the parent prototype.
-ANY_API void any_asm_pop(aasm_t* self);
+// Remove current context, go back to the parent prototype,
+// returns the index of popped prototype.
+ANY_API int32_t any_asm_pop(aasm_t* self);
 
 // Wrapper of `any_st_to_ref` to internal string table, 
 // automatically grow if neccessary.

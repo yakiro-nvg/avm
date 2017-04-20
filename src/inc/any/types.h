@@ -351,14 +351,15 @@ typedef struct {
 // Bytecode assembler context.
 typedef struct {
     int32_t slot;
+    int32_t idx;
 } aasm_ctx_t;
 
 // Bytecode assembler.
 //
 // WARNING!!!: `aasm_prototype_t` and `aasm_current_t` are reserved for
-// advantaged purpose like optimization, which provides direct access to the 
+// advanced purpose like optimization, which provides direct access to the 
 // assembler internal. The content of these structure may be relocated after 
-// a call to these following function, use it at your own risk:
+// a call to these following functions, use it at your own risk:
 // - any_asm_emit
 // - any_asm_add_constant
 // - any_asm_add_import

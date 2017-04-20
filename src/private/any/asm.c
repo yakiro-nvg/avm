@@ -455,7 +455,7 @@ void any_asm_free(aasm_t* self)
     self->chunk_capacity = 0;
 }
 
-void any_asm_emit(aasm_t* self, ainstruction_t instruction)
+int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
 
@@ -471,10 +471,10 @@ void any_asm_emit(aasm_t* self, ainstruction_t instruction)
 
     assert(p->num_instructions < p->max_instructions);
     instructions(p)[p->num_instructions] = instruction;
-    p->num_instructions++;
+    return p->num_instructions++;
 }
 
-void any_asm_add_constant(aasm_t* self, aconstant_t constant)
+int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
 
@@ -490,10 +490,10 @@ void any_asm_add_constant(aasm_t* self, aconstant_t constant)
 
     assert(p->num_constants < p->max_constants);
     constants(p)[p->num_constants] = constant;
-    p->num_constants++;
+    return p->num_constants++;
 }
 
-void any_asm_add_import(aasm_t* self, aimport_t import)
+int32_t any_asm_add_import(aasm_t* self, aimport_t import)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
 
@@ -509,10 +509,10 @@ void any_asm_add_import(aasm_t* self, aimport_t import)
 
     assert(p->num_imports < p->max_imports);
     imports(p)[p->num_imports] = import;
-    p->num_imports++;
+    return p->num_imports++;
 }
 
-void any_asm_push(aasm_t* self)
+int32_t any_asm_push(aasm_t* self)
 {
     assert(self->nested_level < MAX_NESTED_LEVEL);
 
@@ -533,9 +533,12 @@ void any_asm_push(aasm_t* self)
     p = any_asm_prototype(self);
     assert(p->num_nesteds < p->max_nesteds);
     nesteds(p)[p->num_nesteds] = np;
-    p->num_nesteds++;
 
-    self->context[++self->nested_level].slot = np;
+    self->nested_level++;
+    self->context[self->nested_level].slot = np;
+    self->context[self->nested_level].idx = p->num_nesteds;
+
+    return p->num_nesteds++;
 }
 
 void any_asm_open(aasm_t* self, int32_t idx)
@@ -547,10 +550,12 @@ void any_asm_open(aasm_t* self, int32_t idx)
     self->context[++self->nested_level].slot = nesteds(p)[idx];
 }
 
-void any_asm_pop(aasm_t* self)
+int32_t any_asm_pop(aasm_t* self)
 {
     assert(self->nested_level > 0);
+    int32_t idx = self->context[self->nested_level].idx;
     self->nested_level--;
+    return idx;
 }
 
 astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
