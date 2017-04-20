@@ -338,9 +338,9 @@ static int32_t load_chunk(aasm_t* self, achunk_t* input, int32_t offset)
         p->num_nesteds);
     aasm_prototype_t* ap = any_asm_prototype(self);
 
-    ap->source_name = any_st_to_ref(self->st, cp_string(p, p->source_name));
-    ap->module_name = any_st_to_ref(self->st, cp_string(p, p->module_name));
-    ap->exported = any_st_to_ref(self->st, cp_string(p, p->exported));
+    ap->source_name = any_asm_string_to_ref(self, cp_string(p, p->source_name));
+    ap->module_name = any_asm_string_to_ref(self, cp_string(p, p->module_name));
+    ap->exported = any_asm_string_to_ref(self, cp_string(p, p->exported));
     
     ap->num_upvalues = p->num_upvalues;
     ap->num_arguments = p->num_arguments;
@@ -355,16 +355,16 @@ static int32_t load_chunk(aasm_t* self, achunk_t* input, int32_t offset)
     for (int32_t i = 0; i < p->num_constants; ++i) {
         aconstant_t constant = cp.constants[i];
         if (constant.b.type == ACT_STRING) {
-            constant.s.ref = any_st_to_ref(
-                self->st, cp_string(p, constant.s.ref));
+            constant.s.ref = any_asm_string_to_ref(
+                self, cp_string(p, constant.s.ref));
         }
         any_asm_add_constant(self, constant);
     }
 
     for (int32_t i = 0; i < p->num_imports; ++i) {
         aimport_t import = cp.imports[i];
-        import.module = any_st_to_ref(self->st, cp_string(p, import.module));
-        import.name = any_st_to_ref(self->st, cp_string(p, import.name));
+        import.module = any_asm_string_to_ref(self, cp_string(p, import.module));
+        import.name = any_asm_string_to_ref(self, cp_string(p, import.name));
         any_asm_add_import(self, import);
     }
 
