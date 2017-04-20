@@ -20,7 +20,7 @@ solution "any-vm"
     configuration { "Debug and linux" }
         buildoptions { "-fsanitize=address" }
         linkoptions { "-lasan" }
-    configuration { "gcc" }
+    configuration { "gcc*" }
         buildoptions_c { "-std=c99" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
