@@ -3,6 +3,10 @@
 
 #include <any/types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Initialization as a new assembler, 
 // must be followed by an `any_asm_load`.
 ANY_API void any_asm_init(aasm_t* self, arealloc_t realloc, void* realloc_ud);
@@ -67,3 +71,7 @@ inline aasm_prototype_t* any_asm_prototype_at(aasm_t* self, int32_t slot)
 {
     return (aasm_prototype_t*)(self->buff + self->slots[slot]);
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
