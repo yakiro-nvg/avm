@@ -394,7 +394,7 @@ void any_asm_init(aasm_t* self, arealloc_t realloc, void* realloc_ud)
 
 int32_t any_asm_load(aasm_t* self, achunk_t* input)
 {
-    any_asm_free(self);
+    any_asm_cleanup(self);
 
     self->st = (astring_table_t*)realloc(self, NULL, INIT_ST_BYTES);
     any_st_init(self->st, INIT_ST_BYTES, INIT_ST_SSIZE);
@@ -432,7 +432,7 @@ void any_asm_save(aasm_t* self)
     save_chunk(self, 0);
 }
 
-void any_asm_free(aasm_t* self)
+void any_asm_cleanup(aasm_t* self)
 {
     realloc(self, self->st, 0);
     self->st = NULL;

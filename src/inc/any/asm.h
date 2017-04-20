@@ -17,7 +17,7 @@ ANY_API void any_asm_save(aasm_t* self);
 
 // This will not free the `self` pointer itself.
 // Release all internal allocated memory, result as a *fresh* assembler.
-ANY_API void any_asm_free(aasm_t* self);
+ANY_API void any_asm_cleanup(aasm_t* self);
 
 // Emit instruction, 
 // returns the index of emitted instruction.
