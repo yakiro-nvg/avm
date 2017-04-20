@@ -396,6 +396,31 @@ ASTATIC_ASSERT(sizeof(aconstant_t) ==
         ? sizeof(aint_t)
         : sizeof(afloat_t)));
 
+// Constant constructors.
+inline aconstant_t ac_integer(aint_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_INTEGER;
+    c.i.val = val;
+    return c;
+}
+
+inline aconstant_t ac_string(astring_ref_t s)
+{
+    aconstant_t c;
+    c.b.type = ACT_STRING;
+    c.s.ref = s;
+    return c;
+}
+
+inline aconstant_t ac_float(afloat_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_FLOAT;
+    c.f.val = val;
+    return c;
+}
+
 // Function import.
 typedef struct {
     astring_ref_t module;
@@ -422,17 +447,18 @@ typedef struct {
     astring_ref_t source_name;
     astring_ref_t module_name;
     astring_ref_t exported;
-    uint32_t num_instructions;
-    uint16_t strings_sz;
+    int32_t num_instructions;
+    int16_t strings_sz;
+    int16_t num_nesteds;
     uint8_t num_upvalues;
     uint8_t num_arguments;
     uint8_t num_constants;
     uint8_t num_local_vars;
     uint8_t num_imports;
-    uint8_t num_nesteds;
+    uint8_t _;
 } aprototype_t;
 
-ASTATIC_ASSERT(sizeof(aprototype_t) == 24);
+ASTATIC_ASSERT(sizeof(aprototype_t) == 28);
 
 #ifdef AMSVC
 #pragma pack(push, 1)
@@ -469,8 +495,10 @@ typedef struct {
     astring_ref_t source_name;
     astring_ref_t module_name;
     astring_ref_t exported;
-    uint32_t num_instructions;
-    uint32_t max_instructions;
+    int32_t num_instructions;
+    int32_t max_instructions;
+    int16_t num_nesteds;
+    int16_t max_nesteds;
     uint8_t num_upvalues;
     uint8_t num_arguments;
     uint8_t num_local_vars;
@@ -478,8 +506,6 @@ typedef struct {
     uint8_t max_constants;
     uint8_t num_imports;
     uint8_t max_imports;
-    uint8_t num_nesteds;
-    uint8_t max_nesteds;
 } aasm_prototype_t;
 
 // Bytecode assembler current resolved pointers.
@@ -544,3 +570,9 @@ typedef struct {
     int32_t chunk_size;
     int32_t chunk_capacity;
 } aasm_t;
+
+// Number of nested level allowed for assembler.
+enum {
+    ANY_ASM_MAX_NESTED_LEVEL =
+    (sizeof(((aasm_t*)0)->context) / sizeof(((aasm_t*)0)->context[0])) - 1
+};

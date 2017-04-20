@@ -16,11 +16,6 @@
 #define INIT_MAX_IMPORTS 16
 #define INIT_MAX_NESTEDS 16
 
-enum {
-    MAX_NESTED_LEVEL = (sizeof(((aasm_t*)0)->context) /
-    sizeof(((aasm_t*)0)->context[0]))
-};
-
 static const uint8_t CHUNK_HEADER[] = {
     0x41, 0x6E, 0x79, 0x00, // signature
     ((AVERSION_MAJOR << 8) | AVERSION_MINOR), // version
@@ -39,10 +34,10 @@ static inline void* realloc(aasm_t* self, void* old, int32_t sz)
 }
 
 static inline int32_t required_size(
-    uint32_t max_instructions,
+    int32_t max_instructions,
     uint8_t max_constants,
     uint8_t max_imports,
-    uint8_t max_nesteds)
+    int16_t max_nesteds)
 {
     return sizeof(aasm_prototype_t) +
         max_instructions * sizeof(ainstruction_t) +
@@ -127,10 +122,10 @@ static void grow_buff(aasm_t* self, int32_t expected)
 // and guarantee that at least 1 free slot available.
 static int32_t new_prototype(
     aasm_t* self,
-    uint32_t max_instructions,
+    int32_t max_instructions,
     uint8_t max_constants,
     uint8_t max_imports,
-    uint8_t max_nesteds)
+    int16_t max_nesteds)
 {
     int32_t sz = required_size(
         max_instructions, max_constants, max_imports, max_nesteds);
@@ -280,12 +275,12 @@ static void save_chunk(aasm_t* self, int32_t parent)
     self->chunk_size += psz;
     memset(header, 0, sizeof(aprototype_t));
     header->num_instructions = p->num_instructions;
+    header->num_nesteds = p->num_nesteds;
     header->num_upvalues = p->num_upvalues;
     header->num_arguments = p->num_arguments;
     header->num_constants = p->num_constants;
     header->num_local_vars = p->num_local_vars;
     header->num_imports = p->num_imports;
-    header->num_nesteds = p->num_nesteds;
     header->source_name = chunk_add_str(self, header, p->source_name);
     header->module_name = chunk_add_str(self, header, p->module_name);
     header->exported = chunk_add_str(self, header, p->exported);
@@ -514,7 +509,7 @@ int32_t any_asm_add_import(aasm_t* self, aimport_t import)
 
 int32_t any_asm_push(aasm_t* self)
 {
-    assert(self->nested_level < MAX_NESTED_LEVEL);
+    assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
 
     aasm_prototype_t* p = any_asm_prototype(self);
     if (p->num_nesteds == p->max_nesteds) {
@@ -543,7 +538,7 @@ int32_t any_asm_push(aasm_t* self)
 
 void any_asm_open(aasm_t* self, int32_t idx)
 {
-    assert(self->nested_level < MAX_NESTED_LEVEL);
+    assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
 
     aasm_prototype_t* p = any_asm_prototype(self);
     assert(idx < p->num_nesteds);
@@ -573,10 +568,10 @@ astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
 
 void any_asm_grow(
     aasm_t* self,
-    uint32_t max_instructions,
+    int32_t max_instructions,
     uint8_t max_constants,
     uint8_t max_imports,
-    uint8_t max_nesteds)
+    int16_t max_nesteds)
 {
     assert(max_instructions >= any_asm_prototype(self)->max_instructions);
     assert(max_constants    >= any_asm_prototype(self)->max_constants);
