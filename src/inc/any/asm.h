@@ -48,12 +48,12 @@ ANY_API void any_asm_open(aasm_t* self, int32_t idx);
 // returns the index of popped prototype.
 ANY_API int32_t any_asm_pop(aasm_t* self);
 
-// Wrapper of `any_st_to_ref` to internal string table, 
+// Wrapper of `any_st_to_ref` to `self->st` string table, 
 // automatically grow if neccessary.
 ANY_API astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s);
 
 // Extend prototype with more capacity.
-ANY_API void any_asm_grow(
+ANY_API void any_asm_reserve(
     aasm_t* self,
     int32_t max_instructions,
     uint8_t max_constants,

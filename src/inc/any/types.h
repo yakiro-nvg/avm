@@ -318,7 +318,7 @@ typedef int32_t astring_ref_t;
 // String table.
 //
 // WARNING!!!: don't cache the char* pointer,
-// the content of this table may be reallocated.
+// the content of this table may be relocated.
 //
 // Borrowed from: https://github.com/niklasfrykholm/nflibs
 // This implements a string table for *string interning*, i.e. converting
@@ -499,7 +499,7 @@ typedef struct APACKED {
 ASTATIC_ASSERT(sizeof(achunk_t) == 12);
 
 // Bytecode assembler prototype.
-// `max_*` is readonly, `any_asm_grow` are required to extends these values, 
+// `max_*` is readonly, `any_asm_reserve` are required to extends these values, 
 // after that, you need to call `any_asm_prototype` and `any_asm_resolve` again.
 typedef struct {
     astring_ref_t source_name;
@@ -541,7 +541,7 @@ typedef struct {
 // - any_asm_emit
 // - any_asm_add_constant
 // - any_asm_add_import
-// - any_asm_grow
+// - any_asm_reserve
 // - any_asm_push
 //
 // This implements an assembler which can be used to produce relocatable and
