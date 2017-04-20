@@ -158,6 +158,148 @@ typedef union {
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
+// Instruction constructors.
+inline ainstruction_t ai_nop()
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_NOP;
+    return i;
+}
+
+inline ainstruction_t ai_pop(int32_t n)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_POP;
+    i.pop.n = n;
+    return i;
+}
+
+inline ainstruction_t ai_get_const(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_CONST;
+    i.get_const.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_get_nil()
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_NIL;
+    return i;
+}
+
+inline ainstruction_t ai_get_bool(int32_t val)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_BOOL;
+    i.get_bool.val = val;
+    return i;
+}
+
+inline ainstruction_t ai_get_local(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_LOCAL;
+    i.get_local.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_set_local(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_SET_LOCAL;
+    i.set_local.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_get_import(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_IMPORT;
+    i.get_import.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_get_upvalue(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_GET_UPVALUE;
+    i.get_upvalue.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_set_upvalue(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_SET_UPVALUE;
+    i.set_upvalue.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_jump(int32_t displacement)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_JUMP;
+    i.jump.displacement = displacement;
+    return i;
+}
+
+inline ainstruction_t ai_jump_if_not(int32_t displacement)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_JUMP_IF_NOT;
+    i.jump_if_not.displacement = displacement;
+    return i;
+}
+
+inline ainstruction_t ai_call(int32_t nargs)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_CALL;
+    i.call.nargs = nargs;
+    return i;
+}
+
+inline ainstruction_t ai_return()
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_RETURN;
+    return i;
+}
+
+inline ainstruction_t ai_closure(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_CLOSURE;
+    i.closure.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_capture_local(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_CAPTURE_LOCAL;
+    i.capture_local.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_capture_upvalue(int32_t idx)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_CAPTURE_UPVALUE;
+    i.capture_upvalue.idx = idx;
+    return i;
+}
+
+inline ainstruction_t ai_close(int32_t offset)
+{
+    ainstruction_t i;
+    i.base.opcode = AOC_CLOSE;
+    i.close.offset = offset;
+    return i;
+}
+
 // Allocator, 
 // `old` = 0 to malloc,
 // `sz`  = 0 to free,
