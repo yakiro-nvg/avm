@@ -322,7 +322,7 @@ ASTATIC_ASSERT(sizeof(achunk_t) == 12);
 
 // Bytecode assembler prototype.
 // `max_*` is readonly, `any_asm_grow` are required to extends these values, 
-// after that, you need to call `any_asm_prototype` and `any_asm_current` again.
+// after that, you need to call `any_asm_prototype` and `any_asm_resolve` again.
 typedef struct {
     astring_ref_t source_name;
     astring_ref_t module_name;
