@@ -159,14 +159,14 @@ typedef union {
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-inline ainstruction_t ai_nop()
+static inline ainstruction_t ai_nop()
 {
     ainstruction_t i;
     i.base.opcode = AOC_NOP;
     return i;
 }
 
-inline ainstruction_t ai_pop(int32_t n)
+static inline ainstruction_t ai_pop(int32_t n)
 {
     ainstruction_t i;
     i.base.opcode = AOC_POP;
@@ -174,7 +174,7 @@ inline ainstruction_t ai_pop(int32_t n)
     return i;
 }
 
-inline ainstruction_t ai_get_const(int32_t idx)
+static inline ainstruction_t ai_get_const(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_CONST;
@@ -182,14 +182,14 @@ inline ainstruction_t ai_get_const(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_get_nil()
+static inline ainstruction_t ai_get_nil()
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_NIL;
     return i;
 }
 
-inline ainstruction_t ai_get_bool(int32_t val)
+static inline ainstruction_t ai_get_bool(int32_t val)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_BOOL;
@@ -197,7 +197,7 @@ inline ainstruction_t ai_get_bool(int32_t val)
     return i;
 }
 
-inline ainstruction_t ai_get_local(int32_t idx)
+static inline ainstruction_t ai_get_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_LOCAL;
@@ -205,7 +205,7 @@ inline ainstruction_t ai_get_local(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_set_local(int32_t idx)
+static inline ainstruction_t ai_set_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_SET_LOCAL;
@@ -213,7 +213,7 @@ inline ainstruction_t ai_set_local(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_get_import(int32_t idx)
+static inline ainstruction_t ai_get_import(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_IMPORT;
@@ -221,7 +221,7 @@ inline ainstruction_t ai_get_import(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_get_upvalue(int32_t idx)
+static inline ainstruction_t ai_get_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_UPVALUE;
@@ -229,7 +229,7 @@ inline ainstruction_t ai_get_upvalue(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_set_upvalue(int32_t idx)
+static inline ainstruction_t ai_set_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_SET_UPVALUE;
@@ -237,7 +237,7 @@ inline ainstruction_t ai_set_upvalue(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_jump(int32_t displacement)
+static inline ainstruction_t ai_jump(int32_t displacement)
 {
     ainstruction_t i;
     i.base.opcode = AOC_JUMP;
@@ -245,7 +245,7 @@ inline ainstruction_t ai_jump(int32_t displacement)
     return i;
 }
 
-inline ainstruction_t ai_jump_if_not(int32_t displacement)
+static inline ainstruction_t ai_jump_if_not(int32_t displacement)
 {
     ainstruction_t i;
     i.base.opcode = AOC_JUMP_IF_NOT;
@@ -253,7 +253,7 @@ inline ainstruction_t ai_jump_if_not(int32_t displacement)
     return i;
 }
 
-inline ainstruction_t ai_call(int32_t nargs)
+static inline ainstruction_t ai_call(int32_t nargs)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CALL;
@@ -261,14 +261,14 @@ inline ainstruction_t ai_call(int32_t nargs)
     return i;
 }
 
-inline ainstruction_t ai_return()
+static inline ainstruction_t ai_return()
 {
     ainstruction_t i;
     i.base.opcode = AOC_RETURN;
     return i;
 }
 
-inline ainstruction_t ai_closure(int32_t idx)
+static inline ainstruction_t ai_closure(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CLOSURE;
@@ -276,7 +276,7 @@ inline ainstruction_t ai_closure(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_capture_local(int32_t idx)
+static inline ainstruction_t ai_capture_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CAPTURE_LOCAL;
@@ -284,7 +284,7 @@ inline ainstruction_t ai_capture_local(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_capture_upvalue(int32_t idx)
+static inline ainstruction_t ai_capture_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CAPTURE_UPVALUE;
@@ -292,7 +292,7 @@ inline ainstruction_t ai_capture_upvalue(int32_t idx)
     return i;
 }
 
-inline ainstruction_t ai_close(int32_t offset)
+static inline ainstruction_t ai_close(int32_t offset)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CLOSE;
@@ -350,7 +350,7 @@ typedef struct {
 } astring_table_t;
 
 // We must have room for at leat one hash slot and one string.
-enum { ANY_ST_MIN_SIZE = sizeof(astring_table_t) + sizeof(uint32_t) + 4 };
+enum { ANY_ST_MIN_SIZE = sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1 };
 
 // Constant types.
 enum {
@@ -359,9 +359,7 @@ enum {
     ACT_FLOAT
 };
 
-#ifdef AMSVC
 #pragma pack(push, 1)
-#endif
 
 // Function constant.
 typedef union APACKED {
@@ -386,9 +384,7 @@ typedef union APACKED {
     } f;
 } aconstant_t;
 
-#ifdef AMSVC
 #pragma pack(pop)
-#endif
 
 ASTATIC_ASSERT(sizeof(aconstant_t) == 
     sizeof(uint32_t) + 
@@ -397,7 +393,7 @@ ASTATIC_ASSERT(sizeof(aconstant_t) ==
         : sizeof(afloat_t)));
 
 // Constant constructors.
-inline aconstant_t ac_integer(aint_t val)
+static inline aconstant_t ac_integer(aint_t val)
 {
     aconstant_t c;
     c.b.type = ACT_INTEGER;
@@ -405,7 +401,7 @@ inline aconstant_t ac_integer(aint_t val)
     return c;
 }
 
-inline aconstant_t ac_string(astring_ref_t s)
+static inline aconstant_t ac_string(astring_ref_t s)
 {
     aconstant_t c;
     c.b.type = ACT_STRING;
@@ -413,7 +409,7 @@ inline aconstant_t ac_string(astring_ref_t s)
     return c;
 }
 
-inline aconstant_t ac_float(afloat_t val)
+static inline aconstant_t ac_float(afloat_t val)
 {
     aconstant_t c;
     c.b.type = ACT_FLOAT;
@@ -429,7 +425,7 @@ typedef struct {
 
 ASTATIC_ASSERT(sizeof(aimport_t) == 8);
 
-inline aimport_t aimport(astring_ref_t module, astring_ref_t name)
+static inline aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;
@@ -470,9 +466,7 @@ typedef struct {
 
 ASTATIC_ASSERT(sizeof(aprototype_t) == 28);
 
-#ifdef AMSVC
 #pragma pack(push, 1)
-#endif
 
 // Bytecode chunk.
 //
@@ -492,9 +486,7 @@ typedef struct APACKED {
     uint8_t header[12];
 } achunk_t;
 
-#ifdef AMSVC
 #pragma pack(pop)
-#endif
 
 ASTATIC_ASSERT(sizeof(achunk_t) == 12);
 
