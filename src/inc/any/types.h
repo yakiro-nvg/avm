@@ -427,6 +427,16 @@ typedef struct {
     astring_ref_t name;
 } aimport_t;
 
+ASTATIC_ASSERT(sizeof(aimport_t) == 8);
+
+inline aimport_t aimport(astring_ref_t module, astring_ref_t name)
+{
+    aimport_t i;
+    i.module = module;
+    i.name = name;
+    return i;
+}
+
 // Function prototype.
 //
 // This struct represents the header portion of a function prototype. Each
