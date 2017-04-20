@@ -21,7 +21,7 @@ solution "any-vm"
         buildoptions { "-fsanitize=address" }
         linkoptions { "-lasan" }
     configuration { "gcc or clang" }
-        buildoptions_c { "-std=c99" }
+        buildoptions_c { "-std=c11" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
     startproject "utest"
