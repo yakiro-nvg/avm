@@ -5,7 +5,7 @@ project("utest")
     removeflags { "NoExceptions" }
     configuration "gcc*"
         buildoptions { "-Wno-parentheses" }
-    configuration "clang*"
+    configuration "clang* or osx"
         buildoptions_cpp { "-std=c++11" }
     configuration {}
     includedirs {
