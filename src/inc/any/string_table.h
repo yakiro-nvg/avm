@@ -11,7 +11,7 @@ extern "C" {
 // the total ammount of memory allocated at the pointer and `average_strlen` is
 // the expected average length of the strings that will be added.
 ANY_API void any_st_init(
-	astring_table_t* self, int32_t bytes, int32_t average_strlen);
+    astring_table_t* self, int32_t bytes, int32_t average_strlen);
 
 // Grows the string table to size `bytes`. You must make sure that this many
 // bytes are available in the pointer `self`, typically by realloc before
@@ -33,7 +33,7 @@ ANY_API astring_ref_t any_st_to_ref(astring_table_t* self, const char* s);
 // As any_st_to_ref(), but never adds the string to the table.
 // If the string doesn't exist in the table AERR_FULL is returned.
 ANY_API astring_ref_t any_st_to_ref_const(
-	const astring_table_t* self, const char* s);
+    const astring_table_t* self, const char* s);
 
 // Returns the string corresponding to the `ref`. Calling this with a
 // value which is not a ref returned by `any_st_to_ref` results in
@@ -48,16 +48,16 @@ ANY_API uint32_t any_st_to_hash(astring_table_t* self, astring_ref_t ref);
 // Utility function to calculate the hash and length of string `s`.
 inline ahash_and_length_t ahash_and_length(const char* s)
 {
-	// The hash function is borrowed from Lua.
-	// Since we need to walk the entire string anyway for finding the
-	// length, this is a decent hash function.
-	uint32_t h = 0;
-	const char* i = s;
-	for (; *i; ++i) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*i);
-	ahash_and_length_t result;
-	result.hash = h;
-	result.length = i - s;
-	return result;
+    // The hash function is borrowed from Lua.
+    // Since we need to walk the entire string anyway for finding the
+    // length, this is a decent hash function.
+    uint32_t h = 0;
+    const char* i = s;
+    for (; *i; ++i) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*i);
+    ahash_and_length_t result;
+    result.hash = h;
+    result.length = i - s;
+    return result;
 }
 
 #ifdef __cplusplus

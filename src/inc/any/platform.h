@@ -5,12 +5,12 @@
 #define AMSVC _MSC_VER
 #elif defined(__clang__)
 #define ACLANG (((__clang_major__)*100) + \
-	(__clang_minor__*10) + \
-	 __clang_patchlevel__)
+    (__clang_minor__*10) + \
+     __clang_patchlevel__)
 #elif defined(__GNUC__)
 #define AGNUC (((__GNUC__)*100) + \
-	(__GNUC_MINOR__*10) + \
-	 __GNUC_PATCHLEVEL__)
+    (__GNUC_MINOR__*10) + \
+     __GNUC_PATCHLEVEL__)
 #else
 #   error "unknown compiler"
 #endif

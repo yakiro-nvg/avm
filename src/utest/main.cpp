@@ -4,10 +4,10 @@
 
 int runAllTests(int argc, const char* argv[])
 {
-	return Catch::Session().run(argc, argv);
+    return Catch::Session().run(argc, argv);
 }
 
 int main(int argc, const char* argv[])
 {
-	return runAllTests(argc, argv);
+    return runAllTests(argc, argv);
 }
