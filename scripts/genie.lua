@@ -22,8 +22,6 @@ solution "any-vm"
         linkoptions { "-lasan" }
     configuration { "gcc" }
         buildoptions_c { "-std=c99" }
-    configuration { "clang" }
-        buildoptions_c { "-std=c11" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
     startproject "utest"
