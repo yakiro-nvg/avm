@@ -3,8 +3,10 @@ project("utest")
     uuid(os.uuid("any-vm-utest"))
     kind("ConsoleApp")
     removeflags { "NoExceptions" }
-    configuration "gcc*"
+    configuration "gcc"
         buildoptions { "-Wno-parentheses" }
+    configuration "gcc or clang"
+        buildoptions_cpp { "-std=c++11" }
     configuration {}
     includedirs {
         DIR.UTEST,

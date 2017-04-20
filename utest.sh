@@ -1,5 +1,4 @@
 #!/bin/bash 
-echo 'wtf'
 find .build -name 'utest_debug' -print0 | while read -d $'\0' f;
 do
     echo $f

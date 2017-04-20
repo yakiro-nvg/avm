@@ -10,9 +10,9 @@ return function(link_type, defs)
         kind(link_type)
         if link_type == SharedLib then
             defines { "ANY_EXPORT", "ANY_SHARED" }
-            configuration { "mingw*" }
+            configuration { "mingw" }
                 linkoptions { "-shared" }
-            configuration { "linux-*" }
+            configuration { "linux" }
                 buildoptions { "-fPIC" }
             configuration {}
         end

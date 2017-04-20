@@ -17,10 +17,12 @@ solution "any-vm"
     end
     configuration { "Debug" }
         defines { "ANY_DEBUG=1" }
-    configuration { "Debug and linux-*" }
+    configuration { "Debug and linux" }
         buildoptions { "-fsanitize=address" }
         linkoptions { "-lasan" }
-    configuration { "gcc or clang" }
+    configuration { "gcc" }
+        buildoptions_c { "-std=c99" }
+    configuration { "clang" }
         buildoptions_c { "-std=c11" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
