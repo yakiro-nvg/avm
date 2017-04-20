@@ -2,6 +2,7 @@
 #include <catch.hpp>
 
 #include <stdlib.h>
+#include <string.h>
 #include <any/asm.h>
 #include <any/errno.h>
 #include <any/string_table.h>

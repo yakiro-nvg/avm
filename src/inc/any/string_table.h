@@ -46,7 +46,7 @@ ANY_API const char* any_st_to_string(astring_table_t* self, astring_ref_t ref);
 ANY_API uint32_t any_st_to_hash(astring_table_t* self, astring_ref_t ref);
 
 // Utility function to calculate the hash and length of string `s`.
-inline ahash_and_length_t ahash_and_length(const char* s)
+static inline ahash_and_length_t ahash_and_length(const char* s)
 {
     // The hash function is borrowed from Lua.
     // Since we need to walk the entire string anyway for finding the

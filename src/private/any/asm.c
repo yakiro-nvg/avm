@@ -28,7 +28,7 @@ static const uint8_t CHUNK_HEADER[] = {
 };
 ASTATIC_ASSERT(sizeof(CHUNK_HEADER) == 12);
 
-static inline void* realloc(aasm_t* self, void* old, int32_t sz)
+static inline void* arealloc(aasm_t* self, void* old, int32_t sz)
 {
     return self->realloc(self->realloc_ud, old, sz);
 }
@@ -120,10 +120,10 @@ static void grow_buff(aasm_t* self, int32_t expected)
     assert(self->num_slots > 0 && "don't grow for root");
     int32_t new_capacity = self->buff_capacity;
     while (new_capacity < expected) new_capacity *= GROW_FACTOR;
-    uint8_t* new_buff = (uint8_t*)realloc(self, NULL, new_capacity);
+    uint8_t* new_buff = (uint8_t*)arealloc(self, NULL, new_capacity);
 
     self->buff_size = gc(self, new_buff, 0, 0);
-    realloc(self, self->buff, 0);
+    arealloc(self, self->buff, 0);
     self->buff = new_buff;
     self->buff_capacity = new_capacity;
 }
@@ -143,7 +143,7 @@ static int32_t new_prototype(
 
     if (self->num_slots == self->max_slots) {
         self->max_slots *= GROW_FACTOR;
-        self->slots = realloc(
+        self->slots = arealloc(
             self, self->slots, self->max_slots * sizeof(int32_t));
     }
 
@@ -391,11 +391,11 @@ int32_t any_asm_load(aasm_t* self, achunk_t* input)
 {
     any_asm_cleanup(self);
 
-    self->st = (astring_table_t*)realloc(self, NULL, INIT_ST_BYTES);
+    self->st = (astring_table_t*)arealloc(self, NULL, INIT_ST_BYTES);
     any_st_init(self->st, INIT_ST_BYTES, INIT_ST_SSIZE);
 
     self->max_slots = INIT_SLOT_COUNT;
-    self->slots = (int32_t*)realloc(
+    self->slots = (int32_t*)arealloc(
         self, NULL, self->max_slots * sizeof(int32_t));
 
     self->buff_capacity = self->max_slots * required_size(
@@ -403,7 +403,7 @@ int32_t any_asm_load(aasm_t* self, achunk_t* input)
         INIT_MAX_CONSTANTS,
         INIT_MAX_IMPORTS,
         INIT_MAX_NESTEDS);
-    self->buff = (uint8_t*)realloc(self, NULL, self->buff_capacity);
+    self->buff = (uint8_t*)arealloc(self, NULL, self->buff_capacity);
 
     self->slots[self->num_slots] = new_prototype_default_size(self);
     self->num_slots = 1;
@@ -421,8 +421,8 @@ void any_asm_save(aasm_t* self)
     sz += sizeof(CHUNK_HEADER);
     self->chunk_size = 0;
     if (self->chunk_capacity < sz) {
-        realloc(self, self->chunk, 0);
-        self->chunk = (achunk_t*)realloc(self, NULL, sz);
+        arealloc(self, self->chunk, 0);
+        self->chunk = (achunk_t*)arealloc(self, NULL, sz);
         self->chunk_capacity = sz;
     }
 
@@ -435,15 +435,15 @@ void any_asm_save(aasm_t* self)
 
 void any_asm_cleanup(aasm_t* self)
 {
-    realloc(self, self->st, 0);
+    arealloc(self, self->st, 0);
     self->st = NULL;
 
-    realloc(self, self->slots, 0);
+    arealloc(self, self->slots, 0);
     self->slots = NULL;
     self->num_slots = 0;
     self->max_slots = 0;
 
-    realloc(self, self->buff, 0);
+    arealloc(self, self->buff, 0);
     self->buff = NULL;
     self->buff_size = 0;
     self->buff_capacity = 0;
@@ -451,7 +451,7 @@ void any_asm_cleanup(aasm_t* self)
     memset(self->context, 0, sizeof(self->context));
     self->nested_level = 0;
 
-    self->realloc(self, self->chunk, 0);
+    arealloc(self, self->chunk, 0);
     self->chunk_size = 0;
     self->chunk_capacity = 0;
 }
@@ -568,7 +568,7 @@ astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
         ref = any_st_to_ref(self->st, s);
         if (ref != AERR_FULL) break;
         int32_t new_cap = self->st->allocated_bytes * GROW_FACTOR;
-        self->st = (astring_table_t*)realloc(self, self->st, new_cap);
+        self->st = (astring_table_t*)arealloc(self, self->st, new_cap);
         any_st_grow(self->st, new_cap);
     } while (TRUE);
     return ref;
