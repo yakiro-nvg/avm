@@ -542,7 +542,9 @@ void any_asm_open(aasm_t* self, int32_t idx)
 
     aasm_prototype_t* p = any_asm_prototype(self);
     assert(idx < p->num_nesteds);
-    self->context[++self->nested_level].slot = nesteds(p)[idx];
+    self->nested_level++;
+    self->context[self->nested_level].slot = nesteds(p)[idx];
+    self->context[self->nested_level].idx = idx;
 }
 
 int32_t any_asm_pop(aasm_t* self)
