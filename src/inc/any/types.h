@@ -159,14 +159,14 @@ typedef union {
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-static inline ainstruction_t ai_nop()
+AINLINE ainstruction_t ai_nop()
 {
     ainstruction_t i;
     i.base.opcode = AOC_NOP;
     return i;
 }
 
-static inline ainstruction_t ai_pop(int32_t n)
+AINLINE ainstruction_t ai_pop(int32_t n)
 {
     ainstruction_t i;
     i.base.opcode = AOC_POP;
@@ -174,7 +174,7 @@ static inline ainstruction_t ai_pop(int32_t n)
     return i;
 }
 
-static inline ainstruction_t ai_get_const(int32_t idx)
+AINLINE ainstruction_t ai_get_const(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_CONST;
@@ -182,14 +182,14 @@ static inline ainstruction_t ai_get_const(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_get_nil()
+AINLINE ainstruction_t ai_get_nil()
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_NIL;
     return i;
 }
 
-static inline ainstruction_t ai_get_bool(int32_t val)
+AINLINE ainstruction_t ai_get_bool(int32_t val)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_BOOL;
@@ -197,7 +197,7 @@ static inline ainstruction_t ai_get_bool(int32_t val)
     return i;
 }
 
-static inline ainstruction_t ai_get_local(int32_t idx)
+AINLINE ainstruction_t ai_get_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_LOCAL;
@@ -205,7 +205,7 @@ static inline ainstruction_t ai_get_local(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_set_local(int32_t idx)
+AINLINE ainstruction_t ai_set_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_SET_LOCAL;
@@ -213,7 +213,7 @@ static inline ainstruction_t ai_set_local(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_get_import(int32_t idx)
+AINLINE ainstruction_t ai_get_import(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_IMPORT;
@@ -221,7 +221,7 @@ static inline ainstruction_t ai_get_import(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_get_upvalue(int32_t idx)
+AINLINE ainstruction_t ai_get_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_GET_UPVALUE;
@@ -229,7 +229,7 @@ static inline ainstruction_t ai_get_upvalue(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_set_upvalue(int32_t idx)
+AINLINE ainstruction_t ai_set_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_SET_UPVALUE;
@@ -237,7 +237,7 @@ static inline ainstruction_t ai_set_upvalue(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_jump(int32_t displacement)
+AINLINE ainstruction_t ai_jump(int32_t displacement)
 {
     ainstruction_t i;
     i.base.opcode = AOC_JUMP;
@@ -245,7 +245,7 @@ static inline ainstruction_t ai_jump(int32_t displacement)
     return i;
 }
 
-static inline ainstruction_t ai_jump_if_not(int32_t displacement)
+AINLINE ainstruction_t ai_jump_if_not(int32_t displacement)
 {
     ainstruction_t i;
     i.base.opcode = AOC_JUMP_IF_NOT;
@@ -253,7 +253,7 @@ static inline ainstruction_t ai_jump_if_not(int32_t displacement)
     return i;
 }
 
-static inline ainstruction_t ai_call(int32_t nargs)
+AINLINE ainstruction_t ai_call(int32_t nargs)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CALL;
@@ -261,14 +261,14 @@ static inline ainstruction_t ai_call(int32_t nargs)
     return i;
 }
 
-static inline ainstruction_t ai_return()
+AINLINE ainstruction_t ai_return()
 {
     ainstruction_t i;
     i.base.opcode = AOC_RETURN;
     return i;
 }
 
-static inline ainstruction_t ai_closure(int32_t idx)
+AINLINE ainstruction_t ai_closure(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CLOSURE;
@@ -276,7 +276,7 @@ static inline ainstruction_t ai_closure(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_capture_local(int32_t idx)
+AINLINE ainstruction_t ai_capture_local(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CAPTURE_LOCAL;
@@ -284,7 +284,7 @@ static inline ainstruction_t ai_capture_local(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_capture_upvalue(int32_t idx)
+AINLINE ainstruction_t ai_capture_upvalue(int32_t idx)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CAPTURE_UPVALUE;
@@ -292,7 +292,7 @@ static inline ainstruction_t ai_capture_upvalue(int32_t idx)
     return i;
 }
 
-static inline ainstruction_t ai_close(int32_t offset)
+AINLINE ainstruction_t ai_close(int32_t offset)
 {
     ainstruction_t i;
     i.base.opcode = AOC_CLOSE;
@@ -393,7 +393,7 @@ ASTATIC_ASSERT(sizeof(aconstant_t) ==
         : sizeof(afloat_t)));
 
 // Constant constructors.
-static inline aconstant_t ac_integer(aint_t val)
+AINLINE aconstant_t ac_integer(aint_t val)
 {
     aconstant_t c;
     c.b.type = ACT_INTEGER;
@@ -401,7 +401,7 @@ static inline aconstant_t ac_integer(aint_t val)
     return c;
 }
 
-static inline aconstant_t ac_string(astring_ref_t s)
+AINLINE aconstant_t ac_string(astring_ref_t s)
 {
     aconstant_t c;
     c.b.type = ACT_STRING;
@@ -409,7 +409,7 @@ static inline aconstant_t ac_string(astring_ref_t s)
     return c;
 }
 
-static inline aconstant_t ac_float(afloat_t val)
+AINLINE aconstant_t ac_float(afloat_t val)
 {
     aconstant_t c;
     c.b.type = ACT_FLOAT;
@@ -425,7 +425,7 @@ typedef struct {
 
 ASTATIC_ASSERT(sizeof(aimport_t) == 8);
 
-static inline aimport_t aimport(astring_ref_t module, astring_ref_t name)
+AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;

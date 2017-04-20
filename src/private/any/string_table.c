@@ -13,17 +13,17 @@ typedef struct {
     uint32_t offset;
 } hash_slot_t;
 
-static inline hash_slot_t* hashtable(astring_table_t* self)
+AINLINE hash_slot_t* hashtable(astring_table_t* self)
 {
     return (hash_slot_t*)(self + 1);
 }
 
-static inline char* strings(astring_table_t* self)
+AINLINE char* strings(astring_table_t* self)
 {
     return (char*)(hashtable(self) + self->num_hash_slots);
 }
 
-static inline int32_t available_string_bytes(astring_table_t* self)
+AINLINE int32_t available_string_bytes(astring_table_t* self)
 {
     return self->allocated_bytes - sizeof(*self) - 
         self->num_hash_slots * sizeof(hash_slot_t);

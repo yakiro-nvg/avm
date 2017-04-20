@@ -31,8 +31,10 @@
 
 #ifdef AMSVC
 #define APACKED
+#define AINLINE inline
 #elif defined(ACLANG) || defined(AGNUC)
 #define APACKED __attribute__((packed))
+#define AINLINE static inline
 #endif
 
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]

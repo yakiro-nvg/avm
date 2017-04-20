@@ -28,12 +28,12 @@ static const uint8_t CHUNK_HEADER[] = {
 };
 ASTATIC_ASSERT(sizeof(CHUNK_HEADER) == 12);
 
-static inline void* arealloc(aasm_t* self, void* old, int32_t sz)
+AINLINE void* arealloc(aasm_t* self, void* old, int32_t sz)
 {
     return self->realloc(self->realloc_ud, old, sz);
 }
 
-static inline int32_t required_size(
+AINLINE int32_t required_size(
     int32_t max_instructions,
     uint8_t max_constants,
     uint8_t max_imports,
@@ -46,26 +46,26 @@ static inline int32_t required_size(
         max_nesteds * sizeof(int32_t);
 }
 
-static inline int32_t prototype_size(aasm_prototype_t* p)
+AINLINE int32_t prototype_size(aasm_prototype_t* p)
 {
     return required_size(
         p->max_instructions, p->max_constants, p->max_imports, p->max_nesteds);
 }
 
-static inline ainstruction_t* instructions(aasm_prototype_t* p)
+AINLINE ainstruction_t* instructions(aasm_prototype_t* p)
 {
     uint8_t* pc = (uint8_t*)p;
     return (ainstruction_t*)(pc + sizeof(*p));
 }
 
-static inline aconstant_t* constants(aasm_prototype_t* p)
+AINLINE aconstant_t* constants(aasm_prototype_t* p)
 {
     uint8_t* pc = (uint8_t*)p;
     return (aconstant_t*)(pc + sizeof(*p) +
         p->max_instructions * sizeof(ainstruction_t));
 }
 
-static inline aimport_t* imports(aasm_prototype_t* p)
+AINLINE aimport_t* imports(aasm_prototype_t* p)
 {
     uint8_t* pc = (uint8_t*)p;
     return (aimport_t*)(pc + sizeof(*p) +
@@ -73,7 +73,7 @@ static inline aimport_t* imports(aasm_prototype_t* p)
         p->max_constants * sizeof(aconstant_t));
 }
 
-static inline int32_t* nesteds(aasm_prototype_t* p)
+AINLINE int32_t* nesteds(aasm_prototype_t* p)
 {
     uint8_t* pc = (uint8_t*)p;
     return (int32_t*)(pc + sizeof(*p) +
@@ -82,7 +82,7 @@ static inline int32_t* nesteds(aasm_prototype_t* p)
         p->max_imports * sizeof(aimport_t));
 }
 
-static inline aasm_current_t resolve(aasm_prototype_t* p)
+AINLINE aasm_current_t resolve(aasm_prototype_t* p)
 {
     aasm_current_t cur;
     cur.instructions = instructions(p);
@@ -158,7 +158,7 @@ static int32_t new_prototype(
     return poff;
 }
 
-static inline int32_t new_prototype_default_size(aasm_t* self)
+AINLINE int32_t new_prototype_default_size(aasm_t* self)
 {
     return new_prototype(
         self,
@@ -168,7 +168,7 @@ static inline int32_t new_prototype_default_size(aasm_t* self)
         INIT_MAX_NESTEDS);
 }
 
-static inline aasm_ctx_t* ctx(aasm_t* self)
+AINLINE aasm_ctx_t* ctx(aasm_t* self)
 {
     return self->context + self->nested_level;
 }
@@ -210,7 +210,7 @@ static int32_t required_chunk_body_size(aasm_t* self, int32_t parent)
     return psz;
 }
 
-static inline aasm_current_t cp_resolve(aprototype_t* p, uint32_t strings_sz)
+AINLINE aasm_current_t cp_resolve(aprototype_t* p, uint32_t strings_sz)
 {
     aasm_current_t cur;
     cur.instructions = (ainstruction_t*)(((uint8_t*)p) + 
@@ -224,7 +224,7 @@ static inline aasm_current_t cp_resolve(aprototype_t* p, uint32_t strings_sz)
     return cur;
 }
 
-static inline int32_t chunk_add_str(
+AINLINE int32_t chunk_add_str(
     aasm_t* self, aprototype_t* header, astring_ref_t s)
 {
     uint32_t hash = any_st_to_hash(self->st, s);
