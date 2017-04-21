@@ -4,6 +4,7 @@
 #ifdef _MSC_VER
 #define AMSVC _MSC_VER
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
+#pragma warning(disable: 4127) // conditional expression is constant
 #elif defined(__clang__)
 #define ACLANG (((__clang_major__)*100) + \
     (__clang_minor__*10) + \
@@ -34,7 +35,7 @@
 
 #ifdef AMSVC
 #define APACKED
-#define AINLINE inline
+#define AINLINE __inline
 #elif defined(ACLANG) || defined(AGNUC)
 #define APACKED __attribute__((packed))
 #define AINLINE static inline

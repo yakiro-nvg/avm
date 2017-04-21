@@ -110,60 +110,64 @@ int32_t any_st_pack(astring_table_t* self)
 
 astring_ref_t any_st_to_ref(astring_table_t* self, const char* s)
 {
-    // "" maps to 0
-    if (!*s) return 0;
+    if (*s) {
+        const ahash_and_length_t hl = ahash_and_length(s);
+        char* const strs = strings(self);
 
-    const ahash_and_length_t hl = ahash_and_length(s);
-    char* const strs = strings(self);
+        hash_slot_t* ht = hashtable(self);
+        int32_t i = hl.hash % self->num_hash_slots;
+        while (ht[i].offset) {
+            if (strcmp(s, strs + ht[i].offset + sizeof(uint32_t)) == 0)
+                return ht[i].offset;
+            i = (i + 1) % self->num_hash_slots;
+        }
 
-    hash_slot_t* const ht = hashtable(self);
-    int32_t i = hl.hash % self->num_hash_slots;
-    while (ht[i].offset) {
-        if (strcmp(s, strs + ht[i].offset + sizeof(uint32_t)) == 0) 
-            return ht[i].offset;
-        i = (i + 1) % self->num_hash_slots;
+        if (self->count + 1 >= self->num_hash_slots)
+            return AERR_FULL;
+
+        if ((float)self->num_hash_slots / (float)(self->count + 1) < HASH_FACTOR)
+            return AERR_FULL;
+
+        char* const dest = strs + self->string_bytes;
+        if (self->string_bytes + (int)sizeof(uint32_t)+hl.length + 1 >
+            available_string_bytes(self)) {
+            return AERR_FULL;
+        } else {
+            const astring_ref_t ref = self->string_bytes;
+            ht[i].offset = ref;
+            self->count++;
+            *(uint32_t*)dest = hl.hash;
+            memcpy(dest + sizeof(uint32_t), s, hl.length + 1);
+            self->string_bytes += sizeof(uint32_t)+hl.length + 1;
+            return ref;
+        }
+    } else {
+        // "" maps to 0
+        return 0;
     }
-
-    if (self->count + 1 >= self->num_hash_slots)
-        return AERR_FULL;
-
-    if ((float)self->num_hash_slots / (float)(self->count + 1) < HASH_FACTOR)
-        return AERR_FULL;
-
-    char* const dest = strs + self->string_bytes;
-    if (self->string_bytes + (int)sizeof(uint32_t) + hl.length + 1 > 
-        available_string_bytes(self))
-        return AERR_FULL;
-
-    const astring_ref_t ref = self->string_bytes;
-    ht[i].offset = ref;
-    self->count++;
-    *(uint32_t*)dest = hl.hash;
-    memcpy(dest + sizeof(uint32_t), s, hl.length + 1);
-    self->string_bytes += sizeof(uint32_t) + hl.length + 1;
-    return ref;
 }
 
 astring_ref_t any_st_to_ref_const(const astring_table_t* self, const char* s)
 {
-    astring_table_t* st = (astring_table_t*)self;
+    if (*s) {
+        astring_table_t* st = (astring_table_t*)self;
+        const ahash_and_length_t hl = ahash_and_length(s);
+        const char* const strs = strings(st);
 
-    // "" maps to 0
-    if (!*s) return 0;
+        int32_t i = 0;
+        const hash_slot_t* const ht = hashtable(st);
+        i = hl.hash % st->num_hash_slots;
+        while (ht[i].offset) {
+            if (strcmp(s, strs + ht[i].offset + sizeof(uint32_t)) == 0)
+                return ht[i].offset;
+            i = (i + 1) % st->num_hash_slots;
+        }
 
-    const ahash_and_length_t hl = ahash_and_length(s);
-    const char* const strs = strings(st);
-
-    int32_t i = 0;
-    const hash_slot_t* const ht = hashtable(st);
-    i = hl.hash % st->num_hash_slots;
-    while (ht[i].offset) {
-        if (strcmp(s, strs + ht[i].offset + sizeof(uint32_t)) == 0) 
-            return ht[i].offset;
-        i = (i + 1) % st->num_hash_slots;
+        return AERR_FULL;
+    } else {
+        // "" maps to 0
+        return 0;
     }
-
-    return AERR_FULL;
 }
 
 const char* any_st_to_string(astring_table_t* self, astring_ref_t ref)

@@ -409,10 +409,13 @@ int32_t any_asm_load(aasm_t* self, achunk_t* input)
     self->num_slots = 1;
 
     if (!input) return AERR_NONE;
-    if (memcmp(CHUNK_HEADER, input, sizeof(CHUNK_HEADER)) != 0) return AERR_BAD;
-    int32_t offset = sizeof(CHUNK_HEADER);
-    load_chunk(self, input, &offset);
-    return AERR_NONE;
+    if (memcmp(CHUNK_HEADER, input, sizeof(CHUNK_HEADER)) == 0) {
+        int32_t offset = sizeof(CHUNK_HEADER);
+        load_chunk(self, input, &offset);
+        return AERR_NONE;
+    } else {
+        return AERR_BAD;
+    }
 }
 
 void any_asm_save(aasm_t* self)
@@ -566,10 +569,13 @@ astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
     astring_ref_t ref = AERR_FULL;
     do {
         ref = any_st_to_ref(self->st, s);
-        if (ref != AERR_FULL) break;
-        int32_t new_cap = self->st->allocated_bytes * GROW_FACTOR;
-        self->st = (astring_table_t*)arealloc(self, self->st, new_cap);
-        any_st_grow(self->st, new_cap);
+        if (ref == AERR_FULL) {
+            int32_t new_cap = self->st->allocated_bytes * GROW_FACTOR;
+            self->st = (astring_table_t*)arealloc(self, self->st, new_cap);
+            any_st_grow(self->st, new_cap);
+        } else {
+            break;
+        }
     } while (TRUE);
     return ref;
 }
