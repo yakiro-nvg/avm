@@ -52,33 +52,33 @@ AINLINE int32_t prototype_size(const aasm_prototype_t* p)
         p->max_instructions, p->max_constants, p->max_imports, p->max_nesteds);
 }
 
-AINLINE ainstruction_t* instructions(aasm_prototype_t* p)
+AINLINE ainstruction_t* instructions_of(aasm_prototype_t* p)
 {
     uint8_t* const pc = (uint8_t*)p;
     return (ainstruction_t*)(pc + sizeof(*p));
 }
 
-AINLINE const ainstruction_t* instructions_const(const aasm_prototype_t* p)
+AINLINE const ainstruction_t* instructions_of_const(const aasm_prototype_t* p)
 {
     const uint8_t* const pc = (const uint8_t*)p;
     return (const ainstruction_t*)(pc + sizeof(*p));
 }
 
-AINLINE aconstant_t* constants(aasm_prototype_t* p)
+AINLINE aconstant_t* constants_of(aasm_prototype_t* p)
 {
     uint8_t* const pc = (uint8_t*)p;
     return (aconstant_t*)(pc + sizeof(*p) +
         p->max_instructions * sizeof(ainstruction_t));
 }
 
-AINLINE const aconstant_t* constants_const(const aasm_prototype_t* p)
+AINLINE const aconstant_t* constants_of_const(const aasm_prototype_t* p)
 {
     const uint8_t* const pc = (const uint8_t*)p;
     return (const aconstant_t*)(pc + sizeof(*p) +
         p->max_instructions * sizeof(ainstruction_t));
 }
 
-AINLINE aimport_t* imports(aasm_prototype_t* p)
+AINLINE aimport_t* imports_of(aasm_prototype_t* p)
 {
     uint8_t* const pc = (uint8_t*)p;
     return (aimport_t*)(pc + sizeof(*p) +
@@ -86,7 +86,7 @@ AINLINE aimport_t* imports(aasm_prototype_t* p)
         p->max_constants * sizeof(aconstant_t));
 }
 
-AINLINE const aimport_t* imports_const(const aasm_prototype_t* p)
+AINLINE const aimport_t* imports_of_const(const aasm_prototype_t* p)
 {
     const uint8_t* const pc = (const uint8_t*)p;
     return (aimport_t*)(pc + sizeof(*p) +
@@ -94,7 +94,7 @@ AINLINE const aimport_t* imports_const(const aasm_prototype_t* p)
         p->max_constants * sizeof(aconstant_t));
 }
 
-AINLINE int32_t* nesteds(aasm_prototype_t* p)
+AINLINE int32_t* nesteds_of(aasm_prototype_t* p)
 {
     uint8_t* const pc = (uint8_t*)p;
     return (int32_t*)(pc + sizeof(*p) +
@@ -103,7 +103,7 @@ AINLINE int32_t* nesteds(aasm_prototype_t* p)
         p->max_imports * sizeof(aimport_t));
 }
 
-AINLINE const int32_t* nesteds_const(const aasm_prototype_t* p)
+AINLINE const int32_t* nesteds_of_const(const aasm_prototype_t* p)
 {
     const uint8_t* const pc = (const uint8_t*)p;
     return (int32_t*)(pc + sizeof(*p) +
@@ -115,10 +115,10 @@ AINLINE const int32_t* nesteds_const(const aasm_prototype_t* p)
 AINLINE aasm_current_t resolve(aasm_prototype_t* p)
 {
     aasm_current_t cur;
-    cur.instructions = instructions(p);
-    cur.constants = constants(p);
-    cur.imports = imports(p);
-    cur.nesteds = nesteds(p);
+    cur.instructions = instructions_of(p);
+    cur.constants = constants_of(p);
+    cur.imports = imports_of(p);
+    cur.nesteds = nesteds_of(p);
     return cur;
 }
 
@@ -139,7 +139,7 @@ static int32_t gc(
 
     // recursive for childs
     for (i = 0; i < p->num_nesteds; ++i) {
-        int32_t n = nesteds(p)[i];
+        int32_t n = nesteds_of(p)[i];
         offset = gc(self, new_buff, offset, n);
     }
 
@@ -258,7 +258,7 @@ static int32_t compute_chunk_body_size(
         p->num_nesteds * sizeof(int32_t);
 
     for (i = 0; i < p->num_nesteds; ++i) {
-        psz += compute_chunk_body_size(self, nesteds(p)[i]);
+        psz += compute_chunk_body_size(self, nesteds_of(p)[i]);
     }
 
     return psz;
@@ -400,7 +400,7 @@ static void load_chunk(
     ap->num_local_vars = p->num_local_vars;
 
     memcpy(
-        instructions(ap),
+        instructions_of(ap),
         cp.instructions,
         p->num_instructions * sizeof(ainstruction_t));
     ap->num_instructions = p->num_instructions;
@@ -444,7 +444,7 @@ AINLINE int32_t push_unsafe(aasm_t* self)
 
     self->slots[np] = np_off;
     assert(p->num_nesteds < p->max_nesteds);
-    nesteds(p)[p->num_nesteds] = np;
+    nesteds_of(p)[p->num_nesteds] = np;
 
     assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
     self->nested_level++;
@@ -547,7 +547,7 @@ int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction)
     }
 
     assert(p->num_instructions < p->max_instructions);
-    instructions(p)[p->num_instructions] = instruction;
+    instructions_of(p)[p->num_instructions] = instruction;
     return p->num_instructions++;
 }
 
@@ -566,7 +566,7 @@ int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant)
     }
 
     assert(p->num_constants < p->max_constants);
-    constants(p)[p->num_constants] = constant;
+    constants_of(p)[p->num_constants] = constant;
     return p->num_constants++;
 }
 
@@ -585,7 +585,7 @@ int32_t any_asm_add_import(aasm_t* self, aimport_t import)
     }
 
     assert(p->num_imports < p->max_imports);
-    imports(p)[p->num_imports] = import;
+    imports_of(p)[p->num_imports] = import;
     return p->num_imports++;
 }
 
@@ -609,7 +609,7 @@ void any_asm_open(aasm_t* self, int32_t idx)
     assert(idx < p->num_nesteds);
     assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
     self->nested_level++;
-    self->context[self->nested_level].slot = nesteds(p)[idx];
+    self->context[self->nested_level].slot = nesteds_of(p)[idx];
     self->context[self->nested_level].idx = idx;
 }
 
@@ -668,20 +668,20 @@ void any_asm_reserve(
         np->num_nesteds = cp->num_nesteds;
 
         memcpy(
-            instructions(np),
-            instructions_const(cp),
+            instructions_of(np),
+            instructions_of_const(cp),
             cp->num_instructions * sizeof(ainstruction_t));
         memcpy(
-            constants(np),
-            constants_const(cp),
+            constants_of(np),
+            constants_of_const(cp),
             cp->num_constants * sizeof(aconstant_t));
         memcpy(
-            imports(np),
-            imports_const(cp),
+            imports_of(np),
+            imports_of_const(cp),
             cp->num_imports * sizeof(aimport_t));
         memcpy(
-            nesteds(np),
-            nesteds_const(cp),
+            nesteds_of(np),
+            nesteds_of_const(cp),
             cp->num_nesteds * sizeof(int32_t));
 
         self->slots[ctx(self)->slot] = np_off;
