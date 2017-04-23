@@ -349,8 +349,11 @@ typedef struct {
     int32_t string_bytes;
 } astring_table_t;
 
-// We must have room for at leat one hash slot and one string.
-enum { ANY_ST_MIN_SIZE = sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1 };
+// We must have room for at least one hash slot and one string.
+enum {
+    ANY_ST_MIN_SIZE =
+    sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
+};
 
 // Constant types.
 enum {
@@ -437,7 +440,7 @@ AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 //
 // This struct represents the header portion of a function prototype. Each
 // prototype is self-contained and relocatable, all references are relative
-// to thier prototype header. That means we can safety copy a memory blob 
+// to their prototype header. That means we can safety copy a memory blob 
 // of prototype and move it around, save to and loaded from disk without any 
 // need for patching.
 //
@@ -543,12 +546,12 @@ typedef struct {
 // feature, a bytecode rewriter can always be added as an external tool.
 //
 // The assembler is context sensitive, which can be used to authoring multiple
-// prototypes with just only one single instance, in nested manner. Generlly, for 
+// prototypes with just only one single instance, in nested manner. Generally, for
 // each `any_asm_push` or `any_asm_open` a new context will be created for nested 
 // prototype, and that also saves the current context onto an internal stack, 
 // which can be restored later by a corresponding `any_asm_pop`.
 //
-// This struct itself isn't POD, then rely on `achunk_t` as the protable format
+// This struct itself isn't POD, then rely on `achunk_t` as the portable format
 // for exchanges. That format enable assembler as a *framework* to working with 
 // bytecode between optimization passes on various address space.
 typedef struct {
