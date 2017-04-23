@@ -14,7 +14,7 @@ ANY_API void any_asm_init(aasm_t* self, arealloc_t realloc, void* realloc_ud);
 // Load from an external `input` chunk. 
 // This function will not update `self->chunk`.
 // `input` can be NULL, to make an empty assembler.
-ANY_API int32_t any_asm_load(aasm_t* self, achunk_t* input);
+ANY_API int32_t any_asm_load(aasm_t* self, const achunk_t* input);
 
 // Update `self->chunk` to reflect the current state.
 ANY_API void any_asm_save(aasm_t* self);

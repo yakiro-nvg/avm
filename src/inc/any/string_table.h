@@ -38,12 +38,13 @@ ANY_API astring_ref_t any_st_to_ref_const(
 // Returns the string corresponding to the `ref`. Calling this with a
 // value which is not a ref returned by `any_st_to_ref` results in
 // undefined behavior.
-ANY_API const char* any_st_to_string(astring_table_t* self, astring_ref_t ref);
+ANY_API const char* any_st_to_string(
+    const astring_table_t* self, astring_ref_t ref);
 
 // Returns the hashed value corresponding the the `ref`. Calling this
 // with a value which is not a ref returned by `any_st_to_ref` results
 // in undefined behavior.
-ANY_API uint32_t any_st_to_hash(astring_table_t* self, astring_ref_t ref);
+ANY_API uint32_t any_st_to_hash(const astring_table_t* self, astring_ref_t ref);
 
 // Utility function to calculate the hash and length of string `s`.
 AINLINE ahash_and_length_t ahash_and_length(const char* s)
@@ -51,10 +52,10 @@ AINLINE ahash_and_length_t ahash_and_length(const char* s)
     // The hash function is borrowed from Lua.
     // Since we need to walk the entire string anyway for finding the
     // length, this is a decent hash function.
+    ahash_and_length_t result;
     uint32_t h = 0;
     const char* i = s;
     for (; *i; ++i) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*i);
-    ahash_and_length_t result;
     result.hash = h;
     result.length = i - s;
     return result;
