@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Welcome to Any-VM project &#8212; Any-VM 0.1.0 documentation</title>
+    <title>API Reference &#8212; Any-VM 0.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -26,25 +26,25 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="api.html" />
+    <link rel="prev" title="Bytecode" href="bytecode.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body role="document">
-    <header id="pageheader"><h1><a href="# ">
+    <header id="pageheader"><h1><a href="index.html ">
         Any-VM 0.1.0 documentation
     </a></h1></header>
   <div class="related top">
   <nav id="rellinks">
     <ul>
         <li>
-          <a href="api.html" title="Next document">API Reference</a>
-          &rarr;
+          &larr;
+          <a href="bytecode.html" title="Previous document">Bytecode</a>
         </li>
     </ul>
   </nav>
   <nav id="breadcrumbs">
     <ul>
-      <li><a href="#">Any-VM 0.1.0 documentation</a></li> 
+      <li><a href="index.html">Any-VM 0.1.0 documentation</a></li> 
     </ul>
   </nav>
   </div>  
@@ -54,29 +54,25 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="welcome-to-any-vm-project">
-<h1>Welcome to Any-VM project<a class="headerlink" href="#welcome-to-any-vm-project" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#string-table">String Table</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#bytecode-assembler">Bytecode Assembler</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="bytecode.html">Bytecode</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="bytecode.html#code-chunk">Code Chunk</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bytecode.html#function-prototype">Function Prototype</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bytecode.html#instruction-set">Instruction Set</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="memory.html">API Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="memory.html#basic">Basic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="memory.html#garbage-collector">Garbage Collector</a></li>
-<li class="toctree-l2"><a class="reference internal" href="memory.html#memory-allocators">Memory Allocators</a></li>
-</ul>
-</li>
-</ul>
+  <div class="section" id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="basic">
+<h2>Basic<a class="headerlink" href="#basic" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="garbage-collector">
+<h2>Garbage Collector<a class="headerlink" href="#garbage-collector" title="Permalink to this headline">¶</a></h2>
+<p>TODO</p>
+</div>
+<div class="section" id="memory-allocators">
+<h2>Memory Allocators<a class="headerlink" href="#memory-allocators" title="Permalink to this headline">¶</a></h2>
+<dl class="typedef">
+<dt id="c.arealloc_t">
+<span class="target" id="any-vmrt__types_8h_1a3a3e2fada06b77f154d5e433e60f572d"></span><em class="property">typedef </em>void*<code class="descname">(* arealloc_t)</code><span class="sig-paren">(</span>void<em>&nbsp;*userdata</em>, void<em>&nbsp;*old</em>, int32_t<em>&nbsp;sz</em><span class="sig-paren">)</span><a class="headerlink" href="#c.arealloc_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocator interface. </p>
+<p><code class="docutils literal"><span class="pre">old</span></code> = 0 to malloc, <code class="docutils literal"><span class="pre">sz</span></code> = 0 to free, otherwise realloc. </p>
+</dd></dl>
+
 </div>
 </div>
 
@@ -86,11 +82,21 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h4>Next topic</h4>
-  <p class="topless"><a href="api.html"
-                        title="next chapter">API Reference</a></p>
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">API Reference</a><ul>
+<li><a class="reference internal" href="#basic">Basic</a></li>
+<li><a class="reference internal" href="#garbage-collector">Garbage Collector</a></li>
+<li><a class="reference internal" href="#memory-allocators">Memory Allocators</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bytecode.html"
+                        title="previous chapter">Bytecode</a></p>
 <div class="sourcelink">
-  <a href="_sources/index.rst.txt" rel="nofollow">
+  <a href="_sources/memory.rst.txt" rel="nofollow">
     Show page source
   </a>
 </div>
@@ -113,14 +119,14 @@
   <nav id="rellinks">
     <ul>
         <li>
-          <a href="api.html" title="Next document">API Reference</a>
-          &rarr;
+          &larr;
+          <a href="bytecode.html" title="Previous document">Bytecode</a>
         </li>
     </ul>
   </nav>
   <nav id="breadcrumbs">
     <ul>
-      <li><a href="#">Any-VM 0.1.0 documentation</a></li> 
+      <li><a href="index.html">Any-VM 0.1.0 documentation</a></li> 
     </ul>
   </nav>
   </div>
