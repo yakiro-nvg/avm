@@ -31,10 +31,10 @@ static const uint8_t CHUNK_HEADER[] = {
 ASTATIC_ASSERT(sizeof(CHUNK_HEADER) == 12);
 
 static const aasm_reserve_t DEFAULT_PROTO_SZ = {
-    .max_instructions = INIT_MAX_INSTRUCTIONS,
-    .max_constants = INIT_MAX_CONSTANTS,
-    .max_imports = INIT_MAX_IMPORTS,
-    .max_nesteds = INIT_MAX_NESTEDS
+    INIT_MAX_INSTRUCTIONS,
+    INIT_MAX_CONSTANTS,
+    INIT_MAX_IMPORTS,
+    INIT_MAX_NESTEDS
 };
 
 AINLINE void* arealloc(aasm_t* self, void* old, const int32_t sz)
