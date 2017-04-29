@@ -444,6 +444,12 @@ AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 // of prototype and move it around, save to and loaded from disk without any 
 // need for patching.
 //
+// The first prototype in chunk is *module* prototype, which is unable to be
+// executed. There are no instructions, upvalues, arguments, constants, local
+// variables and imports in this kind of prototype. All nesteds of that also
+// be treated as module level functions. Which may have the `exported` field 
+// as the symbol name, that allow this to be imported by other modules.
+//
 // Memory layout:
 // - header 
 // - strings 
@@ -473,7 +479,7 @@ ASTATIC_ASSERT(sizeof(aprototype_t) == 28);
 
 // Bytecode chunk.
 //
-// Layout: [header] [prototypes].
+// Layout: [header] [module prototype].
 //
 // The header portion is not affected by endianess,
 // 4 bytes - signature:           0x416E7900

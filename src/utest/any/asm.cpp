@@ -229,7 +229,7 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
     }
 }
 
-TEST_CASE("asm_empty")
+TEST_CASE("asm_module")
 {
     aasm_t a;
     any_asm_init(&a, &realloc, NULL);
@@ -284,7 +284,14 @@ TEST_CASE("asm_nested")
             basic_check(&a, t);
             REQUIRE(j == any_asm_pop(&a));
         }
-        REQUIRE(PUSH_COUNT == any_asm_push(&a));
+        if (i == 0) {
+            REQUIRE(PUSH_COUNT == any_asm_module_push(&a, "module", "symbol"));
+            const aasm_prototype_t* p = any_asm_prototype(&a);
+            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->module_name), "module");
+            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->exported), "symbol");
+        } else {
+            REQUIRE(PUSH_COUNT == any_asm_push(&a));
+        }
     }
 
     for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {

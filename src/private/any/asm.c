@@ -589,6 +589,20 @@ int32_t any_asm_add_import(aasm_t* self, aimport_t import)
     return p->num_imports++;
 }
 
+int32_t any_asm_module_push(aasm_t* self, const char* module, const char* name)
+{
+    aasm_prototype_t* p = NULL;
+    int32_t idx = 0;
+    astring_ref_t module_name = any_asm_string_to_ref(self, module);
+    astring_ref_t symbol_name = any_asm_string_to_ref(self, name);
+    assert(self->nested_level == 0);
+    idx = any_asm_push(self);
+    p = any_asm_prototype(self);
+    p->module_name = module_name;
+    p->exported = symbol_name;
+    return idx;
+}
+
 int32_t any_asm_push(aasm_t* self)
 {
     const aasm_prototype_t* const p = any_asm_prototype(self);

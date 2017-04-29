@@ -35,6 +35,12 @@ ANY_API int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant);
 // returns the index of added import.
 ANY_API int32_t any_asm_add_import(aasm_t* self, aimport_t import);
 
+// Create nested prototype at top (module) level,
+// please refer to `any_asm_push`,
+// `name` is the symbol to be exported.
+ANY_API int32_t any_asm_module_push(
+    aasm_t* self, const char* module, const char* name);
+
 // Create nested prototype,
 // a new context will be pushed onto the stack,
 // returns the index of added prototype. 
@@ -49,7 +55,7 @@ ANY_API void any_asm_open(aasm_t* self, int32_t idx);
 ANY_API int32_t any_asm_pop(aasm_t* self);
 
 // Wrapper of `any_st_to_ref` to `self->st` string table, 
-// automatically grow if neccessary.
+// automatically grow if necessary.
 ANY_API astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s);
 
 // Extend prototype with more capacity.
