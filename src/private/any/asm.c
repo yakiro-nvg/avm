@@ -22,7 +22,7 @@ static const uint8_t CHUNK_HEADER[] = {
     ABIG_ENDIAN,
     sizeof(asize_t),
     sizeof(aint_t),
-    sizeof(afloat_t),
+    sizeof(areal_t),
     sizeof(ainstruction_t),
     0, 0 // reserved
 };

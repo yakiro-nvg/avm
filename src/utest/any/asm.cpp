@@ -40,7 +40,7 @@ typedef struct {
 
     aconstant_t cinteger;
     aconstant_t cstring;
-    aconstant_t cfloat;
+    aconstant_t creal;
 
     aimport_t imp0;
     aimport_t imp1;
@@ -86,11 +86,11 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(any_asm_string_to_ref(a, "test_const"));
-    t.cfloat = ac_float((afloat_t)rand());
+    t.creal = ac_real((areal_t)rand());
 
     REQUIRE(0 == any_asm_add_constant(a, t.cinteger));
     REQUIRE(1 == any_asm_add_constant(a, t.cstring));
-    REQUIRE(2 == any_asm_add_constant(a, t.cfloat));
+    REQUIRE(2 == any_asm_add_constant(a, t.creal));
 
     t.imp0 = aimport(
         any_asm_string_to_ref(a, "test_imp0_module"), 
@@ -159,8 +159,8 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.constants[0].i.val == t.cinteger.i.val);
     REQUIRE(c.constants[1].b.type == ACT_STRING);
     REQUIRE(c.constants[1].s.ref == t.cstring.s.ref);
-    REQUIRE(c.constants[2].b.type == ACT_FLOAT);
-    REQUIRE(c.constants[2].f.val == t.cfloat.f.val);
+    REQUIRE(c.constants[2].b.type == ACT_REAL);
+    REQUIRE(c.constants[2].r.val == t.creal.r.val);
 
     REQUIRE(p->num_imports == 3);
     REQUIRE(c.imports[0].module == t.imp0.module);
@@ -212,8 +212,8 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
                 any_st_to_string(a1->st, c1.constants[i].s.ref),
                 any_st_to_string(a2->st, c2.constants[i].s.ref));
             break;
-        case ACT_FLOAT:
-            REQUIRE(c1.constants[i].f.val == c2.constants[i].f.val);
+        case ACT_REAL:
+            REQUIRE(c1.constants[i].r.val == c2.constants[i].r.val);
             break;
         }
     }

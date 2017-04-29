@@ -7,7 +7,7 @@
 // Primitive types.
 typedef uint64_t asize_t;
 typedef int64_t aint_t;
-typedef double afloat_t;
+typedef double areal_t;
 
 // Opcodes.
 enum AOPCODE {
@@ -359,7 +359,7 @@ enum {
 enum {
     ACT_INTEGER,
     ACT_STRING,
-    ACT_FLOAT
+    ACT_REAL
 };
 
 #pragma pack(push, 1)
@@ -380,20 +380,20 @@ typedef union APACKED {
         uint32_t _;
         astring_ref_t ref;
     } s;
-    // ACT_FLOAT.
+    // ACT_REAL.
     struct {
         uint32_t _;
-        afloat_t val;
-    } f;
+        areal_t val;
+    } r;
 } aconstant_t;
 
 #pragma pack(pop)
 
 ASTATIC_ASSERT(sizeof(aconstant_t) == 
     sizeof(uint32_t) + 
-    (sizeof(aint_t) > sizeof(afloat_t) 
+    (sizeof(aint_t) > sizeof(areal_t)
         ? sizeof(aint_t)
-        : sizeof(afloat_t)));
+        : sizeof(areal_t)));
 
 // Constant constructors.
 AINLINE aconstant_t ac_integer(aint_t val)
@@ -412,11 +412,11 @@ AINLINE aconstant_t ac_string(astring_ref_t s)
     return c;
 }
 
-AINLINE aconstant_t ac_float(afloat_t val)
+AINLINE aconstant_t ac_real(areal_t val)
 {
     aconstant_t c;
-    c.b.type = ACT_FLOAT;
-    c.f.val = val;
+    c.b.type = ACT_REAL;
+    c.r.val = val;
     return c;
 }
 
@@ -587,3 +587,83 @@ enum {
     ANY_ASM_MAX_NESTED_LEVEL =
     (sizeof(((aasm_t*)0)->context) / sizeof(((aasm_t*)0)->context[0])) - 1
 };
+
+// Native function.
+typedef int32_t(*anative_func_t)(void*);
+
+// Collectable objects.
+typedef struct {
+    int32_t ref_count;
+} agc_object_t;
+
+// Basic value tags.
+enum {
+    AVT_NIL,
+    AVT_BOOL,
+    AVT_POINTER,
+    AVT_NUMBER,
+    AVT_STRING,
+    AVT_FUNCTION
+};
+
+// Variant tags for AVT_FUNCTION.
+enum {
+    AVT_CLOSURE,
+    AVT_NATIVE_FUNC,
+    AVT_NATIVE_CLOSURE
+};
+
+// Variant tags for AVT_NUMBER.
+enum {
+    AVT_INTEGER,
+    AVT_REAL
+};
+
+// Value tag.
+typedef struct {
+    int8_t tag;
+    int8_t variant;
+    int8_t collectable;
+    int8_t _;
+} avtag_t;
+
+// Tagged value.
+typedef struct {
+    avtag_t tag;
+    union {
+        // AVT_STRING,
+        // AVT_CLOSURE,
+        // AVT_NATIVE_CLOSURE.
+        agc_object_t* gc;
+        // AVT_BOOL.
+        int32_t b;
+        // AVT_POINTER.
+        void* p;
+        // AVT_INTEGER.
+        aint_t i;
+        // AVT_REAL.
+        areal_t r;
+        // AVT_NATIVE_FUNC.
+        anative_func_t f;
+    } v;
+} avalue_t;
+
+// AVT_STRING.
+typedef struct {
+    agc_object_t gc;
+    int32_t hash;
+    char cstr[1];
+} astring_t;
+
+// AVT_CLOSURE.
+typedef struct {
+    agc_object_t gc;
+    aprototype_t* proto;
+    int32_t* imports;
+} aclosure_t;
+
+// AVT_NATIVE_CLOSURE.
+typedef struct {
+    agc_object_t gc;
+    anative_func_t func;
+} anative_closure_t;
