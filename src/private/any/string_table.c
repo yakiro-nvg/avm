@@ -1,6 +1,8 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/string_table.h>
 
+#ifdef ANY_TOOL
+
 #include <assert.h>
 #include <string.h>
 #include <any/errno.h>
@@ -194,3 +196,7 @@ uint32_t any_st_to_hash(const astring_table_t* self, astring_ref_t ref)
 {
     return *(const uint32_t*)(strings_const(self) + ref);
 }
+
+#else // ANY_TOOL
+static char non_empty_unit;
+#endif

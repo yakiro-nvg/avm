@@ -10,6 +10,9 @@ newoption {
 
 solution "any-vm"
     configurations { "Debug", "Release" }
+    if _OPTIONS["with-tools"] then
+        defines { "ANY_TOOL=1" }
+    end
     if _ACTION == "xcode4" then
         platforms { "Universal" }
     else

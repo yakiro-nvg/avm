@@ -1,4 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+#ifdef ANY_TOOL
+
 #include <catch.hpp>
 
 #include <string.h>
@@ -76,3 +78,5 @@ TEST_CASE("string_table_grow")
 
     free(st);
 }
+
+#endif // ANY_TOOL

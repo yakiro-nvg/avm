@@ -1,4 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+#ifdef ANY_TOOL
+
 #include <catch.hpp>
 
 #include <stdlib.h>
@@ -32,7 +34,7 @@ typedef struct {
     ainstruction_t set_upvalue;
     ainstruction_t jump;
     ainstruction_t jin;
-    ainstruction_t call;
+    ainstruction_t invoke;
     ainstruction_t closure;
     ainstruction_t cap_local;
     ainstruction_t cap_upval;
@@ -58,7 +60,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.set_upvalue = ai_set_upvalue(rand());
     t.jump = ai_jump(rand());
     t.jin = ai_jump_if_not(rand());
-    t.call = ai_call(rand());
+    t.invoke = ai_invoke(rand());
     t.closure = ai_closure(rand());
     t.cap_local = ai_capture_local(rand());
     t.cap_upval = ai_capture_upvalue(rand());
@@ -77,7 +79,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(10 == any_asm_emit(a, t.set_upvalue));
     REQUIRE(11 == any_asm_emit(a, t.jump));
     REQUIRE(12 == any_asm_emit(a, t.jin));
-    REQUIRE(13 == any_asm_emit(a, t.call));
+    REQUIRE(13 == any_asm_emit(a, t.invoke));
     REQUIRE(14 == any_asm_emit(a, ai_return()));
     REQUIRE(15 == any_asm_emit(a, t.closure));
     REQUIRE(16 == any_asm_emit(a, t.cap_local));
@@ -115,44 +117,41 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     num_vs_capacity_check(p);
 
     REQUIRE(p->num_instructions == 19);
-    REQUIRE(c.instructions[0].base.opcode == AOC_NOP);
-    REQUIRE(c.instructions[1].base.opcode == AOC_POP);
+    REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
+    REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
-    REQUIRE(c.instructions[2].base.opcode == AOC_GET_CONST);
-    REQUIRE(c.instructions[2].get_const.idx == t.get_const.get_const.idx);
-    REQUIRE(c.instructions[3].base.opcode == AOC_GET_NIL);
-    REQUIRE(c.instructions[4].base.opcode == AOC_GET_BOOL);
-    REQUIRE(c.instructions[4].get_bool.val == TRUE);
-    REQUIRE(c.instructions[5].base.opcode == AOC_GET_BOOL);
-    REQUIRE(c.instructions[5].get_bool.val == FALSE);
-    REQUIRE(c.instructions[6].base.opcode == AOC_GET_LOCAL);
-    REQUIRE(c.instructions[6].get_local.idx == t.get_local.get_local.idx);
-    REQUIRE(c.instructions[7].base.opcode == AOC_SET_LOCAL);
-    REQUIRE(c.instructions[7].set_local.idx == t.set_local.set_local.idx);
-    REQUIRE(c.instructions[8].base.opcode == AOC_GET_IMPORT);
-    REQUIRE(c.instructions[8].get_import.idx == t.get_import.get_import.idx);
-    REQUIRE(c.instructions[9].base.opcode == AOC_GET_UPVALUE);
-    REQUIRE(c.instructions[9].get_upvalue.idx == t.get_upvalue.get_upvalue.idx);
-    REQUIRE(c.instructions[10].base.opcode == AOC_SET_UPVALUE);
-    REQUIRE(c.instructions[10].set_upvalue.idx == t.set_upvalue.set_upvalue.idx);
-    REQUIRE(c.instructions[11].base.opcode == AOC_JUMP);
-    REQUIRE(c.instructions[11].jump.displacement == t.jump.jump.displacement);
-    REQUIRE(c.instructions[12].base.opcode == AOC_JUMP_IF_NOT);
-    REQUIRE(c.instructions[12].jump_if_not.displacement ==
-        t.jin.jump_if_not.displacement);
-    REQUIRE(c.instructions[13].base.opcode == AOC_CALL);
-    REQUIRE(c.instructions[13].call.nargs == t.call.call.nargs);
-    REQUIRE(c.instructions[14].base.opcode == AOC_RETURN);
-    REQUIRE(c.instructions[15].base.opcode == AOC_CLOSURE);
-    REQUIRE(c.instructions[15].closure.idx == t.closure.closure.idx);
-    REQUIRE(c.instructions[16].base.opcode == AOC_CAPTURE_LOCAL);
-    REQUIRE(c.instructions[16].capture_local.idx ==
-        t.cap_local.capture_local.idx);
-    REQUIRE(c.instructions[17].base.opcode == AOC_CAPTURE_UPVALUE);
-    REQUIRE(c.instructions[17].capture_upvalue.idx ==
-        t.cap_upval.capture_upvalue.idx);
-    REQUIRE(c.instructions[18].base.opcode == AOC_CLOSE);
-    REQUIRE(c.instructions[18].close.offset == t.close.close.offset);
+    REQUIRE(c.instructions[2].b.opcode == AOC_GET_CONST);
+    REQUIRE(c.instructions[2].ldk.idx == t.get_const.ldk.idx);
+    REQUIRE(c.instructions[3].b.opcode == AOC_GET_NIL);
+    REQUIRE(c.instructions[4].b.opcode == AOC_GET_BOOL);
+    REQUIRE(c.instructions[4].ldb.val == TRUE);
+    REQUIRE(c.instructions[5].b.opcode == AOC_GET_BOOL);
+    REQUIRE(c.instructions[5].ldb.val == FALSE);
+    REQUIRE(c.instructions[6].b.opcode == AOC_GET_LOCAL);
+    REQUIRE(c.instructions[6].llv.idx == t.get_local.llv.idx);
+    REQUIRE(c.instructions[7].b.opcode == AOC_SET_LOCAL);
+    REQUIRE(c.instructions[7].slv.idx == t.set_local.slv.idx);
+    REQUIRE(c.instructions[8].b.opcode == AOC_GET_IMPORT);
+    REQUIRE(c.instructions[8].imp.idx == t.get_import.imp.idx);
+    REQUIRE(c.instructions[9].b.opcode == AOC_GET_UPVALUE);
+    REQUIRE(c.instructions[9].luv.idx == t.get_upvalue.luv.idx);
+    REQUIRE(c.instructions[10].b.opcode == AOC_SET_UPVALUE);
+    REQUIRE(c.instructions[10].suv.idx == t.set_upvalue.suv.idx);
+    REQUIRE(c.instructions[11].b.opcode == AOC_JUMP);
+    REQUIRE(c.instructions[11].jmp.displacement == t.jump.jmp.displacement);
+    REQUIRE(c.instructions[12].b.opcode == AOC_JUMP_IF_NOT);
+    REQUIRE(c.instructions[12].jin.displacement == t.jin.jin.displacement);
+    REQUIRE(c.instructions[13].b.opcode == AOC_INVOKE);
+    REQUIRE(c.instructions[13].ivk.nargs == t.invoke.ivk.nargs);
+    REQUIRE(c.instructions[14].b.opcode == AOC_RETURN);
+    REQUIRE(c.instructions[15].b.opcode == AOC_CLOSURE);
+    REQUIRE(c.instructions[15].cls.idx == t.closure.cls.idx);
+    REQUIRE(c.instructions[16].b.opcode == AOC_CAPTURE_LOCAL);
+    REQUIRE(c.instructions[16].clv.idx == t.cap_local.clv.idx);
+    REQUIRE(c.instructions[17].b.opcode == AOC_CAPTURE_UPVALUE);
+    REQUIRE(c.instructions[17].cuv.idx == t.cap_upval.cuv.idx);
+    REQUIRE(c.instructions[18].b.opcode == AOC_CLOSE);
+    REQUIRE(c.instructions[18].clo.offset == t.close.clo.offset);
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].b.type == ACT_INTEGER);
@@ -345,3 +344,5 @@ TEST_CASE("asm_save_load")
     any_asm_cleanup(&a1);
     any_asm_cleanup(&a2);
 }
+
+#endif // ANY_TOOL

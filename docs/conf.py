@@ -30,6 +30,8 @@ extensions = [
 # Breathe configs.
 breathe_projects = { 'any-vm': '.doxyxml/' }
 breathe_default_project = 'any-vm'
+breathe_domain_by_extension = { 'h': 'c' }
+breathe_default_members = ('members', 'undoc-members')
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['templates']
@@ -45,7 +47,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Any-VM'
-copyright = u'Copyright (c) 2017 Nguy\u1ec5n Vi\u1ec7t Giang. All rights reserved'
+copyright = u'2017 Nguy\u1ec5n Vi\u1ec7t Giang. All rights reserved'
 author = u'Nguy\u1ec5n Vi\u1ec7t Giang'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -81,7 +83,9 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+from better import better_theme_path
+html_theme_path = [better_theme_path]
+html_theme = 'better'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -125,7 +129,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Any-VM.tex', u'Any-VM Documentation',
+    (master_doc, 'Any-VM.tex', u'Any-VM',
      u'Nguy\u1ec5n Vi\u1ec7t Giang', 'manual'),
 ]
 
@@ -135,7 +139,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'any-vm', u'Any-VM Documentation',
+    (master_doc, 'any-vm', u'Any-VM',
      [author], 1)
 ]
 
@@ -146,7 +150,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Any-VM', u'Any-VM Documentation',
+    (master_doc, 'Any-VM', u'Any-VM',
      author, 'Any-VM', 'Concurrent oriented virtual machine.',
      'VM'),
 ]

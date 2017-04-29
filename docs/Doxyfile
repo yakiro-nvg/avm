@@ -1,12 +1,23 @@
-PROJECT_NAME      = "any-vm"
-XML_OUTPUT        = .doxyxml
-GENERATE_LATEX    = NO
-GENERATE_MAN      = NO
-GENERATE_RTF      = NO
-CASE_SENSE_NAMES  = NO
-INPUT             = ../src/inc
-RECURSIVE         = YES
-QUIET             = YES
-JAVADOC_AUTOBRIEF = YES
-GENERATE_HTML     = NO
-GENERATE_XML      = YES
+PROJECT_NAME          = "any-vm"
+XML_OUTPUT            = .doxyxml
+GENERATE_LATEX        = NO
+GENERATE_MAN          = NO
+GENERATE_RTF          = NO
+CASE_SENSE_NAMES      = YES
+INPUT                 = ../src/inc
+ENABLE_PREPROCESSING  = YES
+MACRO_EXPANSION       = YES
+RECURSIVE             = YES
+QUIET                 = YES
+JAVADOC_AUTOBRIEF     = YES
+GENERATE_HTML         = NO
+GENERATE_XML          = YES
+OPTIMIZE_OUTPUT_FOR_C = YES
+EXCLUDE_SYMBOLS       = _* 
+EXTRACT_ALL           = YES
+AUTOLINK_SUPPORT      = YES
+TYPEDEF_HIDES_STRUCT  = YES
+SHOW_INCLUDE_FILES    = YES
+ALIASES               = "rst=\verbatim embed:rst"
+ALIASES              += "endrst=\endverbatim"
+PREDEFINED            = ANY_TOOL ANY_API APACKED AINLINE

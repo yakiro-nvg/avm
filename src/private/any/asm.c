@@ -1,6 +1,8 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/asm.h>
 
+#ifdef ANY_TOOL
+
 #include <string.h>
 #include <assert.h>
 #include <any/string_table.h>
@@ -28,28 +30,35 @@ static const uint8_t CHUNK_HEADER[] = {
 };
 ASTATIC_ASSERT(sizeof(CHUNK_HEADER) == 12);
 
+static const aasm_reserve_t DEFAULT_PROTO_SZ = {
+    .max_instructions = INIT_MAX_INSTRUCTIONS,
+    .max_constants = INIT_MAX_CONSTANTS,
+    .max_imports = INIT_MAX_IMPORTS,
+    .max_nesteds = INIT_MAX_NESTEDS
+};
+
 AINLINE void* arealloc(aasm_t* self, void* old, const int32_t sz)
 {
     return self->realloc(self->realloc_ud, old, sz);
 }
 
-AINLINE int32_t required_size(
-    int32_t max_instructions,
-    uint8_t max_constants,
-    uint8_t max_imports,
-    int16_t max_nesteds)
+AINLINE int32_t required_size(const aasm_reserve_t* sz)
 {
     return sizeof(aasm_prototype_t) +
-        max_instructions * sizeof(ainstruction_t) +
-        max_constants * sizeof(aconstant_t) +
-        max_imports * sizeof(aimport_t) +
-        max_nesteds * sizeof(int32_t);
+        sz->max_instructions * sizeof(ainstruction_t) +
+        sz->max_constants * sizeof(aconstant_t) +
+        sz->max_imports * sizeof(aimport_t) +
+        sz->max_nesteds * sizeof(int32_t);
 }
 
 AINLINE int32_t prototype_size(const aasm_prototype_t* p)
 {
-    return required_size(
-        p->max_instructions, p->max_constants, p->max_imports, p->max_nesteds);
+    aasm_reserve_t sz;
+    sz.max_instructions = p->max_instructions;
+    sz.max_constants = p->max_constants;
+    sz.max_imports = p->max_imports;
+    sz.max_nesteds = p->max_nesteds;
+    return required_size(&sz);
 }
 
 AINLINE ainstruction_t* instructions_of(aasm_prototype_t* p)
@@ -133,11 +142,11 @@ static int32_t gc(
     memcpy(new_buff + offset, p, p_sz);
 
     // safe to update parent slot here
-    // there're no more dereferences to that during gc
-    self->slots[parent] = offset;
+    // there are no more dereferences to that during gc
+    self->_slots[parent] = offset;
     offset += p_sz;
 
-    // recursive for childs
+    // recursive for children
     for (i = 0; i < p->num_nesteds; ++i) {
         int32_t n = nesteds_of(p)[i];
         offset = gc(self, new_buff, offset, n);
@@ -150,63 +159,52 @@ static void grow_buff(aasm_t* self, int32_t expected)
 {
     uint8_t* new_buff = NULL;
 
-    expected += self->buff_size;
-    if (expected <= self->buff_capacity) return; 
+    expected += self->_buff_size;
+    if (expected <= self->_buff_capacity) return; 
     
-    assert(self->num_slots > 0 && "don't grow for root");
-    while (self->buff_capacity < expected) self->buff_capacity *= GROW_FACTOR;
-    new_buff = (uint8_t*)arealloc(self, NULL, self->buff_capacity);
+    assert(self->_num_slots > 0 && "don't grow for root");
+    while (self->_buff_capacity < expected) self->_buff_capacity *= GROW_FACTOR;
+    new_buff = (uint8_t*)arealloc(self, NULL, self->_buff_capacity);
 
-    self->buff_size = gc(self, new_buff, 0, 0);
-    arealloc(self, self->buff, 0);
-    self->buff = new_buff;
+    self->_buff_size = gc(self, new_buff, 0, 0);
+    arealloc(self, self->_buff, 0);
+    self->_buff = new_buff;
 }
 
 // Returns a new prototype offset, 
 // and guarantee that at least 1 free slot available.
-static int32_t new_prototype(
-    aasm_t* self,
-    int32_t max_instructions,
-    uint8_t max_constants,
-    uint8_t max_imports,
-    int16_t max_nesteds)
+static int32_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
 {
-    const int32_t poff = self->buff_size;
+    const int32_t poff = self->_buff_size;
     aasm_prototype_t* p = NULL;
-    const int32_t sz = required_size(
-        max_instructions, max_constants, max_imports, max_nesteds);
-    grow_buff(self, sz);
+    const int32_t rsz = required_size(sz);
+    grow_buff(self, rsz);
 
-    if (self->num_slots == self->max_slots) {
-        self->max_slots *= GROW_FACTOR;
-        self->slots = arealloc(
-            self, self->slots, self->max_slots * sizeof(int32_t));
+    if (self->_num_slots == self->_max_slots) {
+        self->_max_slots *= GROW_FACTOR;
+        self->_slots = arealloc(
+            self, self->_slots, self->_max_slots * sizeof(int32_t));
     }
 
-    p = (aasm_prototype_t*)(self->buff + poff);
-    memset(p, 0, sz);
-    p->max_instructions = max_instructions;
-    p->max_constants = max_constants;
-    p->max_imports = max_imports;
-    p->max_nesteds = max_nesteds;
-    self->buff_size += sz;
+    p = (aasm_prototype_t*)(self->_buff + poff);
+    memset(p, 0, rsz);
+    p->max_instructions = sz->max_instructions;
+    p->max_constants = sz->max_constants;
+    p->max_imports = sz->max_imports;
+    p->max_nesteds = sz->max_nesteds;
+    self->_buff_size += rsz;
 
     return poff;
 }
 
 AINLINE int32_t new_prototype_default_size(aasm_t* self)
 {
-    return new_prototype(
-        self,
-        INIT_MAX_INSTRUCTIONS,
-        INIT_MAX_CONSTANTS,
-        INIT_MAX_IMPORTS,
-        INIT_MAX_NESTEDS);
+    return new_prototype(self, &DEFAULT_PROTO_SZ);
 }
 
 AINLINE aasm_ctx_t* ctx(aasm_t* self)
 {
-    return self->context + self->nested_level;
+    return self->_context + self->_nested_level;
 }
 
 // Compute required size for strings.
@@ -242,8 +240,7 @@ AINLINE int32_t compute_strings_sz(
     return sz;
 }
 
-static int32_t compute_chunk_body_size(
-    const aasm_t* self, int32_t parent)
+static int32_t compute_chunk_body_size(const aasm_t* self, int32_t parent)
 {
     int32_t i = 0;
 
@@ -382,13 +379,14 @@ static void load_chunk(
     const aprototype_t* const p = (const aprototype_t*)(
         ((const uint8_t*)input) + *offset);
     const aasm_current_t cp = cp_resolve(p, p->strings_sz);
+    aasm_reserve_t sz;
 
-    any_asm_reserve(
-        self,
-        p->num_instructions,
-        p->num_constants,
-        p->num_imports,
-        p->num_nesteds);
+    sz.max_instructions = p->num_instructions;
+    sz.max_constants = p->num_constants;
+    sz.max_imports = p->num_imports;
+    sz.max_nesteds = p->num_nesteds;
+
+    any_asm_reserve(self, &sz);
     ap = any_asm_prototype(self);
 
     ap->source_name = any_asm_string_to_ref(self, cp_string(p, p->source_name));
@@ -439,17 +437,17 @@ static void load_chunk(
 AINLINE int32_t push_unsafe(aasm_t* self)
 {
     const int32_t np_off = new_prototype_default_size(self);
-    const int32_t np = self->num_slots++;
+    const int32_t np = self->_num_slots++;
     aasm_prototype_t* const p = any_asm_prototype(self);
 
-    self->slots[np] = np_off;
+    self->_slots[np] = np_off;
     assert(p->num_nesteds < p->max_nesteds);
     nesteds_of(p)[p->num_nesteds] = np;
 
-    assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
-    self->nested_level++;
-    self->context[self->nested_level].slot = np;
-    self->context[self->nested_level].idx = p->num_nesteds;
+    assert(self->_nested_level < ANY_ASM_MAX_NESTED_LEVEL);
+    self->_nested_level++;
+    self->_context[self->_nested_level].slot = np;
+    self->_context[self->_nested_level].idx = p->num_nesteds;
 
     return p->num_nesteds++;
 }
@@ -468,19 +466,15 @@ int32_t any_asm_load(aasm_t* self, const achunk_t* input)
     self->st = (astring_table_t*)arealloc(self, NULL, INIT_ST_BYTES);
     any_st_init(self->st, INIT_ST_BYTES, INIT_ST_SSIZE);
 
-    self->max_slots = INIT_SLOT_COUNT;
-    self->slots = (int32_t*)arealloc(
-        self, NULL, self->max_slots * sizeof(int32_t));
+    self->_max_slots = INIT_SLOT_COUNT;
+    self->_slots = (int32_t*)arealloc(
+        self, NULL, self->_max_slots * sizeof(int32_t));
 
-    self->buff_capacity = self->max_slots * required_size(
-        INIT_MAX_INSTRUCTIONS,
-        INIT_MAX_CONSTANTS,
-        INIT_MAX_IMPORTS,
-        INIT_MAX_NESTEDS);
-    self->buff = (uint8_t*)arealloc(self, NULL, self->buff_capacity);
+    self->_buff_capacity = self->_max_slots * required_size(&DEFAULT_PROTO_SZ);
+    self->_buff = (uint8_t*)arealloc(self, NULL, self->_buff_capacity);
 
-    self->slots[self->num_slots] = new_prototype_default_size(self);
-    self->num_slots = 1;
+    self->_slots[self->_num_slots] = new_prototype_default_size(self);
+    self->_num_slots = 1;
 
     if (!input) return AERR_NONE;
     if (memcmp(CHUNK_HEADER, input, sizeof(CHUNK_HEADER)) == 0) {
@@ -496,10 +490,10 @@ void any_asm_save(aasm_t* self)
 {
     const int32_t sz = compute_chunk_body_size(self, 0) + sizeof(CHUNK_HEADER);
     self->chunk_size = 0;
-    if (self->chunk_capacity < sz) {
+    if (self->_chunk_capacity < sz) {
         arealloc(self, self->chunk, 0);
         self->chunk = (achunk_t*)arealloc(self, NULL, sz);
-        self->chunk_capacity = sz;
+        self->_chunk_capacity = sz;
     }
 
     memcpy(self->chunk->header, CHUNK_HEADER, sizeof(CHUNK_HEADER));
@@ -514,35 +508,36 @@ void any_asm_cleanup(aasm_t* self)
     arealloc(self, self->st, 0);
     self->st = NULL;
 
-    arealloc(self, self->slots, 0);
-    self->slots = NULL;
-    self->num_slots = 0;
-    self->max_slots = 0;
+    arealloc(self, self->_slots, 0);
+    self->_slots = NULL;
+    self->_num_slots = 0;
+    self->_max_slots = 0;
 
-    arealloc(self, self->buff, 0);
-    self->buff = NULL;
-    self->buff_size = 0;
-    self->buff_capacity = 0;
+    arealloc(self, self->_buff, 0);
+    self->_buff = NULL;
+    self->_buff_size = 0;
+    self->_buff_capacity = 0;
 
-    memset(self->context, 0, sizeof(self->context));
-    self->nested_level = 0;
+    memset(self->_context, 0, sizeof(self->_context));
+    self->_nested_level = 0;
 
     arealloc(self, self->chunk, 0);
     self->chunk_size = 0;
-    self->chunk_capacity = 0;
+    self->_chunk_capacity = 0;
 }
 
 int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
+    aasm_reserve_t sz;
+
+    sz.max_instructions = p->max_instructions * GROW_FACTOR;
+    sz.max_constants = p->max_constants;
+    sz.max_imports = p->max_imports;
+    sz.max_nesteds = p->max_nesteds;
 
     if (p->num_instructions == p->max_instructions) {
-        any_asm_reserve(
-            self,
-            p->max_instructions * GROW_FACTOR,
-            p->max_constants,
-            p->max_imports,
-            p->max_nesteds);
+        any_asm_reserve(self, &sz);
         p = any_asm_prototype(self);
     }
 
@@ -554,14 +549,15 @@ int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction)
 int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
+    aasm_reserve_t sz;
+
+    sz.max_instructions = p->max_instructions;
+    sz.max_constants = p->max_constants * GROW_FACTOR;
+    sz.max_imports = p->max_imports;
+    sz.max_nesteds = p->max_nesteds;
 
     if (p->num_constants == p->max_constants) {
-        any_asm_reserve(
-            self,
-            p->max_instructions,
-            p->max_constants * GROW_FACTOR,
-            p->max_imports,
-            p->max_nesteds);
+        any_asm_reserve(self, &sz);
         p = any_asm_prototype(self);
     }
 
@@ -573,14 +569,15 @@ int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant)
 int32_t any_asm_add_import(aasm_t* self, aimport_t import)
 {
     aasm_prototype_t* p = any_asm_prototype(self);
+    aasm_reserve_t sz;
+
+    sz.max_instructions = p->max_instructions;
+    sz.max_constants = p->max_constants;
+    sz.max_imports = p->max_imports * GROW_FACTOR;
+    sz.max_nesteds = p->max_nesteds;
 
     if (p->num_imports == p->max_imports) {
-        any_asm_reserve(
-            self,
-            p->max_instructions,
-            p->max_constants,
-            p->max_imports * GROW_FACTOR,
-            p->max_nesteds);
+        any_asm_reserve(self, &sz);
         p = any_asm_prototype(self);
     }
 
@@ -595,7 +592,7 @@ int32_t any_asm_module_push(aasm_t* self, const char* module, const char* name)
     int32_t idx = 0;
     astring_ref_t module_name = any_asm_string_to_ref(self, module);
     astring_ref_t symbol_name = any_asm_string_to_ref(self, name);
-    assert(self->nested_level == 0);
+    assert(self->_nested_level == 0);
     idx = any_asm_push(self);
     p = any_asm_prototype(self);
     p->module_name = module_name;
@@ -605,15 +602,19 @@ int32_t any_asm_module_push(aasm_t* self, const char* module, const char* name)
 
 int32_t any_asm_push(aasm_t* self)
 {
-    const aasm_prototype_t* const p = any_asm_prototype(self);
+    const aasm_prototype_t* p = any_asm_prototype(self);
+    aasm_reserve_t sz;
+
+    sz.max_instructions = p->max_instructions;
+    sz.max_constants = p->max_constants;
+    sz.max_imports = p->max_imports;
+    sz.max_nesteds = p->max_nesteds * GROW_FACTOR;
+
     if (p->num_nesteds == p->max_nesteds) {
-        any_asm_reserve(
-            self,
-            p->max_instructions,
-            p->max_constants,
-            p->max_imports,
-            p->max_nesteds * GROW_FACTOR);
+        any_asm_reserve(self, &sz);
+        p = NULL;
     }
+
     return push_unsafe(self);
 }
 
@@ -621,18 +622,18 @@ void any_asm_open(aasm_t* self, int32_t idx)
 {
     aasm_prototype_t* const p = any_asm_prototype(self);
     assert(idx < p->num_nesteds);
-    assert(self->nested_level < ANY_ASM_MAX_NESTED_LEVEL);
-    self->nested_level++;
-    self->context[self->nested_level].slot = nesteds_of(p)[idx];
-    self->context[self->nested_level].idx = idx;
+    assert(self->_nested_level < ANY_ASM_MAX_NESTED_LEVEL);
+    self->_nested_level++;
+    self->_context[self->_nested_level].slot = nesteds_of(p)[idx];
+    self->_context[self->_nested_level].idx = idx;
 }
 
 int32_t any_asm_pop(aasm_t* self)
 {
     int32_t idx = 0;
-    assert(self->nested_level > 0);
-    idx = self->context[self->nested_level].idx;
-    self->nested_level--;
+    assert(self->_nested_level > 0);
+    idx = self->_context[self->_nested_level].idx;
+    self->_nested_level--;
     return idx;
 }
 
@@ -652,28 +653,18 @@ astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
     return ref;
 }
 
-void any_asm_reserve(
-    aasm_t* self,
-    int32_t max_instructions,
-    uint8_t max_constants,
-    uint8_t max_imports,
-    int16_t max_nesteds)
+void any_asm_reserve(aasm_t* self, const aasm_reserve_t* sz)
 {
     {
         const aasm_prototype_t* const p = any_asm_prototype(self);
-        if (p->max_instructions >= max_instructions &&
-            p->max_constants >= max_constants &&
-            p->max_imports >= max_imports &&
-            p->max_nesteds >= max_nesteds) return;
+        if (p->max_instructions >= sz->max_instructions &&
+            p->max_constants >= sz->max_constants &&
+            p->max_imports >= sz->max_imports &&
+            p->max_nesteds >= sz->max_nesteds) return;
     }
     {
-        const int32_t np_off = new_prototype(
-            self,
-            max_instructions,
-            max_constants,
-            max_imports,
-            max_nesteds);
-        aasm_prototype_t* const np = (aasm_prototype_t*)(self->buff + np_off);
+        const int32_t np_off = new_prototype(self, sz);
+        aasm_prototype_t* const np = (aasm_prototype_t*)(self->_buff + np_off);
         const aasm_prototype_t* const cp = any_asm_prototype(self);
 
         np->num_instructions = cp->num_instructions;
@@ -698,7 +689,7 @@ void any_asm_reserve(
             nesteds_of_const(cp),
             cp->num_nesteds * sizeof(int32_t));
 
-        self->slots[ctx(self)->slot] = np_off;
+        self->_slots[ctx(self)->slot] = np_off;
     }
 }
 
@@ -711,3 +702,7 @@ aasm_current_t any_asm_resolve(aasm_t* self)
 {
     return resolve(any_asm_prototype(self));
 }
+
+#else // ANY_TOOL
+static char non_empty_unit;
+#endif
