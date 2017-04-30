@@ -30,15 +30,9 @@ typedef struct {
     ainstruction_t get_local;
     ainstruction_t set_local;
     ainstruction_t get_import;
-    ainstruction_t get_upvalue;
-    ainstruction_t set_upvalue;
     ainstruction_t jump;
     ainstruction_t jin;
     ainstruction_t invoke;
-    ainstruction_t closure;
-    ainstruction_t cap_local;
-    ainstruction_t cap_upval;
-    ainstruction_t close;
 
     aconstant_t cinteger;
     aconstant_t cstring;
@@ -56,15 +50,9 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.get_local = ai_get_local(rand());
     t.set_local = ai_set_local(rand());
     t.get_import = ai_get_import(rand());
-    t.get_upvalue = ai_get_upvalue(rand());
-    t.set_upvalue = ai_set_upvalue(rand());
     t.jump = ai_jump(rand());
     t.jin = ai_jump_if_not(rand());
     t.invoke = ai_invoke(rand());
-    t.closure = ai_closure(rand());
-    t.cap_local = ai_capture_local(rand());
-    t.cap_upval = ai_capture_upvalue(rand());
-    t.close = ai_close(rand());
 
     REQUIRE(0 == any_asm_emit(a, ai_nop()));
     REQUIRE(1 == any_asm_emit(a, t.pop));
@@ -75,16 +63,10 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(6 == any_asm_emit(a, t.get_local));
     REQUIRE(7 == any_asm_emit(a, t.set_local));
     REQUIRE(8 == any_asm_emit(a, t.get_import));
-    REQUIRE(9 == any_asm_emit(a, t.get_upvalue));
-    REQUIRE(10 == any_asm_emit(a, t.set_upvalue));
-    REQUIRE(11 == any_asm_emit(a, t.jump));
-    REQUIRE(12 == any_asm_emit(a, t.jin));
-    REQUIRE(13 == any_asm_emit(a, t.invoke));
-    REQUIRE(14 == any_asm_emit(a, ai_return()));
-    REQUIRE(15 == any_asm_emit(a, t.closure));
-    REQUIRE(16 == any_asm_emit(a, t.cap_local));
-    REQUIRE(17 == any_asm_emit(a, t.cap_upval));
-    REQUIRE(18 == any_asm_emit(a, t.close));
+    REQUIRE(9 == any_asm_emit(a, t.jump));
+    REQUIRE(10 == any_asm_emit(a, t.jin));
+    REQUIRE(11 == any_asm_emit(a, t.invoke));
+    REQUIRE(12 == any_asm_emit(a, ai_return()));
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(any_asm_string_to_ref(a, "test_const"));
@@ -116,7 +98,7 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
     num_vs_capacity_check(p);
 
-    REQUIRE(p->num_instructions == 19);
+    REQUIRE(p->num_instructions == 13);
     REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
     REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
@@ -133,25 +115,13 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[7].slv.idx == t.set_local.slv.idx);
     REQUIRE(c.instructions[8].b.opcode == AOC_GET_IMPORT);
     REQUIRE(c.instructions[8].imp.idx == t.get_import.imp.idx);
-    REQUIRE(c.instructions[9].b.opcode == AOC_GET_UPVALUE);
-    REQUIRE(c.instructions[9].luv.idx == t.get_upvalue.luv.idx);
-    REQUIRE(c.instructions[10].b.opcode == AOC_SET_UPVALUE);
-    REQUIRE(c.instructions[10].suv.idx == t.set_upvalue.suv.idx);
-    REQUIRE(c.instructions[11].b.opcode == AOC_JUMP);
-    REQUIRE(c.instructions[11].jmp.displacement == t.jump.jmp.displacement);
-    REQUIRE(c.instructions[12].b.opcode == AOC_JUMP_IF_NOT);
-    REQUIRE(c.instructions[12].jin.displacement == t.jin.jin.displacement);
-    REQUIRE(c.instructions[13].b.opcode == AOC_INVOKE);
-    REQUIRE(c.instructions[13].ivk.nargs == t.invoke.ivk.nargs);
-    REQUIRE(c.instructions[14].b.opcode == AOC_RETURN);
-    REQUIRE(c.instructions[15].b.opcode == AOC_CLOSURE);
-    REQUIRE(c.instructions[15].cls.idx == t.closure.cls.idx);
-    REQUIRE(c.instructions[16].b.opcode == AOC_CAPTURE_LOCAL);
-    REQUIRE(c.instructions[16].clv.idx == t.cap_local.clv.idx);
-    REQUIRE(c.instructions[17].b.opcode == AOC_CAPTURE_UPVALUE);
-    REQUIRE(c.instructions[17].cuv.idx == t.cap_upval.cuv.idx);
-    REQUIRE(c.instructions[18].b.opcode == AOC_CLOSE);
-    REQUIRE(c.instructions[18].clo.offset == t.close.clo.offset);
+    REQUIRE(c.instructions[9].b.opcode == AOC_JUMP);
+    REQUIRE(c.instructions[9].jmp.displacement == t.jump.jmp.displacement);
+    REQUIRE(c.instructions[10].b.opcode == AOC_JUMP_IF_NOT);
+    REQUIRE(c.instructions[10].jin.displacement == t.jin.jin.displacement);
+    REQUIRE(c.instructions[11].b.opcode == AOC_INVOKE);
+    REQUIRE(c.instructions[11].ivk.nargs == t.invoke.ivk.nargs);
+    REQUIRE(c.instructions[12].b.opcode == AOC_RETURN);
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].b.type == ACT_INTEGER);

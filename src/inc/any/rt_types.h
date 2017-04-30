@@ -18,17 +18,10 @@ enum AOPCODE {
     AOC_GET_LOCAL       = 13,
     AOC_SET_LOCAL       = 14,
     AOC_GET_IMPORT      = 15,
-    AOC_GET_UPVALUE     = 16,
-    AOC_SET_UPVALUE     = 17,
     AOC_JUMP            = 30,
     AOC_JUMP_IF_NOT     = 31,
     AOC_INVOKE          = 40,
-    AOC_RETURN          = 41,
-    AOC_CLOSURE         = 42,
-    AOC_CAPTURE_LOCAL   = 43,
-    AOC_CAPTURE_UPVALUE = 44,
-    AOC_CLOSE           = 45,
-    AOC_LABEL           = 0xFF
+    AOC_RETURN          = 41
 };
 
 /** Base type.
@@ -155,34 +148,6 @@ typedef struct  {
     int32_t idx : 24;
 } ai_get_import_t;
 
-/** Push a value from upvalue pool at `idx` onto the stack.
-\rst
-===============  =======
-8 bits           24 bits
-===============  =======
-AOC_GET_UPVALUE  idx
-===============  =======
-\endrst
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t idx : 24;
-} ai_get_upvalue_t;
-
-/** Pop a value from the stack and set it into the upvalue pool at `idx`.
-\rst
-===============  =======
-8 bits           24 bits
-===============  =======
-AOC_SET_UPVALUE  idx
-===============  =======
-\endrst
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t idx : 24;
-} ai_set_upvalue_t;
-
 /** Unconditional jump, with signed `displacement`.
 \rst
 ========  ============
@@ -246,78 +211,6 @@ typedef struct {
     uint32_t _;
 } ai_return_t;
 
-/** Create a closure of prototype at `idx` from pool.
-
-\brief 
-There are pseudo-instruction which follow this instruction,
-that are used by VM to manage upvalues, either `AOC_CAPTURE_LOCAL`
-or `AOC_CAPTURE_UPVALE`.
-
-\rst
-===========  =======
-8 bits       24 bits
-===========  =======
-AOC_CLOSURE  idx
-===========  =======
-\endrst
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t idx : 24;
-} ai_closure_t;
-
-/** Pseudo-instruction for closure creating.
-\brief Capture a local value at `idx` from local pool.
-\rst
-=================  =======
-8 bits             24 bits
-=================  =======
-AOC_CAPTURE_LOCAL  idx
-=================  =======
-\endrst
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t idx : 24;
-} ai_capture_local_t;
-
-/** Pseudo-instruction for closure creating.
-\brief Capture a upvalue at `idx` from upvalue pool.
-\rst
-===================  =======
-8 bits               24 bits
-===================  =======
-AOC_CAPTURE_UPVALUE  idx
-===================  =======
-\endrst
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t idx : 24;
-} ai_capture_upvalue_t;
-
-/** Closes all local variables in the stack from `offset` onwards (>=).
-
-\brief 
-That's required if there are upvalues present within 
-those local vars, otherwise such values will go out 
-of scope and disappear.
-
-\rst
-=========  =======
-8 bits     24 bits
-=========  =======
-AOC_CLOSE  offset
-=========  =======
-\endrst
-
-\note AOC_RETURN also does an implicit AOC_CLOSE.
-*/
-typedef struct {
-    uint32_t _ : 8;
-    int32_t offset : 24;
-} ai_close_t;
-
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t            b;
@@ -329,16 +222,10 @@ typedef union {
     ai_get_local_t       llv;
     ai_set_local_t       slv;
     ai_get_import_t      imp;
-    ai_get_upvalue_t     luv;
-    ai_set_upvalue_t     suv;
     ai_jump_t            jmp;
     ai_jump_if_not_t     jin;
     ai_invoke_t          ivk;
     ai_return_t          ret;
-    ai_closure_t         cls;
-    ai_capture_local_t   clv;
-    ai_capture_upvalue_t cuv;
-    ai_close_t           clo;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -406,22 +293,6 @@ AINLINE ainstruction_t ai_get_import(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_get_upvalue(int32_t idx)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_GET_UPVALUE;
-    i.luv.idx = idx;
-    return i;
-}
-
-AINLINE ainstruction_t ai_set_upvalue(int32_t idx)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_SET_UPVALUE;
-    i.suv.idx = idx;
-    return i;
-}
-
 AINLINE ainstruction_t ai_jump(int32_t displacement)
 {
     ainstruction_t i;
@@ -453,38 +324,6 @@ AINLINE ainstruction_t ai_return()
     return i;
 }
 
-AINLINE ainstruction_t ai_closure(int32_t idx)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_CLOSURE;
-    i.cls.idx = idx;
-    return i;
-}
-
-AINLINE ainstruction_t ai_capture_local(int32_t idx)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_CAPTURE_LOCAL;
-    i.clv.idx = idx;
-    return i;
-}
-
-AINLINE ainstruction_t ai_capture_upvalue(int32_t idx)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_CAPTURE_UPVALUE;
-    i.cuv.idx = idx;
-    return i;
-}
-
-AINLINE ainstruction_t ai_close(int32_t offset)
-{
-    ainstruction_t i;
-    i.b.opcode = AOC_CLOSE;
-    i.clo.offset = offset;
-    return i;
-}
-
 // Forward declaration for prototype.
 struct aprototype_s;
 typedef struct aprototype_s aprototype_t;
@@ -502,11 +341,6 @@ typedef int32_t astring_ref_t;
 
 // Native function.
 typedef int32_t(*anative_func_t)(void*);
-
-// Collectable objects.
-typedef struct {
-    int32_t ref_count;
-} agc_object_t;
 
 // Basic value tags.
 enum {
@@ -540,14 +374,11 @@ typedef struct {
     int8_t _;
 } avtag_t;
 
-// Tagged value.
+/** Tagged value.
+*/
 typedef struct {
     avtag_t tag;
     union {
-        // AVT_STRING,
-        // AVT_CLOSURE,
-        // AVT_NATIVE_CLOSURE.
-        agc_object_t* gc;
         // AVT_BOOL.
         int32_t b;
         // AVT_POINTER.
@@ -773,23 +604,3 @@ typedef struct aprototype_s {
 } aprototype_t;
 
 ASTATIC_ASSERT(sizeof(aprototype_t) == 28 + sizeof(acurrent_t));
-
-// AVT_STRING.
-typedef struct {
-    agc_object_t gc;
-    int32_t hash;
-    char cstr[1];
-} astring_t;
-
-// AVT_CLOSURE.
-typedef struct {
-    agc_object_t gc;
-    aprototype_t* proto;
-    int32_t* imports;
-} aclosure_t;
-
-// AVT_NATIVE_CLOSURE.
-typedef struct {
-    agc_object_t gc;
-    anative_func_t func;
-} anative_closure_t;
