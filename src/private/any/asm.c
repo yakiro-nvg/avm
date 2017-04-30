@@ -63,62 +63,42 @@ AINLINE int32_t prototype_size(const aasm_prototype_t* p)
 
 AINLINE ainstruction_t* instructions_of(aasm_prototype_t* p)
 {
-    uint8_t* const pc = (uint8_t*)p;
-    return (ainstruction_t*)(pc + sizeof(*p));
+    return (ainstruction_t*)(p + 1);
 }
 
 AINLINE const ainstruction_t* instructions_of_const(const aasm_prototype_t* p)
 {
-    const uint8_t* const pc = (const uint8_t*)p;
-    return (const ainstruction_t*)(pc + sizeof(*p));
+    return (const ainstruction_t*)(p + 1);
 }
 
 AINLINE aconstant_t* constants_of(aasm_prototype_t* p)
 {
-    uint8_t* const pc = (uint8_t*)p;
-    return (aconstant_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t));
+    return (aconstant_t*)(instructions_of(p) + p->max_instructions);
 }
 
 AINLINE const aconstant_t* constants_of_const(const aasm_prototype_t* p)
 {
-    const uint8_t* const pc = (const uint8_t*)p;
-    return (const aconstant_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t));
+    return (const aconstant_t*)(instructions_of_const(p) + p->max_instructions);
 }
 
 AINLINE aimport_t* imports_of(aasm_prototype_t* p)
 {
-    uint8_t* const pc = (uint8_t*)p;
-    return (aimport_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t) +
-        p->max_constants * sizeof(aconstant_t));
+    return (aimport_t*)(constants_of(p) + p->max_constants);
 }
 
 AINLINE const aimport_t* imports_of_const(const aasm_prototype_t* p)
 {
-    const uint8_t* const pc = (const uint8_t*)p;
-    return (aimport_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t) +
-        p->max_constants * sizeof(aconstant_t));
+    return (const aimport_t*)(constants_of_const(p) + p->max_constants);
 }
 
 AINLINE int32_t* nesteds_of(aasm_prototype_t* p)
 {
-    uint8_t* const pc = (uint8_t*)p;
-    return (int32_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t) +
-        p->max_constants * sizeof(aconstant_t) +
-        p->max_imports * sizeof(aimport_t));
+    return (int32_t*)(imports_of(p) + p->max_imports);
 }
 
 AINLINE const int32_t* nesteds_of_const(const aasm_prototype_t* p)
 {
-    const uint8_t* const pc = (const uint8_t*)p;
-    return (int32_t*)(pc + sizeof(*p) +
-        p->max_instructions * sizeof(ainstruction_t) +
-        p->max_constants * sizeof(aconstant_t) +
-        p->max_imports * sizeof(aimport_t));
+    return (const int32_t*)(imports_of_const(p) + p->max_imports);
 }
 
 AINLINE acurrent_t resolve(aasm_prototype_t* p)
@@ -174,7 +154,7 @@ static void grow_buff(aasm_t* self, int32_t expected)
 // and guarantee that at least 1 free slot available.
 static int32_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
 {
-    int32_t poff = 0;
+    int32_t poff;
     aasm_prototype_t* p = NULL;
     const int32_t rsz = required_size(sz);
     grow_buff(self, rsz);
@@ -209,15 +189,15 @@ AINLINE aasm_ctx_t* ctx(aasm_t* self)
 
 // Compute required size for strings.
 AINLINE int32_t compute_strings_sz(
-    const astring_table_t* st, 
-    const aasm_prototype_t* p, 
+    const astring_table_t* st,
+    const aasm_prototype_t* p,
     const aconstant_t* constants,
     const aimport_t* imports)
 {
-    int32_t i = 0;
-    int32_t sz = 0;
+    int32_t i;
+    int32_t sz;
 
-    sz += sizeof(uint32_t) + 1 +
+    sz = sizeof(uint32_t) + 1 +
         strlen(any_st_to_string(st, p->source_name));
     sz += sizeof(uint32_t) + 1 +
         strlen(any_st_to_string(st, p->module_name));
@@ -242,7 +222,7 @@ AINLINE int32_t compute_strings_sz(
 
 static int32_t compute_chunk_body_size(const aasm_t* self, int32_t parent)
 {
-    int32_t i = 0;
+    int32_t i;
 
     aasm_prototype_t* const p = any_asm_prototype_at((aasm_t*)self, parent);
     const acurrent_t c = resolve(p);
@@ -264,14 +244,10 @@ static int32_t compute_chunk_body_size(const aasm_t* self, int32_t parent)
 AINLINE acurrent_t cp_resolve(const aprototype_t* p, uint32_t strings_sz)
 {
     acurrent_t c;
-    c.instructions = (ainstruction_t*)(((uint8_t*)p) +
-        sizeof(aprototype_t) + strings_sz);
-    c.constants = (aconstant_t*)(((uint8_t*)c.instructions) +
-        p->num_instructions * sizeof(ainstruction_t));
-    c.imports = (aimport_t*)(((uint8_t*)c.constants) +
-        p->num_constants * sizeof(aconstant_t));
-    c.nesteds = (int32_t*)(((uint8_t*)c.imports) +
-        p->num_imports * sizeof(aimport_t));
+    c.instructions = (ainstruction_t*)(((uint8_t*)(p + 1)) + strings_sz);
+    c.constants = (aconstant_t*)(c.instructions + p->num_instructions);
+    c.imports = (aimport_t*)(c.constants + p->num_constants);
+    c.nesteds = (int32_t*)(c.imports + p->num_imports);
     return c;
 }
 
@@ -315,7 +291,7 @@ static void copy_prototype(
     aprototype_t* const header, 
     int32_t strings_sz)
 {
-    int32_t i = 0;
+    int32_t i;
     const acurrent_t cp = cp_resolve(header, strings_sz);
 
     // add instructions
@@ -373,7 +349,7 @@ AINLINE const char* cp_string(const aprototype_t* p, astring_ref_t s)
 static void load_chunk(
     aasm_t* self, const achunk_t* input, int32_t* offset)
 {
-    int32_t i = 0;
+    int32_t i;
     aasm_prototype_t* ap = NULL;
     const aprototype_t* const p = (const aprototype_t*)(
         ((const uint8_t*)input) + *offset);
@@ -481,7 +457,7 @@ int32_t any_asm_load(aasm_t* self, const achunk_t* input)
         load_chunk(self, input, &offset);
         return AERR_NONE;
     } else {
-        return AERR_BAD;
+        return AERR_MALFORMED;
     }
 }
 
@@ -588,7 +564,7 @@ int32_t any_asm_add_import(aasm_t* self, aimport_t import)
 int32_t any_asm_module_push(aasm_t* self, const char* module, const char* name)
 {
     aasm_prototype_t* p = NULL;
-    int32_t idx = 0;
+    int32_t idx;
     astring_ref_t module_name = any_asm_string_to_ref(self, module);
     astring_ref_t symbol_name = any_asm_string_to_ref(self, name);
     assert(self->_nested_level == 0);
@@ -629,7 +605,7 @@ void any_asm_open(aasm_t* self, int32_t idx)
 
 int32_t any_asm_pop(aasm_t* self)
 {
-    int32_t idx = 0;
+    int32_t idx;
     assert(self->_nested_level > 0);
     idx = self->_context[self->_nested_level].idx;
     self->_nested_level--;
