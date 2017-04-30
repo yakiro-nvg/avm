@@ -184,8 +184,8 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
         any_st_to_string(a1->st, p1->module_name),
         any_st_to_string(a2->st, p2->module_name));
     REQUIRE_STR_EQUALS(
-        any_st_to_string(a1->st, p1->exported),
-        any_st_to_string(a2->st, p2->exported));
+        any_st_to_string(a1->st, p1->symbol),
+        any_st_to_string(a2->st, p2->symbol));
 
     REQUIRE(p1->num_upvalues == p2->num_upvalues);
     REQUIRE(p1->num_arguments == p2->num_arguments);
@@ -237,7 +237,7 @@ TEST_CASE("asm_module")
 
     REQUIRE(p->source_name == 0);
     REQUIRE(p->module_name == 0);
-    REQUIRE(p->exported == 0);
+    REQUIRE(p->symbol == 0);
     REQUIRE(p->num_instructions == 0);
     REQUIRE(p->num_upvalues == 0);
     REQUIRE(p->num_arguments == 0);
@@ -287,7 +287,7 @@ TEST_CASE("asm_nested")
             REQUIRE(PUSH_COUNT == any_asm_module_push(&a, "module", "symbol"));
             const aasm_prototype_t* p = any_asm_prototype(&a);
             REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->module_name), "module");
-            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->exported), "symbol");
+            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->symbol), "symbol");
         } else {
             REQUIRE(PUSH_COUNT == any_asm_push(&a));
         }

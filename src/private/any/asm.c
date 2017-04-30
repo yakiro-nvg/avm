@@ -222,7 +222,7 @@ AINLINE int32_t compute_strings_sz(
     sz += sizeof(uint32_t) + 1 +
         strlen(any_st_to_string(st, p->module_name));
     sz += sizeof(uint32_t) + 1 +
-        strlen(any_st_to_string(st, p->exported));
+        strlen(any_st_to_string(st, p->symbol));
 
     for (i = 0; i < p->num_constants; ++i) {
         if (constants[i].b.type != ACT_STRING) continue;
@@ -303,7 +303,7 @@ AINLINE void set_headers(
     header->num_imports = p->num_imports;
     header->source_name = chunk_add_str(self, header, p->source_name);
     header->module_name = chunk_add_str(self, header, p->module_name);
-    header->exported = chunk_add_str(self, header, p->exported);
+    header->symbol = chunk_add_str(self, header, p->symbol);
 }
 
 static void save_chunk(aasm_t* self, int32_t parent);
@@ -390,7 +390,7 @@ static void load_chunk(
 
     ap->source_name = any_asm_string_to_ref(self, cp_string(p, p->source_name));
     ap->module_name = any_asm_string_to_ref(self, cp_string(p, p->module_name));
-    ap->exported = any_asm_string_to_ref(self, cp_string(p, p->exported));
+    ap->symbol = any_asm_string_to_ref(self, cp_string(p, p->symbol));
     
     ap->num_upvalues = p->num_upvalues;
     ap->num_arguments = p->num_arguments;
@@ -595,7 +595,7 @@ int32_t any_asm_module_push(aasm_t* self, const char* module, const char* name)
     idx = any_asm_push(self);
     p = any_asm_prototype(self);
     p->module_name = module_name;
-    p->exported = symbol_name;
+    p->symbol = symbol_name;
     return idx;
 }
 

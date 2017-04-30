@@ -61,7 +61,7 @@ enum {
 typedef struct {
     astring_ref_t source_name;
     astring_ref_t module_name;
-    astring_ref_t exported;
+    astring_ref_t symbol;
     int32_t num_instructions;
     int32_t max_instructions;
     int16_t num_nesteds;
@@ -92,7 +92,7 @@ typedef struct {
 /** Bytecode assembler.
 
 \warning
-\ref aasm_prototype_t and \ref aasm_current_t are reserved for advanced purpose 
+\ref aasm_prototype_t and \ref acurrent_t are reserved for advanced purpose 
 like optimization, which provides direct access to the assembler internal. The 
 content of these structure may be relocated after a call to these following 
 functions, use it at your own risk:

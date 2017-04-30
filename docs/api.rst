@@ -18,7 +18,6 @@ Bytecode Assembler
 ==================
 .. doxygenstruct:: aasm_t
 .. doxygenstruct:: aasm_prototype_t
-.. doxygenstruct:: aasm_current_t
 .. doxygenstruct:: aasm_reserve_t
 .. doxygenfunction:: any_asm_init
 .. doxygenfunction:: any_asm_load

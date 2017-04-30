@@ -47,11 +47,11 @@ typedef struct {
 
 /** No operation
 \rst
-=======  ========
+=======  =======
 8 bits   24 bits
-=======  ========
-AOC_NOP  reserved
-=======  ========
+=======  =======
+AOC_NOP  _
+=======  =======
 \endrst
 */
 typedef struct {
@@ -88,11 +88,11 @@ typedef struct {
 
 /** Push a nil value onto the stack.
 \rst
-===========  ========
+===========  =======
 8 bits       24 bits
-===========  ========
-AOC_GET_NIL  reserved
-===========  ========
+===========  =======
+AOC_GET_NIL  _
+===========  =======
 \endrst
 */
 typedef struct {
@@ -235,11 +235,11 @@ typedef struct {
 /** Returning from a function call.
 \brief Top of the stack will be returned as result.
 \rst
-==========  ========
+==========  =======
 8 bits      24 bits
-==========  ========
-AOC_RETURN  reserved
-==========  ========
+==========  =======
+AOC_RETURN  _
+==========  =======
 \endrst
 */
 typedef struct {
@@ -318,7 +318,7 @@ typedef struct {
     int32_t offset : 24;
 } ai_close_t;
 
-// Variant of instruction types.
+/// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t            b;
     ai_nop_t             nop;
@@ -485,6 +485,10 @@ AINLINE ainstruction_t ai_close(int32_t offset)
     return i;
 }
 
+// Forward declaration for prototype.
+struct aprototype_s;
+typedef struct aprototype_s aprototype_t;
+
 /** Allocator interface.
 \brief
 `old` = 0 to malloc,
@@ -518,6 +522,7 @@ enum {
 enum {
     AVT_CLOSURE,
     AVT_NATIVE_FUNC,
+    AVT_MODULE_FUNC,
     AVT_NATIVE_CLOSURE
 };
 
@@ -553,91 +558,10 @@ typedef struct {
         areal_t r;
         // AVT_NATIVE_FUNC.
         anative_func_t f;
+        // AVT_MODULE_FUNC.
+        aprototype_t* mf;
     } v;
 } avalue_t;
-
-// Constant types.
-enum {
-    ACT_INTEGER,
-    ACT_STRING,
-    ACT_REAL
-};
-
-#pragma pack(push, 1)
-
-// Function constant.
-typedef union APACKED {
-    // Base type.
-    struct {
-        uint32_t type;
-    } b;
-    // ACT_INTEGER.
-    struct {
-        uint32_t _;
-        aint_t val;
-    } i;
-    //  ACT_STRING.
-    struct {
-        uint32_t _;
-        astring_ref_t ref;
-    } s;
-    // ACT_REAL.
-    struct {
-        uint32_t _;
-        areal_t val;
-    } r;
-} aconstant_t;
-
-#pragma pack(pop)
-
-ASTATIC_ASSERT(sizeof(aconstant_t) == 
-    sizeof(uint32_t) + 
-    (sizeof(aint_t) > sizeof(areal_t)
-        ? sizeof(aint_t)
-        : sizeof(areal_t)));
-
-// Constant constructors.
-AINLINE aconstant_t ac_integer(aint_t val)
-{
-    aconstant_t c;
-    c.b.type = ACT_INTEGER;
-    c.i.val = val;
-    return c;
-}
-
-AINLINE aconstant_t ac_string(astring_ref_t s)
-{
-    aconstant_t c;
-    c.b.type = ACT_STRING;
-    c.s.ref = s;
-    return c;
-}
-
-AINLINE aconstant_t ac_real(areal_t val)
-{
-    aconstant_t c;
-    c.b.type = ACT_REAL;
-    c.r.val = val;
-    return c;
-}
-
-// Function import.
-typedef struct {
-    astring_ref_t module;
-    astring_ref_t name;
-    avalue_t* resolved;
-} aimport_t;
-
-ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(void*));
-
-AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
-{
-    aimport_t i;
-    i.module = module;
-    i.name = name;
-    i.resolved = NULL;
-    return i;
-}
 
 #pragma pack(push, 1)
 
@@ -667,7 +591,7 @@ bytes  description          value
 1      size of integer      default 8 bytes
 1      size of float        default 8 bytes
 1      size of instruction  always 4
-2      reserved             always 0
+2      _                    _
 =====  ===================  ===================
 \endrst
 
@@ -680,6 +604,89 @@ typedef struct APACKED {
 #pragma pack(pop)
 
 ASTATIC_ASSERT(sizeof(achunk_t) == 12);
+
+// Constant types.
+enum {
+    ACT_INTEGER,
+    ACT_STRING,
+    ACT_REAL
+};
+
+#pragma pack(push, 1)
+
+/// Function constant.
+typedef union APACKED {
+    /// Base type.
+    struct ac_base_t {
+        uint32_t type;
+    } b;
+    /// ACT_INTEGER.
+    struct ac_integer_t {
+        uint32_t _;
+        aint_t val;
+    } i;
+    ///  ACT_STRING.
+    struct ac_string_t {
+        uint32_t _;
+        astring_ref_t ref;
+    } s;
+    /// ACT_REAL.
+    struct ac_real_t {
+        uint32_t _;
+        areal_t val;
+    } r;
+} aconstant_t;
+
+#pragma pack(pop)
+
+ASTATIC_ASSERT(sizeof(aconstant_t) ==
+    sizeof(uint32_t) +
+    (sizeof(aint_t) > sizeof(areal_t)
+        ? sizeof(aint_t)
+        : sizeof(areal_t)));
+
+// Constant constructors.
+AINLINE aconstant_t ac_integer(aint_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_INTEGER;
+    c.i.val = val;
+    return c;
+}
+
+AINLINE aconstant_t ac_string(astring_ref_t s)
+{
+    aconstant_t c;
+    c.b.type = ACT_STRING;
+    c.s.ref = s;
+    return c;
+}
+
+AINLINE aconstant_t ac_real(areal_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_REAL;
+    c.r.val = val;
+    return c;
+}
+
+/// Function import.
+typedef struct {
+    astring_ref_t module;
+    astring_ref_t name;
+    avalue_t* resolved;
+} aimport_t;
+
+ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(void*));
+
+AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
+{
+    aimport_t i;
+    i.module = module;
+    i.name = name;
+    i.resolved = NULL;
+    return i;
+}
 
 /// Resolved prototype pointers.
 typedef struct {
@@ -700,23 +707,60 @@ need for patching.
 
 The first prototype in chunk is `module prototype`, which is unable to be
 executed. There are no instructions, upvalues, arguments, constants, local
-variables and imports in this kind of prototype. All nesteds of that also
-be treated as module level functions. Which may have the `exported` field 
-as the symbol name, that allow this to be imported by other modules.
+variables and imports in this kind of prototype. All nesteds of that will
+be treated as `module function`. Which can't accept upvalues and will be 
+exported as the name specified in the `symbol` field. That allow such 
+functions to be imported later by other modules.
 
-Memory layout:
-- header 
-- strings 
-- instructions 
-- constants 
-- imports
-- nested_offsets
-- nesteds
+In AVM, there are two kind of string, `static` and `collectable`. Compile
+time strings are `static` and must be referenced by `astring_ref_t` which
+is just an offset to the dedicated **per prototype** string pool. We don't
+want to share these pools between prototype to make relocating trivial.
+
+To reduce the loading time and make memory management simpler, prototype
+must be able to loaded from the storages as-is by just a single read. No 
+more memory allocation are required. The prototype format itself reserved 
+few bytes to be used by the runtime. Remember that, despite being called 
+`bytecode`, we don't prefer polite and portable bytecode over performance 
+and simplicity. For each platform, you are expected to run the compiler 
+or rewriter again.The runtime is stupid and don't want to take challenges. 
+The best things that AVM runtime provides is just sandbox guarantees, by 
+prevent malformed bytecode to crash the system, nothing more.
+
+\par Memory layout:
+
+\rst
+====================================  ======================  =======
+bytes                                 description             scope
+====================================  ======================  =======
+4 signed                              source file name        _
+4 signed                              module name             _
+4 signed                              to be exported          _
+4 signed                              num of instructions     _
+4 signed                              num of string bytes     _
+2 signed                              num of nesteds          _
+1 unsigned                            num of upvalues         _
+1 unsigned                            num of arguments        _
+1 unsigned                            num of constants        _
+1 unsigned                            num of local variables  _
+1 unsigned                            num of imports          _
+1                                     _                       _
+sizeof(:c:type:`acurrent_t`)          resolved pointers       runtime
+num of string bytes                   pool of strings         _
+n * sizeof(:c:type:`ainstruction_t`)  pool of instructions    _
+n * sizeof(:c:type:`aconstant_t`)     pool of constants       _
+n * sizeof(:c:type:`aimport_t`)       pool of imports         _
+n * sizeof(int32_t)                   nested offsets          _
+_                                     nested prototypes       _
+====================================  ======================  =======
+\endrst
+
+\note Portions with `runtime scope` are reversed in compile time.
 */
-typedef struct {
+typedef struct aprototype_s {
     astring_ref_t source_name;
     astring_ref_t module_name;
-    astring_ref_t exported;
+    astring_ref_t symbol;
     int32_t num_instructions;
     int32_t strings_sz;
     int16_t num_nesteds;
