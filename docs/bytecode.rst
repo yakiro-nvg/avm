@@ -25,13 +25,7 @@ Instruction Set
 .. doxygenstruct:: ai_get_local_t
 .. doxygenstruct:: ai_set_local_t
 .. doxygenstruct:: ai_get_import_t
-.. doxygenstruct:: ai_get_upvalue_t
-.. doxygenstruct:: ai_set_upvalue_t
 .. doxygenstruct:: ai_jump_t
 .. doxygenstruct:: ai_jump_if_not_t
 .. doxygenstruct:: ai_invoke_t
 .. doxygenstruct:: ai_return_t
-.. doxygenstruct:: ai_closure_t
-.. doxygenstruct:: ai_capture_local_t
-.. doxygenstruct:: ai_capture_upvalue_t
-.. doxygenstruct:: ai_close_t

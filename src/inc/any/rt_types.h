@@ -324,10 +324,6 @@ AINLINE ainstruction_t ai_return()
     return i;
 }
 
-// Forward declaration for prototype.
-struct aprototype_s;
-typedef struct aprototype_s aprototype_t;
-
 /** Allocator interface.
 \brief
 `old` = 0 to malloc,
@@ -390,7 +386,7 @@ typedef struct {
         // AVT_NATIVE_FUNC.
         anative_func_t f;
         // AVT_MODULE_FUNC.
-        aprototype_t* mf;
+        struct aprototype_s* mf;
     } v;
 } avalue_t;
 
