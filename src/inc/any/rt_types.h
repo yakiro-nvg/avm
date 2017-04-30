@@ -493,14 +493,68 @@ otherwise realloc.
 */
 typedef void* (*arealloc_t)(void* userdata, void* old, int32_t sz);
 
-// Used by string table
-typedef struct {
-    uint32_t hash;
-    int32_t length;
-} ahash_and_length_t;
-
 // Reference to a string
 typedef int32_t astring_ref_t;
+
+// Native function.
+typedef int32_t(*anative_func_t)(void*);
+
+// Collectable objects.
+typedef struct {
+    int32_t ref_count;
+} agc_object_t;
+
+// Basic value tags.
+enum {
+    AVT_NIL,
+    AVT_BOOL,
+    AVT_POINTER,
+    AVT_NUMBER,
+    AVT_STRING,
+    AVT_FUNCTION
+};
+
+// Variant tags for AVT_FUNCTION.
+enum {
+    AVT_CLOSURE,
+    AVT_NATIVE_FUNC,
+    AVT_NATIVE_CLOSURE
+};
+
+// Variant tags for AVT_NUMBER.
+enum {
+    AVT_INTEGER,
+    AVT_REAL
+};
+
+// Value tag.
+typedef struct {
+    int8_t tag;
+    int8_t variant;
+    int8_t collectable;
+    int8_t _;
+} avtag_t;
+
+// Tagged value.
+typedef struct {
+    avtag_t tag;
+    union {
+        // AVT_STRING,
+        // AVT_CLOSURE,
+        // AVT_NATIVE_CLOSURE.
+        agc_object_t* gc;
+        // AVT_BOOL.
+        int32_t b;
+        // AVT_POINTER.
+        void* p;
+        // AVT_INTEGER.
+        aint_t i;
+        // AVT_REAL.
+        areal_t r;
+        // AVT_NATIVE_FUNC.
+        anative_func_t f;
+    } v;
+} avalue_t;
 
 // Constant types.
 enum {
@@ -571,15 +625,17 @@ AINLINE aconstant_t ac_real(areal_t val)
 typedef struct {
     astring_ref_t module;
     astring_ref_t name;
+    avalue_t* resolved;
 } aimport_t;
 
-ASTATIC_ASSERT(sizeof(aimport_t) == 8);
+ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(void*));
 
 AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;
     i.name = name;
+    i.resolved = NULL;
     return i;
 }
 
@@ -625,6 +681,14 @@ typedef struct APACKED {
 
 ASTATIC_ASSERT(sizeof(achunk_t) == 12);
 
+/// Resolved prototype pointers.
+typedef struct {
+    ainstruction_t* instructions;
+    aconstant_t* constants;
+    aimport_t* imports;
+    int32_t* nesteds;
+} acurrent_t;
+
 /** Function prototype.
 
 \brief
@@ -654,77 +718,17 @@ typedef struct {
     astring_ref_t module_name;
     astring_ref_t exported;
     int32_t num_instructions;
-    int16_t strings_sz;
+    int32_t strings_sz;
     int16_t num_nesteds;
     uint8_t num_upvalues;
     uint8_t num_arguments;
     uint8_t num_constants;
     uint8_t num_local_vars;
     uint8_t num_imports;
-    uint8_t _;
+    uint8_t _[1 + sizeof(acurrent_t)];
 } aprototype_t;
 
-ASTATIC_ASSERT(sizeof(aprototype_t) == 28);
-
-// Native function.
-typedef int32_t(*anative_func_t)(void*);
-
-// Collectable objects.
-typedef struct {
-    int32_t ref_count;
-} agc_object_t;
-
-// Basic value tags.
-enum {
-    AVT_NIL,
-    AVT_BOOL,
-    AVT_POINTER,
-    AVT_NUMBER,
-    AVT_STRING,
-    AVT_FUNCTION
-};
-
-// Variant tags for AVT_FUNCTION.
-enum {
-    AVT_CLOSURE,
-    AVT_NATIVE_FUNC,
-    AVT_NATIVE_CLOSURE
-};
-
-// Variant tags for AVT_NUMBER.
-enum {
-    AVT_INTEGER,
-    AVT_REAL
-};
-
-// Value tag.
-typedef struct {
-    int8_t tag;
-    int8_t variant;
-    int8_t collectable;
-    int8_t _;
-} avtag_t;
-
-// Tagged value.
-typedef struct {
-    avtag_t tag;
-    union {
-        // AVT_STRING,
-        // AVT_CLOSURE,
-        // AVT_NATIVE_CLOSURE.
-        agc_object_t* gc;
-        // AVT_BOOL.
-        int32_t b;
-        // AVT_POINTER.
-        void* p;
-        // AVT_INTEGER.
-        aint_t i;
-        // AVT_REAL.
-        areal_t r;
-        // AVT_NATIVE_FUNC.
-        anative_func_t f;
-    } v;
-} avalue_t;
+ASTATIC_ASSERT(sizeof(aprototype_t) == 28 + sizeof(acurrent_t));
 
 // AVT_STRING.
 typedef struct {

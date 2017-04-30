@@ -4,6 +4,12 @@
 
 #include <any/rt_types.h>
 
+// Used by string table.
+typedef struct {
+    uint32_t hash;
+    int32_t length;
+} ahash_and_length_t;
+
 /** String table.
 
 \warning
@@ -68,14 +74,6 @@ typedef struct {
     uint8_t num_imports;
     uint8_t max_imports;
 } aasm_prototype_t;
-
-/// Bytecode assembler current resolved pointers.
-typedef struct {
-    ainstruction_t* instructions;
-    aconstant_t* constants;
-    aimport_t* imports;
-    int32_t* nesteds;
-} aasm_current_t;
 
 /// Bytecode assembler context.
 typedef struct {

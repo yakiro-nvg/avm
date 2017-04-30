@@ -61,3 +61,7 @@
 #define AUNUSED(x) ((void)x)
 
 #define ABIG_ENDIAN 0
+
+#ifndef NULL
+#define NULL 0
+#endif
