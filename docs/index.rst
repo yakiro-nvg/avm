@@ -7,4 +7,5 @@ Welcome to Any-VM project
 
    api
    bytecode
+   runtime
    memory

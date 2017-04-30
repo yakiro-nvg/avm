@@ -15,17 +15,17 @@ Function Prototype
 
 Instruction Set
 ===============
-.. doxygenunion::  ainstruction_t
 .. doxygenstruct:: ai_base_t
 .. doxygenstruct:: ai_nop_t
 .. doxygenstruct:: ai_pop_t
-.. doxygenstruct:: ai_get_const_t
-.. doxygenstruct:: ai_get_nil_t
-.. doxygenstruct:: ai_get_bool_t
-.. doxygenstruct:: ai_get_local_t
-.. doxygenstruct:: ai_set_local_t
-.. doxygenstruct:: ai_get_import_t
-.. doxygenstruct:: ai_jump_t
-.. doxygenstruct:: ai_jump_if_not_t
-.. doxygenstruct:: ai_invoke_t
-.. doxygenstruct:: ai_return_t
+.. doxygenstruct:: ai_ldk_t
+.. doxygenstruct:: ai_nil_t
+.. doxygenstruct:: ai_ldb_t
+.. doxygenstruct:: ai_llv_t
+.. doxygenstruct:: ai_slv_t
+.. doxygenstruct:: ai_imp_t
+.. doxygenstruct:: ai_jmp_t
+.. doxygenstruct:: ai_jin_t
+.. doxygenstruct:: ai_ivk_t
+.. doxygenstruct:: ai_ret_t
+.. doxygenunion::  ainstruction_t

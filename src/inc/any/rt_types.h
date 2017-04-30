@@ -10,18 +10,18 @@ typedef double areal_t;
 
 // Specify the operation to be performed by the instructions.
 enum AOPCODE {
-    AOC_NOP             = 0,
-    AOC_POP             = 1,
-    AOC_GET_CONST       = 10,
-    AOC_GET_NIL         = 11,
-    AOC_GET_BOOL        = 12,
-    AOC_GET_LOCAL       = 13,
-    AOC_SET_LOCAL       = 14,
-    AOC_GET_IMPORT      = 15,
-    AOC_JUMP            = 30,
-    AOC_JUMP_IF_NOT     = 31,
-    AOC_INVOKE          = 40,
-    AOC_RETURN          = 41
+    AOC_NOP = 0,
+    AOC_POP = 1,
+    AOC_LDK = 10,
+    AOC_NIL = 11,
+    AOC_LDB = 12,
+    AOC_LLV = 13,
+    AOC_SLV = 14,
+    AOC_IMP = 15,
+    AOC_JMP = 30,
+    AOC_JIN = 31,
+    AOC_IVK = 40,
+    AOC_RET = 41
 };
 
 /** Base type.
@@ -67,115 +67,115 @@ typedef struct {
 
 /** Push a constant from const pool at `idx` onto the stack.
 \rst
-=============  =======
-8 bits         24 bits
-=============  =======
-AOC_GET_CONST  idx
-=============  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_LDK  idx
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t idx : 24;
-} ai_get_const_t;
+} ai_ldk_t;
 
 /** Push a nil value onto the stack.
 \rst
-===========  =======
-8 bits       24 bits
-===========  =======
-AOC_GET_NIL  _
-===========  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_NIL  _
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _;
-} ai_get_nil_t;
+} ai_nil_t;
 
 /** Push a bool value `val` onto the stack.
 \rst
-============  =======
-8 bits        24 bits
-============  =======
-AOC_GET_BOOL  val
-============  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_LDB  val
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t val : 8;
-} ai_get_bool_t;
+} ai_ldb_t;
 
 /** Push a value from local pool at `idx` onto the stack.
 \rst
-=============  =======
-8 bits         24 bits
-=============  =======
-AOC_GET_LOCAL  idx
-=============  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_LLV  idx
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t idx : 24;
-} ai_get_local_t;
+} ai_llv_t;
 
 /** Pop a value from the stack and set it into the local pool at `idx`.
 \rst
-=============  =======
-8 bits         24 bits
-=============  =======
-AOC_SET_LOCAL  idx
-=============  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_SLV  idx
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t idx : 24;
-} ai_set_local_t;
+} ai_slv_t;
 
 /** Push a value from import pool at `idx` onto the stack.
 \rst
-==============  =======
-8 bits          24 bits
-==============  =======
-AOC_GET_IMPORT  idx
-==============  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_IMP  idx
+=======  =======
 \endrst
 */
 typedef struct  {
     uint32_t _ : 8;
     int32_t idx : 24;
-} ai_get_import_t;
+} ai_imp_t;
 
 /** Unconditional jump, with signed `displacement`.
 \rst
-========  ============
-8 bits    24 bits
-========  ============
-AOC_JUMP  displacement
-========  ============
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_JMP  displacement
+=======  ============
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t displacement : 24;
-} ai_jump_t;
+} ai_jmp_t;
 
 /** Conditional jump, with signed `displacement`.
 \brief Pop a boolean value from the stack and jump if it's nil or false.
 \rst
-===============  ============
-8 bits           24 bits
-===============  ============
-AOC_JUMP_IF_NOT  displacement
-===============  ============
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_JIN  displacement
+=======  ============
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t displacement : 24;
-} ai_jump_if_not_t;
+} ai_jin_t;
 
 /** Function call.
 
@@ -185,47 +185,47 @@ then call it. The result will be pushed back onto the
 stack after that.
 
 \rst
-==========  =======
-8 bits      24 bits
-==========  =======
-AOC_INVOKE  nargs
-==========  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_IVK  nargs
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t nargs : 24;
-} ai_invoke_t;
+} ai_ivk_t;
 
 /** Returning from a function call.
 \brief Top of the stack will be returned as result.
 \rst
-==========  =======
-8 bits      24 bits
-==========  =======
-AOC_RETURN  _
-==========  =======
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_RET  _
+=======  =======
 \endrst
 */
 typedef struct {
     uint32_t _;
-} ai_return_t;
+} ai_ret_t;
 
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
-    ai_base_t            b;
-    ai_nop_t             nop;
-    ai_pop_t             pop;
-    ai_get_const_t       ldk;
-    ai_get_nil_t         nil;
-    ai_get_bool_t        ldb;
-    ai_get_local_t       llv;
-    ai_set_local_t       slv;
-    ai_get_import_t      imp;
-    ai_jump_t            jmp;
-    ai_jump_if_not_t     jin;
-    ai_invoke_t          ivk;
-    ai_return_t          ret;
+    ai_base_t b;
+    ai_nop_t nop;
+    ai_pop_t pop;
+    ai_ldk_t ldk;
+    ai_nil_t nil;
+    ai_ldb_t ldb;
+    ai_llv_t llv;
+    ai_slv_t slv;
+    ai_imp_t imp;
+    ai_jmp_t jmp;
+    ai_jin_t jin;
+    ai_ivk_t ivk;
+    ai_ret_t ret;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -246,81 +246,81 @@ AINLINE ainstruction_t ai_pop(int32_t n)
     return i;
 }
 
-AINLINE ainstruction_t ai_get_const(int32_t idx)
+AINLINE ainstruction_t ai_ldk(int32_t idx)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_GET_CONST;
+    i.b.opcode = AOC_LDK;
     i.ldk.idx = idx;
     return i;
 }
 
-AINLINE ainstruction_t ai_get_nil()
+AINLINE ainstruction_t ai_nil()
 {
     ainstruction_t i;
-    i.b.opcode = AOC_GET_NIL;
+    i.b.opcode = AOC_NIL;
     return i;
 }
 
-AINLINE ainstruction_t ai_get_bool(int32_t val)
+AINLINE ainstruction_t ai_ldb(int32_t val)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_GET_BOOL;
+    i.b.opcode = AOC_LDB;
     i.ldb.val = val;
     return i;
 }
 
-AINLINE ainstruction_t ai_get_local(int32_t idx)
+AINLINE ainstruction_t ai_llv(int32_t idx)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_GET_LOCAL;
+    i.b.opcode = AOC_LLV;
     i.llv.idx = idx;
     return i;
 }
 
-AINLINE ainstruction_t ai_set_local(int32_t idx)
+AINLINE ainstruction_t ai_slv(int32_t idx)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_SET_LOCAL;
+    i.b.opcode = AOC_SLV;
     i.slv.idx = idx;
     return i;
 }
 
-AINLINE ainstruction_t ai_get_import(int32_t idx)
+AINLINE ainstruction_t ai_imp(int32_t idx)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_GET_IMPORT;
+    i.b.opcode = AOC_IMP;
     i.imp.idx = idx;
     return i;
 }
 
-AINLINE ainstruction_t ai_jump(int32_t displacement)
+AINLINE ainstruction_t ai_jmp(int32_t displacement)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_JUMP;
+    i.b.opcode = AOC_JMP;
     i.jmp.displacement = displacement;
     return i;
 }
 
-AINLINE ainstruction_t ai_jump_if_not(int32_t displacement)
+AINLINE ainstruction_t ai_jin(int32_t displacement)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_JUMP_IF_NOT;
+    i.b.opcode = AOC_JIN;
     i.jin.displacement = displacement;
     return i;
 }
 
-AINLINE ainstruction_t ai_invoke(int32_t nargs)
+AINLINE ainstruction_t ai_ivk(int32_t nargs)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_INVOKE;
+    i.b.opcode = AOC_IVK;
     i.ivk.nargs = nargs;
     return i;
 }
 
-AINLINE ainstruction_t ai_return()
+AINLINE ainstruction_t ai_ret()
 {
     ainstruction_t i;
-    i.b.opcode = AOC_RETURN;
+    i.b.opcode = AOC_RET;
     return i;
 }
 
@@ -338,31 +338,35 @@ typedef int32_t astring_ref_t;
 // Native function.
 typedef int32_t(*anative_func_t)(void*);
 
-// Basic value tags.
-enum {
-    AVT_NIL,
-    AVT_BOOL,
-    AVT_POINTER,
-    AVT_NUMBER,
-    AVT_STRING,
-    AVT_FUNCTION
+/// Basic value tags.
+enum ATB {
+    /// No value.
+    ATB_NIL,
+    /// Either `true`: 1 or `false`: 0.
+    ATB_BOOL,
+    /// Raw pointer.
+    ATB_POINTER,
+    /// Variant of number.
+    ATB_NUMBER,
+    /// Variant of function.
+    ATB_FUNCTION
 };
 
-// Variant tags for AVT_FUNCTION.
-enum {
-    AVT_CLOSURE,
+/// Variant tags for \ref ATB_FUNCTION.
+enum AVT_FUNCTION {
     AVT_NATIVE_FUNC,
-    AVT_MODULE_FUNC,
-    AVT_NATIVE_CLOSURE
+    AVT_MODULE_FUNC
 };
 
-// Variant tags for AVT_NUMBER.
-enum {
+/// Variant tags for \ref ATB_NUMBER.
+enum AVT_NUMBER {
+    /// No fractional.
     AVT_INTEGER,
+    /// Floating-point number.
     AVT_REAL
 };
 
-// Value tag.
+/// Value tag.
 typedef struct {
     int8_t tag;
     int8_t variant;
@@ -371,21 +375,30 @@ typedef struct {
 } avtag_t;
 
 /** Tagged value.
+
+\brief
+AVM is dynamically typed. Each value carries its own type in `avtag_t`. There are
+some values which are subject to automatic memory management, which are marked 
+`collectable`. The scope of such values are not corresponding to the lexical 
+scope, opposite to `non collectable` values which are placed on the stack and will 
+be disappeared as soon as the stack grow back. 
+
+\note `collectable` type is also called `reference type`. 
 */
 typedef struct {
     avtag_t tag;
     union {
-        // AVT_BOOL.
+        /// \ref ATB_BOOL.
         int32_t b;
-        // AVT_POINTER.
+        /// \ref ATB_POINTER.
         void* p;
-        // AVT_INTEGER.
+        /// \ref AVT_INTEGER.
         aint_t i;
-        // AVT_REAL.
+        /// \ref AVT_REAL.
         areal_t r;
-        // AVT_NATIVE_FUNC.
+        /// \ref AVT_NATIVE_FUNC.
         anative_func_t f;
-        // AVT_MODULE_FUNC.
+        /// \ref AVT_MODULE_FUNC.
         struct aprototype_s* mf;
     } v;
 } avalue_t;

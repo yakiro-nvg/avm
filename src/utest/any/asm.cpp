@@ -26,13 +26,13 @@ static void num_vs_capacity_check(aasm_prototype_t* p)
 
 typedef struct {
     ainstruction_t pop;
-    ainstruction_t get_const;
-    ainstruction_t get_local;
-    ainstruction_t set_local;
-    ainstruction_t get_import;
-    ainstruction_t jump;
+    ainstruction_t ldk;
+    ainstruction_t llv;
+    ainstruction_t slv;
+    ainstruction_t imp;
+    ainstruction_t jmp;
     ainstruction_t jin;
-    ainstruction_t invoke;
+    ainstruction_t ivk;
 
     aconstant_t cinteger;
     aconstant_t cstring;
@@ -46,27 +46,27 @@ typedef struct {
 static void basic_add(aasm_t* a, basic_test_ctx& t)
 {
     t.pop = ai_pop(rand());
-    t.get_const = ai_get_const(rand());
-    t.get_local = ai_get_local(rand());
-    t.set_local = ai_set_local(rand());
-    t.get_import = ai_get_import(rand());
-    t.jump = ai_jump(rand());
-    t.jin = ai_jump_if_not(rand());
-    t.invoke = ai_invoke(rand());
+    t.ldk = ai_ldk(rand());
+    t.llv = ai_llv(rand());
+    t.slv = ai_slv(rand());
+    t.imp = ai_imp(rand());
+    t.jmp = ai_jmp(rand());
+    t.jin = ai_jin(rand());
+    t.ivk = ai_ivk(rand());
 
     REQUIRE(0 == any_asm_emit(a, ai_nop()));
     REQUIRE(1 == any_asm_emit(a, t.pop));
-    REQUIRE(2 == any_asm_emit(a, t.get_const));
-    REQUIRE(3 == any_asm_emit(a, ai_get_nil()));
-    REQUIRE(4 == any_asm_emit(a, ai_get_bool(TRUE)));
-    REQUIRE(5 == any_asm_emit(a, ai_get_bool(FALSE)));
-    REQUIRE(6 == any_asm_emit(a, t.get_local));
-    REQUIRE(7 == any_asm_emit(a, t.set_local));
-    REQUIRE(8 == any_asm_emit(a, t.get_import));
-    REQUIRE(9 == any_asm_emit(a, t.jump));
+    REQUIRE(2 == any_asm_emit(a, t.ldk));
+    REQUIRE(3 == any_asm_emit(a, ai_nil()));
+    REQUIRE(4 == any_asm_emit(a, ai_ldb(TRUE)));
+    REQUIRE(5 == any_asm_emit(a, ai_ldb(FALSE)));
+    REQUIRE(6 == any_asm_emit(a, t.llv));
+    REQUIRE(7 == any_asm_emit(a, t.slv));
+    REQUIRE(8 == any_asm_emit(a, t.imp));
+    REQUIRE(9 == any_asm_emit(a, t.jmp));
     REQUIRE(10 == any_asm_emit(a, t.jin));
-    REQUIRE(11 == any_asm_emit(a, t.invoke));
-    REQUIRE(12 == any_asm_emit(a, ai_return()));
+    REQUIRE(11 == any_asm_emit(a, t.ivk));
+    REQUIRE(12 == any_asm_emit(a, ai_ret()));
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(any_asm_string_to_ref(a, "test_const"));
@@ -102,26 +102,26 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
     REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
-    REQUIRE(c.instructions[2].b.opcode == AOC_GET_CONST);
-    REQUIRE(c.instructions[2].ldk.idx == t.get_const.ldk.idx);
-    REQUIRE(c.instructions[3].b.opcode == AOC_GET_NIL);
-    REQUIRE(c.instructions[4].b.opcode == AOC_GET_BOOL);
+    REQUIRE(c.instructions[2].b.opcode == AOC_LDK);
+    REQUIRE(c.instructions[2].ldk.idx == t.ldk.ldk.idx);
+    REQUIRE(c.instructions[3].b.opcode == AOC_NIL);
+    REQUIRE(c.instructions[4].b.opcode == AOC_LDB);
     REQUIRE(c.instructions[4].ldb.val == TRUE);
-    REQUIRE(c.instructions[5].b.opcode == AOC_GET_BOOL);
+    REQUIRE(c.instructions[5].b.opcode == AOC_LDB);
     REQUIRE(c.instructions[5].ldb.val == FALSE);
-    REQUIRE(c.instructions[6].b.opcode == AOC_GET_LOCAL);
-    REQUIRE(c.instructions[6].llv.idx == t.get_local.llv.idx);
-    REQUIRE(c.instructions[7].b.opcode == AOC_SET_LOCAL);
-    REQUIRE(c.instructions[7].slv.idx == t.set_local.slv.idx);
-    REQUIRE(c.instructions[8].b.opcode == AOC_GET_IMPORT);
-    REQUIRE(c.instructions[8].imp.idx == t.get_import.imp.idx);
-    REQUIRE(c.instructions[9].b.opcode == AOC_JUMP);
-    REQUIRE(c.instructions[9].jmp.displacement == t.jump.jmp.displacement);
-    REQUIRE(c.instructions[10].b.opcode == AOC_JUMP_IF_NOT);
+    REQUIRE(c.instructions[6].b.opcode == AOC_LLV);
+    REQUIRE(c.instructions[6].llv.idx == t.llv.llv.idx);
+    REQUIRE(c.instructions[7].b.opcode == AOC_SLV);
+    REQUIRE(c.instructions[7].slv.idx == t.slv.slv.idx);
+    REQUIRE(c.instructions[8].b.opcode == AOC_IMP);
+    REQUIRE(c.instructions[8].imp.idx == t.imp.imp.idx);
+    REQUIRE(c.instructions[9].b.opcode == AOC_JMP);
+    REQUIRE(c.instructions[9].jmp.displacement == t.jmp.jmp.displacement);
+    REQUIRE(c.instructions[10].b.opcode == AOC_JIN);
     REQUIRE(c.instructions[10].jin.displacement == t.jin.jin.displacement);
-    REQUIRE(c.instructions[11].b.opcode == AOC_INVOKE);
-    REQUIRE(c.instructions[11].ivk.nargs == t.invoke.ivk.nargs);
-    REQUIRE(c.instructions[12].b.opcode == AOC_RETURN);
+    REQUIRE(c.instructions[11].b.opcode == AOC_IVK);
+    REQUIRE(c.instructions[11].ivk.nargs == t.ivk.ivk.nargs);
+    REQUIRE(c.instructions[12].b.opcode == AOC_RET);
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].b.type == ACT_INTEGER);
