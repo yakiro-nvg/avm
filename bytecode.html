@@ -26,7 +26,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API Reference" href="memory.html" />
+    <link rel="next" title="Runtime" href="runtime.html" />
     <link rel="prev" title="API Reference" href="api.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
@@ -42,7 +42,7 @@
           <a href="api.html" title="Previous document">API Reference</a>
         </li>
         <li>
-          <a href="memory.html" title="Next document">API Reference</a>
+          <a href="runtime.html" title="Next document">Runtime</a>
           &rarr;
         </li>
     </ul>
@@ -87,31 +87,35 @@
 <tbody valign="top">
 <tr class="row-even"><td>4</td>
 <td>signature</td>
-<td>0x416E7900</td>
+<td>0x41 0x6E 0x79 0x00</td>
 </tr>
 <tr class="row-odd"><td>1</td>
+<td>version number</td>
+<td>0x{MAJOR}{MINOR}</td>
+</tr>
+<tr class="row-even"><td>1</td>
 <td>is big endian?</td>
 <td>1 = big, 0 = little</td>
 </tr>
-<tr class="row-even"><td>1</td>
+<tr class="row-odd"><td>1</td>
 <td>size of size_t</td>
 <td>default 8 bytes</td>
 </tr>
-<tr class="row-odd"><td>1</td>
+<tr class="row-even"><td>1</td>
 <td>size of integer</td>
 <td>default 8 bytes</td>
 </tr>
-<tr class="row-even"><td>1</td>
+<tr class="row-odd"><td>1</td>
 <td>size of float</td>
 <td>default 8 bytes</td>
 </tr>
-<tr class="row-odd"><td>1</td>
+<tr class="row-even"><td>1</td>
 <td>size of instruction</td>
 <td>always 4</td>
 </tr>
-<tr class="row-even"><td>2</td>
-<td>reserved</td>
-<td>always 0</td>
+<tr class="row-odd"><td>2</td>
+<td>_</td>
+<td>_</td>
 </tr>
 </tbody>
 </table>
@@ -124,7 +128,42 @@
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
 <dt>
-<span class="target" id="any-vmstructachunk__t_1a6e02243359caded40f7d10a9f865e7cb"></span><code class="descname">uint8_t achunk_t::header[12]</code></dt>
+<span class="target" id="any-vmstructachunk__t_1a08381890e0a8647021b6eae21f1524a8"></span><code class="descname">uint8_t achunk_t::signature[4]</code></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::major_ver">
+<span class="target" id="any-vmstructachunk__t_1a8814e221ec5537d7ab1e1cf3a7e1abe2"></span>uint32_t <code class="descname">major_ver</code><a class="headerlink" href="#c.achunk_t::major_ver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::minor_ver">
+<span class="target" id="any-vmstructachunk__t_1a3376438ff63cae0ac0104da803a485f2"></span>uint32_t <code class="descname">minor_ver</code><a class="headerlink" href="#c.achunk_t::minor_ver" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::big_endian">
+<span class="target" id="any-vmstructachunk__t_1a773f9e0a212c4c744b2838e547823692"></span>uint32_t <code class="descname">big_endian</code><a class="headerlink" href="#c.achunk_t::big_endian" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::size_of_size_t">
+<span class="target" id="any-vmstructachunk__t_1aa8df4dc8a97f5d55a6ed747b597f5a4c"></span>uint32_t <code class="descname">size_of_size_t</code><a class="headerlink" href="#c.achunk_t::size_of_size_t" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::size_of_integer">
+<span class="target" id="any-vmstructachunk__t_1a9ae9ea5c185284cc342717dd7f1de652"></span>uint32_t <code class="descname">size_of_integer</code><a class="headerlink" href="#c.achunk_t::size_of_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::size_of_float">
+<span class="target" id="any-vmstructachunk__t_1ab73fe04a9028bfd62ae856cc24c2ca87"></span>uint8_t <code class="descname">size_of_float</code><a class="headerlink" href="#c.achunk_t::size_of_float" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.achunk_t::size_of_instruction">
+<span class="target" id="any-vmstructachunk__t_1a62389f04d649cb85ea5970278007ca85"></span>uint8_t <code class="descname">size_of_instruction</code><a class="headerlink" href="#c.achunk_t::size_of_instruction" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -138,42 +177,123 @@
 <span class="target" id="any-vmstructaprototype__t"></span><em class="property">struct </em><code class="descname">aprototype_t</code><a class="headerlink" href="#c.aprototype_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function prototype. </p>
 <p>This struct represents the header portion of a function prototype. Each prototype is self-contained and relocatable, all references are relative to their corresponding header. That means we can safety copy a memory blob of prototype and move it around, save to and loaded from disk without any need for patching.</p>
-<p>The first prototype in chunk is <code class="docutils literal"><span class="pre">module</span> <span class="pre">prototype</span></code>, which is unable to be executed. There are no instructions, upvalues, arguments, constants, local variables and imports in this kind of prototype. All nesteds of that also be treated as module level functions. Which may have the <code class="docutils literal"><span class="pre">exported</span></code> field as the symbol name, that allow this to be imported by other modules.</p>
-<p>Memory layout:<ul class="simple">
-<li>header</li>
-<li>strings</li>
-<li>instructions</li>
-<li>constants</li>
-<li>imports</li>
-<li>nested_offsets</li>
-<li>nesteds </li>
-</ul>
+<p>The first prototype in chunk is <code class="docutils literal"><span class="pre">module</span> <span class="pre">prototype</span></code>, which is unable to be executed. There are no instructions, upvalues, arguments, constants, local variables and imports in this kind of prototype. All nesteds of that will be treated as <code class="docutils literal"><span class="pre">module</span> <span class="pre">function</span></code>. Which can&#8217;t accept upvalues and will be exported as the name specified in the <code class="docutils literal"><span class="pre">symbol</span></code> field. That allow such functions to be imported later by other modules.</p>
+<p>In AVM, there are two kind of string, <code class="docutils literal"><span class="pre">static</span></code> and <code class="docutils literal"><span class="pre">collectable</span></code>. Compile time strings are <code class="docutils literal"><span class="pre">static</span></code> and must be referenced by <code class="docutils literal"><span class="pre">astring_ref_t</span></code> which is just an offset to the dedicated <strong>per prototype</strong> string pool. We don&#8217;t want to share these pools between prototype to make relocating trivial.</p>
+<p>To reduce the loading time and make memory management simpler, prototype must be able to loaded from the storages as-is by just a single read. No more memory allocation are required. The prototype format itself reserved few bytes to be used by the runtime. Remember that, despite being called <code class="docutils literal"><span class="pre">bytecode</span></code>, we don&#8217;t prefer polite and portable bytecode over performance and simplicity. For each platform, you are expected to run the compiler or rewriter again.The runtime is stupid and don&#8217;t want to take challenges. The best things that AVM runtime provides is just sandbox guarantees, by prevent malformed bytecode to crash the system, nothing more.</p>
+<p><dl class="docutils">
+<dt><strong>Memory layout:</strong></dt>
+<dd><table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="37%" />
+<col width="10%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">bytes</th>
+<th class="head">description</th>
+<th class="head">scope</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>4 signed</td>
+<td>source file name</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>4 signed</td>
+<td>to be exported</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>4 signed</td>
+<td>num of string bytes</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>4 signed</td>
+<td>num of instructions</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>2 signed</td>
+<td>num of nesteds</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>1 unsigned</td>
+<td>num of upvalues</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>1 unsigned</td>
+<td>num of arguments</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>1 unsigned</td>
+<td>num of constants</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>1 unsigned</td>
+<td>num of local variables</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>1 unsigned</td>
+<td>num of imports</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>1</td>
+<td>_</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>sizeof(<a class="reference internal" href="#c.acurrent_t" title="acurrent_t"><code class="xref c c-type docutils literal"><span class="pre">acurrent_t</span></code></a>)</td>
+<td>resolved pointers</td>
+<td>runtime</td>
+</tr>
+<tr class="row-even"><td>num of string bytes</td>
+<td>pool of strings</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>n * sizeof(<a class="reference internal" href="#c.ainstruction_t" title="ainstruction_t"><code class="xref c c-type docutils literal"><span class="pre">ainstruction_t</span></code></a>)</td>
+<td>pool of instructions</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>n * sizeof(<a class="reference internal" href="runtime.html#c.avalue_t" title="avalue_t"><code class="xref c c-type docutils literal"><span class="pre">avalue_t</span></code></a>)</td>
+<td>pool of constants</td>
+<td>_</td>
+</tr>
+<tr class="row-odd"><td>n * sizeof(<a class="reference internal" href="#c.aimport_t" title="aimport_t"><code class="xref c c-type docutils literal"><span class="pre">aimport_t</span></code></a>)</td>
+<td>pool of imports</td>
+<td>_</td>
+</tr>
+<tr class="row-even"><td>n * sizeof(void*)</td>
+<td>nested prototype pointers</td>
+<td>runtime</td>
+</tr>
+<tr class="row-odd"><td>_</td>
+<td>nested prototypes</td>
+<td>_</td>
+</tr>
+</tbody>
+</table>
+ </dd>
+<dt><strong>Note</strong></dt>
+<dd>Portions with <code class="docutils literal"><span class="pre">runtime</span> <span class="pre">scope</span></code> are reversed in compile time. </dd>
+</dl>
 </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.aprototype_t::source_name">
-<span class="target" id="any-vmstructaprototype__t_1a37e90ac54e1e2b2f48246bab0a4a5d69"></span>astring_ref_t <code class="descname">source_name</code><a class="headerlink" href="#c.aprototype_t::source_name" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aprototype_t::source">
+<span class="target" id="any-vmstructaprototype__t_1a61ede5654b9cdd26ead42814a89bdd03"></span>astring_ref_t <code class="descname">source</code><a class="headerlink" href="#c.aprototype_t::source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
-<dt id="c.aprototype_t::module_name">
-<span class="target" id="any-vmstructaprototype__t_1a87c2f53216d5d33e916478d3d87226ce"></span>astring_ref_t <code class="descname">module_name</code><a class="headerlink" href="#c.aprototype_t::module_name" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aprototype_t::symbol">
+<span class="target" id="any-vmstructaprototype__t_1a6860489667e934d53a57c51dd9e19759"></span>astring_ref_t <code class="descname">symbol</code><a class="headerlink" href="#c.aprototype_t::symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
-<dt id="c.aprototype_t::exported">
-<span class="target" id="any-vmstructaprototype__t_1a34b6bc909e27b0df924b47c7e5a7d489"></span>astring_ref_t <code class="descname">exported</code><a class="headerlink" href="#c.aprototype_t::exported" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aprototype_t::strings_sz">
+<span class="target" id="any-vmstructaprototype__t_1ac91a26009e901a93631d1c127d1ba3dc"></span>int32_t <code class="descname">strings_sz</code><a class="headerlink" href="#c.aprototype_t::strings_sz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
 <dt id="c.aprototype_t::num_instructions">
 <span class="target" id="any-vmstructaprototype__t_1ac0390ef2fd986ac0dc396b14a444ed5b"></span>int32_t <code class="descname">num_instructions</code><a class="headerlink" href="#c.aprototype_t::num_instructions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aprototype_t::strings_sz">
-<span class="target" id="any-vmstructaprototype__t_1ae25e63d3f43b054b406ee5b2d294f090"></span>int16_t <code class="descname">strings_sz</code><a class="headerlink" href="#c.aprototype_t::strings_sz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
@@ -204,6 +324,64 @@
 <dl class="variable">
 <dt id="c.aprototype_t::num_imports">
 <span class="target" id="any-vmstructaprototype__t_1adb2da0872efb392be35d59c50757cf65"></span>uint8_t <code class="descname">num_imports</code><a class="headerlink" href="#c.aprototype_t::num_imports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprototype_t::resolved">
+<span class="target" id="any-vmstructaprototype__t_1a369d390bf49757e55db8acd9f9281e89"></span><a class="reference internal" href="#c.acurrent_t" title="acurrent_t">acurrent_t</a> <code class="descname">resolved</code><a class="headerlink" href="#c.aprototype_t::resolved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.aimport_t">
+<span class="target" id="any-vmstructaimport__t"></span><em class="property">struct </em><code class="descname">aimport_t</code><a class="headerlink" href="#c.aimport_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function import. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aimport_t::module">
+<span class="target" id="any-vmstructaimport__t_1a8b1a3ebcf568aeec9f4578e4ef98edde"></span>astring_ref_t <code class="descname">module</code><a class="headerlink" href="#c.aimport_t::module" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aimport_t::name">
+<span class="target" id="any-vmstructaimport__t_1ad2b8140da451f159206de25a2ea1ed0c"></span>astring_ref_t <code class="descname">name</code><a class="headerlink" href="#c.aimport_t::name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aimport_t::resolved">
+<span class="target" id="any-vmstructaimport__t_1aa69cfdba2916bcfc63baf18fb1d40ab3"></span><a class="reference internal" href="runtime.html#c.avalue_t" title="avalue_t">avalue_t</a> <code class="descname">resolved</code><a class="headerlink" href="#c.aimport_t::resolved" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.acurrent_t">
+<span class="target" id="any-vmstructacurrent__t"></span><em class="property">struct </em><code class="descname">acurrent_t</code><a class="headerlink" href="#c.acurrent_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolved prototype pointers. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.acurrent_t::instructions">
+<span class="target" id="any-vmstructacurrent__t_1a16dfa6aa34a33679ec8fd90e483e16f7"></span><a class="reference internal" href="#c.ainstruction_t" title="ainstruction_t">ainstruction_t</a>* <code class="descname">instructions</code><a class="headerlink" href="#c.acurrent_t::instructions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.acurrent_t::constants">
+<span class="target" id="any-vmstructacurrent__t_1aed9d75c213f3fc753681821d7fa3d913"></span><a class="reference internal" href="runtime.html#c.avalue_t" title="avalue_t">avalue_t</a>* <code class="descname">constants</code><a class="headerlink" href="#c.acurrent_t::constants" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.acurrent_t::imports">
+<span class="target" id="any-vmstructacurrent__t_1a334b762ef35d369c64d45c6688b9bb2e"></span><a class="reference internal" href="#c.aimport_t" title="aimport_t">aimport_t</a>* <code class="descname">imports</code><a class="headerlink" href="#c.acurrent_t::imports" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.acurrent_t::nesteds">
+<span class="target" id="any-vmstructacurrent__t_1a19bdbd27e9eb4fa62245a944ba6981a9"></span>struct aprototype_s** <code class="descname">nesteds</code><a class="headerlink" href="#c.acurrent_t::nesteds" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -249,8 +427,8 @@
 <dd><p>No operation. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="47%" />
-<col width="53%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -259,7 +437,7 @@
 </thead>
 <tbody valign="top">
 <tr class="row-even"><td>AOC_NOP</td>
-<td>reserved</td>
+<td>_</td>
 </tr>
 </tbody>
 </table>
@@ -298,13 +476,13 @@
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_const_t">
-<span class="target" id="any-vmstructai__get__const__t"></span><em class="property">struct </em><code class="descname">ai_get_const_t</code><a class="headerlink" href="#c.ai_get_const_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ldk_t">
+<span class="target" id="any-vmstructai__ldk__t"></span><em class="property">struct </em><code class="descname">ai_ldk_t</code><a class="headerlink" href="#c.ai_ldk_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push a constant from const pool at <code class="docutils literal"><span class="pre">idx</span></code> onto the stack. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="65%" />
-<col width="35%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -312,7 +490,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_GET_CONST</td>
+<tr class="row-even"><td>AOC_LDK</td>
 <td>idx</td>
 </tr>
 </tbody>
@@ -321,21 +499,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_get_const_t::idx">
-<span class="target" id="any-vmstructai__get__const__t_1aafd443cf52e809579988e7e3138129d0"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_get_const_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ldk_t::idx">
+<span class="target" id="any-vmstructai__ldk__t_1a68bca12206ef20cb8530db39cc213f99"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_ldk_t::idx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_nil_t">
-<span class="target" id="any-vmstructai__get__nil__t"></span><em class="property">struct </em><code class="descname">ai_get_nil_t</code><a class="headerlink" href="#c.ai_get_nil_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_nil_t">
+<span class="target" id="any-vmstructai__nil__t"></span><em class="property">struct </em><code class="descname">ai_nil_t</code><a class="headerlink" href="#c.ai_nil_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push a nil value onto the stack. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="58%" />
-<col width="42%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -343,8 +521,8 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_GET_NIL</td>
-<td>reserved</td>
+<tr class="row-even"><td>AOC_NIL</td>
+<td>_</td>
 </tr>
 </tbody>
 </table>
@@ -352,13 +530,13 @@
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_bool_t">
-<span class="target" id="any-vmstructai__get__bool__t"></span><em class="property">struct </em><code class="descname">ai_get_bool_t</code><a class="headerlink" href="#c.ai_get_bool_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ldb_t">
+<span class="target" id="any-vmstructai__ldb__t"></span><em class="property">struct </em><code class="descname">ai_ldb_t</code><a class="headerlink" href="#c.ai_ldb_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push a bool value <code class="docutils literal"><span class="pre">val</span></code> onto the stack. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="63%" />
-<col width="37%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -366,7 +544,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_GET_BOOL</td>
+<tr class="row-even"><td>AOC_LDB</td>
 <td>val</td>
 </tr>
 </tbody>
@@ -375,21 +553,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_get_bool_t::val">
-<span class="target" id="any-vmstructai__get__bool__t_1a5a8042c23e74ca26955293e29769eeba"></span>int32_t <code class="descname">val</code><a class="headerlink" href="#c.ai_get_bool_t::val" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ldb_t::val">
+<span class="target" id="any-vmstructai__ldb__t_1ae953589688d8476ff524e25f5581e551"></span>int32_t <code class="descname">val</code><a class="headerlink" href="#c.ai_ldb_t::val" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_local_t">
-<span class="target" id="any-vmstructai__get__local__t"></span><em class="property">struct </em><code class="descname">ai_get_local_t</code><a class="headerlink" href="#c.ai_get_local_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_llv_t">
+<span class="target" id="any-vmstructai__llv__t"></span><em class="property">struct </em><code class="descname">ai_llv_t</code><a class="headerlink" href="#c.ai_llv_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push a value from local pool at <code class="docutils literal"><span class="pre">idx</span></code> onto the stack. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="65%" />
-<col width="35%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -397,7 +575,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_GET_LOCAL</td>
+<tr class="row-even"><td>AOC_LLV</td>
 <td>idx</td>
 </tr>
 </tbody>
@@ -406,21 +584,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_get_local_t::idx">
-<span class="target" id="any-vmstructai__get__local__t_1a180feec0baca992360c9e1bf35b34e8c"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_get_local_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_llv_t::idx">
+<span class="target" id="any-vmstructai__llv__t_1aa5d3478f86dfa643e251e0e2e22daeed"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_llv_t::idx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_set_local_t">
-<span class="target" id="any-vmstructai__set__local__t"></span><em class="property">struct </em><code class="descname">ai_set_local_t</code><a class="headerlink" href="#c.ai_set_local_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_slv_t">
+<span class="target" id="any-vmstructai__slv__t"></span><em class="property">struct </em><code class="descname">ai_slv_t</code><a class="headerlink" href="#c.ai_slv_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Pop a value from the stack and set it into the local pool at <code class="docutils literal"><span class="pre">idx</span></code>. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="65%" />
-<col width="35%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -428,7 +606,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_SET_LOCAL</td>
+<tr class="row-even"><td>AOC_SLV</td>
 <td>idx</td>
 </tr>
 </tbody>
@@ -437,21 +615,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_set_local_t::idx">
-<span class="target" id="any-vmstructai__set__local__t_1a68b90b6fec3c97d4ed3901270c268e08"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_set_local_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_slv_t::idx">
+<span class="target" id="any-vmstructai__slv__t_1aee865793bf8313b5b762358aa62a2a31"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_slv_t::idx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_import_t">
-<span class="target" id="any-vmstructai__get__import__t"></span><em class="property">struct </em><code class="descname">ai_get_import_t</code><a class="headerlink" href="#c.ai_get_import_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_imp_t">
+<span class="target" id="any-vmstructai__imp__t"></span><em class="property">struct </em><code class="descname">ai_imp_t</code><a class="headerlink" href="#c.ai_imp_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Push a value from import pool at <code class="docutils literal"><span class="pre">idx</span></code> onto the stack. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="67%" />
-<col width="33%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -459,7 +637,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_GET_IMPORT</td>
+<tr class="row-even"><td>AOC_IMP</td>
 <td>idx</td>
 </tr>
 </tbody>
@@ -468,83 +646,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_get_import_t::idx">
-<span class="target" id="any-vmstructai__get__import__t_1a481cf782040ae911a71ea25207063aa9"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_get_import_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_imp_t::idx">
+<span class="target" id="any-vmstructai__imp__t_1a7d99b6d7718079114eece612e637a62d"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_imp_t::idx" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_get_upvalue_t">
-<span class="target" id="any-vmstructai__get__upvalue__t"></span><em class="property">struct </em><code class="descname">ai_get_upvalue_t</code><a class="headerlink" href="#c.ai_get_upvalue_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Push a value from upvalue pool at <code class="docutils literal"><span class="pre">idx</span></code> onto the stack. </p>
-<p><table border="1" class="docutils">
-<colgroup>
-<col width="68%" />
-<col width="32%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_GET_UPVALUE</td>
-<td>idx</td>
-</tr>
-</tbody>
-</table>
- </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.ai_get_upvalue_t::idx">
-<span class="target" id="any-vmstructai__get__upvalue__t_1acc8443df7e01d78f2c4558db51d0a50b"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_get_upvalue_t::idx" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.ai_set_upvalue_t">
-<span class="target" id="any-vmstructai__set__upvalue__t"></span><em class="property">struct </em><code class="descname">ai_set_upvalue_t</code><a class="headerlink" href="#c.ai_set_upvalue_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pop a value from the stack and set it into the upvalue pool at <code class="docutils literal"><span class="pre">idx</span></code>. </p>
-<p><table border="1" class="docutils">
-<colgroup>
-<col width="68%" />
-<col width="32%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_SET_UPVALUE</td>
-<td>idx</td>
-</tr>
-</tbody>
-</table>
- </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.ai_set_upvalue_t::idx">
-<span class="target" id="any-vmstructai__set__upvalue__t_1a2ef1353e898a5ff34787463bd846c0b2"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_set_upvalue_t::idx" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.ai_jump_t">
-<span class="target" id="any-vmstructai__jump__t"></span><em class="property">struct </em><code class="descname">ai_jump_t</code><a class="headerlink" href="#c.ai_jump_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_jmp_t">
+<span class="target" id="any-vmstructai__jmp__t"></span><em class="property">struct </em><code class="descname">ai_jmp_t</code><a class="headerlink" href="#c.ai_jmp_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Unconditional jump, with signed <code class="docutils literal"><span class="pre">displacement</span></code>. </p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="40%" />
-<col width="60%" />
+<col width="37%" />
+<col width="63%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -552,7 +668,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_JUMP</td>
+<tr class="row-even"><td>AOC_JMP</td>
 <td>displacement</td>
 </tr>
 </tbody>
@@ -561,21 +677,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_jump_t::displacement">
-<span class="target" id="any-vmstructai__jump__t_1a49b4cc97f9857357cfe69b1aa60a5aaa"></span>int32_t <code class="descname">displacement</code><a class="headerlink" href="#c.ai_jump_t::displacement" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_jmp_t::displacement">
+<span class="target" id="any-vmstructai__jmp__t_1a75ff0af39dd9a11b8840d2577989b6bc"></span>int32_t <code class="descname">displacement</code><a class="headerlink" href="#c.ai_jmp_t::displacement" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_jump_if_not_t">
-<span class="target" id="any-vmstructai__jump__if__not__t"></span><em class="property">struct </em><code class="descname">ai_jump_if_not_t</code><a class="headerlink" href="#c.ai_jump_if_not_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_jin_t">
+<span class="target" id="any-vmstructai__jin__t"></span><em class="property">struct </em><code class="descname">ai_jin_t</code><a class="headerlink" href="#c.ai_jin_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Conditional jump, with signed <code class="docutils literal"><span class="pre">displacement</span></code>. </p>
 <p>Pop a boolean value from the stack and jump if it&#8217;s nil or false. <table border="1" class="docutils">
 <colgroup>
-<col width="56%" />
-<col width="44%" />
+<col width="37%" />
+<col width="63%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -583,7 +699,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_JUMP_IF_NOT</td>
+<tr class="row-even"><td>AOC_JIN</td>
 <td>displacement</td>
 </tr>
 </tbody>
@@ -592,22 +708,22 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_jump_if_not_t::displacement">
-<span class="target" id="any-vmstructai__jump__if__not__t_1a9430f50ce0eddc587984ee88543791d7"></span>int32_t <code class="descname">displacement</code><a class="headerlink" href="#c.ai_jump_if_not_t::displacement" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_jin_t::displacement">
+<span class="target" id="any-vmstructai__jin__t_1a36b283ddd6ba4e9b10cc9c9e11c35f2a"></span>int32_t <code class="descname">displacement</code><a class="headerlink" href="#c.ai_jin_t::displacement" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_invoke_t">
-<span class="target" id="any-vmstructai__invoke__t"></span><em class="property">struct </em><code class="descname">ai_invoke_t</code><a class="headerlink" href="#c.ai_invoke_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ivk_t">
+<span class="target" id="any-vmstructai__ivk__t"></span><em class="property">struct </em><code class="descname">ai_ivk_t</code><a class="headerlink" href="#c.ai_ivk_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Function call. </p>
 <p>Pop <code class="docutils literal"><span class="pre">nargs</span></code> arguments and next a closure from the stack then call it. The result will be pushed back onto the stack after that.</p>
 <p><table border="1" class="docutils">
 <colgroup>
-<col width="59%" />
-<col width="41%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -615,7 +731,7 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_INVOKE</td>
+<tr class="row-even"><td>AOC_IVK</td>
 <td>nargs</td>
 </tr>
 </tbody>
@@ -624,21 +740,21 @@
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_invoke_t::nargs">
-<span class="target" id="any-vmstructai__invoke__t_1a802d9ac6c3f33683a7c70324d0a1e6ef"></span>int32_t <code class="descname">nargs</code><a class="headerlink" href="#c.ai_invoke_t::nargs" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ivk_t::nargs">
+<span class="target" id="any-vmstructai__ivk__t_1a57e94a9be7aad2adbbeec689af496b75"></span>int32_t <code class="descname">nargs</code><a class="headerlink" href="#c.ai_ivk_t::nargs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.ai_return_t">
-<span class="target" id="any-vmstructai__return__t"></span><em class="property">struct </em><code class="descname">ai_return_t</code><a class="headerlink" href="#c.ai_return_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ai_ret_t">
+<span class="target" id="any-vmstructai__ret__t"></span><em class="property">struct </em><code class="descname">ai_ret_t</code><a class="headerlink" href="#c.ai_ret_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returning from a function call. </p>
 <p>Top of the stack will be returned as result. <table border="1" class="docutils">
 <colgroup>
-<col width="56%" />
-<col width="44%" />
+<col width="50%" />
+<col width="50%" />
 </colgroup>
 <thead valign="bottom">
 <tr class="row-odd"><th class="head">8 bits</th>
@@ -646,140 +762,83 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>AOC_RETURN</td>
-<td>reserved</td>
+<tr class="row-even"><td>AOC_RET</td>
+<td>_</td>
 </tr>
 </tbody>
 </table>
  </p>
 </dd></dl>
 
-<dl class="struct">
-<dt id="c.ai_closure_t">
-<span class="target" id="any-vmstructai__closure__t"></span><em class="property">struct </em><code class="descname">ai_closure_t</code><a class="headerlink" href="#c.ai_closure_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a closure of prototype at <code class="docutils literal"><span class="pre">idx</span></code> from pool. </p>
-<p>There are pseudo-instruction which follow this instruction, that are used by VM to manage upvalues, either <code class="docutils literal"><span class="pre">AOC_CAPTURE_LOCAL</span></code> or <code class="docutils literal"><span class="pre">AOC_CAPTURE_UPVALE</span></code>.</p>
-<p><table border="1" class="docutils">
-<colgroup>
-<col width="61%" />
-<col width="39%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_CLOSURE</td>
-<td>idx</td>
-</tr>
-</tbody>
-</table>
- </p>
+<dl class="union">
+<dt id="c.ainstruction_t">
+<span class="target" id="any-vmunionainstruction__t"></span><em class="property">union </em><code class="descname">ainstruction_t</code><a class="headerlink" href="#c.ainstruction_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;rt_types.h&gt;</em><p>Variant of instruction types, instruction size is fixed 4 bytes. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_closure_t::idx">
-<span class="target" id="any-vmstructai__closure__t_1aabbbc2f6969fbbe73d1cece48331e363"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_closure_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ainstruction_t::b">
+<span class="target" id="any-vmunionainstruction__t_1a5efab6dc4811d8a5423e1bb98c217476"></span><a class="reference internal" href="#c.ai_base_t" title="ai_base_t">ai_base_t</a> <code class="descname">b</code><a class="headerlink" href="#c.ainstruction_t::b" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.ai_capture_local_t">
-<span class="target" id="any-vmstructai__capture__local__t"></span><em class="property">struct </em><code class="descname">ai_capture_local_t</code><a class="headerlink" href="#c.ai_capture_local_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pseudo-instruction for closure creating. </p>
-<p>Capture a local value at <code class="docutils literal"><span class="pre">idx</span></code> from local pool. <table border="1" class="docutils">
-<colgroup>
-<col width="71%" />
-<col width="29%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_CAPTURE_LOCAL</td>
-<td>idx</td>
-</tr>
-</tbody>
-</table>
- </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_capture_local_t::idx">
-<span class="target" id="any-vmstructai__capture__local__t_1ac721f7afd9911f7df7ac1731989bed17"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_capture_local_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ainstruction_t::nop">
+<span class="target" id="any-vmunionainstruction__t_1a3d0d351f71c9faa77dda800fa0ae32ad"></span><a class="reference internal" href="#c.ai_nop_t" title="ai_nop_t">ai_nop_t</a> <code class="descname">nop</code><a class="headerlink" href="#c.ainstruction_t::nop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.ai_capture_upvalue_t">
-<span class="target" id="any-vmstructai__capture__upvalue__t"></span><em class="property">struct </em><code class="descname">ai_capture_upvalue_t</code><a class="headerlink" href="#c.ai_capture_upvalue_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Pseudo-instruction for closure creating. </p>
-<p>Capture a upvalue at <code class="docutils literal"><span class="pre">idx</span></code> from upvalue pool. <table border="1" class="docutils">
-<colgroup>
-<col width="73%" />
-<col width="27%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_CAPTURE_UPVALUE</td>
-<td>idx</td>
-</tr>
-</tbody>
-</table>
- </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_capture_upvalue_t::idx">
-<span class="target" id="any-vmstructai__capture__upvalue__t_1a2f5171197534fbaae5f9051324610879"></span>int32_t <code class="descname">idx</code><a class="headerlink" href="#c.ai_capture_upvalue_t::idx" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ainstruction_t::pop">
+<span class="target" id="any-vmunionainstruction__t_1a0f04a792b2c1eae32380ca16e8e5c11a"></span><a class="reference internal" href="#c.ai_pop_t" title="ai_pop_t">ai_pop_t</a> <code class="descname">pop</code><a class="headerlink" href="#c.ainstruction_t::pop" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.ai_close_t">
-<span class="target" id="any-vmstructai__close__t"></span><em class="property">struct </em><code class="descname">ai_close_t</code><a class="headerlink" href="#c.ai_close_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Closes all local variables in the stack from <code class="docutils literal"><span class="pre">offset</span></code> onwards (&gt;=). </p>
-<p>That&#8217;s required if there are upvalues present within those local vars, otherwise such values will go out of scope and disappear.</p>
-<p><table border="1" class="docutils">
-<colgroup>
-<col width="56%" />
-<col width="44%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">8 bits</th>
-<th class="head">24 bits</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>AOC_CLOSE</td>
-<td>offset</td>
-</tr>
-</tbody>
-</table>
-</p>
-<p><dl class="docutils">
-<dt><strong>Note</strong></dt>
-<dd>AOC_RETURN also does an implicit AOC_CLOSE. </dd>
-</dl>
-</p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.ai_close_t::offset">
-<span class="target" id="any-vmstructai__close__t_1a0180c71fea0e4ee557b20051ba635c3c"></span>int32_t <code class="descname">offset</code><a class="headerlink" href="#c.ai_close_t::offset" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ainstruction_t::ldk">
+<span class="target" id="any-vmunionainstruction__t_1a5a773a6b03a4447741c2bb873bdcdd6d"></span><a class="reference internal" href="#c.ai_ldk_t" title="ai_ldk_t">ai_ldk_t</a> <code class="descname">ldk</code><a class="headerlink" href="#c.ainstruction_t::ldk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::nil">
+<span class="target" id="any-vmunionainstruction__t_1af438eda213abeb824e316f7894fbfc95"></span><a class="reference internal" href="#c.ai_nil_t" title="ai_nil_t">ai_nil_t</a> <code class="descname">nil</code><a class="headerlink" href="#c.ainstruction_t::nil" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::ldb">
+<span class="target" id="any-vmunionainstruction__t_1afa401fc9ddd3398324dcb1e29f06a301"></span><a class="reference internal" href="#c.ai_ldb_t" title="ai_ldb_t">ai_ldb_t</a> <code class="descname">ldb</code><a class="headerlink" href="#c.ainstruction_t::ldb" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::llv">
+<span class="target" id="any-vmunionainstruction__t_1a2c3cb13c63fdbf3eee539d082925bde9"></span><a class="reference internal" href="#c.ai_llv_t" title="ai_llv_t">ai_llv_t</a> <code class="descname">llv</code><a class="headerlink" href="#c.ainstruction_t::llv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::slv">
+<span class="target" id="any-vmunionainstruction__t_1a0874482b7ba0b50e149d1f7997aa3228"></span><a class="reference internal" href="#c.ai_slv_t" title="ai_slv_t">ai_slv_t</a> <code class="descname">slv</code><a class="headerlink" href="#c.ainstruction_t::slv" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::imp">
+<span class="target" id="any-vmunionainstruction__t_1af30a8d7acdb4c0f9658c3e4bcaf03a73"></span><a class="reference internal" href="#c.ai_imp_t" title="ai_imp_t">ai_imp_t</a> <code class="descname">imp</code><a class="headerlink" href="#c.ainstruction_t::imp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::jmp">
+<span class="target" id="any-vmunionainstruction__t_1aebdd8aa814b3df70119f5fc80a54b264"></span><a class="reference internal" href="#c.ai_jmp_t" title="ai_jmp_t">ai_jmp_t</a> <code class="descname">jmp</code><a class="headerlink" href="#c.ainstruction_t::jmp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::jin">
+<span class="target" id="any-vmunionainstruction__t_1ae139365e233938e3ad9b6d5efb8d64ba"></span><a class="reference internal" href="#c.ai_jin_t" title="ai_jin_t">ai_jin_t</a> <code class="descname">jin</code><a class="headerlink" href="#c.ainstruction_t::jin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::ivk">
+<span class="target" id="any-vmunionainstruction__t_1ab750cbfe8997e7a69bc9b49be874b461"></span><a class="reference internal" href="#c.ai_ivk_t" title="ai_ivk_t">ai_ivk_t</a> <code class="descname">ivk</code><a class="headerlink" href="#c.ainstruction_t::ivk" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ainstruction_t::ret">
+<span class="target" id="any-vmunionainstruction__t_1a6385d0816eaaad1f47b7b85fe610153c"></span><a class="reference internal" href="#c.ai_ret_t" title="ai_ret_t">ai_ret_t</a> <code class="descname">ret</code><a class="headerlink" href="#c.ainstruction_t::ret" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -808,8 +867,8 @@
   <p class="topless"><a href="api.html"
                         title="previous chapter">API Reference</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="memory.html"
-                        title="next chapter">API Reference</a></p>
+  <p class="topless"><a href="runtime.html"
+                        title="next chapter">Runtime</a></p>
 <div class="sourcelink">
   <a href="_sources/bytecode.rst.txt" rel="nofollow">
     Show page source
@@ -838,7 +897,7 @@
           <a href="api.html" title="Previous document">API Reference</a>
         </li>
         <li>
-          <a href="memory.html" title="Next document">API Reference</a>
+          <a href="runtime.html" title="Next document">Runtime</a>
           &rarr;
         </li>
     </ul>

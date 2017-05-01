@@ -4,7 +4,7 @@ API Reference
 
 String Table
 ============
-.. doxygenstruct:: astring_table_t
+.. doxygenstruct::   astring_table_t
 .. doxygenfunction:: any_st_init
 .. doxygenfunction:: any_st_grow
 .. doxygenfunction:: any_st_pack
@@ -16,10 +16,10 @@ String Table
 
 Bytecode Assembler
 ==================
-.. doxygenstruct:: aasm_t
-.. doxygenstruct:: aasm_prototype_t
-.. doxygenstruct:: aasm_current_t
-.. doxygenstruct:: aasm_reserve_t
+.. doxygenstruct::   aasm_t
+.. doxygenstruct::   aasm_prototype_t
+.. doxygenstruct::   aasm_reserve_t
+.. doxygenunion::    aasm_constant_t
 .. doxygenfunction:: any_asm_init
 .. doxygenfunction:: any_asm_load
 .. doxygenfunction:: any_asm_save

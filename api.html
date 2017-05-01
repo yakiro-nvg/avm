@@ -189,10 +189,10 @@ This implements a string table for <strong>string interning</strong>, i.e. conve
 <p>
 The assembler is context sensitive, which can be used to authoring multiple prototypes with just only one single instance, in nested manner. Generally, for each <a class="reference internal" href="#any-vmasm_8h_1a3175c52888d8c15c2047bc535107c370"><span class="std std-ref">any_asm_push</span></a> or <a class="reference internal" href="#any-vmasm_8h_1a05f32c14306f4d300ddf251eaa6f0277"><span class="std std-ref">any_asm_open</span></a> a new context will be created for nested prototype, and that also saves the current context onto an internal stack, which can be restored later by a corresponding <a class="reference internal" href="#any-vmasm_8h_1a24db9f70fe5fb2bfc8ee86ae9cdccbf4"><span class="std std-ref">any_asm_pop</span></a>.<dl class="docutils">
 <dt><strong>Warning</strong></dt>
-<dd><a class="reference internal" href="#any-vmstructaasm__prototype__t"><span class="std std-ref">aasm_prototype_t</span></a> and <a class="reference internal" href="#any-vmstructaasm__current__t"><span class="std std-ref">aasm_current_t</span></a> are reserved for advanced purpose like optimization, which provides direct access to the assembler internal. The content of these structure may be relocated after a call to these following functions, use it at your own risk:<ul class="simple">
+<dd><a class="reference internal" href="#any-vmstructaasm__prototype__t"><span class="std std-ref">aasm_prototype_t</span></a> and aasm_current_t are reserved for advanced purpose like optimization, which provides direct access to the assembler internal. The content of these structure may be relocated after a call to these following functions, use it at your own risk:<ul class="simple">
 <li><a class="reference internal" href="#any-vmasm_8h_1a2b6e044a34f26cb404bda5c17651ef2b"><span class="std std-ref">any_asm_emit</span></a></li>
-<li><a class="reference internal" href="#any-vmasm_8h_1a1e40b5ca00d1a7e799785b892c3d5279"><span class="std std-ref">any_asm_add_constant</span></a></li>
-<li><a class="reference internal" href="#any-vmasm_8h_1a8e68a280aece6b5a3a83a861dc522186"><span class="std std-ref">any_asm_add_import</span></a></li>
+<li><a class="reference internal" href="#any-vmasm_8h_1a69cf01c5227cf5b88cdf3f6a83d90159"><span class="std std-ref">any_asm_add_constant</span></a></li>
+<li><a class="reference internal" href="#any-vmasm_8h_1a4b5ab38d19109684aee6e992ed934d0a"><span class="std std-ref">any_asm_add_import</span></a></li>
 <li><a class="reference internal" href="#any-vmasm_8h_1add202d5bdecf030798605849760d0878"><span class="std std-ref">any_asm_reserve</span></a></li>
 <li><a class="reference internal" href="#any-vmasm_8h_1a3175c52888d8c15c2047bc535107c370"><span class="std std-ref">any_asm_push</span></a></li>
 </ul>
@@ -242,18 +242,13 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.aasm_prototype_t::source_name">
-<span class="target" id="any-vmstructaasm__prototype__t_1ab215ff4a63285edf8236626701298e2f"></span>astring_ref_t <code class="descname">source_name</code><a class="headerlink" href="#c.aasm_prototype_t::source_name" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aasm_prototype_t::source">
+<span class="target" id="any-vmstructaasm__prototype__t_1a04ec0a781b03022bcd75ea07b3535b99"></span>astring_ref_t <code class="descname">source</code><a class="headerlink" href="#c.aasm_prototype_t::source" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
-<dt id="c.aasm_prototype_t::module_name">
-<span class="target" id="any-vmstructaasm__prototype__t_1a3c14b86a88ab62828c50fb4665b414bb"></span>astring_ref_t <code class="descname">module_name</code><a class="headerlink" href="#c.aasm_prototype_t::module_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aasm_prototype_t::exported">
-<span class="target" id="any-vmstructaasm__prototype__t_1acddcb6b56533a6f0f2bd40fdf20b1451"></span>astring_ref_t <code class="descname">exported</code><a class="headerlink" href="#c.aasm_prototype_t::exported" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aasm_prototype_t::symbol">
+<span class="target" id="any-vmstructaasm__prototype__t_1a779e3e7357c9b03053049c60e269a42a"></span>astring_ref_t <code class="descname">symbol</code><a class="headerlink" href="#c.aasm_prototype_t::symbol" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
@@ -315,35 +310,6 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.aasm_current_t">
-<span class="target" id="any-vmstructaasm__current__t"></span><em class="property">struct </em><code class="descname">aasm_current_t</code><a class="headerlink" href="#c.aasm_current_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bytecode assembler current resolved pointers. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aasm_current_t::instructions">
-<span class="target" id="any-vmstructaasm__current__t_1a411b2f8b10a42a5c6cc0f50bae8b9f0b"></span>ainstruction_t* <code class="descname">instructions</code><a class="headerlink" href="#c.aasm_current_t::instructions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aasm_current_t::constants">
-<span class="target" id="any-vmstructaasm__current__t_1a766a2c3ba8d8a0340f0ec6584d02f2cc"></span>aconstant_t* <code class="descname">constants</code><a class="headerlink" href="#c.aasm_current_t::constants" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aasm_current_t::imports">
-<span class="target" id="any-vmstructaasm__current__t_1a3102c4780057713b7b35dead45e586c1"></span>aimport_t* <code class="descname">imports</code><a class="headerlink" href="#c.aasm_current_t::imports" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aasm_current_t::nesteds">
-<span class="target" id="any-vmstructaasm__current__t_1a07dde7b73f79441772fd7028afb501f5"></span>int32_t* <code class="descname">nesteds</code><a class="headerlink" href="#c.aasm_current_t::nesteds" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
 <dt id="c.aasm_reserve_t">
 <span class="target" id="any-vmstructaasm__reserve__t"></span><em class="property">struct </em><code class="descname">aasm_reserve_t</code><a class="headerlink" href="#c.aasm_reserve_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bytecode assembler reserve sizes. </p>
@@ -370,6 +336,91 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 <dd></dd></dl>
 
 </div>
+</dd></dl>
+
+<dl class="union">
+<dt id="c.aasm_constant_t">
+<span class="target" id="any-vmunionaasm__constant__t"></span><em class="property">union </em><code class="descname">aasm_constant_t</code><a class="headerlink" href="#c.aasm_constant_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;tool_types.h&gt;</em><p>Function constant. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aasm_constant_t::b">
+<span class="target" id="any-vmunionaasm__constant__t_1aacca44d20ca1b9b47e38edcc0d62acdb"></span>struct <a class="reference internal" href="#c.aasm_constant_t" title="aasm_constant_t">aasm_constant_t</a>::ac_base_t  <code class="descname">b</code><a class="headerlink" href="#c.aasm_constant_t::b" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aasm_constant_t::i">
+<span class="target" id="any-vmunionaasm__constant__t_1ad43184d36cb559b66ec8be38a710fece"></span>struct <a class="reference internal" href="#c.aasm_constant_t" title="aasm_constant_t">aasm_constant_t</a>::ac_integer_t  <code class="descname">i</code><a class="headerlink" href="#c.aasm_constant_t::i" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aasm_constant_t::s">
+<span class="target" id="any-vmunionaasm__constant__t_1ae63192a615a5a026b9cdd6d730f4ebbd"></span>struct <a class="reference internal" href="#c.aasm_constant_t" title="aasm_constant_t">aasm_constant_t</a>::ac_string_t  <code class="descname">s</code><a class="headerlink" href="#c.aasm_constant_t::s" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aasm_constant_t::r">
+<span class="target" id="any-vmunionaasm__constant__t_1a7bdf2512a882ffe8a310f547e352bbac"></span>struct <a class="reference internal" href="#c.aasm_constant_t" title="aasm_constant_t">aasm_constant_t</a>::ac_real_t  <code class="descname">r</code><a class="headerlink" href="#c.aasm_constant_t::r" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="struct">
+<dt id="c.aasm_constant_t::ac_base_t">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__base__t"></span><em class="property">struct </em><code class="descname">ac_base_t</code><a class="headerlink" href="#c.aasm_constant_t::ac_base_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;tool_types.h&gt;</em><p>Base type. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aasm_constant_t::ac_base_t::type">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__base__t_1a2a4f9174ec00513fc1992fe247cb77fa"></span>uint32_t <code class="descname">ac_base_t::type</code><a class="headerlink" href="#c.aasm_constant_t::ac_base_t::type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.aasm_constant_t::ac_integer_t">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__integer__t"></span><em class="property">struct </em><code class="descname">ac_integer_t</code><a class="headerlink" href="#c.aasm_constant_t::ac_integer_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;tool_types.h&gt;</em><p>ACT_INTEGER. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aasm_constant_t::ac_integer_t::val">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__integer__t_1a1878608c2bfffce6e4927ebb1d60fafc"></span>aint_t <code class="descname">ac_integer_t::val</code><a class="headerlink" href="#c.aasm_constant_t::ac_integer_t::val" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.aasm_constant_t::ac_real_t">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__real__t"></span><em class="property">struct </em><code class="descname">ac_real_t</code><a class="headerlink" href="#c.aasm_constant_t::ac_real_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;tool_types.h&gt;</em><p>ACT_REAL. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aasm_constant_t::ac_real_t::val">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__real__t_1afd519a6d60d155fe20affa68d54fe651"></span>areal_t <code class="descname">ac_real_t::val</code><a class="headerlink" href="#c.aasm_constant_t::ac_real_t::val" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.aasm_constant_t::ac_string_t">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__string__t"></span><em class="property">struct </em><code class="descname">ac_string_t</code><a class="headerlink" href="#c.aasm_constant_t::ac_string_t" title="Permalink to this definition">¶</a></dt>
+<dd><em>#include &lt;tool_types.h&gt;</em><p>ACT_STRING. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aasm_constant_t::ac_string_t::ref">
+<span class="target" id="any-vmstructaasm__constant__t_1_1ac__string__t_1a6ed900331fc2522eb580c9a744e89d94"></span>astring_ref_t <code class="descname">ac_string_t::ref</code><a class="headerlink" href="#c.aasm_constant_t::ac_string_t::ref" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="function">
@@ -411,7 +462,7 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 
 <dl class="function">
 <dt id="c.any_asm_emit">
-<span class="target" id="any-vmasm_8h_1a2b6e044a34f26cb404bda5c17651ef2b"></span>int32_t <code class="descname">any_asm_emit</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, ainstruction_t<em>&nbsp;instruction</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_emit" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmasm_8h_1a2b6e044a34f26cb404bda5c17651ef2b"></span>int32_t <code class="descname">any_asm_emit</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="bytecode.html#c.ainstruction_t" title="ainstruction_t">ainstruction_t</a><em>&nbsp;instruction</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_emit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Emit instruction. </p>
 <p><dl class="docutils">
 <dt><strong>Return</strong></dt>
@@ -422,7 +473,7 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 
 <dl class="function">
 <dt id="c.any_asm_add_constant">
-<span class="target" id="any-vmasm_8h_1a1e40b5ca00d1a7e799785b892c3d5279"></span>int32_t <code class="descname">any_asm_add_constant</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, aconstant_t<em>&nbsp;constant</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_add_constant" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmasm_8h_1a69cf01c5227cf5b88cdf3f6a83d90159"></span>int32_t <code class="descname">any_asm_add_constant</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.aasm_constant_t" title="aasm_constant_t">aasm_constant_t</a><em>&nbsp;constant</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_add_constant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add constant. </p>
 <p><dl class="docutils">
 <dt><strong>Return</strong></dt>
@@ -433,7 +484,7 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 
 <dl class="function">
 <dt id="c.any_asm_add_import">
-<span class="target" id="any-vmasm_8h_1a8e68a280aece6b5a3a83a861dc522186"></span>int32_t <code class="descname">any_asm_add_import</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, aimport_t<em>&nbsp;import</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_add_import" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmasm_8h_1a4b5ab38d19109684aee6e992ed934d0a"></span>int32_t <code class="descname">any_asm_add_import</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, const char *<em>&nbsp;module</em>, const char *<em>&nbsp;name</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_add_import" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add import. </p>
 <p><dl class="docutils">
 <dt><strong>Return</strong></dt>
@@ -444,7 +495,7 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 
 <dl class="function">
 <dt id="c.any_asm_module_push">
-<span class="target" id="any-vmasm_8h_1a871a311ad1a3edd0ad786d3b3e456bd1"></span>int32_t <code class="descname">any_asm_module_push</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, const char *<em>&nbsp;module</em>, const char *<em>&nbsp;name</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_module_push" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmasm_8h_1a60376482af4429a95f1fb943420aafbf"></span>int32_t <code class="descname">any_asm_module_push</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em>, const char *<em>&nbsp;name</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_module_push" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create nested prototype at top (module) level. </p>
 <p><code class="docutils literal"><span class="pre">name</span></code> is the symbol to be exported. <dl class="docutils">
 <dt><strong>See</strong></dt>
@@ -503,7 +554,7 @@ The assembler is context sensitive, which can be used to authoring multiple prot
 
 <dl class="function">
 <dt id="c.any_asm_resolve">
-<span class="target" id="any-vmasm_8h_1a901ddc0109ee06ab70e3b27fdc2d6445"></span><a class="reference internal" href="#c.aasm_current_t" title="aasm_current_t">aasm_current_t</a> <code class="descname">any_asm_resolve</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_resolve" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmasm_8h_1a901ddc0109ee06ab70e3b27fdc2d6445"></span>aasm_current_t <code class="descname">any_asm_resolve</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aasm_t" title="aasm_t">aasm_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_asm_resolve" title="Permalink to this definition">¶</a></dt>
 <dd><p>Resolve prototype pointers. </p>
 </dd></dl>
 

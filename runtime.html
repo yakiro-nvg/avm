@@ -1,0 +1,328 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Runtime &#8212; Any-VM 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/better.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="memory.html" />
+    <link rel="prev" title="Bytecode" href="bytecode.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  </head>
+  <body role="document">
+    <header id="pageheader"><h1><a href="index.html ">
+        Any-VM 0.1.0 documentation
+    </a></h1></header>
+  <div class="related top">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="bytecode.html" title="Previous document">Bytecode</a>
+        </li>
+        <li>
+          <a href="memory.html" title="Next document">API Reference</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">Any-VM 0.1.0 documentation</a></li> 
+    </ul>
+  </nav>
+  </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="runtime">
+<h1>Runtime<a class="headerlink" href="#runtime" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="bytecode-loader">
+<h2>Bytecode Loader<a class="headerlink" href="#bytecode-loader" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="c.any_link">
+<span class="target" id="any-vmloader_8h_1a98974850b7a8cffdedd76b53d271e018"></span>int32_t <code class="descname">any_link</code><span class="sig-paren">(</span><a class="reference internal" href="bytecode.html#c.achunk_t" title="achunk_t">achunk_t</a>  **<em>&nbsp;chunks</em>, int32_t *<em>&nbsp;sizes</em>, const  anative_module_t  *<em>&nbsp;natives</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link multiple chunk of bytecode together. </p>
+<p>This function will validate these chunks and try to resolve all required pointers. After that, this chunk prototypes becomes ready to execute, with correct resolved <a class="reference internal" href="bytecode.html#any-vmstructaimport__t"><span class="std std-ref">aimport_t</span></a> and <a class="reference internal" href="bytecode.html#any-vmstructacurrent__t"><span class="std std-ref">acurrent_t</span></a> pointers. This function is <code class="docutils literal"><span class="pre">pure</span></code>, that means this can&#8217;t not touch other variables but only input. Which also means no global state and no dynamic memory allocation required.</p>
+<p>This design make somethings simpler and somethings trickier. If we only have a few chunks which are embedded inside the application, and be statically allocated at the compile time, then that will be really straight forward. However, things will become harder when we needed to reload/upgrade bytecode in runtime. There are no way to reclaim the allocated memory of successfully linked chunk at this level. Obviously we need to rely on something at higher level which in turn traversal all values in the stack and heap to determine what chunk is unreferenced so that can not be imported anymore. Otherwise we will lost this memory chunk forever, which may just <code class="docutils literal"><span class="pre">reasonable</span> <span class="pre">right</span></code> or <code class="docutils literal"><span class="pre">seriously</span> <span class="pre">wrong</span></code>. That is case by case and is up to you to decide. Generally speaking, just move on.</p>
+<p>This design also do not take care of rolling back these chunks to its previously good working state, since that isn&#8217;t mandatory at all. There are dumb use cases and hardware which aren&#8217;t ever willing to support hot bytecode reloading. That things also are the targets of AVM, so we must understand that a portable device which requires fast bring ups time are really different from web or game servers. Therefore, you are responsible to backup your chunks first if required.</p>
+<p>Another issue is slow looking up time for prototype from name, since we don&#8217;t ever try to build a hash table at all. Therefore, reflection should also be handle by another component if you ever wish to invoke a module level function by reflection. Which responsible to making a hash table for you. However, that use cases is rare, usually we only need to lookup once time to find the entry point at the startup. Other references are resolved using <a class="reference internal" href="bytecode.html#any-vmstructaimport__t"><span class="std std-ref">aimport_t</span></a> by this function.</p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd><code class="docutils literal"><span class="pre">AERR_NONE</span></code> if successful. </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="section" id="value-types">
+<h2>Value Types<a class="headerlink" href="#value-types" title="Permalink to this headline">¶</a></h2>
+<dl class="typedef">
+<dt id="c.anative_func_t">
+<span class="target" id="any-vmrt__types_8h_1ac65b1491ee9654eba91dae7344dc561c"></span><em class="property">typedef </em>int32_t<code class="descname">(* anative_func_t)</code><span class="sig-paren">(</span>void<em>&nbsp;*</em><span class="sig-paren">)</span><a class="headerlink" href="#c.anative_func_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Native function. </p>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.avalue_t">
+<span class="target" id="any-vmstructavalue__t"></span><em class="property">struct </em><code class="descname">avalue_t</code><a class="headerlink" href="#c.avalue_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tagged value. </p>
+<p>AVM is dynamically typed. Each value carries its own type in <code class="docutils literal"><a class="reference internal" href="#any-vmstructavtag__t"><span class="std std-ref"><span class="pre">avtag_t</span></span></a></code>. There are some values which are subject to automatic memory management, which are marked <code class="docutils literal"><span class="pre">collectable</span></code>. The scope of such values are not corresponding to the lexical scope, opposite to <code class="docutils literal"><span class="pre">non</span> <span class="pre">collectable</span></code> values which are placed on the stack and will be disappeared as soon as the stack grow back.</p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd><code class="docutils literal"><span class="pre">collectable</span></code> type is also called <code class="docutils literal"><span class="pre">reference</span> <span class="pre">type</span></code>. </dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.avalue_t::tag">
+<span class="target" id="any-vmstructavalue__t_1a0fc408cffeb8bce39672971ff2730d75"></span><a class="reference internal" href="#c.avtag_t" title="avtag_t">avtag_t</a> <code class="descname">tag</code><a class="headerlink" href="#c.avalue_t::tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::b">
+<span class="target" id="any-vmstructavalue__t_1a6c451543343c9dda73f5cdf3c4f6903e"></span>int32_t <code class="descname">b</code><a class="headerlink" href="#c.avalue_t::b" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ac3ccffc88c9f0358cd34e42d5d57789f"><span class="std std-ref">ATB_BOOL</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::p">
+<span class="target" id="any-vmstructavalue__t_1a5e95853ddc070c2419a4a90bd150ce4e"></span>void* <code class="descname">p</code><a class="headerlink" href="#c.avalue_t::p" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a7c646fa14ec0f04cf1b73c6e6590ddc1"><span class="std std-ref">ATB_POINTER</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::cs">
+<span class="target" id="any-vmstructavalue__t_1a7b98512bf647c01b5cd1aa3ea0ca7799"></span>astring_ref_t <code class="descname">cs</code><a class="headerlink" href="#c.avalue_t::cs" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ad79645e5893d64873eb28e24b4830052"><span class="std std-ref">ATB_CONST_STRING</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::i">
+<span class="target" id="any-vmstructavalue__t_1a662bc1cea5a815c9f137d8c1bb22b633"></span>aint_t <code class="descname">i</code><a class="headerlink" href="#c.avalue_t::i" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1ad0c900170ea907c75b8780580913878b"><span class="std std-ref">AVT_INTEGER</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::r">
+<span class="target" id="any-vmstructavalue__t_1ac082a83cc86eadeebdc27dd4557ceaa9"></span>areal_t <code class="descname">r</code><a class="headerlink" href="#c.avalue_t::r" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1a598ff725aab99b3045340e9b9a77e1ba"><span class="std std-ref">AVT_REAL</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::f">
+<span class="target" id="any-vmstructavalue__t_1acb014497afc5b010eaebf3e2efdc9b8b"></span><a class="reference internal" href="#c.anative_func_t" title="anative_func_t">anative_func_t</a> <code class="descname">f</code><a class="headerlink" href="#c.avalue_t::f" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883a25d4bc86b78814a4df5717a7e11709a2"><span class="std std-ref">AVT_NATIVE_FUNC</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::mf">
+<span class="target" id="any-vmstructavalue__t_1a621087c55ef377827ec629b85c12b149"></span>struct aprototype_s* <code class="descname">mf</code><a class="headerlink" href="#c.avalue_t::mf" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883aa7c4b24b761d110d794c07cb6f72cde3"><span class="std std-ref">AVT_MODULE_FUNC</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::v">
+<span class="target" id="any-vmstructavalue__t_1a7bd05f8bd3c708cf4d003b290f5d0014"></span>union <a class="reference internal" href="#c.avalue_t" title="avalue_t">avalue_t</a>::&#64;0  <code class="descname">v</code><a class="headerlink" href="#c.avalue_t::v" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.avtag_t">
+<span class="target" id="any-vmstructavtag__t"></span><em class="property">struct </em><code class="descname">avtag_t</code><a class="headerlink" href="#c.avtag_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Value tag. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.avtag_t::tag">
+<span class="target" id="any-vmstructavtag__t_1a49227db6c6ed8de02c72c7c9ecd9d99c"></span>int8_t <code class="descname">tag</code><a class="headerlink" href="#c.avtag_t::tag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avtag_t::variant">
+<span class="target" id="any-vmstructavtag__t_1a487d885d6fc0462fcc44595aab28b0b0"></span>int8_t <code class="descname">variant</code><a class="headerlink" href="#c.avtag_t::variant" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="enum">
+<dt id="c.ATB">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410"></span><em class="property">enum </em><code class="descname">ATB</code><a class="headerlink" href="#c.ATB" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic value tags. </p>
+<p><em>Values:</em></p>
+<dl class="enumvalue">
+<dt id="c.ATB_NIL">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a6a8d49acc99d95dc314960ebdfaeb7a5"></span><code class="descname">ATB_NIL</code><a class="headerlink" href="#c.ATB_NIL" title="Permalink to this definition">¶</a></dt>
+<dd><p>No value. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ATB_BOOL">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ac3ccffc88c9f0358cd34e42d5d57789f"></span><code class="descname">ATB_BOOL</code><a class="headerlink" href="#c.ATB_BOOL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Either <code class="docutils literal"><span class="pre">true</span></code>: 1 or <code class="docutils literal"><span class="pre">false</span></code>: 0. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ATB_POINTER">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a7c646fa14ec0f04cf1b73c6e6590ddc1"></span><code class="descname">ATB_POINTER</code><a class="headerlink" href="#c.ATB_POINTER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raw pointer. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ATB_CONST_STRING">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ad79645e5893d64873eb28e24b4830052"></span><code class="descname">ATB_CONST_STRING</code><a class="headerlink" href="#c.ATB_CONST_STRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constant string. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ATB_NUMBER">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a91d563172deeddfd529bc77a4938fc7c"></span><code class="descname">ATB_NUMBER</code><a class="headerlink" href="#c.ATB_NUMBER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant of number. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ATB_FUNCTION">
+<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410acd3038604eaf80d17f780da1c917bedf"></span><code class="descname">ATB_FUNCTION</code><a class="headerlink" href="#c.ATB_FUNCTION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant of function. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="enum">
+<dt id="c.AVT_NUMBER">
+<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1"></span><em class="property">enum </em><code class="descname">AVT_NUMBER</code><a class="headerlink" href="#c.AVT_NUMBER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a91d563172deeddfd529bc77a4938fc7c"><span class="std std-ref">ATB_NUMBER</span></a>. </p>
+<p><em>Values:</em></p>
+<dl class="enumvalue">
+<dt id="c.AVT_INTEGER">
+<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1ad0c900170ea907c75b8780580913878b"></span><code class="descname">AVT_INTEGER</code><a class="headerlink" href="#c.AVT_INTEGER" title="Permalink to this definition">¶</a></dt>
+<dd><p>No fractional. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.AVT_REAL">
+<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1a598ff725aab99b3045340e9b9a77e1ba"></span><code class="descname">AVT_REAL</code><a class="headerlink" href="#c.AVT_REAL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Floating-point number. </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="enum">
+<dt id="c.AVT_FUNCTION">
+<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883"></span><em class="property">enum </em><code class="descname">AVT_FUNCTION</code><a class="headerlink" href="#c.AVT_FUNCTION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410acd3038604eaf80d17f780da1c917bedf"><span class="std std-ref">ATB_FUNCTION</span></a>. </p>
+<p><em>Values:</em></p>
+<dl class="enumvalue">
+<dt id="c.AVT_NATIVE_FUNC">
+<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883a25d4bc86b78814a4df5717a7e11709a2"></span><code class="descname">AVT_NATIVE_FUNC</code><a class="headerlink" href="#c.AVT_NATIVE_FUNC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.AVT_MODULE_FUNC">
+<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883aa7c4b24b761d110d794c07cb6f72cde3"></span><code class="descname">AVT_MODULE_FUNC</code><a class="headerlink" href="#c.AVT_MODULE_FUNC" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Runtime</a><ul>
+<li><a class="reference internal" href="#bytecode-loader">Bytecode Loader</a></li>
+<li><a class="reference internal" href="#value-types">Value Types</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="bytecode.html"
+                        title="previous chapter">Bytecode</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="memory.html"
+                        title="next chapter">API Reference</a></p>
+<div class="sourcelink">
+  <a href="_sources/runtime.rst.txt" rel="nofollow">
+    Show page source
+  </a>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="related bottom">
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="bytecode.html" title="Previous document">Bytecode</a>
+        </li>
+        <li>
+          <a href="memory.html" title="Next document">API Reference</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+  <nav id="breadcrumbs">
+    <ul>
+      <li><a href="index.html">Any-VM 0.1.0 documentation</a></li> 
+    </ul>
+  </nav>
+  </div>
+  <footer id="pagefooter">&copy; 2017 Nguyễn Việt Giang. All rights reserved.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a>
+      1.5.5
+        with the <a href="http://github.com/irskep/sphinx-better-theme">
+          better</a> theme.
+
+  </footer>
+
+  
+  </body>
+</html>
