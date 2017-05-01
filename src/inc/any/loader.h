@@ -40,6 +40,8 @@ Which responsible to making a hash table for you. However, that use cases is rar
 usually we only need to lookup once time to find the entry point at the startup. 
 Other references are resolved using \ref aimport_t by this function.
 
+\note Input definition must be NULL terminated, by NULL pointer or NULL name.
+
 \return `AERR_NONE` if successful.
 */
 ANY_API int32_t any_link(

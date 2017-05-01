@@ -17,7 +17,7 @@ AINLINE const char* any_pt_symbol(const aprototype_t* p)
     return ((const char*)(p + 1)) + p->symbol;
 }
 
-AINLINE const ainstruction_t any_pt_inst(const aprototype_t* p, int32_t idx)
+AINLINE ainstruction_t any_pt_inst(const aprototype_t* p, int32_t idx)
 {
     return p->resolved.instructions[idx];
 }

@@ -43,11 +43,11 @@ static int32_t resolve_current(uint8_t* b, int32_t sz, int32_t* used)
 }
 
 static int32_t resolve_import(
-    aprototype_t* p, const achunk_t** chunks, const anative_module_t* natives)
+    aprototype_t* p, achunk_t** chunks, const anative_module_t* natives)
 {
     int32_t err = AERR_NONE;
     int32_t i, j;
-    const achunk_t** c;
+    achunk_t** c;
     const anative_module_t* n;
     const anative_module_func_t* nf;
     const char* strs = (const char*)(p + 1);
@@ -113,7 +113,7 @@ int32_t any_link(
     // resolve acurrent_t pointers
     for (c = chunks, sz = sizes; *c != NULL; ++c, ++sz) {
         int32_t off;
-        if (*sz < sizeof(achunk_t) || 
+        if (*sz < (int32_t)sizeof(achunk_t) || 
             memcmp(*c, &CHUNK_HEADER, sizeof(achunk_t)) != 0)
             return AERR_MALFORMED;
         off = sizeof(achunk_t);

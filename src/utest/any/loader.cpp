@@ -77,7 +77,7 @@ TEST_CASE("loader_link")
     any_asm_save(&b);
 
     achunk_t* chunks[] = { a.chunk, b.chunk, NULL };
-    int32_t sizes[] = { a.chunk_size, b.chunk_size, NULL };
+    int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
     static anative_module_func_t nfuncs[] = {
         { "f1", (anative_func_t)0xF1 },
         { "f2", (anative_func_t)0xF2 },
@@ -188,7 +188,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_a")
     {
         achunk_t* chunks[] = { b.chunk, NULL };
-        int32_t sizes[] = { b.chunk_size, NULL };
+        int32_t sizes[] = { b.chunk_size, 0 };
         static anative_module_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { "f2", (anative_func_t)0xF2 },
@@ -204,7 +204,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_b")
     {
         achunk_t* chunks[] = { a.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, NULL };
+        int32_t sizes[] = { a.chunk_size, 0 };
         static anative_module_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { "f2", (anative_func_t)0xF2 },
@@ -220,14 +220,14 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_native_0")
     {
         achunk_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, NULL };
+        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         REQUIRE(AERR_UNRESOLVED == any_link(chunks, sizes, NULL));
     }
 
     SECTION("missing_native_1")
     {
         achunk_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, NULL };
+        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         anative_module_t nmodules[] = {
             { NULL, NULL }
         };
@@ -237,7 +237,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_native_2")
     {
         achunk_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, NULL };
+        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         static anative_module_func_t nfuncs[] = {
             { NULL, NULL }
         };
@@ -251,7 +251,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_native_3")
     {
         achunk_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, NULL };
+        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         static anative_module_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { NULL, NULL }
