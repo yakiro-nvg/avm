@@ -9,7 +9,6 @@ Code Chunk
 Function Prototype
 ==================
 .. doxygenstruct:: aprototype_t
-.. doxygenunion::  aconstant_t
 .. doxygenstruct:: aimport_t
 .. doxygenstruct:: acurrent_t
 

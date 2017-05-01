@@ -332,11 +332,23 @@ otherwise realloc.
 */
 typedef void* (*arealloc_t)(void* userdata, void* old, int32_t sz);
 
-// Reference to a string
+/// Reference to a string
 typedef int32_t astring_ref_t;
 
-// Native function.
+/// Native function.
 typedef int32_t(*anative_func_t)(void*);
+
+/// Native module function.
+typedef struct {
+    const char* name;
+    anative_func_t func;
+} anative_module_func_t;
+
+/// Native module.
+typedef struct {
+    const char* name;
+    const anative_module_func_t* funcs;
+} anative_module_t;
 
 /// Basic value tags.
 enum ATB {
@@ -346,6 +358,8 @@ enum ATB {
     ATB_BOOL,
     /// Raw pointer.
     ATB_POINTER,
+    /// Constant string.
+    ATB_CONST_STRING,
     /// Variant of number.
     ATB_NUMBER,
     /// Variant of function.
@@ -370,8 +384,7 @@ enum AVT_NUMBER {
 typedef struct {
     int8_t tag;
     int8_t variant;
-    int8_t collectable;
-    int8_t _;
+    int8_t _[2];
 } avtag_t;
 
 /** Tagged value.
@@ -392,6 +405,8 @@ typedef struct {
         int32_t b;
         /// \ref ATB_POINTER.
         void* p;
+        /// \ref ATB_CONST_STRING.
+        astring_ref_t cs;
         /// \ref AVT_INTEGER.
         aint_t i;
         /// \ref AVT_REAL.
@@ -425,7 +440,8 @@ bytecode rewriter can always be implemented as an external tool.
 =====  ===================  ===================
 bytes  description          value
 =====  ===================  ===================
-4      signature            0x416E7900
+4      signature            0x41 0x6E 0x79 0x00
+1      version number       0x{MAJOR}{MINOR}
 1      is big endian?       1 = big, 0 = little
 1      size of size_t       default 8 bytes
 1      size of integer      default 8 bytes
@@ -438,102 +454,46 @@ bytes  description          value
 \note The header portion is not affected by endianess.
 */
 typedef struct APACKED {
-    uint8_t header[12];
+    uint8_t  signature[4];
+
+    uint32_t major_ver       : 4;
+    uint32_t minor_ver       : 4;
+    uint32_t big_endian      : 8;
+    uint32_t size_of_size_t  : 8;
+    uint32_t size_of_integer : 8;
+
+    uint8_t  size_of_float;
+    uint8_t  size_of_instruction;
+    uint8_t  _[2];
 } achunk_t;
 
 #pragma pack(pop)
 
 ASTATIC_ASSERT(sizeof(achunk_t) == 12);
 
-// Constant types.
-enum {
-    ACT_INTEGER,
-    ACT_STRING,
-    ACT_REAL
-};
-
-#pragma pack(push, 1)
-
-/// Function constant.
-typedef union APACKED {
-    /// Base type.
-    struct ac_base_t {
-        uint32_t type;
-    } b;
-    /// ACT_INTEGER.
-    struct ac_integer_t {
-        uint32_t _;
-        aint_t val;
-    } i;
-    ///  ACT_STRING.
-    struct ac_string_t {
-        uint32_t _;
-        astring_ref_t ref;
-    } s;
-    /// ACT_REAL.
-    struct ac_real_t {
-        uint32_t _;
-        areal_t val;
-    } r;
-} aconstant_t;
-
-#pragma pack(pop)
-
-ASTATIC_ASSERT(sizeof(aconstant_t) ==
-    sizeof(uint32_t) +
-    (sizeof(aint_t) > sizeof(areal_t)
-        ? sizeof(aint_t)
-        : sizeof(areal_t)));
-
-// Constant constructors.
-AINLINE aconstant_t ac_integer(aint_t val)
-{
-    aconstant_t c;
-    c.b.type = ACT_INTEGER;
-    c.i.val = val;
-    return c;
-}
-
-AINLINE aconstant_t ac_string(astring_ref_t s)
-{
-    aconstant_t c;
-    c.b.type = ACT_STRING;
-    c.s.ref = s;
-    return c;
-}
-
-AINLINE aconstant_t ac_real(areal_t val)
-{
-    aconstant_t c;
-    c.b.type = ACT_REAL;
-    c.r.val = val;
-    return c;
-}
-
 /// Function import.
 typedef struct {
     astring_ref_t module;
     astring_ref_t name;
-    avalue_t* resolved;
+    avalue_t resolved;
 } aimport_t;
 
-ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(void*));
+ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(avalue_t));
 
 AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;
     i.name = name;
-    i.resolved = NULL;
     return i;
 }
 
 /// Resolved prototype pointers.
 typedef struct {
     ainstruction_t* instructions;
-    aconstant_t* constants;
+    avalue_t* constants;
     aimport_t* imports;
-    int32_t* nesteds;
+    struct aprototype_s** nesteds;
 } acurrent_t;
 
 /** Function prototype.
@@ -568,48 +528,45 @@ The best things that AVM runtime provides is just sandbox guarantees, by
 prevent malformed bytecode to crash the system, nothing more.
 
 \par Memory layout:
-
 \rst
-====================================  ======================  =======
-bytes                                 description             scope
-====================================  ======================  =======
-4 signed                              source file name        _
-4 signed                              module name             _
-4 signed                              to be exported          _
-4 signed                              num of instructions     _
-4 signed                              num of string bytes     _
-2 signed                              num of nesteds          _
-1 unsigned                            num of upvalues         _
-1 unsigned                            num of arguments        _
-1 unsigned                            num of constants        _
-1 unsigned                            num of local variables  _
-1 unsigned                            num of imports          _
-1                                     _                       _
-sizeof(:c:type:`acurrent_t`)          resolved pointers       runtime
-num of string bytes                   pool of strings         _
-n * sizeof(:c:type:`ainstruction_t`)  pool of instructions    _
-n * sizeof(:c:type:`aconstant_t`)     pool of constants       _
-n * sizeof(:c:type:`aimport_t`)       pool of imports         _
-n * sizeof(int32_t)                   nested offsets          _
-_                                     nested prototypes       _
-====================================  ======================  =======
+====================================  =========================  =======
+bytes                                 description                scope
+====================================  =========================  =======
+4 signed                              source file name           _
+4 signed                              to be exported             _
+4 signed                              num of string bytes        _
+4 signed                              num of instructions        _
+2 signed                              num of nesteds             _
+1 unsigned                            num of upvalues            _
+1 unsigned                            num of arguments           _
+1 unsigned                            num of constants           _
+1 unsigned                            num of local variables     _
+1 unsigned                            num of imports             _
+1                                     _                          _
+sizeof(:c:type:`acurrent_t`)          resolved pointers          runtime
+num of string bytes                   pool of strings            _
+n * sizeof(:c:type:`ainstruction_t`)  pool of instructions       _
+n * sizeof(:c:type:`avalue_t`)        pool of constants          _
+n * sizeof(:c:type:`aimport_t`)       pool of imports            _
+n * sizeof(void*)                     nested prototype pointers  runtime
+_                                     nested prototypes          _
+====================================  =========================  =======
 \endrst
-
 \note Portions with `runtime scope` are reversed in compile time.
 */
 typedef struct aprototype_s {
-    astring_ref_t source_name;
-    astring_ref_t module_name;
+    astring_ref_t source;
     astring_ref_t symbol;
-    int32_t num_instructions;
     int32_t strings_sz;
+    int32_t num_instructions;
     int16_t num_nesteds;
     uint8_t num_upvalues;
     uint8_t num_arguments;
     uint8_t num_constants;
     uint8_t num_local_vars;
     uint8_t num_imports;
-    uint8_t _[1 + sizeof(acurrent_t)];
+    uint8_t _;
+    acurrent_t resolved;
 } aprototype_t;
 
-ASTATIC_ASSERT(sizeof(aprototype_t) == 28 + sizeof(acurrent_t));
+ASTATIC_ASSERT(sizeof(aprototype_t) == 24 + sizeof(acurrent_t));

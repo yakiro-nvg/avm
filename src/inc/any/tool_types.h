@@ -54,13 +54,78 @@ enum {
     sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
 };
 
+
+// Constant types.
+enum ACTYPE {
+    ACT_INTEGER,
+    ACT_STRING,
+    ACT_REAL
+};
+
+#pragma pack(push, 1)
+
+/// Function constant.
+typedef union APACKED {
+    /// Base type.
+    struct ac_base_t {
+        uint32_t type;
+    } b;
+    /// ACT_INTEGER.
+    struct ac_integer_t {
+        uint32_t _;
+        aint_t val;
+    } i;
+    ///  ACT_STRING.
+    struct ac_string_t {
+        uint32_t _;
+        astring_ref_t ref;
+    } s;
+    /// ACT_REAL.
+    struct ac_real_t {
+        uint32_t _;
+        areal_t val;
+    } r;
+} aasm_constant_t;
+
+#pragma pack(pop)
+
+ASTATIC_ASSERT(sizeof(aasm_constant_t) ==
+    sizeof(uint32_t) +
+    (sizeof(aint_t) > sizeof(areal_t)
+        ? sizeof(aint_t)
+        : sizeof(areal_t)));
+
+// Constant constructors.
+AINLINE aasm_constant_t ac_integer(aint_t val)
+{
+    aasm_constant_t c;
+    c.b.type = ACT_INTEGER;
+    c.i.val = val;
+    return c;
+}
+
+AINLINE aasm_constant_t ac_string(astring_ref_t s)
+{
+    aasm_constant_t c;
+    c.b.type = ACT_STRING;
+    c.s.ref = s;
+    return c;
+}
+
+AINLINE aasm_constant_t ac_real(areal_t val)
+{
+    aasm_constant_t c;
+    c.b.type = ACT_REAL;
+    c.r.val = val;
+    return c;
+}
+
 /** Bytecode assembler prototype.
 \warning `max_*` is **readonly**.
 \ref any_asm_reserve are required to extends these values.
 */
 typedef struct {
-    astring_ref_t source_name;
-    astring_ref_t module_name;
+    astring_ref_t source;
     astring_ref_t symbol;
     int32_t num_instructions;
     int32_t max_instructions;
@@ -89,10 +154,18 @@ typedef struct {
     int16_t max_nesteds;
 } aasm_reserve_t;
 
+/// Bytecode assembler resolved prototype pointers.
+typedef struct {
+    ainstruction_t* instructions;
+    aasm_constant_t* constants;
+    aimport_t* imports;
+    int32_t* nesteds;
+} aasm_current_t;
+
 /** Bytecode assembler.
 
 \warning
-\ref aasm_prototype_t and \ref acurrent_t are reserved for advanced purpose 
+\ref aasm_prototype_t and \ref aasm_current_t are reserved for advanced purpose 
 like optimization, which provides direct access to the assembler internal. The 
 content of these structure may be relocated after a call to these following 
 functions, use it at your own risk:

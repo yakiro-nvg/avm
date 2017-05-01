@@ -34,13 +34,9 @@ typedef struct {
     ainstruction_t jin;
     ainstruction_t ivk;
 
-    aconstant_t cinteger;
-    aconstant_t cstring;
-    aconstant_t creal;
-
-    aimport_t imp0;
-    aimport_t imp1;
-    aimport_t imp2;
+    aasm_constant_t cinteger;
+    aasm_constant_t cstring;
+    aasm_constant_t creal;
 } basic_test_ctx;
 
 static void basic_add(aasm_t* a, basic_test_ctx& t)
@@ -76,19 +72,9 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(1 == any_asm_add_constant(a, t.cstring));
     REQUIRE(2 == any_asm_add_constant(a, t.creal));
 
-    t.imp0 = aimport(
-        any_asm_string_to_ref(a, "test_imp0_module"), 
-        any_asm_string_to_ref(a, "test_imp0_name"));
-    t.imp1 = aimport(
-        any_asm_string_to_ref(a, "test_imp1_module"),
-        any_asm_string_to_ref(a, "test_imp1_name"));
-    t.imp2 = aimport(
-        any_asm_string_to_ref(a, "test_imp2_module"),
-        any_asm_string_to_ref(a, "test_imp2_name"));
-
-    REQUIRE(0 == any_asm_add_import(a, t.imp0));
-    REQUIRE(1 == any_asm_add_import(a, t.imp1));
-    REQUIRE(2 == any_asm_add_import(a, t.imp2));
+    REQUIRE(0 == any_asm_add_import(a, "tim0", "tin0"));
+    REQUIRE(1 == any_asm_add_import(a, "tim1", "tin1"));
+    REQUIRE(2 == any_asm_add_import(a, "tim2", "tin2"));
 };
 
 static void basic_check(aasm_t* a, basic_test_ctx& t)
@@ -132,12 +118,12 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.constants[2].r.val == t.creal.r.val);
 
     REQUIRE(p->num_imports == 3);
-    REQUIRE(c.imports[0].module == t.imp0.module);
-    REQUIRE(c.imports[0].name == t.imp0.name);
-    REQUIRE(c.imports[1].module == t.imp1.module);
-    REQUIRE(c.imports[1].name == t.imp1.name);
-    REQUIRE(c.imports[2].module == t.imp2.module);
-    REQUIRE(c.imports[2].name == t.imp2.name);
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[0].module), "tim0");
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[0].name), "tin0");
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[1].module), "tim1");
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[1].name), "tin1");
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[2].module), "tim2");
+    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[2].name), "tin2");
 }
 
 static void require_equals(aasm_t* a1, aasm_t* a2)
@@ -148,11 +134,8 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
     auto c2 = any_asm_resolve(a2);
 
     REQUIRE_STR_EQUALS(
-        any_st_to_string(a1->st, p1->source_name),
-        any_st_to_string(a2->st, p2->source_name));
-    REQUIRE_STR_EQUALS(
-        any_st_to_string(a1->st, p1->module_name),
-        any_st_to_string(a2->st, p2->module_name));
+        any_st_to_string(a1->st, p1->source),
+        any_st_to_string(a2->st, p2->source));
     REQUIRE_STR_EQUALS(
         any_st_to_string(a1->st, p1->symbol),
         any_st_to_string(a2->st, p2->symbol));
@@ -205,8 +188,7 @@ TEST_CASE("asm_module")
     REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
     auto p = any_asm_prototype(&a);
 
-    REQUIRE(p->source_name == 0);
-    REQUIRE(p->module_name == 0);
+    REQUIRE(p->source == 0);
     REQUIRE(p->symbol == 0);
     REQUIRE(p->num_instructions == 0);
     REQUIRE(p->num_upvalues == 0);
@@ -254,9 +236,8 @@ TEST_CASE("asm_nested")
             REQUIRE(j == any_asm_pop(&a));
         }
         if (i == 0) {
-            REQUIRE(PUSH_COUNT == any_asm_module_push(&a, "module", "symbol"));
+            REQUIRE(PUSH_COUNT == any_asm_module_push(&a, "symbol"));
             const aasm_prototype_t* p = any_asm_prototype(&a);
-            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->module_name), "module");
             REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->symbol), "symbol");
         } else {
             REQUIRE(PUSH_COUNT == any_asm_push(&a));

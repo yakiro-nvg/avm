@@ -37,19 +37,19 @@ ANY_API int32_t any_asm_emit(aasm_t* self, ainstruction_t instruction);
 /** Add constant.
 \return The index of added constant.
 */
-ANY_API int32_t any_asm_add_constant(aasm_t* self, aconstant_t constant);
+ANY_API int32_t any_asm_add_constant(aasm_t* self, aasm_constant_t constant);
 
 /** Add import.
 \return The index of added import.
 */
-ANY_API int32_t any_asm_add_import(aasm_t* self, aimport_t import);
+ANY_API int32_t any_asm_add_import(
+    aasm_t* self, const char* module, const char* name);
 
 /** Create nested prototype at top (module) level.
 \brief `name` is the symbol to be exported.
 \see \ref any_asm_push
 */
-ANY_API int32_t any_asm_module_push(
-    aasm_t* self, const char* module, const char* name);
+ANY_API int32_t any_asm_module_push(aasm_t* self, const char* name);
 
 /** Create nested prototype.
 \brief A new context will be pushed onto the stack,
@@ -79,7 +79,7 @@ ANY_API void any_asm_reserve(aasm_t* self, const aasm_reserve_t* sz);
 ANY_API aasm_prototype_t* any_asm_prototype(aasm_t* self);
 
 /// Resolve prototype pointers.
-ANY_API acurrent_t any_asm_resolve(aasm_t* self);
+ANY_API aasm_current_t any_asm_resolve(aasm_t* self);
 
 /// Get prototype at `slot`.
 AINLINE aasm_prototype_t* any_asm_prototype_at(aasm_t* self, int32_t slot)
