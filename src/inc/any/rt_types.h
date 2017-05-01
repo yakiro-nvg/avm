@@ -368,16 +368,16 @@ enum ATB {
 
 /// Variant tags for \ref ATB_FUNCTION.
 enum AVT_FUNCTION {
-    AVT_NATIVE_FUNC,
-    AVT_MODULE_FUNC
+    AVTF_NATIVE,
+    AVTF_PURE
 };
 
 /// Variant tags for \ref ATB_NUMBER.
 enum AVT_NUMBER {
     /// No fractional.
-    AVT_INTEGER,
+    AVTN_INTEGER,
     /// Floating-point number.
-    AVT_REAL
+    AVTN_REAL
 };
 
 /// Value tag.

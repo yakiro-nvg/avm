@@ -102,11 +102,11 @@ TEST_CASE("loader_link")
     REQUIRE(any_pt_inst(af1, 3).b.opcode == AOC_RET);
     REQUIRE(af1->num_constants == 1);
     REQUIRE(any_pt_const(af1, 0)->tag.tag == ATB_NUMBER);
-    REQUIRE(any_pt_const(af1, 0)->tag.variant == AVT_INTEGER);
+    REQUIRE(any_pt_const(af1, 0)->tag.variant == AVTN_INTEGER);
     REQUIRE(any_pt_const(af1, 0)->v.i == 0xAF1);
     REQUIRE(af1->num_imports == 1);
     REQUIRE(any_pt_import(af1, 0)->tag.tag == ATB_FUNCTION);
-    REQUIRE(any_pt_import(af1, 0)->tag.variant == AVT_MODULE_FUNC);
+    REQUIRE(any_pt_import(af1, 0)->tag.variant == AVTF_PURE);
     const aprototype_t* const af1i = any_pt_import(af1, 0)->v.mf;
 
     const aprototype_t* const af2 = mod_a->resolved.nesteds[1];
@@ -119,11 +119,11 @@ TEST_CASE("loader_link")
     REQUIRE(any_pt_inst(af2, 3).b.opcode == AOC_RET);
     REQUIRE(af2->num_constants == 1);
     REQUIRE(any_pt_const(af2, 0)->tag.tag == ATB_NUMBER);
-    REQUIRE(any_pt_const(af2, 0)->tag.variant == AVT_INTEGER);
+    REQUIRE(any_pt_const(af2, 0)->tag.variant == AVTN_INTEGER);
     REQUIRE(any_pt_const(af2, 0)->v.i == 0xAF2);
     REQUIRE(af2->num_imports == 1);
     REQUIRE(any_pt_import(af2, 0)->tag.tag == ATB_FUNCTION);
-    REQUIRE(any_pt_import(af2, 0)->tag.variant == AVT_NATIVE_FUNC);
+    REQUIRE(any_pt_import(af2, 0)->tag.variant == AVTF_NATIVE);
     REQUIRE(any_pt_import(af2, 0)->v.f == (anative_func_t)0xF1);
 
     const aprototype_t* const mod_b = (const aprototype_t*)(b.chunk + 1);
@@ -139,11 +139,11 @@ TEST_CASE("loader_link")
     REQUIRE(any_pt_inst(bf2, 3).b.opcode == AOC_RET);
     REQUIRE(bf2->num_constants == 1);
     REQUIRE(any_pt_const(bf2, 0)->tag.tag == ATB_NUMBER);
-    REQUIRE(any_pt_const(bf2, 0)->tag.variant == AVT_INTEGER);
+    REQUIRE(any_pt_const(bf2, 0)->tag.variant == AVTN_INTEGER);
     REQUIRE(any_pt_const(bf2, 0)->v.i == 0xBF2);
     REQUIRE(bf2->num_imports == 1);
     REQUIRE(any_pt_import(bf2, 0)->tag.tag == ATB_FUNCTION);
-    REQUIRE(any_pt_import(bf2, 0)->tag.variant == AVT_NATIVE_FUNC);
+    REQUIRE(any_pt_import(bf2, 0)->tag.variant == AVTF_NATIVE);
     REQUIRE(any_pt_import(bf2, 0)->v.f == (anative_func_t)0xF2);
 
     const aprototype_t* const bf1 = mod_b->resolved.nesteds[1];
@@ -156,11 +156,11 @@ TEST_CASE("loader_link")
     REQUIRE(any_pt_inst(bf1, 3).b.opcode == AOC_RET);
     REQUIRE(bf1->num_constants == 1);
     REQUIRE(any_pt_const(bf1, 0)->tag.tag == ATB_NUMBER);
-    REQUIRE(any_pt_const(bf1, 0)->tag.variant == AVT_INTEGER);
+    REQUIRE(any_pt_const(bf1, 0)->tag.variant == AVTN_INTEGER);
     REQUIRE(any_pt_const(bf1, 0)->v.i == 0xBF1);
     REQUIRE(bf1->num_imports == 1);
     REQUIRE(any_pt_import(bf1, 0)->tag.tag == ATB_FUNCTION);
-    REQUIRE(any_pt_import(bf1, 0)->tag.variant == AVT_MODULE_FUNC);
+    REQUIRE(any_pt_import(bf1, 0)->tag.variant == AVTF_PURE);
     const aprototype_t* const bf1i = any_pt_import(bf1, 0)->v.mf;
 
     REQUIRE(af1i == bf2);

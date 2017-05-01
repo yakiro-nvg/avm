@@ -66,7 +66,7 @@ static int32_t resolve_import(
             for (j = 0; j < m->num_nesteds; ++j) {
                 if (strcmp(any_pt_symbol(m->resolved.nesteds[j]), s_name) == 0) {
                     imp->resolved.tag.tag = ATB_FUNCTION;
-                    imp->resolved.tag.variant = AVT_MODULE_FUNC;
+                    imp->resolved.tag.variant = AVTF_PURE;
                     imp->resolved.v.mf = m->resolved.nesteds[j];
                     goto found;
                 }
@@ -81,7 +81,7 @@ static int32_t resolve_import(
                 for (nf = n->funcs; nf->name != NULL; ++nf) {
                     if (strcmp(nf->name, s_name) == 0) {
                         imp->resolved.tag.tag = ATB_FUNCTION;
-                        imp->resolved.tag.variant = AVT_NATIVE_FUNC;
+                        imp->resolved.tag.variant = AVTF_NATIVE;
                         imp->resolved.v.f = nf->func;
                         goto found;
                     }

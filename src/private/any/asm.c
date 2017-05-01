@@ -273,12 +273,12 @@ AINLINE avalue_t to_value(aasm_constant_t c, aasm_t* self, aprototype_t* header)
     switch (c.b.type) {
     case ACT_INTEGER:
         v.tag.tag = ATB_NUMBER;
-        v.tag.variant = AVT_INTEGER;
+        v.tag.variant = AVTN_INTEGER;
         v.v.i = c.i.val;
         break;
     case ACT_REAL:
         v.tag.tag = ATB_NUMBER;
-        v.tag.variant = AVT_REAL;
+        v.tag.variant = AVTN_REAL;
         v.v.r = c.r.val;
         break;
     case ACT_STRING:
@@ -355,11 +355,11 @@ AINLINE aasm_constant_t from_value(avalue_t v, aasm_t* self, const aprototype_t*
     c.b.type = ACT_INTEGER; // silent warning
     if (v.tag.tag == ATB_NUMBER) {
         switch (v.tag.variant) {
-        case AVT_INTEGER:
+        case AVTN_INTEGER:
             c.b.type = ACT_INTEGER;
             c.i.val = v.v.i;
             return c;
-        case AVT_REAL:
+        case AVTN_REAL:
             c.b.type = ACT_REAL;
             c.r.val = v.v.r;
             return c;
