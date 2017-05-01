@@ -31,7 +31,7 @@ good working state, since that isn't mandatory at all. There are dumb use cases
 and hardware which aren't ever willing to support hot bytecode reloading. That 
 things also are the targets of AVM, so we must understand that a portable device 
 which requires fast bring ups time are really different from web or game servers. 
-Therefore, you are responsible to backup your chunks first.
+Therefore, you are responsible to backup your chunks first if required.
 
 Another issue is slow looking up time for prototype from name, since we don't ever 
 try to build a hash table at all. Therefore, reflection should also be handle by 
