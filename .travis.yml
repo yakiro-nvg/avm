@@ -1,20 +1,26 @@
 language: cpp
-matrix:
-  include:
-    - compiler: gcc
-      os: linux
-    - compiler: clang
-      os: osx
+
+compiler:
+  - gcc
+
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "P0ZRBm6IjguI8BRn8ykkqfHlHzbe5ylNJHGciMWKo7plHTq/SSROtKNDh5KAOXQfIlcfgN62cukcpUeXTgtNAa58YUpAuSlkB4nRPK693Dj6zivbFC8cbAibex/RNTb19w7xkCCwKzrx6ESrit6Obj6b/nwpxopU6586bEIzP9I1qW1qYuE6wuBxD9tqWH7YOrE6XJWmatmwxhcd7DK6uxjtyiSaz0nARJyb5IeTjZer8E0O9RU6qCNNHScB2I1C12WEy75q3GkAx9YBB9s+kpKHfj+cbDYjpvZyYQz16s6IIvWi5z0+nl/ywIKkneG1bLUW7AXoZmVpYT/pqg/pWXu0Bf6ROWcV1Rh3eUCbBDbR6TZy4iQFYCmc9CMAuXushUgmhR7IPipa35L3i8Zv2/zbLHD1poRuNs3yUN9SfohD+pVpgUrtNf+yC2dpkEWLLpmwKdYpnFJeqK0HcmQhZtZ0JBGzYvizuv3vj3GrrY3Bk02vB09ghGbXz5ghzyQ6z8DpNxBxAqfZWXakeWxWCKvWKuIPfA6FQZHlaQeGVGdjKxIfsPl92taDxDPYpsztwn5NP7MB1B4Vc3+qlslB/EaBtzkE2b2g5AQ5X6ht14zw/HFmZ9YWnVeN+uun/pKdfPzN2ftSjHN2oqzY5/Ml6e7Ro829k/V4Sa8qcH6kuCQ="
+
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: "innostory/any-vm"
+      description: "Build submitted via Travis CI"
+    notification_email: giangnv.is@gmail.com
+    build_command_prepend: "make clean"
+    build_command:   "make build"
+    branch_pattern: coverity_scan
 
 script:
   - make build
-  - ./utest.sh
-
-branches:
-  only:
-    - master
-
-notifications:
-  email: false
-
-osx_image: xcode7.3
