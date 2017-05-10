@@ -743,7 +743,7 @@ typedef struct {
     struct adispatcher_s* runner;
     arealloc_t realloc;
     void* realloc_ud;
-#if ANY_SMP
+#ifdef ANY_SMP
     amutex_t omutex;
     amutex_t imutex;
 #endif

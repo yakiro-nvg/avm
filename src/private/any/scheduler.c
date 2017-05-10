@@ -1,6 +1,7 @@
 #include <any/scheduler.h>
 
 #include <assert.h>
+#include <string.h>
 #include <any/errno.h>
 
 int32_t any_sched_init(
@@ -13,7 +14,7 @@ int32_t any_sched_init(
     self->realloc = realloc;
     self->realloc_ud = realloc_ud;
     self->vm = vm;
-#if ANY_SMP
+#ifdef ANY_SMP
     amutex_init(&self->omutex);
     amutex_init(&self->imutex);
 #endif

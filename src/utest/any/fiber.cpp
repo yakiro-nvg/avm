@@ -31,7 +31,6 @@ TEST_CASE("fiber")
     for (int32_t i = 0; i < NUM_FIBERS; ++i) {
         ctx[i].i = 0;
         ctx[i].m = &m;
-        ctx[i].self;
         afiber_create(&ctx[i].self, &fib_func, ctx + i);
     }
     for (int32_t i = 0; i < NUM_FIBERS; ++i) {

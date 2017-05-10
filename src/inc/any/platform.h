@@ -31,9 +31,11 @@
 #endif
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__arm64__)
-#define A64_BIT
+#define A64_BITS
+ASTATIC_ASSERT(sizeof(void*) == 8);
 #else
-#define A32_BIT
+#define A32_BITS
+ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
 #ifdef AMSVC

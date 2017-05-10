@@ -34,7 +34,7 @@ solution "any-vm"
         buildoptions { "-fsanitize=address" }
         linkoptions { "-lasan" }
     configuration { "gcc*" }
-        buildoptions_c { "-std=c99" }
+        buildoptions_c { "-std=gnu99" }
     configuration {}
         flags { "ExtraWarnings", "FatalWarnings" }
     startproject "utest"
