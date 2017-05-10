@@ -3,8 +3,6 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
-#include <inttypes.h>
 #include <any/platform.h>
 
 enum { AFIBER_STACK_SZ = 4096 };
