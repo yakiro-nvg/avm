@@ -34,7 +34,10 @@ AINLINE void afiber_switch(afiber_t* self, const afiber_t* to)
     assert(*self == GetCurrentFiber());
     SwitchToFiber(*to);
 }
-#elif defined(AAPPLE) || defined(ALINUX) 
+#elif defined(AAPPLE) || defined(ALINUX)
+#if defined(AAPPLE) && !defined(_XOPEN_SOURCE)
+#define _XOPEN_SOURCE
+#endif
 #include <ucontext.h>
 typedef ucontext_t afiber_t;
 
