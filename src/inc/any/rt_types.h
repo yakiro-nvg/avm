@@ -21,7 +21,10 @@ enum AOPCODE {
     AOC_JMP = 30,
     AOC_JIN = 31,
     AOC_IVK = 40,
-    AOC_RET = 41
+    AOC_RET = 41,
+    AOC_SND = 50,
+    AOC_RCV = 51,
+    AOC_RMV = 52
 };
 
 /** Base type.
@@ -180,8 +183,8 @@ typedef struct {
 /** Function call.
 
 \brief 
-Pop `nargs` arguments and next a closure from the stack
-then call it. The result will be pushed back onto the
+Pop a closure and next `nargs` arguments from the stack
+then call it. The result will be places onto the top of
 stack after that.
 
 \rst
@@ -211,6 +214,56 @@ typedef struct {
     uint32_t _;
 } ai_ret_t;
 
+/** Pop a pid and next a message from the stack and send this message to that pid.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_SND  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_snd_t;
+
+/** Picks up next message in the queue and places it onto the top of stack.
+\brief 
+If there is no message, jump to signed `displacement`.
+
+A `timeout` value will be popped from the stack, that will be used by AVM to 
+determine if it must wait for this period before it decided that there is no 
+more message in the queue. This `timeout` is signed and in milliseconds, a 
+negative value means infinite waiting.
+
+\note This instruction will not remove that message from the queue.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_RCV  displacement
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _ : 8;
+    int32_t displacement : 24;
+} ai_rcv_t;
+
+/** Remove current message which is previously peeked by \ref ai_rct_t.
+\brief The peek pointer will be rewound to the front.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_RMV  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_rmv_t;
+
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t b;
@@ -226,6 +279,9 @@ typedef union {
     ai_jin_t jin;
     ai_ivk_t ivk;
     ai_ret_t ret;
+    ai_snd_t snd;
+    ai_rcv_t rcv;
+    ai_rmv_t rmv;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -324,6 +380,28 @@ AINLINE ainstruction_t ai_ret()
     return i;
 }
 
+AINLINE ainstruction_t ai_snd()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_SND;
+    return i;
+}
+
+AINLINE ainstruction_t ai_rcv(int32_t displacement)
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_RCV;
+    i.rcv.displacement = displacement;
+    return i;
+}
+
+AINLINE ainstruction_t ai_rmv()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_RMV;
+    return i;
+}
+
 /** Allocator interface.
 \brief
 `old` = 0 to malloc,
@@ -332,28 +410,41 @@ otherwise realloc.
 */
 typedef void* (*arealloc_t)(void* userdata, void* old, int32_t sz);
 
+/// Process identifier.
+typedef uint32_t apid_t;
+
+/// Pid from index and generation.
+AINLINE apid_t apid_from(
+    int32_t idx_bits, int32_t gen_bits, int32_t idx, int32_t gen)
+{
+    return (idx << (32 - idx_bits)) | (gen << (32 - idx_bits - gen_bits));
+}
+
+/// Pid index part.
+AINLINE int32_t apid_idx(int32_t idx_bits, int32_t gen_bits, apid_t pid)
+{
+    AUNUSED(gen_bits);
+    return pid >> (32 - idx_bits);
+}
+
+/// Pid generation part.
+AINLINE int32_t apid_gen(int32_t idx_bits, int32_t gen_bits, apid_t pid)
+{
+    return (pid << idx_bits) >> (32 - gen_bits);
+}
+
 /// Reference to a string
 typedef int32_t astring_ref_t;
 
 /// Native function.
 typedef int32_t(*anative_func_t)(void*);
 
-/// Native module function.
-typedef struct {
-    const char* name;
-    anative_func_t func;
-} anative_module_func_t;
-
-/// Native module.
-typedef struct {
-    const char* name;
-    const anative_module_func_t* funcs;
-} anative_module_t;
-
 /// Basic value tags.
 enum ATB {
     /// No value.
     ATB_NIL,
+    /// Process identifier.
+    ATB_PID,
     /// Either `true`: 1 or `false`: 0.
     ATB_BOOL,
     /// Raw pointer.
@@ -401,6 +492,8 @@ be disappeared as soon as the stack grow back.
 typedef struct {
     avtag_t tag;
     union {
+        /// \ref ATB_PID.
+        apid_t pid;
         /// \ref ATB_BOOL.
         int32_t b;
         /// \ref ATB_POINTER.
@@ -570,3 +663,164 @@ typedef struct aprototype_s {
 } aprototype_t;
 
 ASTATIC_ASSERT(sizeof(aprototype_t) == 24 + sizeof(acurrent_t));
+
+/// Native module function.
+typedef struct {
+    const char* name;
+    anative_func_t func;
+} anative_module_func_t;
+
+/// Native module.
+typedef struct {
+    const char* name;
+    const anative_module_func_t* funcs;
+} anative_module_t;
+
+/// Message box.
+typedef struct {
+    avalue_t* msgs;
+    int32_t sz;
+    int32_t cap;
+} ambox_t;
+
+/// Message envelope.
+typedef struct {
+    apid_t to;
+    avalue_t payload;
+} aenvelope_t;
+
+/// Scheduler message box.
+typedef struct {
+    aenvelope_t* msgs;
+    int32_t sz;
+    int32_t cap;
+} asmbox_t;
+
+/// Bytecode dispatcher.
+typedef struct {
+    struct ascheduler_s* owner;
+} adispatcher_t;
+
+/** Process scheduler interface.
+\brief
+The heart of AVM is scheduler, which is where the process is going to run. There
+are many schedulers that can be co-exists at the same time in single AVM, which is 
+depends on the real use cases that you're facing. New scheduler may be added to 
+take care about a lot more of processes for each CPU core, aka symmetric multiple
+processing. You may also have a kernel mode scheduler if you are running on bare 
+metal system with full access to the CPU. That can open a lot of interesting like 
+preemptive and sandbox native processes. That kind of things may be used to replace
+most of simple RTOS.
+
+The actual dispatching function is depends on each scheduler, which may be a full
+power worker which will be pined to a single core, or must cooperative with others
+system like GUI (main thread). How these function should be scheduled, generally 
+will not be defined by AVM at this level. Therefore, you must check the document of
+the actual scheduler which you're using to make sure that actually does dispatches
+\ref avm_t engine will stand above schedulers to handle cross-scheduler operations,
+that includes message routing and process migration.
+
+Scheduler itself only know about resources assigning to execute processes, besides
+of that, there is another component that is responsible for actual executing called
+dispatchers. As same as scheduler, there are also many kind of dispatchers which is
+depends on the actual use cases. From naive portable interpreter to complex JIT/AOT
+based, please refer to \ref adispatcher_t.
+
+\warning
+To ensure the compatibility between platforms, although preemptive native function
+is possible in some case like special duty scheduler, such schedulers should only
+be used by special duty processes like driver or kernel mode service as well. You
+shouldn't rely on that for application processes, which is portable and generally 
+can't be preemptive by most of OS. If for some reasons, long running native code is
+expected, you must yield the execution explicitly, otherwise that will impacts rest
+of the scheduler.
+*/
+typedef struct ascheduler_s {
+    struct avm_s* vm;
+    adispatcher_t* runner;
+    arealloc_t realloc;
+    void* realloc_ud;
+#if ANY_SMP
+    amutex_t omutex;
+    amutex_t imutex;
+#endif
+    asmbox_t oback;
+    asmbox_t ofront;
+    asmbox_t iback;
+    asmbox_t ifront;
+} ascheduler_t;
+
+/// Process flags.
+enum APFLAGS {
+    APF_DEAD = 1 << 0,
+    APF_BORROWED = 1 << 1
+};
+
+/// Process stack frames.
+typedef struct {
+    avalue_t* sp;
+    avalue_t* bp;
+    ainstruction_t* ip;
+    aprototype_t* proto;
+} aframe_t;
+
+/** Light weight processes.
+\brief
+AVM concurrency is rely on `actor model`, which is inspired from Erlang. In this 
+model, each concurrent thread will be represented by a `aprocess_t`. Which in
+general have isolated state and can't be touched from other actor. The only way 
+an actor can affect others is through message, to tell the owner of the state 
+to modify that by itself. Therefore, we avoid explicitly locking to the state
+and lot of consequence trouble like deadlock. Well, actually deadlock still be
+possible if there are two actors which are blocking wait for messages from each
+other, but that still remains easier.
+
+AVM process is very light weight compared to the OS threads. The stack and heap
+for each process is grow and shrink dynamically due to the usages. The overhead
+in memory footprint, creation, terminate and scheduling is very low. All of that
+ultimately means massive amount of process can be spawned for each asynchronous
+operation. Then now you can forget about the messy callback hell. The scheduling
+is mostly preemptive, which doesn't require cooperations from process to yield
+for others. The exceptional case is native function. There is no portable way to 
+save the context of native C functions. That means a naive AVM scheduler will not 
+be able to interrupt processes that tends to block at the native side. Usually, 
+this can only be handled by a special duty scheduler which is work as low level 
+and known the CPU very well.
+
+You may surprise about this next strange decision, but in AVM, process memory may
+be static allocated by user and be borrowed by the scheduler. Which is an effort
+to makes dynamic allocation be an optional as much as possible. Frankly speaking, 
+dynamic allocation is good as it boost the productivity and may reduce the memory 
+footprint. However, that usually be considered as luxury things in embedded world.
+In this kind of system, non-predicted is bad, and they don't have too many things 
+to spawns dynamically as well. These factors lead to usual design that estimates
+the memory usage for each process, and just pre-allocate it statically. This kind
+of process is called `borrowed`. Which memory, in short will not be allocated by 
+AVM itself so there are no effort to grow and shrink that at all.
+*/
+typedef struct {
+#ifdef ANY_SMP
+    amutex_t mutex;
+#endif
+    volatile ascheduler_t* owner;
+    avalue_t* stack;
+    aframe_t* frame;
+    aframe_t* frames;
+    ambox_t mbox;
+    int32_t stack_cap;
+    int32_t max_frames;
+    volatile int32_t load;
+    volatile int32_t flags;
+    volatile apid_t pid;
+} aprocess_t;
+
+/// VM Engine.
+typedef struct avm_s {
+    aprocess_t* _procs;
+    int32_t _idx_bits;
+    int32_t _gen_bits;
+    int32_t _next_idx;
+#ifdef ANY_SMP
+    amutex_t _next_idx_mutex;
+#endif
+} avm_t;

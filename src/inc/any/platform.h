@@ -65,3 +65,56 @@
 #ifndef NULL
 #define NULL 0
 #endif
+
+#ifdef ANY_SMP
+
+#ifdef AWINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+typedef CRITICAL_SECTION amutex_t;
+
+AINLINE void amutex_init(amutex_t* m)
+{
+    InitializeCriticalSection(m);
+}
+
+AINLINE void amutex_destroy(amutex_t* m)
+{
+    DeleteCriticalSection(m);
+}
+
+AINLINE void amutex_lock(amutex_t* m)
+{
+    EnterCriticalSection(m);
+}
+
+AINLINE void amutex_unlock(amutex_t* m)
+{
+    LeaveCriticalSection(m);
+}
+#elif defined(AAPPLE) || defined(ALINUX)
+#include <pthread.h>
+typedef pthread_mutex_t amutex_t;
+
+AINLINE void amutex_init(amutex_t* m)
+{
+    pthread_mutex_init(m, NULL);
+}
+
+AINLINE void amutex_destroy(amutex_t* m)
+{
+    pthread_mutex_destroy(m);
+}
+
+AINLINE void amutex_lock(amutex_t* m)
+{
+    pthread_mutex_lock(m);
+}
+
+AINLINE void amutex_unlock(amutex_t* m)
+{
+    pthread_mutex_unlock(m);
+}
+#endif
+
+#endif // ANY_SMP

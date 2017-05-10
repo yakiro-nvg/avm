@@ -8,15 +8,25 @@ newoption {
     description = "Enable building tools."
 }
 
+newoption {
+    trigger = "with-smp",
+    description = "Enable symmetric multiprocessing."
+}
+
 solution "any-vm"
     configurations { "Debug", "Release" }
-    if _OPTIONS["with-tools"] then
-        defines { "ANY_TOOL=1" }
-    end
     if _ACTION == "xcode4" then
         platforms { "Universal" }
     else
         platforms { "x32", "x64", "Native" }
+    end
+    if _OPTIONS["with-tools"] then
+        defines { "ANY_TOOL=1" }
+    end
+    if _OPTIONS["with-smp"] then
+        defines { "ANY_SMP=1" }
+        configuration { "linux" }
+            links { "pthread" }
     end
     configuration { "Debug" }
         defines { "ANY_DEBUG=1" }

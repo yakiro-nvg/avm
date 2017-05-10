@@ -27,4 +27,7 @@ Instruction Set
 .. doxygenstruct:: ai_jin_t
 .. doxygenstruct:: ai_ivk_t
 .. doxygenstruct:: ai_ret_t
+.. doxygenstruct:: ai_snd_t
+.. doxygenstruct:: ai_rcv_t
+.. doxygenstruct:: ai_rmv_t
 .. doxygenunion::  ainstruction_t
