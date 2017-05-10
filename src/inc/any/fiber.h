@@ -36,6 +36,8 @@ AINLINE void afiber_switch(afiber_t* self, const afiber_t* to)
 }
 #elif defined(AAPPLE) || defined(ALINUX)
 #if defined(AAPPLE) && !defined(_XOPEN_SOURCE)
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #define _XOPEN_SOURCE
 #endif
 #include <ucontext.h>
@@ -86,4 +88,8 @@ AINLINE void afiber_switch(afiber_t* self, const afiber_t* to)
 {
     swapcontext(self, to);
 }
+
+#if defined(AAPPLE)
+#pragma clang diagnostic pop
+#endif
 #endif
