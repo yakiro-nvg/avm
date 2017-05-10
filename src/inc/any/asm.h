@@ -12,7 +12,7 @@ extern "C" {
 /** Initialization as a new assembler.
 \note Must be followed by an \ref any_asm_load.
 */
-ANY_API void any_asm_init(aasm_t* self, arealloc_t realloc, void* realloc_ud);
+ANY_API void any_asm_init(aasm_t* self, aalloc_t alloc, void* alloc_ud);
 
 /** Load from an external `input` chunk. 
 \brief This function will not update `self->chunk`.

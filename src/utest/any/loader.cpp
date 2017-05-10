@@ -8,9 +8,9 @@
 #include <any/prototype.h>
 #include <any/errno.h>
 
-static void* realloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, int32_t sz)
 {
-    return ::realloc(old, sz);
+    return realloc(old, sz);
 }
 
 static void push_module_a(aasm_t* a)
@@ -64,10 +64,10 @@ static void push_module_b(aasm_t* b)
 TEST_CASE("loader_link")
 {
     aasm_t a;
-    any_asm_init(&a, &realloc, NULL);
+    any_asm_init(&a, &myalloc, NULL);
     any_asm_load(&a, NULL);
     aasm_t b;
-    any_asm_init(&b, &realloc, NULL);
+    any_asm_init(&b, &myalloc, NULL);
     any_asm_load(&b, NULL);
 
     push_module_a(&a);
@@ -173,10 +173,10 @@ TEST_CASE("loader_link")
 TEST_CASE("loader_link_unresolved")
 {
     aasm_t a;
-    any_asm_init(&a, &realloc, NULL);
+    any_asm_init(&a, &myalloc, NULL);
     any_asm_load(&a, NULL);
     aasm_t b;
-    any_asm_init(&b, &realloc, NULL);
+    any_asm_init(&b, &myalloc, NULL);
     any_asm_load(&b, NULL);
 
     push_module_a(&a);

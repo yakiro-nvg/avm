@@ -188,8 +188,8 @@ bytecode between optimization passes on various address space.
 */
 typedef struct {
     // Allocator.
-    arealloc_t realloc;
-    void* realloc_ud;
+    aalloc_t alloc;
+    void* alloc_ud;
     // Common string table.
     astring_table_t* st;
     // Prototype buffers.

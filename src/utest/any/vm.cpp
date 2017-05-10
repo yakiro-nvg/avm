@@ -8,9 +8,9 @@
 
 enum { MSG_QUEUE_CAP = 16 };
 
-static void* realloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, int32_t sz)
 {
-    return ::realloc(old, sz);
+    return realloc(old, sz);
 }
 
 
@@ -33,7 +33,7 @@ static void init(avm_t* vm, ascheduler_t* s)
     s1_iqueues[1].sz = 0;
     
     REQUIRE(AERR_NONE == any_sched_init(
-        s, vm, NULL, s1_oqueues, s1_iqueues, &realloc, NULL));
+        s, vm, NULL, s1_oqueues, s1_iqueues, &myalloc, NULL));
 }
 
 static void free(ascheduler_t* s)
@@ -124,7 +124,7 @@ TEST_CASE("vm_migrate_messages")
     p1->mbox.sz = 0;
     auto p2 = any_vm_proc_allocate(&vm);
     p2->owner = &s2;
-    p2->mbox.msgs = (avalue_t*)realloc(NULL, NULL, MSG_QUEUE_CAP*sizeof(avalue_t));
+    p2->mbox.msgs = (avalue_t*)myalloc(NULL, NULL, MSG_QUEUE_CAP*sizeof(avalue_t));
     p2->mbox.cap = MSG_QUEUE_CAP;
     p2->mbox.sz = 0;
 
@@ -210,7 +210,7 @@ TEST_CASE("vm_migrate_messages")
         }
     }
 
-    realloc(NULL, p2->mbox.msgs, 0);
+    myalloc(NULL, p2->mbox.msgs, 0);
     free(&s0);
     free(&s1);
     free(&s2);

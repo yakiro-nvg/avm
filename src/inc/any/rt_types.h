@@ -409,7 +409,7 @@ AINLINE ainstruction_t ai_rmv()
 `sz`  = 0 to free,
 otherwise realloc.
 */
-typedef void* (*arealloc_t)(void* userdata, void* old, int32_t sz);
+typedef void* (*aalloc_t)(void* ud, void* old, int32_t sz);
 
 /// Process identifier.
 typedef uint32_t apid_t;
@@ -741,8 +741,8 @@ of the scheduler.
 typedef struct {
     struct avm_s* vm;
     struct adispatcher_s* runner;
-    arealloc_t realloc;
-    void* realloc_ud;
+    aalloc_t alloc;
+    void* alloc_ud;
 #ifdef ANY_SMP
     amutex_t omutex;
     amutex_t imutex;

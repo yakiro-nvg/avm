@@ -11,9 +11,9 @@
 
 #define REQUIRE_STR_EQUALS(a, b) REQUIRE(strcmp(a, b) == 0)
 
-static void* realloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, int32_t sz)
 {
-    return ::realloc(old, sz);
+    return realloc(old, sz);
 }
 
 static void num_vs_capacity_check(aasm_prototype_t* p)
@@ -184,7 +184,7 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
 TEST_CASE("asm_module")
 {
     aasm_t a;
-    any_asm_init(&a, &realloc, NULL);
+    any_asm_init(&a, &myalloc, NULL);
     REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
     auto p = any_asm_prototype(&a);
 
@@ -206,7 +206,7 @@ TEST_CASE("asm_module")
 TEST_CASE("asm_basic")
 {
     aasm_t a;
-    any_asm_init(&a, &realloc, NULL);
+    any_asm_init(&a, &myalloc, NULL);
     REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
 
     basic_test_ctx t;
@@ -219,7 +219,7 @@ TEST_CASE("asm_basic")
 TEST_CASE("asm_nested")
 {
     aasm_t a;
-    any_asm_init(&a, &realloc, NULL);
+    any_asm_init(&a, &myalloc, NULL);
     REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
 
     enum { PUSH_COUNT = 25 };
@@ -254,7 +254,7 @@ TEST_CASE("asm_nested")
 TEST_CASE("asm_save_load")
 {
     aasm_t a1;
-    any_asm_init(&a1, &realloc, NULL);
+    any_asm_init(&a1, &myalloc, NULL);
     REQUIRE(any_asm_load(&a1, NULL) == AERR_NONE);
 
     enum { PUSH_COUNT = 5 };
@@ -277,7 +277,7 @@ TEST_CASE("asm_save_load")
     }
 
     aasm_t a2;
-    any_asm_init(&a2, &realloc, NULL);
+    any_asm_init(&a2, &myalloc, NULL);
     REQUIRE(any_asm_load(&a2, a1.chunk) == AERR_NONE);
 
     for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {

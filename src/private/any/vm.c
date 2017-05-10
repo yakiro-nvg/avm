@@ -66,10 +66,10 @@ static void migrate_messages(avm_t* vm, ascheduler_t* s)
 
 static int32_t mbox_grow(ascheduler_t* self, aprocess_t* p)
 {
-    if (!self->realloc || (p->flags & APF_BORROWED) != 0) return FALSE;
+    if (!self->alloc || (p->flags & APF_BORROWED) != 0) return FALSE;
     p->mbox.cap *= MSG_QUEUE_GROW_FACTOR;
-    p->mbox.msgs = self->realloc(
-        self->realloc_ud, p->mbox.msgs, p->mbox.cap*sizeof(avalue_t));
+    p->mbox.msgs = self->alloc(
+        self->alloc_ud, p->mbox.msgs, p->mbox.cap*sizeof(avalue_t));
     return p->mbox.msgs != NULL;
 }
 

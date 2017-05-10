@@ -7,12 +7,12 @@
 int32_t any_sched_init(
     ascheduler_t* self, avm_t* vm, adispatcher_t* runner,
     asmbox_t oqueues[2], asmbox_t iqueues[2],
-    arealloc_t realloc, void* realloc_ud)
+    aalloc_t alloc, void* alloc_ud)
 {
     memset(self, 0, sizeof(*self));
     self->runner = runner;
-    self->realloc = realloc;
-    self->realloc_ud = realloc_ud;
+    self->alloc = alloc;
+    self->alloc_ud = alloc_ud;
     self->vm = vm;
 #ifdef ANY_SMP
     amutex_init(&self->omutex);

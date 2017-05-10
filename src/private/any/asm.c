@@ -26,9 +26,9 @@ static const aasm_reserve_t DEFAULT_PROTO_SZ = {
     INIT_MAX_NESTEDS
 };
 
-AINLINE void* arealloc(aasm_t* self, void* old, const int32_t sz)
+AINLINE void* aalloc(aasm_t* self, void* old, const int32_t sz)
 {
-    return self->realloc(self->realloc_ud, old, sz);
+    return self->alloc(self->alloc_ud, old, sz);
 }
 
 AINLINE int32_t required_size(const aasm_reserve_t* sz)
@@ -131,11 +131,11 @@ static void grow_buff(aasm_t* self, int32_t expected)
     
     assert(self->_num_slots > 0 && "don't grow for root");
     while (self->_buff_capacity < expected) self->_buff_capacity *= GROW_FACTOR;
-    new_buff = (uint8_t*)arealloc(self, NULL, self->_buff_capacity);
+    new_buff = (uint8_t*)aalloc(self, NULL, self->_buff_capacity);
 
     self->_buff_size = 0;
     gc(self, new_buff, &self->_buff_size, 0);
-    arealloc(self, self->_buff, 0);
+    aalloc(self, self->_buff, 0);
     self->_buff = new_buff;
 }
 
@@ -151,7 +151,7 @@ static int32_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
 
     if (self->_num_slots == self->_max_slots) {
         self->_max_slots *= GROW_FACTOR;
-        self->_slots = arealloc(
+        self->_slots = aalloc(
             self, self->_slots, self->_max_slots * sizeof(int32_t));
     }
 
@@ -451,26 +451,26 @@ AINLINE int32_t push_unsafe(aasm_t* self)
     return p->num_nesteds++;
 }
 
-void any_asm_init(aasm_t* self, arealloc_t realloc, void* realloc_ud)
+void any_asm_init(aasm_t* self, aalloc_t alloc, void* alloc_ud)
 {
     memset(self, 0, sizeof(*self));
-    self->realloc = realloc;
-    self->realloc_ud = realloc_ud;
+    self->alloc = alloc;
+    self->alloc_ud = alloc_ud;
 }
 
 int32_t any_asm_load(aasm_t* self, const achunk_t* input)
 {
     any_asm_cleanup(self);
 
-    self->st = (astring_table_t*)arealloc(self, NULL, INIT_ST_BYTES);
+    self->st = (astring_table_t*)aalloc(self, NULL, INIT_ST_BYTES);
     any_st_init(self->st, INIT_ST_BYTES, INIT_ST_SSIZE);
 
     self->_max_slots = INIT_SLOT_COUNT;
-    self->_slots = (int32_t*)arealloc(
+    self->_slots = (int32_t*)aalloc(
         self, NULL, self->_max_slots * sizeof(int32_t));
 
     self->_buff_capacity = self->_max_slots * required_size(&DEFAULT_PROTO_SZ);
-    self->_buff = (uint8_t*)arealloc(self, NULL, self->_buff_capacity);
+    self->_buff = (uint8_t*)aalloc(self, NULL, self->_buff_capacity);
 
     self->_slots[self->_num_slots] = new_prototype_default_size(self);
     self->_num_slots = 1;
@@ -492,8 +492,8 @@ void any_asm_save(aasm_t* self)
     sz += sizeof(achunk_t);
     self->chunk_size = 0;
     if (self->_chunk_capacity < sz) {
-        arealloc(self, self->chunk, 0);
-        self->chunk = (achunk_t*)arealloc(self, NULL, sz);
+        aalloc(self, self->chunk, 0);
+        self->chunk = (achunk_t*)aalloc(self, NULL, sz);
         self->_chunk_capacity = sz;
     }
 
@@ -506,15 +506,15 @@ void any_asm_save(aasm_t* self)
 
 void any_asm_cleanup(aasm_t* self)
 {
-    arealloc(self, self->st, 0);
+    aalloc(self, self->st, 0);
     self->st = NULL;
 
-    arealloc(self, self->_slots, 0);
+    aalloc(self, self->_slots, 0);
     self->_slots = NULL;
     self->_num_slots = 0;
     self->_max_slots = 0;
 
-    arealloc(self, self->_buff, 0);
+    aalloc(self, self->_buff, 0);
     self->_buff = NULL;
     self->_buff_size = 0;
     self->_buff_capacity = 0;
@@ -522,7 +522,7 @@ void any_asm_cleanup(aasm_t* self)
     memset(self->_context, 0, sizeof(self->_context));
     self->_nested_level = 0;
 
-    arealloc(self, self->chunk, 0);
+    aalloc(self, self->chunk, 0);
     self->chunk_size = 0;
     self->_chunk_capacity = 0;
 }
@@ -648,7 +648,7 @@ astring_ref_t any_asm_string_to_ref(aasm_t* self, const char* s)
         ref = any_st_to_ref(self->st, s);
         if (ref == AERR_FULL) {
             const int32_t new_cap = self->st->allocated_bytes * GROW_FACTOR;
-            self->st = (astring_table_t*)arealloc(self, self->st, new_cap);
+            self->st = (astring_table_t*)aalloc(self, self->st, new_cap);
             any_st_grow(self->st, new_cap);
         } else {
             break;

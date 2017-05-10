@@ -14,7 +14,7 @@ extern "C" {
 ANY_API int32_t any_sched_init(
     ascheduler_t* self, avm_t* vm, adispatcher_t* runner,
     asmbox_t oqueues[2], asmbox_t iqueues[2],
-    arealloc_t realloc, void* realloc_ud);
+    aalloc_t alloc, void* alloc_ud);
 
 /** Try to put a message into outgoing queue.
 \return AERR_FULL if no more space, otherwise a non negative `load` factor of the 
