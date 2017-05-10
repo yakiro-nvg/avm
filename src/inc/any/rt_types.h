@@ -1,7 +1,8 @@
 #pragma once
 
-#include <any/platform.h>
 #include <stdint.h>
+#include <any/platform.h>
+#include <any/fiber.h>
 
 // Primitive types.
 typedef uint64_t asize_t;
@@ -696,11 +697,6 @@ typedef struct {
     int32_t cap;
 } asmbox_t;
 
-/// Bytecode dispatcher.
-typedef struct {
-    struct ascheduler_s* owner;
-} adispatcher_t;
-
 /** Process scheduler interface.
 \brief
 The heart of AVM is scheduler, which is where the process is going to run. There
@@ -726,6 +722,13 @@ dispatchers. As same as scheduler, there are also many kind of dispatchers which
 depends on the actual use cases. From naive portable interpreter to complex JIT/AOT
 based, please refer to \ref adispatcher_t.
 
+AVM is designed to be resumable, that sounds tricky and non-portable. However, we
+believe that its worth. Generally, we don't want the users to worry about whether
+C stack is resumable or not, and if not then what happen. Yielding native function
+and across native function is just mandatory use cases in AVM. A new \ref afiber_t
+is required for each new process. That allows AVM to save the context of a process
+and comeback later, in native side.
+
 \warning
 To ensure the compatibility between platforms, although preemptive native function
 is possible in some case like special duty scheduler, such schedulers should only
@@ -735,9 +738,9 @@ can't be preemptive by most of OS. If for some reasons, long running native code
 expected, you must yield the execution explicitly, otherwise that will impacts rest
 of the scheduler.
 */
-typedef struct ascheduler_s {
+typedef struct {
     struct avm_s* vm;
-    adispatcher_t* runner;
+    struct adispatcher_s* runner;
     arealloc_t realloc;
     void* realloc_ud;
 #if ANY_SMP
@@ -803,16 +806,22 @@ typedef struct {
     amutex_t mutex;
 #endif
     volatile ascheduler_t* owner;
-    avalue_t* stack;
-    aframe_t* frame;
-    aframe_t* frames;
-    ambox_t mbox;
-    int32_t stack_cap;
-    int32_t max_frames;
     volatile int32_t load;
     volatile int32_t flags;
     volatile apid_t pid;
+    afiber_t fiber;
+    ambox_t mbox;
+    avalue_t* stack;
+    aframe_t* frame;
+    aframe_t* frames;
+    int32_t stack_cap;
+    int32_t max_frames;
 } aprocess_t;
+
+/// Bytecode dispatcher.
+typedef struct adispatcher_s {
+    void(*exec)(aprocess_t* p);
+} adispatcher_t;
 
 /// VM Engine.
 typedef struct avm_s {

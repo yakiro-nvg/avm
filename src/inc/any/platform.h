@@ -4,17 +4,20 @@
 #ifdef _MSC_VER
 #define AMSVC _MSC_VER
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
+#define ASTDCALL __stdcall
 #pragma warning(disable: 4127) // conditional expression is constant
 #elif defined(__clang__)
 #define ACLANG (((__clang_major__)*100) + \
     (__clang_minor__*10) + \
      __clang_patchlevel__)
 #define ASTATIC_ASSERT(c) _Static_assert(c, "failed")
+#define ASTDCALL
 #elif defined(__GNUC__)
 #define AGNUC (((__GNUC__)*100) + \
     (__GNUC_MINOR__*10) + \
      __GNUC_PATCHLEVEL__)
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
+#define ASTDCALL
 #else
 #   error "unknown compiler"
 #endif

@@ -33,7 +33,7 @@ static void init(avm_t* vm, ascheduler_t* s)
     s1_iqueues[1].sz = 0;
     
     REQUIRE(AERR_NONE == any_sched_init(
-        s, vm, s1_oqueues, s1_iqueues, &realloc, NULL));
+        s, vm, NULL, s1_oqueues, s1_iqueues, &realloc, NULL));
 }
 
 static void free(ascheduler_t* s)
@@ -143,9 +143,9 @@ TEST_CASE("vm_migrate_messages")
         REQUIRE(s1.oback.sz == MSG_QUEUE_CAP);
         REQUIRE(s2.oback.sz == MSG_QUEUE_CAP);
         avalue_t v;
-        REQUIRE(any_sched_outgoing(&s0, p1->pid, &v) == -1);
-        REQUIRE(any_sched_outgoing(&s1, p2->pid, &v) == -1);
-        REQUIRE(any_sched_outgoing(&s2, p0->pid, &v) == -1);
+        REQUIRE(AERR_FULL == any_sched_outgoing(&s0, p1->pid, &v));
+        REQUIRE(AERR_FULL == any_sched_outgoing(&s1, p2->pid, &v));
+        REQUIRE(AERR_FULL == any_sched_outgoing(&s2, p0->pid, &v));
     }
 
     // flush and empty incoming queues

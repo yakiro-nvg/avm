@@ -22,7 +22,6 @@ Multi-tasking
 .. doxygenfunction:: any_sched_init
 .. doxygenfunction:: any_sched_outgoing
 .. doxygenfunction:: any_sched_empty_incoming
-.. doxygenstruct::   adispatcher_t
 .. doxygenstruct::   avm_t
 .. doxygenfunction:: any_vm_startup
 .. doxygenfunction:: any_vm_shutdown
@@ -32,3 +31,4 @@ Multi-tasking
 .. doxygenfunction:: any_vm_proc_allocate
 .. doxygenfunction:: any_vm_proc_free
 .. doxygenfunction:: any_vm_flush_outgoing
+.. doxygentypedef::  adispatcher_t

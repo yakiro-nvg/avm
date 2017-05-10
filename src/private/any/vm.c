@@ -136,7 +136,7 @@ void any_vm_migrate_messages(avm_t* self, ascheduler_t** schedulers)
 
 int32_t any_sched_outgoing(ascheduler_t* self, apid_t to, const avalue_t* msg)
 {
-    int32_t ret = -1;
+    int32_t ret = AERR_FULL;
     int32_t idx = apid_idx(self->vm->_idx_bits, self->vm->_gen_bits, to);
     aprocess_t* const p = self->vm->_procs + idx;
     // to dead process is always success and cost nothing
