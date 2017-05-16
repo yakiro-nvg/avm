@@ -49,7 +49,7 @@ TEST_CASE("vm_proc_allocation")
     avm_t vm;
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
-    aprocess_t procs[1 << NUM_IDX_BITS];
+    aprocess_t* procs = (aprocess_t*)malloc((1 << NUM_IDX_BITS)*sizeof(aprocess_t));
     REQUIRE(any_vm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, procs) == AERR_NONE);
 
     // empty
@@ -90,6 +90,7 @@ TEST_CASE("vm_proc_allocation")
     }
 
     any_vm_shutdown(&vm);
+    free(procs);
 }
 
 TEST_CASE("vm_migrate_messages")
@@ -102,7 +103,7 @@ TEST_CASE("vm_migrate_messages")
 
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
-    aprocess_t procs[1 << NUM_IDX_BITS];
+    aprocess_t* procs = (aprocess_t*)malloc((1 << NUM_IDX_BITS) * sizeof(aprocess_t));
     REQUIRE(any_vm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, procs) == AERR_NONE);
     init(&vm, &s0);
     init(&vm, &s1);
@@ -209,10 +210,11 @@ TEST_CASE("vm_migrate_messages")
                 MSG_QUEUE_CAP + (MSG_QUEUE_CAP / 2) + i].v.i == i);
         }
     }
-
+    
+    any_vm_shutdown(&vm);
     myalloc(NULL, p2->mbox.msgs, 0);
     free(&s0);
     free(&s1);
     free(&s2);
-    any_vm_shutdown(&vm);
+    free(procs);
 }

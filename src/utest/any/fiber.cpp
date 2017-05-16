@@ -26,7 +26,7 @@ TEST_CASE("fiber")
 
     enum { NUM_FIBERS = 256 };
 
-    ctx_t ctx[NUM_FIBERS];
+    static ctx_t ctx[NUM_FIBERS];
 
     for (int32_t i = 0; i < NUM_FIBERS; ++i) {
         ctx[i].i = 0;

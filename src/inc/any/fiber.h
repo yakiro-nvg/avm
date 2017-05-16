@@ -2,7 +2,6 @@
 #pragma once
 
 #include <assert.h>
-#include <stdlib.h>
 #include <any/platform.h>
 
 enum { AFIBER_STACK_SZ = 4096 };
@@ -41,11 +40,14 @@ AINLINE void afiber_switch(afiber_t* self, const afiber_t* to)
 #define _XOPEN_SOURCE
 #endif
 #include <ucontext.h>
-typedef ucontext_t afiber_t;
+typedef struct {
+    ucontext_t ctx;
+    uint8_t stack[AFIBER_STACK_SZ];
+} afiber_t;
 
 AINLINE void afiber_get(afiber_t* fiber)
 {
-    getcontext(fiber);
+    getcontext(&fiber->ctx);
 }
 
 #ifdef A32_BITS
@@ -67,9 +69,9 @@ AINLINE void __afiber_do(int lf, int hf, int lu, int hu)
 AINLINE void afiber_create(afiber_t* fiber, void(ASTDCALL*func)(void*), void* ud)
 {
     afiber_get(fiber);
-    fiber->uc_stack.ss_sp = malloc(AFIBER_STACK_SZ);
-    fiber->uc_stack.ss_size = AFIBER_STACK_SZ;
-    fiber->uc_link = NULL;
+    fiber->ctx.uc_stack.ss_sp = fiber->stack;
+    fiber->ctx.uc_stack.ss_size = AFIBER_STACK_SZ;
+    fiber->ctx.uc_link = NULL;
 #ifdef A32_BITS
     makecontext(fiber, (void(*)())&__afiber_do, 2, (int)func, (int)ud);
 #else
@@ -81,7 +83,8 @@ AINLINE void afiber_create(afiber_t* fiber, void(ASTDCALL*func)(void*), void* ud
 
 AINLINE void afiber_destroy(afiber_t* fiber)
 {
-    free(fiber->uc_stack.ss_sp);
+    // nop
+    AUNUSED(fiber);
 }
 
 AINLINE void afiber_switch(afiber_t* self, const afiber_t* to)
