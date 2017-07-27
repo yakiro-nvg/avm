@@ -30,7 +30,7 @@ allocating the buffer. If the buffer runs out of memory you are responsible
 for resizing it before you can add more strings.
 
 String table is POD, that can be saved to and loaded from disk without any
-need for pointer patching. Just make sure to call \ref any_st_pack before 
+need for pointer patching. Just make sure to call \ref any_st_pack before
 saving so that it uses as little memory as possible.
 
 This structure representing a string table. The data for string table is
@@ -54,7 +54,6 @@ enum {
     sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
 };
 
-
 // Constant types.
 enum ACTYPE {
     ACT_INTEGER,
@@ -74,17 +73,17 @@ typedef union APACKED {
     struct ac_integer_t {
         uint32_t _;
         aint_t val;
-    } i;
+    } integer;
     ///  ACT_STRING.
     struct ac_string_t {
         uint32_t _;
         astring_ref_t ref;
-    } s;
+    } string;
     /// ACT_REAL.
     struct ac_real_t {
         uint32_t _;
         areal_t val;
-    } r;
+    } real;
 } aasm_constant_t;
 
 #pragma pack(pop)
@@ -100,15 +99,15 @@ AINLINE aasm_constant_t ac_integer(aint_t val)
 {
     aasm_constant_t c;
     c.b.type = ACT_INTEGER;
-    c.i.val = val;
+    c.integer.val = val;
     return c;
 }
 
-AINLINE aasm_constant_t ac_string(astring_ref_t s)
+AINLINE aasm_constant_t ac_string(astring_ref_t string)
 {
     aasm_constant_t c;
     c.b.type = ACT_STRING;
-    c.s.ref = s;
+    c.string.ref = string;
     return c;
 }
 
@@ -116,11 +115,11 @@ AINLINE aasm_constant_t ac_real(areal_t val)
 {
     aasm_constant_t c;
     c.b.type = ACT_REAL;
-    c.r.val = val;
+    c.real.val = val;
     return c;
 }
 
-/** Bytecode assembler prototype.
+/** Byte code assembler prototype.
 \warning `max_*` is **readonly**.
 \ref any_asm_reserve are required to extends these values.
 */
@@ -140,13 +139,13 @@ typedef struct {
     uint8_t max_imports;
 } aasm_prototype_t;
 
-/// Bytecode assembler context.
+/// Byte code assembler context.
 typedef struct {
     int32_t slot;
     int32_t idx;
 } aasm_ctx_t;
 
-/// Bytecode assembler reserve sizes.
+/// Byte code assembler reserve sizes.
 typedef struct {
     int32_t max_instructions;
     uint8_t max_constants;
@@ -154,7 +153,7 @@ typedef struct {
     int16_t max_nesteds;
 } aasm_reserve_t;
 
-/// Bytecode assembler resolved prototype pointers.
+/// Byte code assembler resolved prototype pointers.
 typedef struct {
     ainstruction_t* instructions;
     aasm_constant_t* constants;
@@ -162,12 +161,12 @@ typedef struct {
     int32_t* nesteds;
 } aasm_current_t;
 
-/** Bytecode assembler.
+/** Byte code assembler.
 
 \warning
-\ref aasm_prototype_t and \ref aasm_current_t are reserved for advanced purpose 
-like optimization, which provides direct access to the assembler internal. The 
-content of these structure may be relocated after a call to these following 
+\ref aasm_prototype_t and \ref aasm_current_t are reserved for advanced purpose
+like optimization, which provides direct access to the assembler internal. The
+content of these structure may be relocated after a call to these following
 functions, use it at your own risk:
 - \ref any_asm_emit
 - \ref any_asm_add_constant
@@ -178,13 +177,13 @@ functions, use it at your own risk:
 \brief
 The assembler is context sensitive, which can be used to authoring multiple
 prototypes with just only one single instance, in nested manner. Generally, for
-each \ref any_asm_push or \ref any_asm_open a new context will be created for 
-nested prototype, and that also saves the current context onto an internal stack, 
+each \ref any_asm_push or \ref any_asm_open a new context will be created for
+nested prototype, and that also saves the current context onto an internal stack,
 which can be restored later by a corresponding \ref any_asm_pop.
 
-This struct itself isn't POD, then rely on \ref achunk_t as the portable format
-for exchanges. That format enable assembler as a **framework** to working with 
-bytecode between optimization passes on various address space.
+This struct itself isn't POD, then rely on \ref achunk_header_t as the portable format
+for exchanges. That format enable assembler as a **framework** to working with
+byte code between optimization passes on various address space.
 */
 typedef struct {
     // Allocator.
@@ -203,7 +202,7 @@ typedef struct {
     aasm_ctx_t _context[24];
     int32_t _nested_level;
     // Output binary chunk.
-    achunk_t* chunk;
+    achunk_header_t* chunk;
     int32_t chunk_size;
     int32_t _chunk_capacity;
 } aasm_t;

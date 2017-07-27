@@ -50,37 +50,37 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.jin = ai_jin(rand());
     t.ivk = ai_ivk(rand());
 
-    REQUIRE(0 == any_asm_emit(a, ai_nop()));
-    REQUIRE(1 == any_asm_emit(a, t.pop));
-    REQUIRE(2 == any_asm_emit(a, t.ldk));
-    REQUIRE(3 == any_asm_emit(a, ai_nil()));
-    REQUIRE(4 == any_asm_emit(a, ai_ldb(TRUE)));
-    REQUIRE(5 == any_asm_emit(a, ai_ldb(FALSE)));
-    REQUIRE(6 == any_asm_emit(a, t.llv));
-    REQUIRE(7 == any_asm_emit(a, t.slv));
-    REQUIRE(8 == any_asm_emit(a, t.imp));
-    REQUIRE(9 == any_asm_emit(a, t.jmp));
-    REQUIRE(10 == any_asm_emit(a, t.jin));
-    REQUIRE(11 == any_asm_emit(a, t.ivk));
-    REQUIRE(12 == any_asm_emit(a, ai_ret()));
+    REQUIRE(0 == aasm_emit(a, ai_nop()));
+    REQUIRE(1 == aasm_emit(a, t.pop));
+    REQUIRE(2 == aasm_emit(a, t.ldk));
+    REQUIRE(3 == aasm_emit(a, ai_nil()));
+    REQUIRE(4 == aasm_emit(a, ai_ldb(TRUE)));
+    REQUIRE(5 == aasm_emit(a, ai_ldb(FALSE)));
+    REQUIRE(6 == aasm_emit(a, t.llv));
+    REQUIRE(7 == aasm_emit(a, t.slv));
+    REQUIRE(8 == aasm_emit(a, t.imp));
+    REQUIRE(9 == aasm_emit(a, t.jmp));
+    REQUIRE(10 == aasm_emit(a, t.jin));
+    REQUIRE(11 == aasm_emit(a, t.ivk));
+    REQUIRE(12 == aasm_emit(a, ai_ret()));
 
     t.cinteger = ac_integer(rand());
-    t.cstring = ac_string(any_asm_string_to_ref(a, "test_const"));
+    t.cstring = ac_string(aasm_string_to_ref(a, "test_const"));
     t.creal = ac_real((areal_t)rand());
 
-    REQUIRE(0 == any_asm_add_constant(a, t.cinteger));
-    REQUIRE(1 == any_asm_add_constant(a, t.cstring));
-    REQUIRE(2 == any_asm_add_constant(a, t.creal));
+    REQUIRE(0 == aasm_add_constant(a, t.cinteger));
+    REQUIRE(1 == aasm_add_constant(a, t.cstring));
+    REQUIRE(2 == aasm_add_constant(a, t.creal));
 
-    REQUIRE(0 == any_asm_add_import(a, "tim0", "tin0"));
-    REQUIRE(1 == any_asm_add_import(a, "tim1", "tin1"));
-    REQUIRE(2 == any_asm_add_import(a, "tim2", "tin2"));
+    REQUIRE(0 == aasm_add_import(a, "tim0", "tin0"));
+    REQUIRE(1 == aasm_add_import(a, "tim1", "tin1"));
+    REQUIRE(2 == aasm_add_import(a, "tim2", "tin2"));
 };
 
 static void basic_check(aasm_t* a, basic_test_ctx& t)
 {
-    auto p = any_asm_prototype(a);
-    auto c = any_asm_resolve(a);
+    auto p = aasm_prototype(a);
+    auto c = aasm_resolve(a);
 
     num_vs_capacity_check(p);
 
@@ -111,34 +111,34 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].b.type == ACT_INTEGER);
-    REQUIRE(c.constants[0].i.val == t.cinteger.i.val);
+    REQUIRE(c.constants[0].integer.val == t.cinteger.integer.val);
     REQUIRE(c.constants[1].b.type == ACT_STRING);
-    REQUIRE(c.constants[1].s.ref == t.cstring.s.ref);
+    REQUIRE(c.constants[1].string.ref == t.cstring.string.ref);
     REQUIRE(c.constants[2].b.type == ACT_REAL);
-    REQUIRE(c.constants[2].r.val == t.creal.r.val);
+    REQUIRE(c.constants[2].real.val == t.creal.real.val);
 
     REQUIRE(p->num_imports == 3);
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[0].module), "tim0");
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[0].name), "tin0");
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[1].module), "tim1");
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[1].name), "tin1");
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[2].module), "tim2");
-    REQUIRE_STR_EQUALS(any_st_to_string(a->st, c.imports[2].name), "tin2");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[0].module), "tim0");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[0].name), "tin0");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[1].module), "tim1");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[1].name), "tin1");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[2].module), "tim2");
+    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[2].name), "tin2");
 }
 
 static void require_equals(aasm_t* a1, aasm_t* a2)
 {
-    auto p1 = any_asm_prototype(a1);
-    auto p2 = any_asm_prototype(a2);
-    auto c1 = any_asm_resolve(a1);
-    auto c2 = any_asm_resolve(a2);
+    auto p1 = aasm_prototype(a1);
+    auto p2 = aasm_prototype(a2);
+    auto c1 = aasm_resolve(a1);
+    auto c2 = aasm_resolve(a2);
 
     REQUIRE_STR_EQUALS(
-        any_st_to_string(a1->st, p1->source),
-        any_st_to_string(a2->st, p2->source));
+        astring_table_to_string(a1->st, p1->source),
+        astring_table_to_string(a2->st, p2->source));
     REQUIRE_STR_EQUALS(
-        any_st_to_string(a1->st, p1->symbol),
-        any_st_to_string(a2->st, p2->symbol));
+        astring_table_to_string(a1->st, p1->symbol),
+        astring_table_to_string(a2->st, p2->symbol));
 
     REQUIRE(p1->num_upvalues == p2->num_upvalues);
     REQUIRE(p1->num_arguments == p2->num_arguments);
@@ -148,45 +148,45 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
     REQUIRE(p1->num_instructions == p2->num_instructions);
     REQUIRE(
         memcmp(
-            c1.instructions, 
-            c2.instructions, 
+            c1.instructions,
+            c2.instructions,
             p1->num_instructions*sizeof(ainstruction_t)) == 0);
 
     REQUIRE(p1->num_constants == p2->num_constants);
-    for (int32_t i = 0; i < p1->num_constants; ++i) {
-        REQUIRE(c1.constants[i].b.type == c2.constants[i].b.type);
-        switch (c1.constants[i].b.type) {
+    for (int32_t integer = 0; integer < p1->num_constants; ++integer) {
+        REQUIRE(c1.constants[integer].b.type == c2.constants[integer].b.type);
+        switch (c1.constants[integer].b.type) {
         case ACT_INTEGER:
-            REQUIRE(c1.constants[i].i.val == c2.constants[i].i.val);
+            REQUIRE(c1.constants[integer].integer.val == c2.constants[integer].integer.val);
             break;
         case ACT_STRING:
             REQUIRE_STR_EQUALS(
-                any_st_to_string(a1->st, c1.constants[i].s.ref),
-                any_st_to_string(a2->st, c2.constants[i].s.ref));
+                astring_table_to_string(a1->st, c1.constants[integer].string.ref),
+                astring_table_to_string(a2->st, c2.constants[integer].string.ref));
             break;
         case ACT_REAL:
-            REQUIRE(c1.constants[i].r.val == c2.constants[i].r.val);
+            REQUIRE(c1.constants[integer].real.val == c2.constants[integer].real.val);
             break;
         }
     }
 
     REQUIRE(p1->num_imports == p2->num_imports);
-    for (int32_t i = 0; i < p2->num_imports; ++i) {
+    for (int32_t integer = 0; integer < p2->num_imports; ++integer) {
         REQUIRE_STR_EQUALS(
-            any_st_to_string(a1->st, c1.imports[i].module),
-            any_st_to_string(a2->st, c2.imports[i].module));
+            astring_table_to_string(a1->st, c1.imports[integer].module),
+            astring_table_to_string(a2->st, c2.imports[integer].module));
         REQUIRE_STR_EQUALS(
-            any_st_to_string(a1->st, c1.imports[i].name),
-            any_st_to_string(a2->st, c2.imports[i].name));
+            astring_table_to_string(a1->st, c1.imports[integer].name),
+            astring_table_to_string(a2->st, c2.imports[integer].name));
     }
 }
 
 TEST_CASE("asm_module")
 {
     aasm_t a;
-    any_asm_init(&a, &myalloc, NULL);
-    REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
-    auto p = any_asm_prototype(&a);
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
+    auto p = aasm_prototype(&a);
 
     REQUIRE(p->source == 0);
     REQUIRE(p->symbol == 0);
@@ -200,100 +200,100 @@ TEST_CASE("asm_module")
 
     num_vs_capacity_check(p);
 
-    any_asm_cleanup(&a);
+    aasm_cleanup(&a);
 }
 
 TEST_CASE("asm_basic")
 {
     aasm_t a;
-    any_asm_init(&a, &myalloc, NULL);
-    REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
 
     basic_test_ctx t;
     basic_add(&a, t);
     basic_check(&a, t);
 
-    any_asm_cleanup(&a);
+    aasm_cleanup(&a);
 }
 
 TEST_CASE("asm_nested")
 {
     aasm_t a;
-    any_asm_init(&a, &myalloc, NULL);
-    REQUIRE(any_asm_load(&a, NULL) == AERR_NONE);
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
 
     enum { PUSH_COUNT = 25 };
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
-            REQUIRE(j == any_asm_push(&a));
+            REQUIRE(j == aasm_push(&a));
             basic_test_ctx t;
             basic_add(&a, t);
             basic_check(&a, t);
-            REQUIRE(j == any_asm_pop(&a));
-            any_asm_open(&a, j);
+            REQUIRE(j == aasm_pop(&a));
+            aasm_open(&a, j);
             basic_check(&a, t);
-            REQUIRE(j == any_asm_pop(&a));
+            REQUIRE(j == aasm_pop(&a));
         }
-        if (i == 0) {
-            REQUIRE(PUSH_COUNT == any_asm_module_push(&a, "symbol"));
-            const aasm_prototype_t* p = any_asm_prototype(&a);
-            REQUIRE_STR_EQUALS(any_st_to_string(a.st, p->symbol), "symbol");
+        if (integer == 0) {
+            REQUIRE(PUSH_COUNT == aasm_module_push(&a, "symbol"));
+            const aasm_prototype_t* p = aasm_prototype(&a);
+            REQUIRE_STR_EQUALS(astring_table_to_string(a.st, p->symbol), "symbol");
         } else {
-            REQUIRE(PUSH_COUNT == any_asm_push(&a));
+            REQUIRE(PUSH_COUNT == aasm_push(&a));
         }
     }
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
-        REQUIRE(PUSH_COUNT == any_asm_pop(&a));
+    for (int32_t integer = ANY_ASM_MAX_NESTED_LEVEL - 1; integer >= 0; --integer) {
+        REQUIRE(PUSH_COUNT == aasm_pop(&a));
     }
 
-    any_asm_cleanup(&a);
+    aasm_cleanup(&a);
 }
 
 TEST_CASE("asm_save_load")
 {
     aasm_t a1;
-    any_asm_init(&a1, &myalloc, NULL);
-    REQUIRE(any_asm_load(&a1, NULL) == AERR_NONE);
+    aasm_init(&a1, &myalloc, NULL);
+    REQUIRE(aasm_load(&a1, NULL) == AERR_NONE);
 
     enum { PUSH_COUNT = 5 };
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
-            REQUIRE(j == any_asm_push(&a1));
+            REQUIRE(j == aasm_push(&a1));
             basic_test_ctx t;
             basic_add(&a1, t);
             basic_check(&a1, t);
-            REQUIRE(j == any_asm_pop(&a1));
+            REQUIRE(j == aasm_pop(&a1));
         }
-        REQUIRE(PUSH_COUNT == any_asm_push(&a1));
+        REQUIRE(PUSH_COUNT == aasm_push(&a1));
     }
 
-    any_asm_save(&a1);
+    aasm_save(&a1);
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
-        REQUIRE(PUSH_COUNT == any_asm_pop(&a1));
+    for (int32_t integer = ANY_ASM_MAX_NESTED_LEVEL - 1; integer >= 0; --integer) {
+        REQUIRE(PUSH_COUNT == aasm_pop(&a1));
     }
 
     aasm_t a2;
-    any_asm_init(&a2, &myalloc, NULL);
-    REQUIRE(any_asm_load(&a2, a1.chunk) == AERR_NONE);
+    aasm_init(&a2, &myalloc, NULL);
+    REQUIRE(aasm_load(&a2, a1.chunk) == AERR_NONE);
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
-            any_asm_open(&a1, j);
-            any_asm_open(&a2, j);
+            aasm_open(&a1, j);
+            aasm_open(&a2, j);
             require_equals(&a1, &a2);
-            REQUIRE(j == any_asm_pop(&a1));
-            REQUIRE(j == any_asm_pop(&a2));
+            REQUIRE(j == aasm_pop(&a1));
+            REQUIRE(j == aasm_pop(&a2));
         }
-        any_asm_open(&a1, PUSH_COUNT);
-        any_asm_open(&a2, PUSH_COUNT);
+        aasm_open(&a1, PUSH_COUNT);
+        aasm_open(&a2, PUSH_COUNT);
     }
 
-    any_asm_cleanup(&a1);
-    any_asm_cleanup(&a2);
+    aasm_cleanup(&a1);
+    aasm_cleanup(&a2);
 }
 
 #endif // ANY_TOOL

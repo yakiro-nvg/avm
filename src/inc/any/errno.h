@@ -5,3 +5,5 @@
 #define AERR_FULL       -1
 #define AERR_MALFORMED  -2
 #define AERR_UNRESOLVED -3
+#define AERR_OVERFLOW   -4
+#define AERR_RUNTIME    -5

@@ -57,7 +57,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #define ANY_API
 #else
 #ifndef ANY_EXPORT
-#define ANY_API	__declspec(dllimport)
+#define ANY_API __declspec(dllimport)
 #else
 #define ANY_API __declspec(dllexport)
 #endif
@@ -75,6 +75,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 
 #ifdef AWINDOWS
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 typedef CRITICAL_SECTION amutex_t;
 
@@ -123,3 +124,11 @@ AINLINE void amutex_unlock(amutex_t* m)
 #endif
 
 #endif // ANY_SMP
+
+#if defined(AMSVC) && AMSVC <= 1910
+#define snprintf sprintf_s
+#endif
+
+#include <stdint.h>
+#include <setjmp.h>
+#include <stddef.h>
