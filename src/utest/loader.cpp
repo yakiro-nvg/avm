@@ -3,10 +3,11 @@
 
 #include <catch.hpp>
 
+#include <any/errno.h>
 #include <any/asm.h>
 #include <any/loader.h>
 #include <any/prototype.h>
-#include <any/errno.h>
+#include <any/list.h>
 
 static void* myalloc(void*, void* old, int32_t sz)
 {
@@ -61,6 +62,28 @@ static void push_module_b(aasm_t* b)
     aasm_pop(b);
 }
 
+static void push_module_c(aasm_t* c)
+{
+    aasm_prototype_t* const p = aasm_prototype(c);
+    p->symbol = aasm_string_to_ref(c, "mod_c");
+
+    aasm_module_push(c, "f1");
+    aasm_add_constant(c, ac_integer(0xCF1));
+    aasm_add_import(c, "mod_a", "f3");
+    aasm_emit(c, ai_nop());
+    aasm_emit(c, ai_ret());
+    aasm_pop(c);
+}
+
+static bool compare_value(avalue_t* a, avalue_t* b)
+{
+    return
+        a->tag.b == b->tag.b &&
+        a->tag.variant == b->tag.variant &&
+        a->tag.collectable == b->tag.collectable &&
+        memcmp(&a->v, &b->v, sizeof(((avalue_t*)0)->v)) == 0;
+}
+
 TEST_CASE("loader_link")
 {
     aasm_t a;
@@ -92,7 +115,7 @@ TEST_CASE("loader_link")
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL));
     aloader_add_lib(&l, &nmodule);
 
-    REQUIRE(AERR_NONE == aloader_link(&l));
+    REQUIRE(AERR_NONE == aloader_link(&l, FALSE));
 
     avalue_t af1;
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f1", &af1));
@@ -113,7 +136,7 @@ TEST_CASE("loader_link")
     REQUIRE(af1.v.avm_func->header->num_imports == 1);
     REQUIRE(af1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
     REQUIRE(af1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
-    aprototype_t* af1i = af1.v.avm_func->import_values[0].v.avm_func;
+    avalue_t af1i = af1.v.avm_func->import_values[0];
 
     avalue_t af2;
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f2", &af2));
@@ -167,10 +190,10 @@ TEST_CASE("loader_link")
     REQUIRE(bf1.v.avm_func->header->num_imports == 1);
     REQUIRE(bf1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
     REQUIRE(bf1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
-    aprototype_t* bf1i = bf1.v.avm_func->import_values[0].v.avm_func;
+    avalue_t bf1i = bf1.v.avm_func->import_values[0];
 
-    REQUIRE(af1i == bf2.v.avm_func);
-    REQUIRE(bf1i == af1.v.avm_func);
+    REQUIRE(compare_value(&af1i, &bf2));
+    REQUIRE(compare_value(&bf1i, &af1));
 
     aloader_cleanup(&l);
 
@@ -206,7 +229,7 @@ TEST_CASE("loader_link_unresolved")
         static alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
-        REQUIRE(AERR_UNRESOLVED == aloader_link(&l));
+        REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
     }
 
     SECTION("missing_b")
@@ -219,14 +242,14 @@ TEST_CASE("loader_link_unresolved")
         static alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
-        REQUIRE(AERR_UNRESOLVED == aloader_link(&l));
+        REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
     }
 
     SECTION("missing_native_0")
     {
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
-        REQUIRE(AERR_UNRESOLVED == aloader_link(&l));
+        REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
     }
 
     SECTION("missing_native_1")
@@ -240,7 +263,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
-        REQUIRE(AERR_UNRESOLVED == aloader_link(&l));
+        REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
     }
 
     SECTION("missing_native_2")
@@ -253,7 +276,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
-        REQUIRE(AERR_UNRESOLVED == aloader_link(&l));
+        REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
     }
 
     aloader_cleanup(&l);
@@ -262,9 +285,135 @@ TEST_CASE("loader_link_unresolved")
     aasm_cleanup(&b);
 }
 
-TEST_CASE("loader_link_rollback")
+TEST_CASE("loader_link_safe_and_sweep")
 {
-    // TODO
+    aasm_t a;
+    aasm_init(&a, &myalloc, NULL);
+    aasm_load(&a, NULL);
+    aasm_t b;
+    aasm_init(&b, &myalloc, NULL);
+    aasm_load(&b, NULL);
+    aasm_t c;
+    aasm_init(&c, &myalloc, NULL);
+    aasm_load(&c, NULL);
+
+    push_module_a(&a);
+    push_module_b(&b);
+    push_module_c(&c);
+
+    aasm_save(&a);
+    aasm_save(&b);
+    aasm_save(&c);
+
+    static alib_func_t nfuncs[] = {
+        { "f1", (anative_func_t)0xF1 },
+        { "f2", (anative_func_t)0xF2 },
+        { NULL, NULL }
+    };
+    static alib_t nmodule = { "mod_n", nfuncs };
+
+    aloader_t l;
+    aloader_init(&l, &myalloc, NULL);
+
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL));
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL));
+    aloader_add_lib(&l, &nmodule);
+
+    REQUIRE(AERR_NONE == aloader_link(&l, FALSE));
+
+    avalue_t oaf1, oaf2, obf1, obf2, onf1, onf2;
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f1", &oaf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f2", &oaf2));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_b", "f1", &obf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_b", "f2", &obf2));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f1", &onf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f2", &onf2));
+
+    REQUIRE(alist_is_end(&l.pendings, alist_head(&l.pendings)));
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&l, c.chunk, c.chunk_size, NULL, NULL));
+    // link without mod_a.f3
+    REQUIRE(AERR_UNRESOLVED == aloader_link(&l, TRUE));
+    REQUIRE(alist_is_end(&l.pendings, alist_head(&l.pendings)));
+
+    avalue_t cf1;
+    REQUIRE(AERR_UNRESOLVED == aloader_find(&l, "mod_c", "f1", &cf1));
+
+    avalue_t naf1, naf2, nbf1, nbf2, nnf1, nnf2;
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f1", &naf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f2", &naf2));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_b", "f1", &nbf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_b", "f2", &nbf2));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f1", &nnf1));
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f2", &nnf2));
+
+    REQUIRE(compare_value(&oaf1, &naf1));
+    REQUIRE(compare_value(&oaf2, &naf2));
+    REQUIRE(compare_value(&obf1, &nbf1));
+    REQUIRE(compare_value(&obf2, &nbf2));
+    REQUIRE(compare_value(&onf1, &nnf1));
+    REQUIRE(compare_value(&onf2, &nnf2));
+
+    // link with mod_a.f3 (reload)
+    aasm_t aa;
+    aasm_init(&aa, &myalloc, NULL);
+    aasm_load(&aa, NULL);
+    push_module_a(&aa);
+    aasm_module_push(&aa, "f3");
+    aasm_add_constant(&aa, ac_integer(0xAF3));
+    aasm_add_import(&aa, "mod_b", "f2");
+    aasm_emit(&aa, ai_nop());
+    aasm_emit(&aa, ai_ldk(0));
+    aasm_emit(&aa, ai_imp(0));
+    aasm_emit(&aa, ai_ret());
+    aasm_pop(&aa);
+    aasm_save(&aa);
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&l, aa.chunk, aa.chunk_size, NULL, NULL));
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&l, c.chunk, c.chunk_size, NULL, NULL));
+    REQUIRE(AERR_NONE == aloader_link(&l, TRUE));
+
+    REQUIRE(AERR_NONE == aloader_find(&l, "mod_c", "f1", &cf1));
+    REQUIRE(cf1.v.avm_func->header->num_instructions == 2);
+    REQUIRE(cf1.v.avm_func->instructions[0].b.opcode == AOC_NOP);
+    REQUIRE(cf1.v.avm_func->instructions[1].b.opcode == AOC_RET);
+    REQUIRE(cf1.v.avm_func->header->num_constants == 1);
+    REQUIRE(cf1.v.avm_func->constants[0].tag.b == ABT_NUMBER);
+    REQUIRE(cf1.v.avm_func->constants[0].tag.variant == AVTN_INTEGER);
+    REQUIRE(cf1.v.avm_func->constants[0].v.integer == 0xCF1);
+    REQUIRE(cf1.v.avm_func->header->num_imports == 1);
+    REQUIRE(cf1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
+    REQUIRE(cf1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
+    avalue_t cf1i = cf1.v.avm_func->import_values[0];
+    REQUIRE(cf1i.tag.b == ABT_FUNCTION);
+    REQUIRE(cf1i.tag.variant == AVTF_AVM);
+    aprototype_t* cf1ip = cf1i.v.avm_func;
+    aprototype_t* cf1icp = cf1ip->chunk->prototypes;
+    REQUIRE(strcmp(cf1icp->strings + cf1icp->header->symbol, "mod_a") == 0);
+    REQUIRE(strcmp(cf1ip->strings + cf1ip->header->symbol, "f3") == 0);
+
+    // sweep testing
+    alist_node_t* old_a = alist_head(&l.garbages);
+    REQUIRE(!alist_is_end(&l.garbages, old_a));
+    achunk_t* old_a_chunk = ALIST_NODE_CAST(achunk_t, old_a);
+    aprototype_t* old_a_chunk_p = old_a_chunk->prototypes;
+    REQUIRE(strcmp(
+        old_a_chunk_p->strings + old_a_chunk_p->header->symbol,
+        "mod_a") == 0);
+    old_a_chunk->retain = FALSE;
+    aloader_sweep(&l);
+    old_a = alist_head(&l.garbages);
+    REQUIRE(alist_is_end(&l.garbages, old_a));
+
+    aloader_cleanup(&l);
+
+    aasm_cleanup(&a);
+    aasm_cleanup(&aa);
+    aasm_cleanup(&b);
+    aasm_cleanup(&c);
 }
 
 #endif // ANT_TOOL

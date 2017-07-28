@@ -133,7 +133,7 @@ static int32_t has_chunk(alist_t* list, alist_node_t* node)
     while (!alist_is_end(list, i)) {
         aprototype_t* b = ALIST_NODE_CAST(achunk_t, i)->prototypes;
         const char* b_sym = b->strings + b->header->symbol;
-        if (strcmp(a_sym, b_sym)) return TRUE;
+        if (strcmp(a_sym, b_sym) == 0) return TRUE;
         i = i->next;
     }
     return FALSE;
@@ -165,6 +165,54 @@ static int32_t resolve(aloader_t* self, aprototype_t* p)
     }
 
     return AERR_NONE;
+}
+
+static int32_t cacl_chunk_imports(aprototype_t* pt)
+{
+    int32_t i;
+    int32_t acc = pt->header->num_imports;
+    for (i = 0; i < pt->header->num_nesteds; ++i) {
+        acc += cacl_chunk_imports(pt->nesteds + i);
+    }
+    return acc;
+}
+
+static int32_t calc_imports(alist_t* list)
+{
+    int32_t acc = 0;
+    alist_node_t* i = alist_head(list);
+    while (!alist_is_end(list, i)) {
+        achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+        acc += cacl_chunk_imports(chunk->prototypes);
+        i = i->next;
+    }
+    return acc;
+}
+
+static void backup_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
+{
+    int32_t i;
+    memcpy(
+        imp + *off,
+        pt->import_values,
+        sizeof(avalue_t*) * pt->header->num_imports);
+    *off += pt->header->num_imports;
+    for (i = 0; i < pt->header->num_nesteds; ++i) {
+        backup_imports(pt->nesteds + i, off, imp);
+    }
+}
+
+static void rollback_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
+{
+    int32_t i;
+    memcpy(
+        pt->import_values,
+        imp + *off,
+        sizeof(avalue_t*) * pt->header->num_imports);
+    *off += pt->header->num_imports;
+    for (i = 0; i < pt->header->num_nesteds; ++i) {
+        rollback_imports(pt->nesteds + i, off, imp);
+    }
 }
 
 void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud)
@@ -222,9 +270,10 @@ void aloader_add_lib(aloader_t* self, alib_t* lib)
     alist_push_back(&self->libs, &lib->node);
 }
 
-int32_t aloader_link(aloader_t* self)
+int32_t aloader_link(aloader_t* self, int32_t safe)
 {
     alist_node_t* const garbage_back = alist_back(&self->garbages);
+    avalue_t* old_imps;
     alist_node_t* i;
 
     // create prototypes
@@ -250,13 +299,13 @@ int32_t aloader_link(aloader_t* self)
         i = next;
     }
 
-    // resolve imports
+    // resolve pending imports
     i = alist_head(&self->pendings);
     while (!alist_is_end(&self->pendings, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
         int32_t err = resolve(self, chunk->prototypes);
         if (err != AERR_NONE) {
-            // rollback runnings
+            // rollback garbages
             i = garbage_back;
             while (!alist_is_end(&self->garbages, i)) {
                 alist_node_t* const next = i->next;
@@ -270,6 +319,47 @@ int32_t aloader_link(aloader_t* self)
         }
         i = i->next;
     }
+
+    // resolve running imports
+    if (safe) {
+        int32_t imp_sz = calc_imports(&self->runnings) * sizeof(avalue_t);
+        int32_t imp_off = 0;
+        old_imps = (avalue_t*)self->alloc(self->alloc_ud, NULL, imp_sz);
+        i = alist_head(&self->runnings);
+        while (!alist_is_end(&self->runnings, i)) {
+            achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+            backup_imports(chunk->prototypes, &imp_off, old_imps);
+            i = i->next;
+        }
+    }
+    i = alist_head(&self->runnings);
+    while (!alist_is_end(&self->runnings, i)) {
+        achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+        int32_t err = resolve(self, chunk->prototypes);
+        if (err != AERR_NONE) {
+            // rollback running imports
+            i = alist_head(&self->runnings);
+            while (!alist_is_end(&self->runnings, i)) {
+                achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+                int32_t imp_off = 0;
+                rollback_imports(chunk->prototypes, &imp_off, old_imps);
+                i = i->next;
+            }
+            // rollback garbages
+            i = garbage_back;
+            while (!alist_is_end(&self->garbages, i)) {
+                alist_node_t* const next = i->next;
+                alist_erase(&self->garbages, i);
+                alist_push_back(&self->runnings, i);
+                i = next;
+            }
+            // empty pendings
+            free_chunk_list(self, &self->pendings, FALSE);
+            return err;
+        }
+        i = i->next;
+    }
+    if (safe) self->alloc(self->alloc_ud, old_imps, 0);
 
     // move pendings to runnings
     i = alist_head(&self->pendings);

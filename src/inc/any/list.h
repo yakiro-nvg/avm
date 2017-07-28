@@ -59,7 +59,7 @@ AINLINE alist_node_t* alist_back(alist_t* self)
 }
 
 /// Check whether node is end.
-AINLINE int alist_is_end(alist_t* self, alist_node_t* node)
+AINLINE int32_t alist_is_end(alist_t* self, alist_node_t* node)
 {
     return &self->root == node;
 }

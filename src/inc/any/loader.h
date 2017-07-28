@@ -26,9 +26,10 @@ ANY_API int32_t aloader_add_chunk(
 ANY_API void aloader_add_lib(aloader_t* self, alib_t* lib);
 
 /** Link chunks of byte code together.
+\brief There is `safe` option that rolling back the state in case of failed.
 \return `AERR_NONE` if successful, otherwise cleanup `pendings` chunks.
 */
-ANY_API int32_t aloader_link(aloader_t* self);
+ANY_API int32_t aloader_link(aloader_t* self, int32_t safe);
 
 /// Free chunks in `garbages` list that are not marked for `retain`.
 ANY_API void aloader_sweep(aloader_t* self);
