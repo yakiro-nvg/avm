@@ -125,10 +125,11 @@ AINLINE void amutex_unlock(amutex_t* m)
 
 #endif // ANY_SMP
 
-#if defined(AMSVC) && AMSVC <= 1910
-#define snprintf sprintf_s
-#endif
-
+#include <stdio.h>
 #include <stdint.h>
 #include <setjmp.h>
 #include <stddef.h>
+
+#if defined(AMSVC) && !defined(snprintf)
+#define snprintf sprintf_s
+#endif
