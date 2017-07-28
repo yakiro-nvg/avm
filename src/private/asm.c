@@ -73,7 +73,8 @@ AINLINE aasm_constant_t* constants_of(aasm_prototype_t* p)
 
 AINLINE const aasm_constant_t* constants_of_const(const aasm_prototype_t* p)
 {
-    return (const aasm_constant_t*)(instructions_of_const(p) + p->max_instructions);
+    return (const aasm_constant_t*)(
+        instructions_of_const(p) + p->max_instructions);
 }
 
 AINLINE aimport_t* imports_of(aasm_prototype_t* p)
@@ -109,7 +110,7 @@ AINLINE aasm_current_t resolve(aasm_prototype_t* p)
 static void gc(
     aasm_t* self, uint8_t* new_buff, int32_t* offset, const int32_t parent)
 {
-    int32_t integer;
+    int32_t i;
 
     // copy referenced prototypes
     aasm_prototype_t* p = aasm_prototype_at(self, parent);
@@ -122,8 +123,8 @@ static void gc(
     *offset += p_sz;
 
     // recursive for children
-    for (integer = 0; integer < p->num_nesteds; ++integer) {
-        int32_t n = nesteds_of(p)[integer];
+    for (i = 0; i < p->num_nesteds; ++i) {
+        int32_t n = nesteds_of(p)[i];
         gc(self, new_buff, offset, n);
     }
 }
@@ -145,8 +146,8 @@ static void grow_buff(aasm_t* self, int32_t expected)
     self->_buff = new_buff;
 }
 
-// Returns a new prototype offset,
-// and guarantee that at least 1 free slot available.
+// returns a new prototype offset,
+// and guarantee that at least 1 free slot is available.
 static int32_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
 {
     int32_t poff;
@@ -182,14 +183,14 @@ AINLINE aasm_ctx_t* ctx(aasm_t* self)
     return self->_context + self->_nested_level;
 }
 
-// Compute required size for strings.
+// compute the required size for strings.
 AINLINE int32_t compute_strings_sz(
     const astring_table_t* st,
     const aasm_prototype_t* p,
     const aasm_constant_t* constants,
     const aimport_t* imports)
 {
-    int32_t integer;
+    int32_t i;
     int32_t sz;
 
     sz = sizeof(uint32_t) + 1 +
@@ -197,19 +198,19 @@ AINLINE int32_t compute_strings_sz(
     sz += sizeof(uint32_t) + 1 +
         (int32_t)strlen(astring_table_to_string(st, p->symbol));
 
-    for (integer = 0; integer < p->num_constants; ++integer) {
-        if (constants[integer].b.type != ACT_STRING) continue;
+    for (i = 0; i < p->num_constants; ++i) {
+        if (constants[i].b.type != ACT_STRING) continue;
         sz += sizeof(uint32_t) + 1 +
             (int32_t)strlen(
-                astring_table_to_string(st, constants[integer].string.ref));
+                astring_table_to_string(st, constants[i].string.ref));
     }
 
-    for (integer = 0; integer < p->num_imports; ++integer) {
+    for (i = 0; i < p->num_imports; ++i) {
         sz += sizeof(uint32_t) + 1 +
             (int32_t)strlen(
-                astring_table_to_string(st, imports[integer].module));
+                astring_table_to_string(st, imports[i].module));
         sz += sizeof(uint32_t) + 1 +
-            (int32_t)strlen(astring_table_to_string(st, imports[integer].name));
+            (int32_t)strlen(astring_table_to_string(st, imports[i].name));
     }
 
     return sz;
@@ -218,7 +219,7 @@ AINLINE int32_t compute_strings_sz(
 static void compute_chunk_body_size(
     const aasm_t* self, int32_t parent, int32_t* psz)
 {
-    int32_t integer;
+    int32_t i;
 
     aasm_prototype_t* const p = aasm_prototype_at((aasm_t*)self, parent);
     const aasm_current_t c = resolve(p);
@@ -229,8 +230,8 @@ static void compute_chunk_body_size(
         p->num_constants * sizeof(avalue_t) +
         p->num_imports * sizeof(aimport_t);
 
-    for (integer = 0; integer < p->num_nesteds; ++integer) {
-        compute_chunk_body_size(self, nesteds_of(p)[integer], psz);
+    for (i = 0; i < p->num_nesteds; ++i) {
+        compute_chunk_body_size(self, nesteds_of(p)[i], psz);
     }
 }
 
@@ -274,7 +275,8 @@ AINLINE void set_headers(
     header->symbol = chunk_add_str(self, header, p->symbol);
 }
 
-AINLINE avalue_t to_value(aasm_constant_t c, aasm_t* self, aprototype_header_t* header)
+AINLINE avalue_t to_value(
+    aasm_constant_t c, aasm_t* self, aprototype_header_t* header)
 {
     avalue_t v;
     v.tag.b = ABT_NIL;
@@ -322,8 +324,10 @@ static void copy_prototype(
 
     // add imports
     for (integer = 0; integer < p->num_imports; ++integer) {
-        rp.imports[integer].module = chunk_add_str(self, header, c->imports[integer].module);
-        rp.imports[integer].name = chunk_add_str(self, header, c->imports[integer].name);
+        rp.imports[integer].module = chunk_add_str(
+            self, header, c->imports[integer].module);
+        rp.imports[integer].name = chunk_add_str(
+            self, header, c->imports[integer].name);
     }
 
     assert(header->strings_sz == strings_sz);
@@ -351,12 +355,14 @@ static void save_chunk(aasm_t* self, int32_t parent)
     copy_prototype(self, p, &c, header, str_sz);
 }
 
-AINLINE const char* rp_string(const aprototype_header_t* p, astring_ref_t string)
+AINLINE const char* rp_string(
+    const aprototype_header_t* p, astring_ref_t string)
 {
     return ((const char*)p) + sizeof(aprototype_header_t) + string;
 }
 
-AINLINE aasm_constant_t from_value(avalue_t v, aasm_t* self, const aprototype_header_t* p)
+AINLINE aasm_constant_t from_value(
+    avalue_t v, aasm_t* self, const aprototype_header_t* p)
 {
     aasm_constant_t c;
     c.b.type = ACT_INTEGER; // silent warning
@@ -384,7 +390,7 @@ static int32_t load_chunk(
     aasm_t* self, const achunk_header_t* input, int32_t* offset)
 {
     int32_t err = AERR_NONE;
-    int32_t integer;
+    int32_t i;
     aasm_prototype_t* ap = NULL;
     const aprototype_header_t* const p = (const aprototype_header_t*)(
         ((const uint8_t*)input) + *offset);
@@ -412,12 +418,12 @@ static int32_t load_chunk(
         p->num_instructions * sizeof(ainstruction_t));
     ap->num_instructions = p->num_instructions;
 
-    for (integer = 0; integer < p->num_constants; ++integer) {
-        aasm_add_constant(self, from_value(rp.constants[integer], self, p));
+    for (i = 0; i < p->num_constants; ++i) {
+        aasm_add_constant(self, from_value(rp.constants[i], self, p));
     }
 
-    for (integer = 0; integer < p->num_imports; ++integer) {
-        aimport_t imp = rp.imports[integer];
+    for (i = 0; i < p->num_imports; ++i) {
+        aimport_t imp = rp.imports[i];
         aasm_add_import(
             self, rp_string(p, imp.module), rp_string(p, imp.name));
     }
@@ -429,7 +435,7 @@ static int32_t load_chunk(
         p->num_constants * sizeof(avalue_t) +
         p->num_imports * sizeof(aimport_t);
 
-    for (integer = 0; integer < p->num_nesteds; ++integer) {
+    for (i = 0; i < p->num_nesteds; ++i) {
         aasm_push(self);
         err = load_chunk(self, input, offset);
         if (err != AERR_NONE) return err;
