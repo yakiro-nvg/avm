@@ -9,7 +9,7 @@
 #include <any/platform.h>
 #include <any/list.h>
 
-typedef struct atask_s {
+typedef struct atask_t {
     LPVOID fiber;
     alist_node_t node;
 } atask_t;

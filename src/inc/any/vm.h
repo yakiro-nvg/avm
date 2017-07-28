@@ -28,6 +28,7 @@ ANY_API void avm_shutdown(avm_t* self);
 /** Lock for alive process.
 \return NULL if that is not found or died.
 */
+#if 0
 AINLINE aprocess_t* avm_process_lock(avm_t* self, apid_t pid)
 {
     apid_idx_t idx = apid_idx(self->_idx_bits, pid);
@@ -44,6 +45,7 @@ AINLINE aprocess_t* avm_process_lock(avm_t* self, apid_t pid)
         return NULL;
     }
 }
+#endif
 
 /** Lock for alive process that is belong to a scheduler.
 \brief There is optimize to reduce contention for not `owned` processes.

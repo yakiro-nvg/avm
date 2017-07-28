@@ -11,10 +11,12 @@ extern "C" {
 ANY_API void aprocess_find(aprocess_t* p, const char* module, const char* name);
 
 /// Call a function on top of the stack.
+#if 0
 AINLINE void aprocess_call(aprocess_t* p)
 {
     p->owner->runner->call(p);
 }
+#endif
 
 /// Call a function in protected mode.
 ANY_API void aprocess_protected_call(aprocess_t* p);

@@ -10,21 +10,21 @@ extern "C" {
 typedef void(ASTDCALL*atask_entry_t)(void*);
 
 /// Turn caller into a task.
-ANY_API int32_t atask_shadow(struct atask_s* self);
+ANY_API int32_t atask_shadow(struct atask_t* self);
 
 /// TODO
 ANY_API int32_t atask_create(
-    struct atask_s* self, struct atask_s* root,
+    struct atask_t* self, struct atask_t* root,
     atask_entry_t entry, void* ud, int32_t stack_sz);
 
 /// TODO
-ANY_API void atask_delete(struct atask_s* self);
+ANY_API void atask_delete(struct atask_t* self);
 
 /// TODO
-ANY_API void atask_yield(struct atask_s* self);
+ANY_API void atask_yield(struct atask_t* self);
 
 /// TODO
-ANY_API void atask_sleep(struct atask_s* self, int32_t nsecs);
+ANY_API void atask_sleep(struct atask_t* self, int32_t nsecs);
 
 #ifdef AWINDOWS
 #include <any/task_fiber.h>

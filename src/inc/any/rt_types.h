@@ -432,27 +432,11 @@ AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
     return (pid << idx_bits) >> (APID_BITS - gen_bits);
 }
 
-/** Light weight processes.
-\brief
-AVM concurrency is rely on `actor model`, which is inspired by Erlang. In this
-model, each concurrent task will be represented as a `aprocess_t`. Which is, in
-general have isolated state, that means such state can not be touched by other
-actor. The only way an actor can affect each others is through message, to tell
-the owner of that state to make the modification by itself. Therefore, we avoid
-the need for explicitly locking to the state and lot of consequence trouble like
-deadlock. Well, frankly speaking, deadlock still be possible if there are actors
-that is at the same time blocking wait for messages from each other, but mostly
-that remains easier to deal with. AVM process is also light weight in compared
-to most of OS threads. The overhead in memory footprint, creation, termination
-and scheduling is low. Therefore, a massive amount of process could be spawned.
-*/
-typedef struct aprocess_s aprocess_t;
-
 /// Reference to a string
 typedef int32_t astring_ref_t;
 
 /// Native function.
-typedef int32_t(*anative_func_t)(aprocess_t*);
+typedef int32_t(*anative_func_t)(struct aprocess_t*);
 
 /// Basic value tags.
 enum ABT {
@@ -523,7 +507,7 @@ typedef struct {
         /// \ref AVTF_NATIVE.
         anative_func_t func;
         /// \ref AVTF_AVM.
-        struct aprototype_s* avm_func;
+        struct aprototype_t* avm_func;
     } v;
 } avalue_t;
 
@@ -664,19 +648,19 @@ typedef struct {
 } alib_t;
 
 /// Runtime prototype.
-typedef struct aprototype_s {
-    struct achunk_s* chunk;
+typedef struct aprototype_t {
+    struct achunk_t* chunk;
     aprototype_header_t* header;
     const char* strings;
     ainstruction_t* instructions;
     avalue_t* constants;
     aimport_t* imports;
-    struct aprototype_s* nesteds;
+    struct aprototype_t* nesteds;
     avalue_t* import_values;
 } aprototype_t;
 
 /// Runtime byte code chunk.
-typedef struct achunk_s {
+typedef struct achunk_t {
     achunk_header_t* header;
     aalloc_t alloc;
     void* alloc_ud;
@@ -738,28 +722,15 @@ A new \ref atask_t is required for each new process. That allows AVM to save the
 context of a process and comeback later, in native side.
 */
 typedef struct {
-    struct avm_s* vm;
     struct adispatcher_s* runner;
     aalloc_t alloc;
     void* alloc_ud;
-#ifdef ANY_SMP
-    amutex_t omutex;
-    amutex_t imutex;
-#endif
-    ascheduler_mbox_t oback;
-    ascheduler_mbox_t ofront;
-    ascheduler_mbox_t iback;
-    ascheduler_mbox_t ifront;
-#if 0
     atask_t task;
-#endif
-    int32_t reduction;
 } ascheduler_t;
 
 /// Process flags.
 enum APFLAGS {
-    APF_DEAD = 1 << 0,
-    APF_BORROWED = 1 << 1
+    APF_DEAD = 1 << 0
 };
 
 /// Process stack frames.
@@ -771,13 +742,27 @@ typedef struct {
 } aframe_t;
 
 /// Error catching points.
-typedef struct acatch_s {
-    struct acatch_s* previous;
+typedef struct acatch_t {
+    struct acatch_t* previous;
     volatile int32_t status;
     jmp_buf jbuff;
 } acatch_t;
 
-struct aprocess_s {
+/** Light weight processes.
+\brief
+AVM concurrency is rely on `actor model`, which is inspired by Erlang. In this
+model, each concurrent task will be represented as a `aprocess_t`. Which is, in
+general have isolated state, that means such state can not be touched by other
+actor. The only way an actor can affect each others is through message, to tell
+the owner of that state to make the modification by itself. Therefore, we avoid
+the need for explicitly locking to the state and lot of consequence trouble like
+deadlock. Well, frankly speaking, deadlock still be possible if there are actors
+that is at the same time blocking wait for messages from each other, but mostly
+that remains easier to deal with. AVM process is also light weight in compared
+to most of OS threads. The overhead in memory footprint, creation, termination
+and scheduling is low. Therefore, a massive amount of process could be spawned.
+*/
+typedef struct aprocess_t {
 #ifdef ANY_SMP
     amutex_t mutex;
 #endif
@@ -796,15 +781,15 @@ struct aprocess_s {
     aframe_t* fp;
     int32_t stack_cap;
     int32_t max_frames;
-};
+} aprocess_t;
 
 /// Byte code dispatcher.
-typedef struct adispatcher_s {
+typedef struct adispatcher_t {
     void(*call)(aprocess_t* p);
 } adispatcher_t;
 
 /// VM Engine.
-typedef struct avm_s {
+typedef struct avm_t {
     aprocess_t* _procs;
     int8_t _idx_bits;
     int8_t _gen_bits;
