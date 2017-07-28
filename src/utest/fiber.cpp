@@ -5,7 +5,7 @@
 
 struct ctx_t
 {
-    int32_t integer;
+    int32_t val;
     atask_t self;
 };
 
@@ -14,7 +14,7 @@ static void ASTDCALL fib_func(void* ud)
     ctx_t* ctx = (ctx_t*)ud;
     for (int32_t i = 0; true; ++i) {
         atask_yield(&ctx->self);
-        ++ctx->integer;
+        ++ctx->val;
     }
 }
 
@@ -28,14 +28,14 @@ TEST_CASE("task")
     static ctx_t ctx[NUM_TASKS];
 
     for (int32_t i = 0; i < NUM_TASKS; ++i) {
-        ctx[i].integer = 0;
+        ctx[i].val = 0;
         atask_create(&ctx[i].self, &m, &fib_func, ctx + i, 512);
     }
 
     for (int32_t i = 0; i < 100; ++i) {
         atask_yield(&m);
         for (int32_t j = 0; j < NUM_TASKS; ++j) {
-            REQUIRE(ctx[j].integer == i);
+            REQUIRE(ctx[j].val == i);
         }
     }
 

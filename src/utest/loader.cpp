@@ -75,13 +75,12 @@ static void push_module_c(aasm_t* c)
     aasm_pop(c);
 }
 
-static bool compare_value(avalue_t* a, avalue_t* b)
+static bool compare_vtag(avalue_t* a, avalue_t* b)
 {
     return
         a->tag.b == b->tag.b &&
         a->tag.variant == b->tag.variant &&
-        a->tag.collectable == b->tag.collectable &&
-        memcmp(&a->v, &b->v, sizeof(((avalue_t*)0)->v)) == 0;
+        a->tag.collectable == b->tag.collectable;
 }
 
 TEST_CASE("loader_link")
@@ -192,8 +191,10 @@ TEST_CASE("loader_link")
     REQUIRE(bf1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
     avalue_t bf1i = bf1.v.avm_func->import_values[0];
 
-    REQUIRE(compare_value(&af1i, &bf2));
-    REQUIRE(compare_value(&bf1i, &af1));
+    REQUIRE(compare_vtag(&af1i, &bf2));
+    REQUIRE(af1i.v.avm_func == bf2.v.avm_func);
+    REQUIRE(compare_vtag(&bf1i, &af1));
+    REQUIRE(bf1i.v.avm_func == af1.v.avm_func);
 
     aloader_cleanup(&l);
 
@@ -349,12 +350,18 @@ TEST_CASE("loader_link_safe_and_sweep")
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f1", &nnf1));
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f2", &nnf2));
 
-    REQUIRE(compare_value(&oaf1, &naf1));
-    REQUIRE(compare_value(&oaf2, &naf2));
-    REQUIRE(compare_value(&obf1, &nbf1));
-    REQUIRE(compare_value(&obf2, &nbf2));
-    REQUIRE(compare_value(&onf1, &nnf1));
-    REQUIRE(compare_value(&onf2, &nnf2));
+    REQUIRE(compare_vtag(&oaf1, &naf1));
+    REQUIRE(oaf1.v.avm_func == naf1.v.avm_func);
+    REQUIRE(compare_vtag(&oaf2, &naf2));
+    REQUIRE(oaf2.v.avm_func == naf2.v.avm_func);
+    REQUIRE(compare_vtag(&obf1, &nbf1));
+    REQUIRE(obf1.v.avm_func == nbf1.v.avm_func);
+    REQUIRE(compare_vtag(&obf2, &nbf2));
+    REQUIRE(obf2.v.avm_func == nbf2.v.avm_func);
+    REQUIRE(compare_vtag(&onf1, &nnf1));
+    REQUIRE(onf1.v.func == nnf1.v.func);
+    REQUIRE(compare_vtag(&onf2, &nnf2));
+    REQUIRE(onf2.v.func == nnf2.v.func);
 
     // link with mod_a.f3 (reload)
     aasm_t aa;
