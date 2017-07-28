@@ -46,7 +46,7 @@ static void free_chunk_list(
         achunk_t* c = ALIST_NODE_CAST(achunk_t, i);
         i = i->next;
         if (check_for_retain && c->retain) continue;
-        alist_erase(l, &c->node);
+        alist_node_erase(&c->node);
         if (c->alloc) c->alloc(c->alloc_ud, c->header, 0);
         self->alloc(self->alloc_ud, c, 0);
     }
@@ -293,7 +293,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
     while (!alist_is_end(&self->runnings, i)) {
         alist_node_t* const next = i->next;
         if (has_chunk(&self->pendings, i)) {
-            alist_erase(&self->runnings, i);
+            alist_node_erase(i);
             alist_push_back(&self->garbages, i);
         }
         i = next;
@@ -310,7 +310,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
             i = garbage_back;
             while (!alist_is_end(&self->garbages, i)) {
                 alist_node_t* const next = i->next;
-                alist_erase(&self->garbages, i);
+                alist_node_erase(i);
                 alist_push_back(&self->runnings, i);
                 i = next;
             }
@@ -351,7 +351,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
             i = garbage_back;
             while (!alist_is_end(&self->garbages, i)) {
                 alist_node_t* const next = i->next;
-                alist_erase(&self->garbages, i);
+                alist_node_erase(i);
                 alist_push_back(&self->runnings, i);
                 i = next;
             }
@@ -367,7 +367,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
     i = alist_head(&self->pendings);
     while (!alist_is_end(&self->pendings, i)) {
         alist_node_t* const next = i->next;
-        alist_erase(&self->pendings, i);
+        alist_node_erase(i);
         alist_push_back(&self->runnings, i);
         i = next;
     }

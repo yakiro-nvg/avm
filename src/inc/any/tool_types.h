@@ -176,14 +176,14 @@ functions, use it at your own risk:
 
 \brief
 The assembler is context sensitive, which can be used to authoring multiple
-prototypes with just only one single instance, in nested manner. Generally, for
+prototypes with just only single instance, in nested manner. Generally, for
 each \ref any_asm_push or \ref any_asm_open a new context will be created for
-nested prototype, and that also saves the current context onto an internal stack,
-which can be restored later by a corresponding \ref any_asm_pop.
+nested prototype, and that also saves the current context onto an internal
+stack, which can be restored later by a corresponding \ref any_asm_pop.
 
-This struct itself isn't POD, then rely on \ref achunk_header_t as the portable format
-for exchanges. That format enable assembler as a **framework** to working with
-byte code between optimization passes on various address space.
+This struct itself is not POD, then must rely on \ref achunk_header_t as the
+portable format for exchanges. That format enable assembler as a **framework**
+to working with byte code between optimization passes.
 */
 typedef struct {
     // Allocator.

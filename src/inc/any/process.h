@@ -26,7 +26,9 @@ ANY_API void aprocess_push_nil(aprocess_t* p);
 AINLINE void aprocess_yield(aprocess_t* p)
 {
     ascheduler_t* owner = (ascheduler_t*)p->owner;
+#if 0
     afiber_switch(&p->fiber, &owner->fiber);
+#endif
 }
 
 /// Execute in protected mode.

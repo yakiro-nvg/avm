@@ -1,22 +1,12 @@
 #pragma once
 
 #include <any/platform.h>
-#include <any/fiber.h>
+#include <any/list.h>
+#include <any/task.h>
 
 // Primitive types.
 typedef int64_t aint_t;
 typedef double  areal_t;
-
-// Intrusive linked list node.
-typedef struct alist_node_s {
-    struct alist_node_s* next;
-    struct alist_node_s* prev;
-} alist_node_t;
-
-// Intrusive linked list.
-typedef struct {
-    alist_node_t root;
-} alist_t;
 
 // Specify the operation to be performed by the instructions.
 enum AOPCODE {
@@ -740,44 +730,12 @@ typedef struct {
 
 /** Process scheduler interface.
 \brief
-The heart of AVM is scheduler, which is where the process is going to run. There
-are many schedulers that can be co-exists at the same time in single AVM, which is
-depends on the real use cases that you're facing. New scheduler may be added to
-take care about a lot more of processes for each CPU core, aka symmetric multiple
-processing. You may also have a kernel mode scheduler if you are running on bare
-metal system with full access to the CPU. That can open a lot of interesting like
-preemptive and sandbox native processes. That kind of things may be used to replace
-most of simple RTOS.
-
-The actual dispatching function is depends on each scheduler, which may be a full
-power worker which will be pined to a single core, or must cooperative with others
-system like GUI (main thread). How these function should be scheduled, generally
-will not be defined by AVM at this level. Therefore, you must check the document of
-the actual scheduler which you're using to make sure that actually does dispatches
-\ref avm_t engine will stand above schedulers to handle cross-scheduler operations,
-that includes message routing and process migration.
-
-Scheduler itself only know about resources assigning to execute processes, besides
-of that, there is another component that is responsible for actual executing called
-dispatchers. As same as scheduler, there are also many kind of dispatchers which is
-depends on the actual use cases. From naive portable interpreter to complex JIT/AOT
-based, please refer to \ref adispatcher_t.
-
-AVM is designed to be resumable, that sounds tricky and non-portable. However, we
-believe that its worth. Generally, we don't want the users to worry about whether
-C stack is resumable or not, and if not then what happen. Yielding native function
-and across native function is just mandatory use cases in AVM. A new \ref afiber_t
-is required for each new process. That allows AVM to save the context of a process
-and comeback later, in native side.
-
-\warning
-To ensure the compatibility between platforms, although preemptive native function
-is possible in some case like special duty scheduler, such schedulers should only
-be used by special duty processes like driver or kernel mode service as well. You
-shouldn't rely on that for application processes, which is portable and generally
-can't be preemptive by most of OS. If for some reasons, long running native code is
-expected, you must yield the execution explicitly, otherwise that will impacts rest
-of the scheduler.
+AVM is designed to be resumable, that sounds tricky and non-portable at first.
+However, we believe that its worth. Generally, we don't want the users to worry
+about whether C stack is resumable or not, and if not then what happen. Yielding
+native function and across native function is just mandatory use cases in AVM.
+A new \ref atask_t is required for each new process. That allows AVM to save the
+context of a process and comeback later, in native side.
 */
 typedef struct {
     struct avm_s* vm;
@@ -792,7 +750,9 @@ typedef struct {
     ascheduler_mbox_t ofront;
     ascheduler_mbox_t iback;
     ascheduler_mbox_t ifront;
-    afiber_t fiber;
+#if 0
+    atask_t task;
+#endif
     int32_t reduction;
 } ascheduler_t;
 
@@ -825,7 +785,9 @@ struct aprocess_s {
     volatile int32_t load;
     volatile int32_t flags;
     volatile apid_t pid;
+#if 0
     afiber_t fiber;
+#endif
     ambox_t mbox;
     acatch_t* error_jmp;
     avalue_t* stack;

@@ -1,11 +1,22 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#include <any/rt_types.h>
+#include <any/platform.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// Intrusive linked list node.
+typedef struct alist_node_s {
+    struct alist_node_s* next;
+    struct alist_node_s* prev;
+} alist_node_t;
+
+// Intrusive linked list.
+typedef struct {
+    alist_node_t root;
+} alist_t;
 
 /// Initialize as a new list.
 AINLINE void alist_init(alist_t* self)
@@ -37,13 +48,14 @@ AINLINE void alist_push_back(alist_t* self, alist_node_t* node)
 }
 
 /// Remove node from list.
-AINLINE void alist_erase(alist_t* self, alist_node_t* node)
+AINLINE void alist_node_erase(alist_node_t* self)
 {
-    AUNUSED(self);
-    node->next->prev = node->prev;
-    node->prev->next = node->next;
-    node->next = NULL;
-    node->prev = NULL;
+    self->next->prev = self->prev;
+    self->prev->next = self->next;
+#ifdef ANY_DEBUG
+    self->next = NULL;
+    self->prev = NULL;
+#endif
 }
 
 /// Return the fist node.

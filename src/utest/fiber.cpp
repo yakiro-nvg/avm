@@ -6,38 +6,40 @@
 struct ctx_t
 {
     int32_t integer;
-    afiber_t* m;
-    afiber_t self;
+    atask_t self;
 };
 
 static void ASTDCALL fib_func(void* ud)
 {
     ctx_t* ctx = (ctx_t*)ud;
-    for (int32_t integer = 0; true; ++integer) {
-        REQUIRE(ctx->integer == integer);
-        afiber_switch(&ctx->self, ctx->m);
+    for (int32_t i = 0; true; ++i) {
+        atask_yield(&ctx->self);
+        ++ctx->integer;
     }
 }
 
-TEST_CASE("fiber")
+TEST_CASE("task")
 {
-    afiber_t m;
-    afiber_get(&m);
+    atask_t m;
+    atask_shadow(&m);
 
-    enum { NUM_FIBERS = 256 };
+    enum { NUM_TASKS = 256 };
 
-    static ctx_t ctx[NUM_FIBERS];
+    static ctx_t ctx[NUM_TASKS];
 
-    for (int32_t integer = 0; integer < NUM_FIBERS; ++integer) {
-        ctx[integer].integer = 0;
-        ctx[integer].m = &m;
-        afiber_create(&ctx[integer].self, &fib_func, ctx + integer);
+    for (int32_t i = 0; i < NUM_TASKS; ++i) {
+        ctx[i].integer = 0;
+        atask_create(&ctx[i].self, &m, &fib_func, ctx + i, 512);
     }
-    for (int32_t integer = 0; integer < NUM_FIBERS; ++integer) {
-        afiber_switch(&m, &ctx[integer].self);
-        ++ctx[integer].integer;
+
+    for (int32_t i = 0; i < 100; ++i) {
+        atask_yield(&m);
+        for (int32_t j = 0; j < NUM_TASKS; ++j) {
+            REQUIRE(ctx[j].integer == i);
+        }
     }
-    for (int32_t integer = 0; integer < NUM_FIBERS; ++integer) {
-        afiber_destroy(&ctx[integer].self);
+
+    for (int32_t i = 0; i < NUM_TASKS; ++i) {
+        atask_delete(&ctx[i].self);
     }
 }
