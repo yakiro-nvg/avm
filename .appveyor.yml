@@ -1,0 +1,28 @@
+shallow_clone: true
+
+os:
+  - Visual Studio 2015
+
+environment:
+  matrix:
+  - TOOLSET: Visual Studio 14 2015
+  - TOOLSET: Visual Studio 14 2015 Win64
+  - TOOLSET: Visual Studio 12 2013
+  - TOOLSET: Visual Studio 12 2013 Win64
+  - TOOLSET: Visual Studio 11 2012
+  - TOOLSET: Visual Studio 11 2012 Win64
+  - TOOLSET: Visual Studio 10 2010
+  - TOOLSET: Visual Studio 10 2010 Win64
+
+configuration:
+  - Debug
+  - Release
+  - MinSizeRel
+  - RelWithDebInfo
+
+install:
+  - cmake -G "%TOOLSET%"
+
+build_script:
+  - cmake --build . --config %CONFIGURATION%
+  - ctest -C %CONFIGURATION%
