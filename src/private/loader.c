@@ -305,6 +305,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
         int32_t err = resolve(self, chunk->prototypes);
         if (err != AERR_NONE) {
+            if (!safe) return err;
             // rollback garbages
             i = garbage_back;
             while (!alist_is_end(&self->garbages, i)) {
@@ -337,6 +338,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
         int32_t err = resolve(self, chunk->prototypes);
         if (err != AERR_NONE) {
+            if (!safe) return err;
             // rollback running imports
             i = alist_head(&self->runnings);
             while (!alist_is_end(&self->runnings, i)) {
