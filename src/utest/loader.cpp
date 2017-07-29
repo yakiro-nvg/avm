@@ -77,10 +77,7 @@ static void push_module_c(aasm_t* c)
 
 static bool compare_vtag(avalue_t* a, avalue_t* b)
 {
-    return
-        a->tag.b == b->tag.b &&
-        a->tag.variant == b->tag.variant &&
-        a->tag.collectable == b->tag.collectable;
+    return a->tag.b == b->tag.b && a->tag.variant == b->tag.variant;
 }
 
 TEST_CASE("loader_link")
@@ -118,7 +115,6 @@ TEST_CASE("loader_link")
 
     avalue_t af1;
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f1", &af1));
-    REQUIRE(af1.tag.collectable == FALSE);
     REQUIRE(af1.tag.b == ABT_FUNCTION);
     REQUIRE(af1.tag.variant == AVTF_AVM);
     REQUIRE(af1.v.avm_func->header->num_instructions == 4);

@@ -89,7 +89,6 @@ static int32_t find_in_libs(
             if (strcmp(nf->name, name) == 0) {
                 value->tag.b = ABT_FUNCTION;
                 value->tag.variant = AVTF_NATIVE;
-                value->tag.collectable = FALSE;
                 value->v.func = nf->func;
                 return AERR_NONE;
             }
@@ -115,7 +114,6 @@ static int32_t find_in_list(
             if (strcmp(f->strings + f->header->symbol, name) == 0) {
                 value->tag.b = ABT_FUNCTION;
                 value->tag.variant = AVTF_AVM;
-                value->tag.collectable = FALSE;
                 value->v.avm_func = f;
                 return AERR_NONE;
             }

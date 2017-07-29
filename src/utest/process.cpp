@@ -126,7 +126,6 @@ TEST_CASE("process_stack")
     avalue_t entry;
     entry.tag.b = ABT_FUNCTION;
     entry.tag.variant = AVTF_NATIVE;
-    entry.tag.collectable = FALSE;
     entry.v.func = &stack_test;
     aprocess_push(&p, &entry);
     aprocess_start(&p, 512);

@@ -70,7 +70,6 @@ AINLINE void any_push_nil(aprocess_t* self)
 {
     avalue_t v;
     v.tag.b = ABT_NIL;
-    v.tag.collectable = FALSE;
     aprocess_push(self, &v);
 }
 
@@ -78,7 +77,6 @@ AINLINE void any_push_bool(aprocess_t* self, int32_t b)
 {
     avalue_t v;
     v.tag.b = ABT_BOOL;
-    v.tag.collectable = FALSE;
     v.v.boolean = b;
     aprocess_push(self, &v);
 }
@@ -88,7 +86,6 @@ AINLINE void any_push_integer(aprocess_t* self, aint_t i)
     avalue_t v;
     v.tag.b = ABT_NUMBER;
     v.tag.variant = AVTN_INTEGER;
-    v.tag.collectable = FALSE;
     v.v.integer = i;
     aprocess_push(self, &v);
 }
@@ -98,7 +95,6 @@ AINLINE void any_push_real(aprocess_t* self, areal_t r)
     avalue_t v;
     v.tag.b = ABT_NUMBER;
     v.tag.variant = AVTN_REAL;
-    v.tag.collectable = FALSE;
     v.v.real = r;
     aprocess_push(self, &v);
 }

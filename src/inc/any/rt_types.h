@@ -476,21 +476,10 @@ typedef enum {
 typedef struct {
     int8_t b;
     int8_t variant;
-    int8_t collectable;
-    int8_t _;
+    int8_t _[2];
 } avalue_tag_t;
 
-/** Tagged value.
-\brief
-AVM is dynamically typed. Each value carries its own type in an attached struct
-called `avalue_tag_t`. There are values which is subject to the automatic memory
-management, which is marked `collectable`. In short, scope of such values is not
-corresponding to the lexical scope, opposite to which is `non collectable` which
-are placed on the stack, and will be disappeared as soon as the stack grow back.
-Note that import value is exceptional case, which must be collected by dedicated
-GC so it also be marked as `non collectable` but actually it will not be placed
-on the stack, just for clarify.
-*/
+/// Tagged value.
 typedef struct {
     avalue_tag_t tag;
     union {
