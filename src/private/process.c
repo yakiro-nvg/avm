@@ -16,13 +16,13 @@ static AINLINE void* aalloc(aprocess_t* self, void* old, const int32_t sz)
 static void call(aprocess_t* self, void* ud)
 {
     AUNUSED(ud);
-    aprocess_call(self);
+    any_call(self);
 }
 
 static ASTDCALL entry(void* ud)
 {
     aprocess_t* self = (aprocess_t*)ud;
-    aprocess_pcall(self);
+    any_pcall(self);
     self->flags |= APF_EXIT;
     atask_yield(&self->task);
 }
@@ -56,38 +56,6 @@ void aprocess_cleanup(aprocess_t* self)
     atask_delete(&self->task);
 }
 
-void aprocess_find(aprocess_t* self, const char* module, const char* name)
-{
-    avalue_t v;
-    int32_t err = aloader_find(&self->vm->_loader, module, name, &v);
-    if (err != AERR_NONE) aprocess_push_nil(self);
-    aprocess_push(self, &v);
-}
-
-void aprocess_call(aprocess_t* self)
-{
-    avalue_t* f;
-    aprocess_pop(self, 1);
-    f = self->stack + self->stack_sz;
-    if (f->tag.b != ABT_FUNCTION) {
-        aprocess_error(self, "attempt to call a non-function");
-    }
-    switch (f->tag.variant) {
-    case AVTF_NATIVE:
-        f->v.func(self);
-        break;
-    case AVTF_AVM:
-        aprocess_error(self, "not implemented");
-        break;
-    default: assert(FALSE);
-    }
-}
-
-void aprocess_pcall(aprocess_t* self)
-{
-    aprocess_try(self, &call, NULL);
-}
-
 void aprocess_reserve(aprocess_t* self, int32_t more)
 {
     avalue_t* ns;
@@ -96,40 +64,72 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
     new_cap = self->stack_cap;
     while (new_cap < self->stack_sz + more) new_cap *= GROW_FACTOR;
     ns = (avalue_t*)aalloc(self, self->stack, sizeof(avalue_t)*new_cap);
-    if (!ns) aprocess_throw(self, AERR_OVERFLOW);
+    if (!ns) any_throw(self, AERR_OVERFLOW);
     self->stack = ns;
     self->stack_cap = new_cap;
 }
 
-void aprocess_yield(aprocess_t* self)
+void any_find(aprocess_t* p, const char* module, const char* name)
 {
-    ascheduler_t* owner = (ascheduler_t*)self->owner;
-    atask_yield(&self->task);
+    avalue_t v;
+    int32_t err = aloader_find(&p->vm->_loader, module, name, &v);
+    if (err != AERR_NONE) any_push_nil(p);
+    aprocess_push(p, &v);
 }
 
-int32_t aprocess_try(aprocess_t* self, void(*f)(aprocess_t*, void*), void* ud)
+void any_call(aprocess_t* p)
 {
-    int32_t stack_sz = self->stack_sz;
+    avalue_t* f;
+    any_pop(p, 1);
+    f = p->stack + p->stack_sz;
+    if (f->tag.b != ABT_FUNCTION) {
+        any_error(p, "attempt to call a non-function");
+    }
+    switch (f->tag.variant) {
+    case AVTF_NATIVE:
+        f->v.func(p);
+        break;
+    case AVTF_AVM:
+        any_error(p, "not implemented");
+        break;
+    default: assert(FALSE);
+    }
+}
+
+void any_pcall(aprocess_t* p)
+{
+    any_try(p, &call, NULL);
+}
+
+void any_yield(aprocess_t* p)
+{
+    ascheduler_t* owner = (ascheduler_t*)p->owner;
+    atask_yield(&p->task);
+}
+
+int32_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud)
+{
+    int32_t stack_sz = p->stack_sz;
     acatch_t c;
     c.status = AERR_NONE;
-    c.prev = self->error_jmp;
-    self->error_jmp = &c;
-    if (setjmp(c.jbuff) == 0) f(self, ud);
-    if (c.status != AERR_NONE) self->stack_sz = stack_sz;
-    self->error_jmp = c.prev;
+    c.prev = p->error_jmp;
+    p->error_jmp = &c;
+    if (setjmp(c.jbuff) == 0) f(p, ud);
+    if (c.status != AERR_NONE) p->stack_sz = stack_sz;
+    p->error_jmp = c.prev;
     return c.status;
 }
 
-void aprocess_throw(aprocess_t* self, int32_t ec)
+void any_throw(aprocess_t* p, int32_t ec)
 {
-    assert(self->error_jmp);
-    self->error_jmp->status = ec;
-    longjmp(self->error_jmp->jbuff, 1);
+    assert(p->error_jmp);
+    p->error_jmp->status = ec;
+    longjmp(p->error_jmp->jbuff, 1);
 }
 
-void aprocess_error(aprocess_t* self, const char* fmt, ...)
+void any_error(aprocess_t* p, const char* fmt, ...)
 {
     AUNUSED(fmt);
-    aprocess_push_nil(self); // TODO: push error message
-    aprocess_throw(self, AERR_RUNTIME);
+    any_push_nil(p); // TODO: push error message
+    any_throw(p, AERR_RUNTIME);
 }
