@@ -9,7 +9,7 @@ typedef int64_t aint_t;
 typedef double  areal_t;
 
 // Specify the operation to be performed by the instructions.
-enum AOPCODE {
+typedef enum {
     AOC_NOP = 0,
     AOC_POP = 1,
     AOC_LDK = 10,
@@ -25,7 +25,7 @@ enum AOPCODE {
     AOC_SND = 50,
     AOC_RCV = 51,
     AOC_RMV = 52
-};
+} AOPCODE;
 
 /** Base type.
 \rst
@@ -439,7 +439,7 @@ typedef int32_t astring_ref_t;
 typedef int32_t(*anative_func_t)(struct aprocess_t*);
 
 /// Basic value tags.
-enum ABT {
+typedef enum {
     /// No value.
     ABT_NIL,
     /// Process identifier.
@@ -454,21 +454,23 @@ enum ABT {
     ABT_NUMBER,
     /// Variant of function.
     ABT_FUNCTION
-};
+} ABT;
 
 /// Variant tags for \ref ABT_NUMBER.
-enum AVT_NUMBER {
+typedef enum {
     /// No fractional.
     AVTN_INTEGER,
     /// Floating-point number.
     AVTN_REAL
-};
+} AVT_NUMBER;
 
 /// Variant tags for \ref ABT_FUNCTION.
-enum AVT_FUNCTION {
+typedef enum {
+    /// C lib function.
     AVTF_NATIVE,
+    /// Byte code function.
     AVTF_AVM
-};
+} AVT_FUNCTION;
 
 /// Value tag.
 typedef struct {
@@ -699,51 +701,22 @@ typedef struct {
     int32_t cap;
 } ambox_t;
 
-/// Message envelope.
-typedef struct {
-    apid_t to;
-    avalue_t payload;
-} aenvelope_t;
-
-/// Scheduler message box.
-typedef struct {
-    aenvelope_t* msgs;
-    int32_t sz;
-    int32_t cap;
-} ascheduler_mbox_t;
-
-/** Process scheduler interface.
-\brief
-AVM is designed to be resumable, that sounds tricky and non-portable at first.
-However, we believe that its worth. Generally, we don't want the users to worry
-about whether C stack is resumable or not, and if not then what happen. Yielding
-native function and across native function is just mandatory use cases in AVM.
-A new \ref atask_t is required for each new process. That allows AVM to save the
-context of a process and comeback later, in native side.
-*/
-typedef struct {
-    struct adispatcher_s* runner;
-    aalloc_t alloc;
-    void* alloc_ud;
-    atask_t task;
-} ascheduler_t;
-
 /// Process flags.
-enum APFLAGS {
-    APF_DEAD = 1 << 0
-};
+typedef enum {
+    APF_DEAD = 1 << 0,
+    APF_EXIT = 1 << 1
+} APFLAGS;
 
-/// Process stack frames.
+/// Process stack frame.
 typedef struct {
-    avalue_t* sp;
     avalue_t* bp;
+    aprototype_t* pt;
     ainstruction_t* ip;
-    aprototype_header_t* proto;
 } aframe_t;
 
 /// Error catching points.
 typedef struct acatch_t {
-    struct acatch_t* previous;
+    struct acatch_t* prev;
     volatile int32_t status;
     jmp_buf jbuff;
 } acatch_t;
@@ -766,31 +739,57 @@ typedef struct aprocess_t {
 #ifdef ANY_SMP
     amutex_t mutex;
 #endif
-    volatile ascheduler_t* owner;
+    struct avm_t* vm;
+    volatile struct ascheduler_t* owner;
     volatile int32_t load;
     volatile int32_t flags;
     volatile apid_t pid;
-#if 0
-    afiber_t fiber;
-#endif
-    ambox_t mbox;
     acatch_t* error_jmp;
-    avalue_t* stack;
-    avalue_t* sp;
     aframe_t* frames;
-    aframe_t* fp;
+    avalue_t* stack;
     int32_t stack_cap;
-    int32_t max_frames;
+    int32_t stack_sz;
+    atask_t task;
+    ambox_t mbox;
 } aprocess_t;
 
-/// Byte code dispatcher.
-typedef struct adispatcher_t {
-    void(*call)(aprocess_t* p);
+/// Byte code runner.
+typedef struct {
+    int32_t TODO;
 } adispatcher_t;
+
+/// Message envelope.
+typedef struct {
+    apid_t to;
+    avalue_t payload;
+} aenvelope_t;
+
+/// Scheduler message box.
+typedef struct {
+    aenvelope_t* msgs;
+    int32_t sz;
+    int32_t cap;
+} ascheduler_mbox_t;
+
+/** Process scheduler interface.
+\brief
+AVM is designed to be resumable, that sounds tricky and non-portable at first.
+However, we believe that its worth. Generally, we don't want the users to worry
+about whether C stack is resumable or not, and if not then what happen. Yielding
+native function and across native function is just mandatory use cases in AVM.
+A new \ref atask_t is required for each new process. That allows AVM to save the
+context of a process and comeback later, in native side.
+*/
+typedef struct ascheduler_t {
+    aalloc_t alloc;
+    void* alloc_ud;
+    atask_t task;
+} ascheduler_t;
 
 /// VM Engine.
 typedef struct avm_t {
     aprocess_t* _procs;
+    aloader_t _loader;
     int8_t _idx_bits;
     int8_t _gen_bits;
     apid_idx_t _next_idx;

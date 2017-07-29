@@ -24,9 +24,7 @@ ANY_API int32_t aasm_load(aasm_t* self, const achunk_header_t* input);
 /// Update `self->chunk` to reflect the current state.
 ANY_API void aasm_save(aasm_t* self);
 
-/** This will not free the `self` pointer itself.
-\brief Release all internal allocated memory, result as a *fresh* assembler.
-*/
+/// Release all internal allocated memory, result as a *fresh* assembler.
 ANY_API void aasm_cleanup(aasm_t* self);
 
 /** Emit new instruction.

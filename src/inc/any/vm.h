@@ -9,27 +9,24 @@ extern "C" {
 
 /** Initialize as a new Virtual Machine.
 \brief
-The `apid_t` consists of two parts are `index` and `generation`,
-which lengths can be configured by `idx_bits` and `gen_bits`. The index will be
-used to directly lookup for a process from `procs` array. The generation part is
-used to distinguish processes created at the same index slot. That caused by the
-natural limitation in the size of our `procs` array, which can't be too large so
-eventually the index will be reused. AVM will not allocate memory for `procs`,
-you must make sure that this much memory for this table is available.
-
+The `apid_t` consists of two parts are `index` and `generation`, its lengths can
+be configured by `idx_bits` and `gen_bits`. The index will be used to directly
+lookup for a process from `procs` array. In additional, the generation part also
+be used to distinguish processes created at the same index slot. That caused by
+the limited size of `procs` array, eventually the index will be reused.
+\note AVM will not allocate memory for `procs`.
 \return AERR_NONE if successful.
 */
 ANY_API int32_t avm_startup(
     avm_t* self, int8_t idx_bits, int8_t gen_bits, aprocess_t* procs);
 
-/// Graceful cleanup the VM.
+/// Gracefully cleanup the VM.
 ANY_API void avm_shutdown(avm_t* self);
 
-/** Lock for alive process.
+/** Lock for alive process by pid.
 \return NULL if that is not found or died.
 */
-#if 0
-AINLINE aprocess_t* avm_process_lock(avm_t* self, apid_t pid)
+AINLINE aprocess_t* avm_process_lock_pid(avm_t* self, apid_t pid)
 {
     apid_idx_t idx = apid_idx(self->_idx_bits, pid);
     aprocess_t* p = self->_procs + idx;
@@ -45,7 +42,6 @@ AINLINE aprocess_t* avm_process_lock(avm_t* self, apid_t pid)
         return NULL;
     }
 }
-#endif
 
 /** Lock for alive process that is belong to a scheduler.
 \brief There is optimize to reduce contention for not `owned` processes.

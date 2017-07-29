@@ -15,33 +15,33 @@ typedef struct {
     uint32_t offset;
 } hash_slot_t;
 
-AINLINE hash_slot_t* hashtable(astring_table_t* self)
+static AINLINE hash_slot_t* hashtable(astring_table_t* self)
 {
     return (hash_slot_t*)(self + 1);
 }
 
-AINLINE char* strings(astring_table_t* self)
+static AINLINE char* strings(astring_table_t* self)
 {
     return (char*)(hashtable(self) + self->num_hash_slots);
 }
 
-AINLINE const hash_slot_t* hashtable_const(const astring_table_t* self)
+static AINLINE const hash_slot_t* hashtable_const(const astring_table_t* self)
 {
     return (const hash_slot_t*)(self + 1);
 }
 
-AINLINE const char* strings_const(const astring_table_t* self)
+static AINLINE const char* strings_const(const astring_table_t* self)
 {
     return (const char*)(hashtable_const(self) + self->num_hash_slots);
 }
 
-AINLINE int32_t available_string_bytes(astring_table_t* self)
+static AINLINE int32_t available_string_bytes(astring_table_t* self)
 {
     return self->allocated_bytes - sizeof(*self) -
         self->num_hash_slots * sizeof(hash_slot_t);
 }
 
-AINLINE void add_empty_string(astring_table_t* self)
+static void add_empty_string(astring_table_t* self)
 {
     // Empty string is stored at index 0.
     // This way, we can use 0 as a marker for empty hash slots.
@@ -52,7 +52,7 @@ AINLINE void add_empty_string(astring_table_t* self)
     self->string_bytes = sizeof(uint32_t) + 1;
 }
 
-AINLINE void recompute_num_hash_slots(astring_table_t* self, int32_t bytes)
+static void recompute_num_hash_slots(astring_table_t* self, int32_t bytes)
 {
     const float average_strlen = self->count > 0
         ? (float)self->string_bytes / (float)self->count

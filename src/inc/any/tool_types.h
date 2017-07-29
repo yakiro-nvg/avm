@@ -55,11 +55,11 @@ enum {
 };
 
 // Constant types.
-enum ACTYPE {
+typedef enum {
     ACT_INTEGER,
     ACT_STRING,
     ACT_REAL
-};
+} ACTYPE;
 
 #pragma pack(push, 1)
 

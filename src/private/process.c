@@ -4,114 +4,132 @@
 #include <any/errno.h>
 #include <any/loader.h>
 
-#if 0
-
 #define GROW_FACTOR 2
+#define INIT_STACK_SZ 64
 
-AINLINE void* aalloc(aprocess_t* p, void* old, const int32_t sz)
+static AINLINE void* aalloc(aprocess_t* self, void* old, const int32_t sz)
 {
-    assert(p->owner->alloc);
-    return p->owner->alloc(p->owner->alloc_ud, old, sz);
+    assert(self->owner->alloc);
+    return self->owner->alloc(self->owner->alloc_ud, old, sz);
 }
 
-static void reserve_stack(aprocess_t* p, void* ud)
-{
-    int32_t more = *(int32_t*)ud;
-    if (p->sp < p->stack + p->stack_cap) return;
-    if ((p->flags & APF_BORROWED) == 0) {
-        avalue_t* ns;
-        int32_t new_cap = p->stack_cap;
-        while (new_cap < p->stack_cap + more) new_cap *= GROW_FACTOR;
-        ns = (avalue_t*)aalloc(p, p->stack, sizeof(avalue_t)*new_cap);
-        if (ns) {
-            p->sp = ns + (p->stack - p->sp);
-            p->stack = ns;
-            return;
-        }
-    }
-    aprocess_throw(p, AERR_OVERFLOW);
-}
-
-AINLINE void push(aprocess_t* p, void* ud)
-{
-    avalue_t* v = (avalue_t*)ud;
-    int32_t more = 1;
-    reserve_stack(p, &more);
-    *p->sp = *v;
-    ++p->sp;
-}
-
-static void call(aprocess_t* p, void* ud)
+static void call(aprocess_t* self, void* ud)
 {
     AUNUSED(ud);
-    aprocess_call(p);
+    aprocess_call(self);
 }
 
-void aprocess_find(aprocess_t* p, const char* module, const char* name)
+static ASTDCALL entry(void* ud)
+{
+    aprocess_t* self = (aprocess_t*)ud;
+    aprocess_pcall(self);
+    self->flags |= APF_EXIT;
+    atask_yield(&self->task);
+}
+
+void aprocess_init(aprocess_t* self, ascheduler_t* owner, apid_t pid)
+{
+    self->pid = pid;
+    self->flags = 0;
+    self->owner = owner;
+    self->stack = (avalue_t*)aalloc(
+        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
+    self->stack_cap = INIT_STACK_SZ;
+}
+
+void aprocess_start(aprocess_t* self, int32_t cstack_sz)
+{
+    atask_create(
+        &self->task,
+        &((ascheduler_t*)self->owner)->task,
+        &entry,
+        self,
+        cstack_sz);
+}
+
+void aprocess_cleanup(aprocess_t* self)
+{
+    aalloc(self, self->stack, 0);
+    self->stack = NULL;
+    self->stack_cap = 0;
+    self->stack_sz = 0;
+    atask_delete(&self->task);
+}
+
+void aprocess_find(aprocess_t* self, const char* module, const char* name)
 {
     avalue_t v;
-    int32_t err = aloader_find(
-        p->owner->chunks, p->owner->natives, module, name, &v);
-    if (err != AERR_NONE) v.tag.b = ABT_NIL;
-    push(p, &v);
+    int32_t err = aloader_find(&self->vm->_loader, module, name, &v);
+    if (err != AERR_NONE) aprocess_push_nil(self);
+    aprocess_push(self, &v);
 }
 
-void aprocess_push_nil(aprocess_t* p)
+void aprocess_call(aprocess_t* self)
 {
-    avalue_t v;
-    v.tag.b = ABT_NIL;
-    push(p, &v);
-}
-
-void aprocess_protected_call(aprocess_t* p)
-{
-    aprocess_try(p, &call, NULL);
-}
-
-int32_t aprocess_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud)
-{
-    acatch_t c;
-    c.status = AERR_NONE;
-    c.previous = p->error_jmp;
-    p->error_jmp = &c;
-    if (setjmp(c.jbuff) == 0) f(p, ud);
-    p->error_jmp = c.previous;
-    return c.status;
-}
-
-void aprocess_throw(aprocess_t* p, int32_t ec)
-{
-    assert(p->error_jmp);
-    p->error_jmp->status = ec;
-    longjmp(p->error_jmp->jbuff, 1);
-}
-
-void aprocess_error(aprocess_t* p, const char* fmt, ...)
-{
-    AUNUSED(fmt);
-    aprocess_push_nil(p); // TODO: push error message
-    aprocess_throw(p, AERR_RUNTIME);
-}
-
-static void naive_call(aprocess_t* p)
-{
-    avalue_t* f = p->sp;
+    avalue_t* f;
+    aprocess_pop(self, 1);
+    f = self->stack + self->stack_sz;
     if (f->tag.b != ABT_FUNCTION) {
-        aprocess_error(p, "attempt to call a non-function");
+        aprocess_error(self, "attempt to call a non-function");
     }
     switch (f->tag.variant) {
     case AVTF_NATIVE:
-        f->v.func(p);
+        f->v.func(self);
         break;
     case AVTF_AVM:
-        assert(!"TODO");
+        aprocess_error(self, "not implemented");
         break;
+    default: assert(FALSE);
     }
 }
 
-void any_naive(adispatcher_t* self)
+void aprocess_pcall(aprocess_t* self)
 {
-    self->call = &naive_call;
+    aprocess_try(self, &call, NULL);
 }
 
-#endif
+void aprocess_reserve(aprocess_t* self, int32_t more)
+{
+    avalue_t* ns;
+    int32_t new_cap;
+    if (self->stack_sz + more <= self->stack_cap) return;
+    new_cap = self->stack_cap;
+    while (new_cap < self->stack_sz + more) new_cap *= GROW_FACTOR;
+    ns = (avalue_t*)aalloc(self, self->stack, sizeof(avalue_t)*new_cap);
+    if (!ns) aprocess_throw(self, AERR_OVERFLOW);
+    self->stack = ns;
+    self->stack_cap = new_cap;
+}
+
+void aprocess_yield(aprocess_t* self)
+{
+    ascheduler_t* owner = (ascheduler_t*)self->owner;
+    atask_yield(&self->task);
+}
+
+int32_t aprocess_try(aprocess_t* self, void(*f)(aprocess_t*, void*), void* ud)
+{
+    int32_t stack_sz = self->stack_sz;
+    acatch_t c;
+    c.status = AERR_NONE;
+    c.prev = self->error_jmp;
+    self->error_jmp = &c;
+    if (setjmp(c.jbuff) == 0) f(self, ud);
+    if (c.status != AERR_NONE) self->stack_sz = stack_sz;
+    self->error_jmp = c.prev;
+    return c.status;
+}
+
+void aprocess_throw(aprocess_t* self, int32_t ec)
+{
+    assert(self->error_jmp);
+    self->error_jmp->status = ec;
+    longjmp(self->error_jmp->jbuff, 1);
+}
+
+void aprocess_error(aprocess_t* self, const char* fmt, ...)
+{
+    AUNUSED(fmt);
+    aprocess_push_nil(self); // TODO: push error message
+    aprocess_throw(self, AERR_RUNTIME);
+}

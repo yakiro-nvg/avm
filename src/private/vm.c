@@ -69,7 +69,6 @@ static void migrate_messages(avm_t* vm, ascheduler_t* string)
 
 static int32_t mbox_grow(ascheduler_t* self, aprocess_t* p)
 {
-    if (!self->alloc || (p->flags & APF_BORROWED) != 0) return FALSE;
     p->mbox.cap *= MSG_QUEUE_GROW_FACTOR;
     p->mbox.msgs = self->alloc(
         self->alloc_ud, p->mbox.msgs, p->mbox.cap*sizeof(avalue_t));
@@ -119,8 +118,9 @@ aprocess_t* avm_process_alloc(avm_t* self)
             int32_t gen = apid_gen(self->_idx_bits, self->_gen_bits, p->pid);
             gen = (gen + 1) & ((1 << self->_gen_bits) - 1);
             p->pid = apid_from(self->_idx_bits, self->_gen_bits, idx, gen);
-            p->flags = 0;
+            p->vm = self;
             p->owner = NULL;
+            p->flags = 0;
             found = p;
         }
     } while (--loop && !found);
@@ -132,9 +132,9 @@ aprocess_t* avm_process_alloc(avm_t* self)
 
 void avm_migrate_messages(avm_t* self, ascheduler_t** schedulers)
 {
-    ascheduler_t** string;
-    for (string = schedulers; *string != NULL; ++string) {
-        migrate_messages(self, *string);
+    ascheduler_t** s;
+    for (s = schedulers; *s!= NULL; ++s) {
+        migrate_messages(self, *s);
     }
 }
 

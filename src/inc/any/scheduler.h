@@ -13,7 +13,7 @@ extern "C" {
 \return AERR_NONE if successful.
 */
 ANY_API int32_t ascheduler_init(
-    ascheduler_t* self, avm_t* vm, adispatcher_t* runner,
+    ascheduler_t* self, avm_t* vm, adispatcher_t* bc_runner,
     ascheduler_mbox_t oqueues[2], ascheduler_mbox_t iqueues[2],
     aalloc_t alloc, void* alloc_ud);
 
