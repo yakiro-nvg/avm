@@ -52,17 +52,29 @@ static void try_throw1(aprocess_t* p, void* ud)
     try_throw2(p, (void*)0xF2);
 }
 
-static int32_t stack_test(aprocess_t* p)
+static void stack_test(aprocess_t* p)
 {
-    REQUIRE(any_top(p) == 0);
+    REQUIRE(any_type(p, -1).b == ABT_NUMBER);
+    REQUIRE(any_type(p, -1).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(p, -1) == 0xA1);
 
-    int32_t total_ints = 0;
-    for (int32_t j = 0; j < 10; ++j) {
-        int32_t num_nils = p->stack_cap - p->stack_sz + 1;
-        for (int32_t i = 0; i < num_nils; ++i) {
-            any_push_integer(p, total_ints);
-            ++total_ints;
-        }
+    REQUIRE(any_type(p, -2).b == ABT_NUMBER);
+    REQUIRE(any_type(p, -2).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(p, -2) == 0xA2);
+
+    REQUIRE(any_type(p, -3).b == ABT_NUMBER);
+    REQUIRE(any_type(p, -3).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(p, -3) == 0xA3);
+
+    REQUIRE(any_type(p, -4).b == ABT_NIL);
+    REQUIRE(any_type(p, -5).b == ABT_NIL);
+
+    REQUIRE(any_count(p) == 0);
+
+    enum { NUM_INTS = 10000 };
+
+    for (int32_t i = 0; i < NUM_INTS; ++i) {
+        any_push_integer(p, i);
     }
 
     any_push_bool(p, TRUE);
@@ -70,38 +82,34 @@ static int32_t stack_test(aprocess_t* p)
     any_push_integer(p, 1991);
     any_push_real(p, 18.12f);
 
-    REQUIRE(any_top(p) == total_ints + 4);
+    REQUIRE(any_count(p) == NUM_INTS + 4);
 
-    REQUIRE(any_type(p, -1).b == ABT_NUMBER);
-    REQUIRE(any_type(p, -1).variant == AVTN_REAL);
-    REQUIRE(any_to_real(p, -1) == 18.12f);
+    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_NUMBER);
+    REQUIRE(any_type(p, any_count(p) - 1).variant == AVTN_REAL);
+    REQUIRE(any_to_real(p, any_count(p) - 1) == 18.12f);
 
-    REQUIRE(any_type(p, -2).b == ABT_NUMBER);
-    REQUIRE(any_type(p, -2).variant == AVTN_INTEGER);
-    REQUIRE(any_to_integer(p, -2) == 1991);
+    REQUIRE(any_type(p, any_count(p) - 2).b == ABT_NUMBER);
+    REQUIRE(any_type(p, any_count(p) - 2).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(p, any_count(p) - 2) == 1991);
 
-    REQUIRE(any_type(p, -3).b == ABT_BOOL);
-    REQUIRE(any_to_bool(p, -3) == FALSE);
+    REQUIRE(any_type(p, any_count(p) - 3).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 3) == FALSE);
 
-    REQUIRE(any_type(p, -4).b == ABT_BOOL);
-    REQUIRE(any_to_bool(p, -4) == TRUE);
+    REQUIRE(any_type(p, any_count(p) - 4).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 4) == TRUE);
 
     any_pop(p, 4);
-    REQUIRE(any_top(p) == total_ints);
 
-    for (int32_t i = total_ints - 1; i >= 0; --i) {
-        REQUIRE(any_type(p, i + 1).b == ABT_NUMBER);
-        REQUIRE(any_type(p, i + 1).variant == AVTN_INTEGER);
-        REQUIRE(any_to_integer(p, i + 1) == i);
-        REQUIRE(any_type(p, -1).b == ABT_NUMBER);
-        REQUIRE(any_type(p, -1).variant == AVTN_INTEGER);
-        REQUIRE(any_to_integer(p, -1) == i);
+    for (int32_t i = NUM_INTS - 1; i >= 0; --i) {
+        REQUIRE(any_type(p, i).b == ABT_NUMBER);
+        REQUIRE(any_type(p, i).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, i) == i);
         any_pop(p, 1);
     }
 
-    any_push_integer(p, 0xFFAA);
+    REQUIRE(any_count(p) == 0);
 
-    return 0;
+    any_push_integer(p, 0xFFAA);
 }
 
 TEST_CASE("process_try_throw")
@@ -128,12 +136,15 @@ TEST_CASE("process_stack")
     entry.tag.variant = AVTF_NATIVE;
     entry.v.func = &stack_test;
     aprocess_push(&p, &entry);
-    aprocess_start(&p, 512);
+    any_push_integer(&p, 0xA3);
+    any_push_integer(&p, 0xA2);
+    any_push_integer(&p, 0xA1);
+    aprocess_start(&p, 512, 3);
     atask_yield(&s.task);
-    REQUIRE(any_top(&p) == 1);
-    REQUIRE(any_type(&p, -1).b == ABT_NUMBER);
-    REQUIRE(any_type(&p, -1).variant == AVTN_INTEGER);
-    REQUIRE(any_to_integer(&p, -1) == 0xFFAA);
+    REQUIRE(any_count(&p) == 1);
+    REQUIRE(any_type(&p, 0).b == ABT_NUMBER);
+    REQUIRE(any_type(&p, 0).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(&p, 0) == 0xFFAA);
 
     aprocess_cleanup(&p);
 }

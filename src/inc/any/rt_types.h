@@ -436,7 +436,7 @@ AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
 typedef int32_t astring_ref_t;
 
 /// Native function.
-typedef int32_t(*anative_func_t)(struct aprocess_t*);
+typedef void(*anative_func_t)(struct aprocess_t*);
 
 /// Basic value tags.
 typedef enum {
@@ -697,10 +697,10 @@ typedef enum {
 } APFLAGS;
 
 /// Process stack frame.
-typedef struct {
-    avalue_t* bp;
-    aprototype_t* pt;
-    ainstruction_t* ip;
+typedef struct aframe_t {
+    struct aframe_t* prev;
+    int32_t bp;
+    int32_t nargs;
 } aframe_t;
 
 /// Error catching points.
@@ -723,6 +723,27 @@ that is at the same time blocking wait for messages from each other, but mostly
 that remains easier to deal with. AVM process is also light weight in compared
 to most of OS threads. The overhead in memory footprint, creation, termination
 and scheduling is low. Therefore, a massive amount of process could be spawned.
+
+\par Virtual stack.
+Besides of the native C stack, AVM also using a dedicated, dynamic sized stack
+for `avalue_t`, which is subject of Garbage Collector. Indexing for this stack
+is relative to current function frame. Negative value of the index is used to
+point to the argument, that must be passed in reversed order. Underflow always
+result as a nil value.
+
+=====  ===============
+index  description
+=====  ===============
+ 3     local var3 (sp)
+ 2     local var2
+ 1     local var1
+ 0     local var0 (bp)
+-1     argument 1
+-2     argument 2
+-3     argument 3
+-4     nil
+-5     nil
+=====  ===============
 */
 typedef struct aprocess_t {
 #ifdef ANY_SMP
@@ -734,10 +755,10 @@ typedef struct aprocess_t {
     volatile int32_t flags;
     volatile apid_t pid;
     acatch_t* error_jmp;
-    aframe_t* frames;
+    aframe_t* frame;
     avalue_t* stack;
     int32_t stack_cap;
-    int32_t stack_sz;
+    int32_t sp;
     atask_t task;
     ambox_t mbox;
 } aprocess_t;
