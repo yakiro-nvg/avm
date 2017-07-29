@@ -73,10 +73,10 @@ AINLINE ahash_and_length_t ahash_and_length(const char* string)
     // length, this is a decent hash function.
     ahash_and_length_t result;
     uint32_t h = 0;
-    const char* integer = string;
-    for (; *integer; ++integer) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*integer);
+    const char* i = string;
+    for (; *i; ++i) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*i);
     result.hash = h;
-    result.length = (int32_t)(integer - string);
+    result.length = (int32_t)(i - string);
     return result;
 }
 

@@ -153,31 +153,31 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
             p1->num_instructions*sizeof(ainstruction_t)) == 0);
 
     REQUIRE(p1->num_constants == p2->num_constants);
-    for (int32_t integer = 0; integer < p1->num_constants; ++integer) {
-        REQUIRE(c1.constants[integer].b.type == c2.constants[integer].b.type);
-        switch (c1.constants[integer].b.type) {
+    for (int32_t i = 0; i < p1->num_constants; ++i) {
+        REQUIRE(c1.constants[i].b.type == c2.constants[i].b.type);
+        switch (c1.constants[i].b.type) {
         case ACT_INTEGER:
-            REQUIRE(c1.constants[integer].integer.val == c2.constants[integer].integer.val);
+            REQUIRE(c1.constants[i].integer.val == c2.constants[i].integer.val);
             break;
         case ACT_STRING:
             REQUIRE_STR_EQUALS(
-                astring_table_to_string(a1->st, c1.constants[integer].string.ref),
-                astring_table_to_string(a2->st, c2.constants[integer].string.ref));
+                astring_table_to_string(a1->st, c1.constants[i].string.ref),
+                astring_table_to_string(a2->st, c2.constants[i].string.ref));
             break;
         case ACT_REAL:
-            REQUIRE(c1.constants[integer].real.val == c2.constants[integer].real.val);
+            REQUIRE(c1.constants[i].real.val == c2.constants[i].real.val);
             break;
         }
     }
 
     REQUIRE(p1->num_imports == p2->num_imports);
-    for (int32_t integer = 0; integer < p2->num_imports; ++integer) {
+    for (int32_t i = 0; i < p2->num_imports; ++i) {
         REQUIRE_STR_EQUALS(
-            astring_table_to_string(a1->st, c1.imports[integer].module),
-            astring_table_to_string(a2->st, c2.imports[integer].module));
+            astring_table_to_string(a1->st, c1.imports[i].module),
+            astring_table_to_string(a2->st, c2.imports[i].module));
         REQUIRE_STR_EQUALS(
-            astring_table_to_string(a1->st, c1.imports[integer].name),
-            astring_table_to_string(a2->st, c2.imports[integer].name));
+            astring_table_to_string(a1->st, c1.imports[i].name),
+            astring_table_to_string(a2->st, c2.imports[i].name));
     }
 }
 
@@ -224,7 +224,7 @@ TEST_CASE("asm_nested")
 
     enum { PUSH_COUNT = 25 };
 
-    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
+    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a));
             basic_test_ctx t;
@@ -235,7 +235,7 @@ TEST_CASE("asm_nested")
             basic_check(&a, t);
             REQUIRE(j == aasm_pop(&a));
         }
-        if (integer == 0) {
+        if (i == 0) {
             REQUIRE(PUSH_COUNT == aasm_module_push(&a, "symbol"));
             const aasm_prototype_t* p = aasm_prototype(&a);
             REQUIRE_STR_EQUALS(astring_table_to_string(a.st, p->symbol), "symbol");
@@ -244,7 +244,7 @@ TEST_CASE("asm_nested")
         }
     }
 
-    for (int32_t integer = ANY_ASM_MAX_NESTED_LEVEL - 1; integer >= 0; --integer) {
+    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a));
     }
 
@@ -259,7 +259,7 @@ TEST_CASE("asm_save_load")
 
     enum { PUSH_COUNT = 5 };
 
-    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
+    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a1));
             basic_test_ctx t;
@@ -272,7 +272,7 @@ TEST_CASE("asm_save_load")
 
     aasm_save(&a1);
 
-    for (int32_t integer = ANY_ASM_MAX_NESTED_LEVEL - 1; integer >= 0; --integer) {
+    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a1));
     }
 
@@ -280,7 +280,7 @@ TEST_CASE("asm_save_load")
     aasm_init(&a2, &myalloc, NULL);
     REQUIRE(aasm_load(&a2, a1.chunk) == AERR_NONE);
 
-    for (int32_t integer = 0; integer < ANY_ASM_MAX_NESTED_LEVEL; ++integer) {
+    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
             aasm_open(&a1, j);
             aasm_open(&a2, j);

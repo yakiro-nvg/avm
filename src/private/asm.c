@@ -308,7 +308,7 @@ static void copy_prototype(
     aprototype_header_t* header,
     int32_t strings_sz)
 {
-    int32_t integer;
+    int32_t i;
     const resolved_proto_t rp = rp_resolve(header, strings_sz);
 
     // add instructions
@@ -318,23 +318,23 @@ static void copy_prototype(
         p->num_instructions * sizeof(ainstruction_t));
 
     // add constants
-    for (integer = 0; integer < p->num_constants; ++integer) {
-        rp.constants[integer] = to_value(c->constants[integer], self, header);
+    for (i = 0; i < p->num_constants; ++i) {
+        rp.constants[i] = to_value(c->constants[i], self, header);
     }
 
     // add imports
-    for (integer = 0; integer < p->num_imports; ++integer) {
-        rp.imports[integer].module = chunk_add_str(
-            self, header, c->imports[integer].module);
-        rp.imports[integer].name = chunk_add_str(
-            self, header, c->imports[integer].name);
+    for (i = 0; i < p->num_imports; ++i) {
+        rp.imports[i].module = chunk_add_str(
+            self, header, c->imports[i].module);
+        rp.imports[i].name = chunk_add_str(
+            self, header, c->imports[i].name);
     }
 
     assert(header->strings_sz == strings_sz);
 
     // add nesteds
-    for (integer = 0; integer < p->num_nesteds; ++integer) {
-        save_chunk(self, c->nesteds[integer]);
+    for (i = 0; i < p->num_nesteds; ++i) {
+        save_chunk(self, c->nesteds[i]);
     }
 }
 

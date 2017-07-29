@@ -11,12 +11,12 @@
 
 static void init_processes(aprocess_t* procs, int32_t num)
 {
-    int32_t integer;
-    for (integer = 0; integer < num; ++integer) {
-        memset(procs + integer, 0, sizeof(aprocess_t));
-        procs[integer].flags = APF_DEAD;
+    int32_t i;
+    for (i = 0; i < num; ++i) {
+        memset(procs + i, 0, sizeof(aprocess_t));
+        procs[i].flags = APF_DEAD;
 #ifdef ANY_SMP
-        amutex_init(&procs[integer].mutex);
+        amutex_init(&procs[i].mutex);
 #endif
     }
 }
@@ -30,7 +30,7 @@ AINLINE void swap(ascheduler_mbox_t* a, ascheduler_mbox_t* b)
 
 static void migrate_messages(avm_t* vm, ascheduler_t* string)
 {
-    int32_t integer;
+    int32_t i;
 #ifdef ANY_SMP
     amutex_lock(&string->omutex);
 #endif
@@ -38,8 +38,8 @@ static void migrate_messages(avm_t* vm, ascheduler_t* string)
 #ifdef ANY_SMP
     amutex_unlock(&string->omutex);
 #endif
-    for (integer = 0; integer < string->ofront.sz; ++integer) {
-        const aenvelope_t* const e = string->ofront.msgs + integer;
+    for (i = 0; i < string->ofront.sz; ++i) {
+        const aenvelope_t* const e = string->ofront.msgs + i;
         apid_idx_t idx = apid_idx(vm->_idx_bits, e->to);
         aprocess_t* p = vm->_procs + idx;
         ascheduler_t* to = (ascheduler_t*)p->owner;
@@ -58,10 +58,10 @@ static void migrate_messages(avm_t* vm, ascheduler_t* string)
         amutex_unlock(&to->imutex);
 #endif
     }
-    if (integer < string->ofront.sz) { // early break
-        if (integer == 0) return; // nothing
-        string->ofront.sz -= integer;
-        memmove(string->ofront.msgs, string->ofront.msgs + integer, string->ofront.sz);
+    if (i < string->ofront.sz) { // early break
+        if (i == 0) return; // nothing
+        string->ofront.sz -= i;
+        memmove(string->ofront.msgs, string->ofront.msgs + i, string->ofront.sz);
     } else {
         string->ofront.sz = 0;
     }
@@ -93,10 +93,10 @@ int32_t avm_startup(
 void avm_shutdown(avm_t* self)
 {
 #ifdef ANY_SMP
-    int32_t integer;
+    int32_t i;
     int32_t num = 1 << self->_idx_bits;
-    for (integer = 0; integer < num; ++integer) {
-        amutex_destroy(&self->_procs[integer].mutex);
+    for (i = 0; i < num; ++i) {
+        amutex_destroy(&self->_procs[i].mutex);
     }
     amutex_destroy(&self->_next_idx_mutex);
 #else
@@ -162,14 +162,14 @@ int32_t ascheduler_outgoing(ascheduler_t* self, apid_t to, const avalue_t* msg)
 
 void ascheduler_empty_incoming(ascheduler_t* self)
 {
-    int32_t integer;
+    int32_t i;
 #ifdef ANY_SMP
     amutex_lock(&self->imutex);
 #endif
     assert(self->iback.sz == 0);
     swap(&self->iback, &self->ifront);
-    for (integer = 0; integer < self->iback.sz; ++integer) {
-        aenvelope_t* const e = self->iback.msgs + integer;
+    for (i = 0; i < self->iback.sz; ++i) {
+        aenvelope_t* const e = self->iback.msgs + i;
         aprocess_t* p = avm_process_lock(self->vm, e->to);
         if (!p) continue;
         if (p->mbox.sz == p->mbox.cap && !mbox_grow(self, p)) {

@@ -73,9 +73,9 @@ static void rebuild_hash_table(astring_table_t* self)
 
     while (string < strs + self->string_bytes) {
         const ahash_and_length_t hl = ahash_and_length(string + sizeof(uint32_t));
-        int32_t integer = hl.hash % self->num_hash_slots;
-        while (ht[integer].offset) integer = (integer + 1) % self->num_hash_slots;
-        ht[integer].offset = (uint32_t)(string - strs);
+        int32_t i = hl.hash % self->num_hash_slots;
+        while (ht[i].offset) i = (i + 1) % self->num_hash_slots;
+        ht[i].offset = (uint32_t)(string - strs);
         string = string + sizeof(uint32_t) + hl.length + 1;
     }
 }
@@ -134,11 +134,11 @@ astring_ref_t astring_table_to_ref(astring_table_t* self, const char* string)
         char* const strs = strings(self);
 
         hash_slot_t* const ht = hashtable(self);
-        int32_t integer = hl.hash % self->num_hash_slots;
-        while (ht[integer].offset) {
-            if (strcmp(string, strs + ht[integer].offset + sizeof(uint32_t)) == 0)
-                return ht[integer].offset;
-            integer = (integer + 1) % self->num_hash_slots;
+        int32_t i = hl.hash % self->num_hash_slots;
+        while (ht[i].offset) {
+            if (strcmp(string, strs + ht[i].offset + sizeof(uint32_t)) == 0)
+                return ht[i].offset;
+            i = (i + 1) % self->num_hash_slots;
         }
 
         if (self->count + 1 >= self->num_hash_slots)
@@ -153,7 +153,7 @@ astring_ref_t astring_table_to_ref(astring_table_t* self, const char* string)
         } else {
             char* const dest = strs + self->string_bytes;
             const astring_ref_t ref = self->string_bytes;
-            ht[integer].offset = ref;
+            ht[i].offset = ref;
             self->count++;
             *(uint32_t*)dest = hl.hash;
             memcpy(dest + sizeof(uint32_t), string, hl.length + 1);
@@ -172,13 +172,13 @@ astring_ref_t astring_table_to_ref_const(const astring_table_t* self, const char
         const ahash_and_length_t hl = ahash_and_length(string);
         const char* const strs = strings_const(self);
 
-        int32_t integer = 0;
+        int32_t i = 0;
         const hash_slot_t* const ht = hashtable_const(self);
-        integer = hl.hash % self->num_hash_slots;
-        while (ht[integer].offset) {
-            if (strcmp(string, strs + ht[integer].offset + sizeof(uint32_t)) == 0)
-                return ht[integer].offset;
-            integer = (integer + 1) % self->num_hash_slots;
+        i = hl.hash % self->num_hash_slots;
+        while (ht[i].offset) {
+            if (strcmp(string, strs + ht[i].offset + sizeof(uint32_t)) == 0)
+                return ht[i].offset;
+            i = (i + 1) % self->num_hash_slots;
         }
 
         return AERR_FULL;

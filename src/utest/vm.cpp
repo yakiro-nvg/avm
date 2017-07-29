@@ -56,38 +56,38 @@ TEST_CASE("vm_proc_allocation")
 
     // empty
     for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
-        for (int32_t integer = 0; integer < 1 << NUM_IDX_BITS; ++integer) {
+        for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
             REQUIRE(!avm_process_lock(
-                &vm, apid_from(NUM_IDX_BITS, NUM_GEN_BITS, integer, g)));
+                &vm, apid_from(NUM_IDX_BITS, NUM_GEN_BITS, i, g)));
             REQUIRE(!avm_process_lock_idx(
-                &vm, integer, NULL));
+                &vm, i, NULL));
         }
     }
 
     // basic
     for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
-        for (int32_t integer = 0; integer < 1 << NUM_IDX_BITS; ++integer) {
+        for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
             auto p = avm_process_alloc(&vm);
             REQUIRE(p != NULL);
             REQUIRE(p == avm_process_lock(&vm, p->pid));
             avm_process_unlock(p);
-            REQUIRE(p == avm_process_lock_idx(&vm, integer, NULL));
+            REQUIRE(p == avm_process_lock_idx(&vm, i, NULL));
             avm_process_unlock(p);
             avm_process_free(p);
         }
     }
 
     // over-allocate
-    for (int32_t integer = 0; integer < 1 << NUM_IDX_BITS; ++integer) {
+    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
         REQUIRE(avm_process_alloc(&vm));
     }
     REQUIRE(avm_process_alloc(&vm) == NULL);
-    for (int32_t integer = 0; integer < 1 << NUM_IDX_BITS; ++integer) {
-        auto p = avm_process_lock_idx(&vm, integer, NULL);
+    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+        auto p = avm_process_lock_idx(&vm, i, NULL);
         avm_process_unlock(p);
         avm_process_free(p);
     }
-    for (int32_t integer = 0; integer < 1 << NUM_IDX_BITS; ++integer) {
+    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
         REQUIRE(avm_process_alloc(&vm));
     }
 
@@ -132,9 +132,9 @@ TEST_CASE("vm_migrate_messages")
     p2->mbox.sz = 0;
 
     // basic outgoing enqueue
-    for (int32_t integer = 0; integer < MSG_QUEUE_CAP; ++integer) {
+    for (int32_t i = 0; i < MSG_QUEUE_CAP; ++i) {
         avalue_t v;
-        v.v.integer = integer;
+        v.v.i = i;
         REQUIRE(ascheduler_outgoing(&s0, p1->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s1, p2->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s2, p0->pid, &v) >= 0);
@@ -159,24 +159,24 @@ TEST_CASE("vm_migrate_messages")
     ascheduler_empty_incoming(&s0);
     ascheduler_empty_incoming(&s1);
     ascheduler_empty_incoming(&s2);
-    for (int32_t integer = 0; integer < MSG_QUEUE_CAP; ++integer) {
-        REQUIRE(p0->mbox.msgs[integer].v.integer == integer);
-        REQUIRE(p1->mbox.msgs[integer].v.integer == integer);
-        REQUIRE(p2->mbox.msgs[integer].v.integer == integer);
+    for (int32_t i = 0; i < MSG_QUEUE_CAP; ++i) {
+        REQUIRE(p0->mbox.msgs[i].v.integer == i);
+        REQUIRE(p1->mbox.msgs[i].v.integer == i);
+        REQUIRE(p2->mbox.msgs[i].v.integer == i);
     }
 
     // enqueue more messages
-    for (int32_t integer = 0; integer < MSG_QUEUE_CAP; ++integer) {
+    for (int32_t i = 0; i < MSG_QUEUE_CAP; ++i) {
         avalue_t v;
-        v.v.integer = integer;
+        v.v.i = i;
         REQUIRE(ascheduler_outgoing(&s0, p1->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s1, p2->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s2, p0->pid, &v) >= 0);
     }
     avm_migrate_messages(&vm, scheds);
-    for (int32_t integer = 0; integer < MSG_QUEUE_CAP; ++integer) {
+    for (int32_t i = 0; i < MSG_QUEUE_CAP; ++i) {
         avalue_t v;
-        v.v.integer = integer;
+        v.v.integer = i;
         REQUIRE(ascheduler_outgoing(&s0, p1->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s1, p2->pid, &v) >= 0);
         REQUIRE(ascheduler_outgoing(&s2, p0->pid, &v) >= 0);
@@ -201,15 +201,15 @@ TEST_CASE("vm_migrate_messages")
     ascheduler_empty_incoming(&s2);
     REQUIRE(p2->mbox.sz == MSG_QUEUE_CAP * 2);
     {
-        for (int32_t integer = 0; integer < MSG_QUEUE_CAP; ++integer) {
-            REQUIRE(p2->mbox.msgs[integer].v.integer == integer);
+        for (int32_t i = 0; i < MSG_QUEUE_CAP; ++i) {
+            REQUIRE(p2->mbox.msgs[i].v.integer == i);
         }
-        for (int32_t integer = 0; integer < MSG_QUEUE_CAP / 2; ++integer) {
-            REQUIRE(p2->mbox.msgs[MSG_QUEUE_CAP + integer].v.integer == integer);
+        for (int32_t i = 0; i < MSG_QUEUE_CAP / 2; ++i) {
+            REQUIRE(p2->mbox.msgs[MSG_QUEUE_CAP + i].v.integer == i);
         }
-        for (int32_t integer = 0; integer < MSG_QUEUE_CAP / 2; ++integer) {
+        for (int32_t i = 0; i < MSG_QUEUE_CAP / 2; ++i) {
             REQUIRE(p2->mbox.msgs[
-                MSG_QUEUE_CAP + (MSG_QUEUE_CAP / 2) + integer].v.integer == integer);
+                MSG_QUEUE_CAP + (MSG_QUEUE_CAP / 2) + i].v.integer == i);
         }
     }
 

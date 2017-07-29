@@ -284,117 +284,117 @@ ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 // Instruction constructors.
 AINLINE ainstruction_t ai_nop()
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_NOP;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_NOP;
+    return i;
 }
 
 AINLINE ainstruction_t ai_pop(int32_t n)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_POP;
-    integer.pop.n = n;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_POP;
+    i.pop.n = n;
+    return i;
 }
 
 AINLINE ainstruction_t ai_ldk(int32_t idx)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_LDK;
-    integer.ldk.idx = idx;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_LDK;
+    i.ldk.idx = idx;
+    return i;
 }
 
 AINLINE ainstruction_t ai_nil()
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_NIL;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_NIL;
+    return i;
 }
 
 AINLINE ainstruction_t ai_ldb(int32_t val)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_LDB;
-    integer.ldb.val = val;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_LDB;
+    i.ldb.val = val;
+    return i;
 }
 
 AINLINE ainstruction_t ai_llv(int32_t idx)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_LLV;
-    integer.llv.idx = idx;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_LLV;
+    i.llv.idx = idx;
+    return i;
 }
 
 AINLINE ainstruction_t ai_slv(int32_t idx)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_SLV;
-    integer.slv.idx = idx;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_SLV;
+    i.slv.idx = idx;
+    return i;
 }
 
 AINLINE ainstruction_t ai_imp(int32_t idx)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_IMP;
-    integer.imp.idx = idx;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_IMP;
+    i.imp.idx = idx;
+    return i;
 }
 
 AINLINE ainstruction_t ai_jmp(int32_t displacement)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_JMP;
-    integer.jmp.displacement = displacement;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_JMP;
+    i.jmp.displacement = displacement;
+    return i;
 }
 
 AINLINE ainstruction_t ai_jin(int32_t displacement)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_JIN;
-    integer.jin.displacement = displacement;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_JIN;
+    i.jin.displacement = displacement;
+    return i;
 }
 
 AINLINE ainstruction_t ai_ivk(int32_t nargs)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_IVK;
-    integer.ivk.nargs = nargs;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_IVK;
+    i.ivk.nargs = nargs;
+    return i;
 }
 
 AINLINE ainstruction_t ai_ret()
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_RET;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_RET;
+    return i;
 }
 
 AINLINE ainstruction_t ai_snd()
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_SND;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_SND;
+    return i;
 }
 
 AINLINE ainstruction_t ai_rcv(int32_t displacement)
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_RCV;
-    integer.rcv.displacement = displacement;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_RCV;
+    i.rcv.displacement = displacement;
+    return i;
 }
 
 AINLINE ainstruction_t ai_rmv()
 {
-    ainstruction_t integer;
-    integer.b.opcode = AOC_RMV;
-    return integer;
+    ainstruction_t i;
+    i.b.opcode = AOC_RMV;
+    return i;
 }
 
 /** Allocator interface.
@@ -565,10 +565,10 @@ ASTATIC_ASSERT(sizeof(aimport_t) == 8);
 
 AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
-    aimport_t integer;
-    integer.module = module;
-    integer.name = name;
-    return integer;
+    aimport_t i;
+    i.module = module;
+    i.name = name;
+    return i;
 }
 
 /** Function prototype.
