@@ -4,6 +4,8 @@
 #include <any/errno.h>
 #include <any/rt_types.h>
 #include <any/process.h>
+#include <any/vm.h>
+#include <any/scheduler.h>
 
 static void* myalloc(void*, void* old, int32_t sz)
 {
@@ -81,16 +83,35 @@ static void stack_test(aprocess_t* p)
     any_push_bool(p, FALSE);
     any_push_integer(p, 1991);
     any_push_real(p, 18.12f);
+    any_push_pid(p, 0xDEAD);
 
-    REQUIRE(any_count(p) == NUM_INTS + 4);
+    REQUIRE(any_count(p) == NUM_INTS + 5);
 
-    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_NUMBER);
-    REQUIRE(any_type(p, any_count(p) - 1).variant == AVTN_REAL);
-    REQUIRE(any_to_real(p, any_count(p) - 1) == 18.12f);
+    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_PID);
+    REQUIRE(any_to_pid(p, any_count(p) - 1) == 0xDEAD);
 
     REQUIRE(any_type(p, any_count(p) - 2).b == ABT_NUMBER);
-    REQUIRE(any_type(p, any_count(p) - 2).variant == AVTN_INTEGER);
-    REQUIRE(any_to_integer(p, any_count(p) - 2) == 1991);
+    REQUIRE(any_type(p, any_count(p) - 2).variant == AVTN_REAL);
+    REQUIRE(any_to_real(p, any_count(p) - 2) == 18.12f);
+
+    REQUIRE(any_type(p, any_count(p) - 3).b == ABT_NUMBER);
+    REQUIRE(any_type(p, any_count(p) - 3).variant == AVTN_INTEGER);
+    REQUIRE(any_to_integer(p, any_count(p) - 3) == 1991);
+
+    REQUIRE(any_type(p, any_count(p) - 4).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 4) == FALSE);
+
+    REQUIRE(any_type(p, any_count(p) - 5).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 5) == TRUE);
+
+    any_remove(p, any_count(p) - 3);
+
+    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_PID);
+    REQUIRE(any_to_pid(p, any_count(p) - 1) == 0xDEAD);
+
+    REQUIRE(any_type(p, any_count(p) - 2).b == ABT_NUMBER);
+    REQUIRE(any_type(p, any_count(p) - 2).variant == AVTN_REAL);
+    REQUIRE(any_to_real(p, any_count(p) - 2) == 18.12f);
 
     REQUIRE(any_type(p, any_count(p) - 3).b == ABT_BOOL);
     REQUIRE(any_to_bool(p, any_count(p) - 3) == FALSE);
@@ -98,7 +119,7 @@ static void stack_test(aprocess_t* p)
     REQUIRE(any_type(p, any_count(p) - 4).b == ABT_BOOL);
     REQUIRE(any_to_bool(p, any_count(p) - 4) == TRUE);
 
-    any_remove(p, any_count(p) - 2);
+    any_remove(p, any_count(p) - 1);
 
     REQUIRE(any_type(p, any_count(p) - 1).b == ABT_NUMBER);
     REQUIRE(any_type(p, any_count(p) - 1).variant == AVTN_REAL);
@@ -110,15 +131,7 @@ static void stack_test(aprocess_t* p)
     REQUIRE(any_type(p, any_count(p) - 3).b == ABT_BOOL);
     REQUIRE(any_to_bool(p, any_count(p) - 3) == TRUE);
 
-    any_remove(p, any_count(p) - 1);
-
-    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_BOOL);
-    REQUIRE(any_to_bool(p, any_count(p) - 1) == FALSE);
-
-    REQUIRE(any_type(p, any_count(p) - 2).b == ABT_BOOL);
-    REQUIRE(any_to_bool(p, any_count(p) - 2) == TRUE);
-
-    any_pop(p, 2);
+    any_pop(p, 3);
 
     any_remove(p, 0);
 
@@ -132,6 +145,29 @@ static void stack_test(aprocess_t* p)
     REQUIRE(any_count(p) == 0);
 
     any_push_integer(p, 0xFFAA);
+}
+
+static int32_t num_spawn_tests;
+
+static void spawn_test(aprocess_t* p)
+{
+    REQUIRE(any_type(p, -1).b == ABT_NUMBER);
+    REQUIRE(any_type(p, -1).variant == AVTN_INTEGER);
+
+    REQUIRE(any_type(p, -2).b == ABT_FUNCTION);
+    REQUIRE(any_type(p, -2).variant == AVTF_NATIVE);
+
+    int32_t i = (int32_t)any_to_integer(p, -1);
+    if (i < 10) {
+        any_push_idx(p, -2);
+        any_push_idx(p, -2);
+        any_push_integer(p, i + 1);
+        apid_t _;
+        ++num_spawn_tests;
+        any_spawn(p, 512, 2, &_);
+    }
+
+    any_push_nil(p);
 }
 
 TEST_CASE("process_try_throw")
@@ -167,4 +203,37 @@ TEST_CASE("process_stack")
     REQUIRE(any_to_integer(&p, 0) == 0xFFAA);
 
     aprocess_cleanup(&p);
+}
+
+TEST_CASE("process_spawn")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    avm_t vm;
+    ascheduler_t s;
+
+    avalue_t entry;
+    entry.tag.b = ABT_FUNCTION;
+    entry.tag.variant = AVTF_NATIVE;
+    entry.v.func = &spawn_test;
+
+    REQUIRE(AERR_NONE ==
+        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    REQUIRE(AERR_NONE == ascheduler_init(&s, &vm, &myalloc, NULL));
+
+    num_spawn_tests = 0;
+
+    aprocess_t* p;
+    REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+    aprocess_push(p, &entry);
+    aprocess_push(p, &entry);
+    any_push_integer(p, 0);
+    aprocess_start(p, 512, 2);
+    ascheduler_run_once(&s);
+
+    REQUIRE(num_spawn_tests == 10);
+
+    ascheduler_cleanup(&s);
+    avm_shutdown(&vm);
 }

@@ -103,6 +103,20 @@ AINLINE void any_push_real(aprocess_t* p, areal_t r)
     aprocess_push(p, &v);
 }
 
+AINLINE void any_push_pid(aprocess_t* p, apid_t pid)
+{
+    avalue_t v;
+    v.tag.b = ABT_PID;
+    v.v.pid = pid;
+    aprocess_push(p, &v);
+}
+
+AINLINE void any_push_idx(aprocess_t* p, int32_t idx)
+{
+    avalue_t* v = p->stack + aprocess_absidx(p, idx);
+    aprocess_push(p, v);
+}
+
 AINLINE int32_t any_to_bool(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
@@ -124,6 +138,13 @@ AINLINE areal_t any_to_real(aprocess_t* p, int32_t idx)
     assert(v->tag.b == ABT_NUMBER);
     assert(v->tag.variant == AVTN_REAL);
     return v->v.real;
+}
+
+AINLINE apid_t any_to_pid(aprocess_t* p, int32_t idx)
+{
+    avalue_t* v = p->stack + aprocess_absidx(p, idx);
+    assert(v->tag.b == ABT_PID);
+    return v->v.pid;
 }
 
 AINLINE void any_pop(aprocess_t* p, int32_t n)
@@ -153,6 +174,13 @@ AINLINE int32_t any_count(aprocess_t* p)
 {
     return p->sp - p->frame->bp;
 }
+
+/** Spawn a new process.
+\brief
+This function follow the same protocol as \ref any_call.
+*/
+ANY_API int32_t any_spawn(
+    aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid);
 
 #ifdef __cplusplus
 } // extern "C"

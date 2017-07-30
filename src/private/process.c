@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <any/errno.h>
 #include <any/loader.h>
+#include <any/scheduler.h>
 
 #define GROW_FACTOR 2
 #define INIT_STACK_SZ 64
@@ -165,4 +166,19 @@ void any_error(aprocess_t* p, const char* fmt, ...)
     AUNUSED(fmt);
     any_push_nil(p); // TODO: push error message
     any_throw(p, AERR_RUNTIME);
+}
+
+int32_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)
+{
+    aprocess_t* np;
+    int32_t i;
+    int32_t err = ascheduler_new_process(p->owner, &np);
+    if (err != AERR_NONE) return err;
+    for (i = 0; i < nargs + 1; ++i) {
+        aprocess_push(np, p->stack + p->sp - nargs - 1 + i);
+    }
+    any_pop(p, nargs + 1);
+    aprocess_start(np, cstack_sz, nargs);
+    *pid = np->pid;
+    return AERR_NONE;
 }
