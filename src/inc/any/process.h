@@ -142,8 +142,8 @@ AINLINE void any_remove(aprocess_t* p, int32_t idx)
     --p->sp;
     if (num_tails == 0) return;
     memmove(
-        p->stack + idx + 1,
         p->stack + idx,
+        p->stack + idx + 1,
         sizeof(avalue_t)*num_tails);
 }
 

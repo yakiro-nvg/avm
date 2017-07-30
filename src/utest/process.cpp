@@ -98,12 +98,34 @@ static void stack_test(aprocess_t* p)
     REQUIRE(any_type(p, any_count(p) - 4).b == ABT_BOOL);
     REQUIRE(any_to_bool(p, any_count(p) - 4) == TRUE);
 
-    any_pop(p, 4);
+    any_remove(p, any_count(p) - 2);
 
-    for (int32_t i = NUM_INTS - 1; i >= 0; --i) {
+    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_NUMBER);
+    REQUIRE(any_type(p, any_count(p) - 1).variant == AVTN_REAL);
+    REQUIRE(any_to_real(p, any_count(p) - 1) == 18.12f);
+
+    REQUIRE(any_type(p, any_count(p) - 2).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 2) == FALSE);
+
+    REQUIRE(any_type(p, any_count(p) - 3).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 3) == TRUE);
+
+    any_remove(p, any_count(p) - 1);
+
+    REQUIRE(any_type(p, any_count(p) - 1).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 1) == FALSE);
+
+    REQUIRE(any_type(p, any_count(p) - 2).b == ABT_BOOL);
+    REQUIRE(any_to_bool(p, any_count(p) - 2) == TRUE);
+
+    any_pop(p, 2);
+
+    any_remove(p, 0);
+
+    for (int32_t i = NUM_INTS - 2; i >= 0; --i) {
         REQUIRE(any_type(p, i).b == ABT_NUMBER);
         REQUIRE(any_type(p, i).variant == AVTN_INTEGER);
-        REQUIRE(any_to_integer(p, i) == i);
+        REQUIRE(any_to_integer(p, i) == i + 1);
         any_pop(p, 1);
     }
 
