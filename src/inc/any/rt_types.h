@@ -731,10 +731,11 @@ is relative to current function frame. Negative value of the index is used to
 point to the argument, that must be passed in reversed order. Underflow always
 result as a nil value.
 
-=====  ===============
+=====  ================
 index  description
-=====  ===============
- 3     local var3 (sp)
+=====  ================
+ 4     overflow   (sp)
+ 3     local var3 (top)
  2     local var2
  1     local var1
  0     local var0 (bp)
@@ -743,7 +744,7 @@ index  description
 -3     argument 3
 -4     nil
 -5     nil
-=====  ===============
+=====  ================
 */
 typedef struct aprocess_t {
 #ifdef ANY_SMP
