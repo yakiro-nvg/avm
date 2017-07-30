@@ -6,120 +6,60 @@
 #include <any/vm.h>
 #include <any/process.h>
 
-#if 0
-
-#define INIT_MBOX_CAP 16
-#define INIT_STACK_CAP 64
-#define INIT_MAX_FRAMES 16
-#define INIT_MAX_CATCHES 8
-
-AINLINE void* aalloc(ascheduler_t* self, void* old, const int32_t sz)
+static AINLINE void* aalloc(ascheduler_t* self, void* old, const int32_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static void ASTDCALL dispatch(void* ud)
+static void cleanup(ascheduler_t* self, int32_t force)
 {
-    aprocess_t* p = (aprocess_t*)ud;
-    aprocess_protected_call(p);
+    alist_node_t* i = self->task.node.next;
+    while (i != &self->task.node) {
+        alist_node_t* const next = i->next;
+        atask_t* const t = ALIST_NODE_CAST(atask_t, i);
+        aprocess_t* const p = ACAST_FROM_FIELD(aprocess_t, t, task);
+        avm_process_t* const vp = ACAST_FROM_FIELD(avm_process_t, p, p);
+        if (force || (p->flags & APF_EXIT) != 0) {
+            aprocess_cleanup(p);
+            avm_free(vp);
+        }
+        i = next;
+    }
 }
 
 int32_t ascheduler_init(
-    ascheduler_t* self, avm_t* vm, adispatcher_t* runner,
-    ascheduler_mbox_t oqueues[2], ascheduler_mbox_t iqueues[2],
-    aalloc_t alloc, void* alloc_ud)
+    ascheduler_t* self, avm_t* vm, aalloc_t alloc, void* alloc_ud)
 {
-    self->runner = runner;
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
     self->vm = vm;
-#ifdef ANY_SMP
-    amutex_init(&self->omutex);
-    amutex_init(&self->imutex);
-#endif
-    self->oback = oqueues[0];
-    self->iback = iqueues[0];
-    self->ofront = oqueues[1];
-    self->ifront = iqueues[1];
-    afiber_get(&self->fiber);
-    self->reduction = 0;
-    self->chunks = NULL;
-    self->natives = NULL;
+    atask_shadow(&self->task);
     return AERR_NONE;
 }
 
-void ascheduler_code_change(
-    ascheduler_t* self, achunk_header_t** chunks, const anative_module_t* natives)
+int32_t ascheduler_run_once(ascheduler_t* self)
 {
-    self->chunks = chunks;
-    self->natives = natives;
+    atask_yield(&self->task);
+    cleanup(self, FALSE);
+    return AERR_NONE;
 }
 
-int32_t ascheduler_spawn_borrowed(
-    ascheduler_t* self,
-    const char* module, const char* name,
-    const ambox_t* mbox,
-    avalue_t* stack,
-    int32_t stack_cap,
-    aframe_t* frames,
-    int32_t max_frames)
+void ascheduler_cleanup(ascheduler_t* self)
 {
-    aprocess_t* p;
-    int32_t err = AERR_NONE;
-    p = avm_process_alloc(self->vm);
-    if (!p) return AERR_FULL;
-#ifdef ANY_SMP
-    amutex_lock(&p->mutex);
-#endif
-    p->flags |= APF_BORROWED;
-    p->owner = self;
-    p->load = 0;
-    p->mbox = *mbox;
-    p->stack = stack;
-    p->stack_cap = stack_cap;
-    p->sp = p->stack;
-    p->frames = frames;
-    p->max_frames = max_frames;
-    p->fp = NULL;
-    p->error_jmp = NULL;
-    afiber_create(&p->fiber, &dispatch, p);
-    aprocess_find(p, module, name);
-#ifdef ANY_SMP
-    amutex_unlock(&p->mutex);
-#endif
-    return err;
+    cleanup(self, TRUE);
 }
 
-int32_t ascheduler_spawn(ascheduler_t* self, const char* module, const char* name)
+int32_t ascheduler_new_process(ascheduler_t* self, aprocess_t** p)
 {
-    aprocess_t* p;
-    int32_t err = AERR_NONE;
-    p = avm_process_alloc(self->vm);
-    if (!p) return AERR_FULL;
+    avm_process_t* vp = avm_alloc(self->vm);
+    if (!vp) return AERR_FULL;
+    *p = &vp->p;
 #ifdef ANY_SMP
-    amutex_lock(&p->mutex);
+    amutex_lock(&vp->mutex);
 #endif
-    p->owner = self;
-    p->load = 0;
-    p->mbox.cap = INIT_MBOX_CAP;
-    p->mbox.msgs = (avalue_t*)
-        aalloc(self, NULL, sizeof(avalue_t)*INIT_MBOX_CAP);
-    p->mbox.sz = 0;
-    p->stack_cap = INIT_STACK_CAP;
-    p->stack = (avalue_t*)
-        aalloc(self, NULL, sizeof(avalue_t)*INIT_STACK_CAP);
-    p->sp = p->stack;
-    p->max_frames = INIT_MAX_FRAMES;
-    p->frames = (aframe_t*)
-        aalloc(self, NULL, sizeof(aframe_t)*INIT_MAX_FRAMES);
-    p->fp = NULL;
-    p->error_jmp = NULL;
-    afiber_create(&p->fiber, &dispatch, p);
-    aprocess_find(p, module, name);
+    aprocess_init(*p, self, self->alloc, self->alloc_ud);
 #ifdef ANY_SMP
-    amutex_unlock(&p->mutex);
+    amutex_unlock(&vp->mutex);
 #endif
-    return err;
+    return AERR_NONE;
 }
-
-#endif

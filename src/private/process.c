@@ -30,6 +30,7 @@ static AINLINE save_ctx(aprocess_t* p, aframe_t* frame, int32_t nargs)
 static AINLINE load_ctx(aprocess_t* p)
 {
     int32_t nsp = p->frame->bp - p->frame->nargs;
+    assert(p->sp > p->frame->bp && "return value missing");
     p->stack[nsp - 1] = p->stack[p->sp - 1];
     p->sp = nsp;
     p->frame = p->frame->prev;
@@ -45,22 +46,21 @@ static ASTDCALL entry(void* ud)
     frame.nargs = 0;
     p->frame = &frame;
     any_pcall(p, nargs);
-    p->flags |= APF_DEAD;
+    p->flags |= APF_EXIT;
     while (TRUE) atask_yield(&p->task);
 }
 
 void aprocess_init(
-    aprocess_t* self, ascheduler_t* owner, apid_t pid,
-    aalloc_t alloc, void* alloc_ud)
+    aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
     self->owner = owner;
-    self->pid = pid;
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
     self->flags = 0;
     self->stack = (avalue_t*)aalloc(
         self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
     self->stack_cap = INIT_STACK_SZ;
+    self->sp = 0;
     any_push_nil(self); // stack[0] is nil
 }
 
@@ -96,7 +96,7 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
 void any_find(aprocess_t* p, const char* module, const char* name)
 {
     avalue_t v;
-    int32_t err = aloader_find(p->owner->loader, module, name, &v);
+    int32_t err = aloader_find(&p->owner->vm->loader, module, name, &v);
     if (err != AERR_NONE) any_push_nil(p);
     aprocess_push(p, &v);
 }

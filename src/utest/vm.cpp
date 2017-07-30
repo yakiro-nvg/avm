@@ -11,11 +11,12 @@ static void* myalloc(void*, void* old, int32_t sz)
     return realloc(old, sz);
 }
 
-TEST_CASE("vm_proc_allocation")
+TEST_CASE("vm_allocation")
 {
-    avm_t vm;
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
+
+    avm_t vm;
 
     REQUIRE(AERR_NONE ==
         avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
@@ -40,10 +41,15 @@ TEST_CASE("vm_proc_allocation")
     }
 
     // over-allocate
+    avm_process_t* procs[1 << NUM_IDX_BITS];
     for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
-        REQUIRE(avm_alloc(&vm));
+        procs[i] = avm_alloc(&vm);
+        REQUIRE(procs[i]);
     }
     REQUIRE(avm_alloc(&vm) == NULL);
+    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+        avm_free(procs[i]);
+    }
 
     avm_shutdown(&vm);
 }

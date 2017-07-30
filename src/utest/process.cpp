@@ -149,7 +149,7 @@ TEST_CASE("process_stack")
     aprocess_t p;
     memset(&p, 0, sizeof(aprocess_t));
 
-    aprocess_init(&p, &s, 0, &myalloc, NULL);
+    aprocess_init(&p, &s, &myalloc, NULL);
 
     avalue_t entry;
     entry.tag.b = ABT_FUNCTION;

@@ -10,9 +10,7 @@ extern "C" {
 /// Initialize as a new byte code loader.
 ANY_API void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud);
 
-/** This will not free the `self` pointer itself.
-\brief Release all internal allocated memory, result as a *fresh* loader.
-*/
+/// Release all internal allocated memory, result as a *fresh* loader.
 ANY_API void aloader_cleanup(aloader_t* self);
 
 /** Add new byte code chunk to `pendings` list.

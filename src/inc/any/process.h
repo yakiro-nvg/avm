@@ -10,8 +10,7 @@ extern "C" {
 
 /// Initialize as a new process.
 ANY_API void aprocess_init(
-    aprocess_t* self, ascheduler_t* owner, apid_t pid,
-    aalloc_t alloc, void* alloc_ud);
+    aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud);
 
 /// Start process with entry point on top of the stack.
 ANY_API void aprocess_start(aprocess_t* self, int32_t cstack_sz, int32_t nargs);

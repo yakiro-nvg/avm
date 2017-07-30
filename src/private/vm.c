@@ -1,11 +1,8 @@
 #include <any/vm.h>
 
-#include <assert.h>
-#include <string.h>
 #include <any/errno.h>
-#include <any/scheduler.h>
-
-#define MSG_QUEUE_GROW_FACTOR 2
+#include <any/loader.h>
+#include <any/process.h>
 
 static AINLINE void* aalloc(avm_t* self, void* old, const int32_t sz)
 {
@@ -17,7 +14,7 @@ static void init_processes(avm_process_t* procs, int32_t num)
     int32_t i;
     for (i = 0; i < num; ++i) {
         procs[i].dead = TRUE;
-        procs[i].gen = 0;
+        procs[i].p.pid = 0;
 #ifdef ANY_SMP
         amutex_init(&procs[i].mutex);
 #endif
@@ -37,20 +34,25 @@ int32_t avm_startup(
     self->gen_bits = gen_bits;
     self->procs = aalloc(self, NULL, sizeof(avm_process_t)*(1 << idx_bits));
     self->next_idx = 0;
+    aloader_init(&self->loader, alloc, alloc_ud);
     init_processes(self->procs, 1 << idx_bits);
     return AERR_NONE;
 }
 
 void avm_shutdown(avm_t* self)
 {
-#ifdef ANY_SMP
     int32_t num = 1 << self->idx_bits, i;
     for (i = 0; i < num; ++i) {
+#ifdef ANY_SMP
         amutex_destroy(&self->procs[i].mutex);
+#endif
+        assert(self->procs[i].dead && "allocated process must be freed first");
     }
+#ifdef ANY_SMP
     amutex_destroy(&self->mutex);
 #endif
     aalloc(self, self->procs, 0);
+    aloader_cleanup(&self->loader);
 }
 
 avm_process_t* avm_alloc(avm_t* self)
@@ -65,9 +67,11 @@ avm_process_t* avm_alloc(avm_t* self)
         self->next_idx = (self->next_idx + 1) & ((1 << self->idx_bits) - 1);
         if (vp->dead) {
             int32_t idx = (int32_t)(vp - self->procs);
-            vp->gen = (vp->gen + 1) & ((1 << self->gen_bits) - 1);
-            vp->p.pid = apid_from(self->idx_bits, self->gen_bits, idx, vp->gen);
+            int32_t gen = apid_gen(self->idx_bits, self->gen_bits, vp->p.pid);
+            gen = (gen + 1) & ((1 << self->gen_bits) - 1);
+            vp->p.pid = apid_from(self->idx_bits, self->gen_bits, idx, gen);
             vp->dead = FALSE;
+            vp->p.owner = NULL;
             found = vp;
         }
     } while (--loop && !found);

@@ -76,7 +76,7 @@ AINLINE int32_t alist_is_end(alist_t* self, alist_node_t* node)
     return &self->root == node;
 }
 
-#define ALIST_NODE_CAST(T, n) ((T*)(((uint8_t*)n) - offsetof(T, node)))
+#define ALIST_NODE_CAST(T, n) ACAST_FROM_FIELD(T, n, node)
 
 #ifdef __cplusplus
 } // extern "C"

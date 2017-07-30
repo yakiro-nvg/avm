@@ -133,3 +133,5 @@ AINLINE void amutex_unlock(amutex_t* m)
 #if defined(AMSVC) && !defined(snprintf)
 #define snprintf sprintf_s
 #endif
+
+#define ACAST_FROM_FIELD(T, n, field) ((T*)(((uint8_t*)n) - offsetof(T, field)))

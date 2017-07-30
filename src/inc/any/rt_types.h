@@ -181,10 +181,8 @@ typedef struct {
 } ai_jin_t;
 
 /** Function call.
-\brief
-Pop a closure and next `nargs` arguments from the stack
-then call it. The result will be places onto the top of
-stack after that.
+\brief Please refer \ref aprocess_t for the protocol.
+\note Result will be placed on top of the stack.
 \rst
 =======  =======
 8 bits   24 bits
@@ -692,7 +690,7 @@ typedef struct {
 
 /// Process flags.
 typedef enum {
-    APF_DEAD = 1 << 0
+    APF_EXIT = 1 << 0
 } APFLAGS;
 
 /// Process stack frame.
@@ -772,7 +770,7 @@ context of a process and comeback later, in native side.
 typedef struct ascheduler_t {
     aalloc_t alloc;
     void* alloc_ud;
-    aloader_t* loader;
+    struct avm_t* vm;
     atask_t task;
 } ascheduler_t;
 
@@ -782,7 +780,6 @@ typedef struct {
     amutex_t mutex;
 #endif
     volatile int32_t dead;
-    int32_t gen;
     aprocess_t p;
 } avm_process_t;
 
