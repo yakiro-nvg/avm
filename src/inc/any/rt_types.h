@@ -786,7 +786,23 @@ typedef struct {
     aprocess_t p;
 } avm_process_t;
 
-/// VM Engine.
+/** VM Engine.
+\par System architecture.
+                                        +--------+           +----------+
+            +-------+                   | alib_t <-----+-----> achunk_t |
+            | avm_t +-------+           +--------+     |     +----------+
+            +-------+       |                          |
+                        `provides`               `load & link`
+                            |                          |
++--------------+         +--v---------+          +-----+-----+
+| ascheduler_t +--`run`--> aprocess_t +-`import`-> aloader_t |
++--------------+         +-------+----+          +-----------+
+                                 |
+                            `interpret`
+                                 |     +---------------+
+                                 +-----> adispatcher_t |
+                                       +---------------+
+*/
 typedef struct avm_t {
 #ifdef ANY_SMP
     amutex_t mutex;
