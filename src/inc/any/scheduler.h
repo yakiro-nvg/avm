@@ -7,6 +7,8 @@
 extern "C" {
 #endif
 
+#if 0
+
 /** Initialize as a new scheduler.
 \brief Scheduler will not allocate, grow or shrink its message queues.
 \note `alloc` and `alloc_ud` is mandatory for non-borrowed processes.
@@ -58,6 +60,8 @@ ANY_API int32_t ascheduler_spawn_borrowed(
 */
 ANY_API int32_t ascheduler_spawn(
     ascheduler_t* self, const char* module, const char* name);
+
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

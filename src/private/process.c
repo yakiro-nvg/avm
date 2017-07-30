@@ -9,8 +9,8 @@
 
 static AINLINE void* aalloc(aprocess_t* self, void* old, const int32_t sz)
 {
-    assert(self->owner->alloc);
-    return self->owner->alloc(self->owner->alloc_ud, old, sz);
+    assert(self->alloc);
+    return self->alloc(self->alloc_ud, old, sz);
 }
 
 static void call(aprocess_t* self, void* ud)
@@ -45,30 +45,30 @@ static ASTDCALL entry(void* ud)
     frame.nargs = 0;
     p->frame = &frame;
     any_pcall(p, nargs);
-    p->flags |= APF_EXIT;
+    p->flags |= APF_DEAD;
     while (TRUE) atask_yield(&p->task);
 }
 
-void aprocess_init(aprocess_t* self, ascheduler_t* owner, apid_t pid)
+void aprocess_init(
+    aprocess_t* self, ascheduler_t* owner, apid_t pid,
+    aalloc_t alloc, void* alloc_ud)
 {
-    self->pid = pid;
-    self->flags = 0;
     self->owner = owner;
+    self->pid = pid;
+    self->alloc = alloc;
+    self->alloc_ud = alloc_ud;
+    self->flags = 0;
     self->stack = (avalue_t*)aalloc(
         self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
     self->stack_cap = INIT_STACK_SZ;
     any_push_nil(self); // stack[0] is nil
 }
 
-void aprocess_start(aprocess_t* self, int32_t cstack_sz, int32_t nargs)
+void aprocess_start(
+    aprocess_t* self, int32_t cstack_sz, int32_t nargs)
 {
     any_push_integer(self, nargs);
-    atask_create(
-        &self->task,
-        &((ascheduler_t*)self->owner)->task,
-        &entry,
-        self,
-        cstack_sz);
+    atask_create(&self->task, &self->owner->task, &entry, self, cstack_sz);
 }
 
 void aprocess_cleanup(aprocess_t* self)
@@ -96,7 +96,7 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
 void any_find(aprocess_t* p, const char* module, const char* name)
 {
     avalue_t v;
-    int32_t err = aloader_find(&p->vm->_loader, module, name, &v);
+    int32_t err = aloader_find(p->owner->loader, module, name, &v);
     if (err != AERR_NONE) any_push_nil(p);
     aprocess_push(p, &v);
 }

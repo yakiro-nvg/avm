@@ -692,8 +692,7 @@ typedef struct {
 
 /// Process flags.
 typedef enum {
-    APF_DEAD = 1 << 0,
-    APF_EXIT = 1 << 1
+    APF_DEAD = 1 << 0
 } APFLAGS;
 
 /// Process stack frame.
@@ -747,40 +746,19 @@ index  description
 =====  ================
 */
 typedef struct aprocess_t {
-#ifdef ANY_SMP
-    amutex_t mutex;
-#endif
-    struct avm_t* vm;
-    volatile struct ascheduler_t* owner;
-    volatile int32_t load;
-    volatile int32_t flags;
-    volatile apid_t pid;
+    int32_t flags;
+    apid_t pid;
+    aalloc_t alloc;
+    void* alloc_ud;
+    struct ascheduler_t* owner;
+    atask_t task;
+    ambox_t mbox;
     acatch_t* error_jmp;
     aframe_t* frame;
     avalue_t* stack;
     int32_t stack_cap;
     int32_t sp;
-    atask_t task;
-    ambox_t mbox;
 } aprocess_t;
-
-/// Byte code runner.
-typedef struct {
-    int32_t TODO;
-} adispatcher_t;
-
-/// Message envelope.
-typedef struct {
-    apid_t to;
-    avalue_t payload;
-} aenvelope_t;
-
-/// Scheduler message box.
-typedef struct {
-    aenvelope_t* msgs;
-    int32_t sz;
-    int32_t cap;
-} ascheduler_mbox_t;
 
 /** Process scheduler interface.
 \brief
@@ -794,17 +772,30 @@ context of a process and comeback later, in native side.
 typedef struct ascheduler_t {
     aalloc_t alloc;
     void* alloc_ud;
+    aloader_t* loader;
     atask_t task;
 } ascheduler_t;
 
+/// VM managed process.
+typedef struct {
+#ifdef ANY_SMP
+    amutex_t mutex;
+#endif
+    volatile int32_t dead;
+    int32_t gen;
+    aprocess_t p;
+} avm_process_t;
+
 /// VM Engine.
 typedef struct avm_t {
-    aprocess_t* _procs;
-    aloader_t _loader;
-    int8_t _idx_bits;
-    int8_t _gen_bits;
-    apid_idx_t _next_idx;
 #ifdef ANY_SMP
-    amutex_t _next_idx_mutex;
+    amutex_t mutex;
 #endif
+    aalloc_t alloc;
+    void* alloc_ud;
+    avm_process_t* procs;
+    aloader_t loader;
+    int8_t idx_bits;
+    int8_t gen_bits;
+    apid_idx_t next_idx;
 } avm_t;

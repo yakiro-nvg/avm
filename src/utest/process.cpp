@@ -144,14 +144,12 @@ TEST_CASE("process_try_throw")
 TEST_CASE("process_stack")
 {
     ascheduler_t s;
-    s.alloc = &myalloc;
-    s.alloc_ud = NULL;
     atask_shadow(&s.task);
 
     aprocess_t p;
     memset(&p, 0, sizeof(aprocess_t));
 
-    aprocess_init(&p, &s, 0);
+    aprocess_init(&p, &s, 0, &myalloc, NULL);
 
     avalue_t entry;
     entry.tag.b = ABT_FUNCTION;

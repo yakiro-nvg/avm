@@ -11,14 +11,14 @@ extern "C" {
 \brief
 The `apid_t` consists of two parts are `index` and `generation`, its lengths can
 be configured by `idx_bits` and `gen_bits`. The index will be used to directly
-lookup for a process from `procs` array. In additional, the generation part also
-be used to distinguish processes created at the same index slot. That caused by
-the limited size of `procs` array, eventually the index will be reused.
-\note AVM will not allocate memory for `procs`.
+lookup for a process from array. In additional, the generation part also be used
+to distinguish processes created at the same index slot. That caused by limited
+size of process array, eventually the index will be reused.
 \return AERR_NONE if successful.
 */
 ANY_API int32_t avm_startup(
-    avm_t* self, int8_t idx_bits, int8_t gen_bits, aprocess_t* procs);
+    avm_t* self, int8_t idx_bits, int8_t gen_bits,
+    aalloc_t alloc, void* alloc_ud);
 
 /// Gracefully cleanup the VM.
 ANY_API void avm_shutdown(avm_t* self);
@@ -26,76 +26,43 @@ ANY_API void avm_shutdown(avm_t* self);
 /** Lock for alive process by pid.
 \return NULL if that is not found or died.
 */
-AINLINE aprocess_t* avm_process_lock_pid(avm_t* self, apid_t pid)
+AINLINE avm_process_t* avm_lock_pid(avm_t* self, apid_t pid)
 {
-    apid_idx_t idx = apid_idx(self->_idx_bits, pid);
-    aprocess_t* p = self->_procs + idx;
+    apid_idx_t idx = apid_idx(self->idx_bits, pid);
+    avm_process_t* vp = self->procs + idx;
+    if (idx >= (apid_idx_t)(1 << self->idx_bits)) return NULL;
 #ifdef ANY_SMP
-    amutex_lock(&p->mutex);
+    amutex_lock(&vp->mutex);
 #endif
-    if (p->pid == pid && ((p->flags & APF_DEAD) == 0)) {
-        return p;
-    } else {
+    if (vp->p.pid == pid && !vp->dead) return vp;
+    else {
 #ifdef ANY_SMP
-        amutex_unlock(&p->mutex);
-#endif
-        return NULL;
-    }
-}
-
-/** Lock for alive process that is belong to a scheduler.
-\brief There is optimize to reduce contention for not `owned` processes.
-\return NULL if that is not found or died.
-*/
-AINLINE aprocess_t* avm_process_lock_idx(
-    avm_t* self, apid_idx_t idx, ascheduler_t* owner)
-{
-    aprocess_t* p = self->_procs + idx;
-    if (p->owner != owner) return NULL;
-#ifdef ANY_SMP
-    amutex_lock(&p->mutex);
-#endif
-    if (p->owner == owner && ((p->flags & APF_DEAD) == 0)) {
-        return p;
-    } else {
-#ifdef ANY_SMP
-        amutex_unlock(&p->mutex);
+        amutex_unlock(&vp->mutex);
 #endif
         return NULL;
     }
 }
 
 /// Unlock a process.
-AINLINE void avm_process_unlock(aprocess_t* p)
+AINLINE void avm_unlock(avm_process_t* vp)
 {
 #ifdef ANY_SMP
-    amutex_unlock(&p->mutex);
+    amutex_unlock(&vp->mutex);
 #else
-    AUNUSED(p);
+    AUNUSED(vp);
 #endif
 }
 
 /** Take an unused slot from the pool.
 \return NULL if no more space.
 */
-ANY_API aprocess_t* avm_process_alloc(avm_t* self);
+ANY_API avm_process_t* avm_alloc(avm_t* self);
 
 /// Return this process to the pool.
-AINLINE void avm_process_free(aprocess_t* p)
+AINLINE void avm_free(avm_process_t* vp)
 {
-    p->flags |= APF_DEAD;
+    vp->dead = TRUE;
 }
-
-/** Dispatch cross-scheduler messages.
-\brief Depends on the number of pending messages, and also potential contention for
-resources with schedulers, this function could be blocked for awhile. Therefore it
-is fine to run this function on background thread, if you are facing timing problems.
-The mechanisms is simple, it will in turns flush the outgoing queues for schedulers
-and there are no transaction at all. That means we have no completeness guarantee.
-This function should be called over and over again.
-\note `schedulers` must be NULL terminated.
-*/
-ANY_API void avm_migrate_messages(avm_t* self, ascheduler_t** schedulers);
 
 #ifdef __cplusplus
 } // extern "C"
