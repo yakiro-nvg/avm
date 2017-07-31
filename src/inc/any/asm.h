@@ -35,7 +35,7 @@ ANY_API int32_t aasm_emit(aasm_t* self, ainstruction_t instruction);
 /** Add new constant.
 \return The index of added constant.
 */
-ANY_API int32_t aasm_add_constant(aasm_t* self, aasm_constant_t constant);
+ANY_API int32_t aasm_add_constant(aasm_t* self, aconstant_t constant);
 
 /** Add new import.
 \return The index of added import.

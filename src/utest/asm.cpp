@@ -34,9 +34,9 @@ typedef struct {
     ainstruction_t jin;
     ainstruction_t ivk;
 
-    aasm_constant_t cinteger;
-    aasm_constant_t cstring;
-    aasm_constant_t creal;
+    aconstant_t cinteger;
+    aconstant_t cstring;
+    aconstant_t creal;
 } basic_test_ctx;
 
 static void basic_add(aasm_t* a, basic_test_ctx& t)

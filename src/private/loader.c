@@ -26,7 +26,7 @@ static int32_t calc_sizes(
     *num_imps += p->num_imports; *num_protos += p->num_nesteds;
     *off += sizeof(aprototype_header_t) + p->strings_sz +
         sizeof(ainstruction_t) * p->num_instructions +
-        sizeof(avalue_t) * p->num_constants +
+        sizeof(aconstant_t) * p->num_constants +
         sizeof(aimport_t) * p->num_imports;
     if (*off > sz) return AERR_MALFORMED;
 
@@ -64,7 +64,7 @@ static void create_proto(
     pt->header = p;
     pt->strings = (const char*)(p + 1);
     pt->instructions = (ainstruction_t*)(((uint8_t*)(p + 1)) + p->strings_sz);
-    pt->constants = (avalue_t*)(pt->instructions + p->num_instructions);
+    pt->constants = (aconstant_t*)(pt->instructions + p->num_instructions);
     pt->imports = (aimport_t*)(pt->constants + p->num_constants);
     pt->nesteds = *next_pt; *next_pt += p->num_nesteds;
     pt->import_values = *next_imp; *next_imp += p->num_imports;

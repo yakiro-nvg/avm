@@ -4,9 +4,11 @@
 #include <any/errno.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
+#include <any/gc.h>
 
 #define GROW_FACTOR 2
 #define INIT_STACK_SZ 64
+#define INIT_HEAP_SZ 512
 
 static AINLINE void* aalloc(aprocess_t* self, void* old, const int32_t sz)
 {
@@ -63,6 +65,7 @@ void aprocess_init(
     self->stack_cap = INIT_STACK_SZ;
     self->sp = 0;
     any_push_nil(self); // stack[0] is nil
+    agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud); // TODO: handle error
 }
 
 void aprocess_start(
@@ -79,6 +82,7 @@ void aprocess_cleanup(aprocess_t* self)
     self->stack_cap = 0;
     self->sp = 0;
     atask_delete(&self->task);
+    agc_cleanup(&self->gc);
 }
 
 void aprocess_reserve(aprocess_t* self, int32_t more)
@@ -118,7 +122,7 @@ void any_call(aprocess_t* p, int32_t nargs)
         f->v.func(p);
         break;
     case AVTF_AVM:
-        any_error(p, "not implemented");
+        any_error(p, "TODO");
         break;
     default: assert(FALSE);
     }

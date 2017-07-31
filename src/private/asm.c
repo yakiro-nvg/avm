@@ -28,7 +28,7 @@ static const aasm_reserve_t DEFAULT_PROTO_SZ = {
 
 typedef struct {
     ainstruction_t* instructions;
-    avalue_t* constants;
+    aconstant_t* constants;
     aimport_t* imports;
 } resolved_proto_t;
 
@@ -41,7 +41,7 @@ static AINLINE int32_t required_size(const aasm_reserve_t* sz)
 {
     return sizeof(aasm_prototype_t) +
         sz->max_instructions * sizeof(ainstruction_t) +
-        sz->max_constants * sizeof(aasm_constant_t) +
+        sz->max_constants * sizeof(aconstant_t) +
         sz->max_imports * sizeof(aimport_t) +
         sz->max_nesteds * sizeof(int32_t);
 }
@@ -61,19 +61,20 @@ static AINLINE ainstruction_t* instructions_of(aasm_prototype_t* p)
     return (ainstruction_t*)(p + 1);
 }
 
-static AINLINE const ainstruction_t* instructions_of_const(const aasm_prototype_t* p)
+static AINLINE const ainstruction_t* instructions_of_const(
+    const aasm_prototype_t* p)
 {
     return (const ainstruction_t*)(p + 1);
 }
 
-static AINLINE aasm_constant_t* constants_of(aasm_prototype_t* p)
+static AINLINE aconstant_t* constants_of(aasm_prototype_t* p)
 {
-    return (aasm_constant_t*)(instructions_of(p) + p->max_instructions);
+    return (aconstant_t*)(instructions_of(p) + p->max_instructions);
 }
 
-static AINLINE const aasm_constant_t* constants_of_const(const aasm_prototype_t* p)
+static AINLINE const aconstant_t* constants_of_const(const aasm_prototype_t* p)
 {
-    return (const aasm_constant_t*)(
+    return (const aconstant_t*)(
         instructions_of_const(p) + p->max_instructions);
 }
 
@@ -187,7 +188,7 @@ static AINLINE aasm_ctx_t* ctx(aasm_t* self)
 static int32_t compute_strings_sz(
     const astring_table_t* st,
     const aasm_prototype_t* p,
-    const aasm_constant_t* constants,
+    const aconstant_t* constants,
     const aimport_t* imports)
 {
     int32_t i;
@@ -227,7 +228,7 @@ static void compute_chunk_body_size(
     *psz += sizeof(aprototype_header_t) +
         compute_strings_sz(self->st, p, c.constants, c.imports) +
         p->num_instructions * sizeof(ainstruction_t) +
-        p->num_constants * sizeof(avalue_t) +
+        p->num_constants * sizeof(aconstant_t) +
         p->num_imports * sizeof(aimport_t);
 
     for (i = 0; i < p->num_nesteds; ++i) {
@@ -240,7 +241,7 @@ static AINLINE resolved_proto_t rp_resolve(
 {
     resolved_proto_t c;
     c.instructions = (ainstruction_t*)(((uint8_t*)(p + 1)) + strings_sz);
-    c.constants = (avalue_t*)(c.instructions + p->num_instructions);
+    c.constants = (aconstant_t*)(c.instructions + p->num_instructions);
     c.imports = (aimport_t*)(c.constants + p->num_constants);
     return c;
 }
@@ -275,26 +276,12 @@ static void set_headers(
     header->symbol = chunk_add_str(self, header, p->symbol);
 }
 
-static AINLINE avalue_t to_value(
-    aasm_constant_t c, aasm_t* self, aprototype_header_t* header)
+static AINLINE aconstant_t to_chunk(
+    aconstant_t c, aasm_t* self, aprototype_header_t* header)
 {
-    avalue_t v;
-    v.tag.b = ABT_NIL;
-    switch (c.b.type) {
-    case ACT_INTEGER:
-        v.tag.b = ABT_NUMBER;
-        v.tag.variant = AVTN_INTEGER;
-        v.v.integer = c.integer.val;
-        break;
-    case ACT_REAL:
-        v.tag.b = ABT_NUMBER;
-        v.tag.variant = AVTN_REAL;
-        v.v.real = c.real.val;
-        break;
-    case ACT_STRING:
-        v.tag.b = ABT_CONSTANT_STRING;
-        v.v.const_string = chunk_add_str(self, header, c.string.ref);
-        break;
+    aconstant_t v = c;
+    if (c.b.type == ACT_STRING) {
+        v.string.ref = chunk_add_str(self, header, c.string.ref);
     }
     return v;
 }
@@ -319,7 +306,7 @@ static void copy_prototype(
 
     // add constants
     for (i = 0; i < p->num_constants; ++i) {
-        rp.constants[i] = to_value(c->constants[i], self, header);
+        rp.constants[i] = to_chunk(c->constants[i], self, header);
     }
 
     // add imports
@@ -346,7 +333,7 @@ static void save_chunk(aasm_t* self, int32_t parent)
     int32_t psz = sizeof(aprototype_header_t) +
         str_sz +
         p->num_instructions * sizeof(ainstruction_t) +
-        p->num_constants * sizeof(avalue_t) +
+        p->num_constants * sizeof(aconstant_t) +
         p->num_imports * sizeof(aimport_t);
     aprototype_header_t* const header = (aprototype_header_t*)(
         ((uint8_t*)self->chunk) + self->chunk_size);
@@ -361,28 +348,13 @@ static AINLINE const char* rp_string(
     return ((const char*)p) + sizeof(aprototype_header_t) + string;
 }
 
-static aasm_constant_t from_value(
-    avalue_t v, aasm_t* self, const aprototype_header_t* p)
+static aconstant_t from_chunk(
+    aconstant_t v, aasm_t* self, const aprototype_header_t* p)
 {
-    aasm_constant_t c;
-    c.b.type = ACT_INTEGER; // silent warning
-    if (v.tag.b == ABT_NUMBER) {
-        switch (v.tag.variant) {
-        case AVTN_INTEGER:
-            c.b.type = ACT_INTEGER;
-            c.integer.val = v.v.integer;
-            return c;
-        case AVTN_REAL:
-            c.b.type = ACT_REAL;
-            c.real.val = v.v.real;
-            return c;
-        }
-    } else if (v.tag.b == ABT_CONSTANT_STRING) {
-        c.b.type = ACT_STRING;
-        c.string.ref = aasm_string_to_ref(self, rp_string(p, v.v.const_string));
-        return c;
+    aconstant_t c = v;
+    if (v.b.type == ACT_STRING) {
+        c.string.ref = aasm_string_to_ref(self, rp_string(p, v.string.ref));
     }
-    assert(!"bad constant value");
     return c;
 }
 
@@ -419,7 +391,7 @@ static int32_t load_chunk(
     ap->num_instructions = p->num_instructions;
 
     for (i = 0; i < p->num_constants; ++i) {
-        aasm_add_constant(self, from_value(rp.constants[i], self, p));
+        aasm_add_constant(self, from_chunk(rp.constants[i], self, p));
     }
 
     for (i = 0; i < p->num_imports; ++i) {
@@ -432,7 +404,7 @@ static int32_t load_chunk(
         sizeof(aprototype_header_t) +
         p->strings_sz +
         p->num_instructions * sizeof(ainstruction_t) +
-        p->num_constants * sizeof(avalue_t) +
+        p->num_constants * sizeof(aconstant_t) +
         p->num_imports * sizeof(aimport_t);
 
     for (i = 0; i < p->num_nesteds; ++i) {
@@ -559,7 +531,7 @@ int32_t aasm_emit(aasm_t* self, ainstruction_t instruction)
     return p->num_instructions++;
 }
 
-int32_t aasm_add_constant(aasm_t* self, aasm_constant_t constant)
+int32_t aasm_add_constant(aasm_t* self, aconstant_t constant)
 {
     aasm_prototype_t* p = aasm_prototype(self);
     aasm_reserve_t sz;
@@ -695,7 +667,7 @@ void aasm_reserve(aasm_t* self, const aasm_reserve_t* sz)
         memcpy(
             constants_of(np),
             constants_of_const(cp),
-            cp->num_constants * sizeof(aasm_constant_t));
+            cp->num_constants * sizeof(aconstant_t));
         memcpy(
             imports_of(np),
             imports_of_const(cp),

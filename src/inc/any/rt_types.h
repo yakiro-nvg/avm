@@ -436,6 +436,65 @@ typedef int32_t astring_ref_t;
 /// Native function.
 typedef void(*anative_func_t)(struct aprocess_t*);
 
+// Constant types.
+typedef enum {
+    ACT_INTEGER,
+    ACT_STRING,
+    ACT_REAL
+} ACTYPE;
+
+#pragma pack(push, 1)
+
+/// Prototype constant.
+typedef union APACKED {
+    /// Base type.
+    struct ac_base_t {
+        uint32_t type;
+    } b;
+    /// ACT_INTEGER.
+    struct ac_integer_t {
+        uint32_t _;
+        aint_t val;
+    } integer;
+    ///  ACT_STRING.
+    struct ac_string_t {
+        uint32_t _;
+        astring_ref_t ref;
+    } string;
+    /// ACT_REAL.
+    struct ac_real_t {
+        uint32_t _;
+        areal_t val;
+    } real;
+} aconstant_t;
+
+#pragma pack(pop)
+
+// Constant constructors.
+AINLINE aconstant_t ac_integer(aint_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_INTEGER;
+    c.integer.val = val;
+    return c;
+}
+
+AINLINE aconstant_t ac_string(astring_ref_t string)
+{
+    aconstant_t c;
+    c.b.type = ACT_STRING;
+    c.string.ref = string;
+    return c;
+}
+
+AINLINE aconstant_t ac_real(areal_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_REAL;
+    c.real.val = val;
+    return c;
+}
+
 /// Basic value tags.
 typedef enum {
     /// No value.
@@ -446,16 +505,18 @@ typedef enum {
     ABT_BOOL,
     /// Raw pointer.
     ABT_POINTER,
-    /// Constant string.
-    ABT_CONSTANT_STRING,
     /// Variant of number.
     ABT_NUMBER,
     /// Variant of function.
     ABT_FUNCTION,
     /// Start of collectable.
     ABT_COLLECTABLE,
+    /// Collectable fixed size buffer.
+    ABT_FIXED_BUFFER = ABT_COLLECTABLE,
+    /// Collectable buffer.
+    ABT_BUFFER,
     /// Collectable string.
-    ABT_STRING = ABT_COLLECTABLE,
+    ABT_STRING,
     /// Collectable tuple.
     ABT_TUPLE,
     /// Collectable array.
@@ -497,8 +558,6 @@ typedef struct {
         int32_t boolean;
         /// \ref ABT_POINTER.
         void* ptr;
-        /// \ref ABT_CONST_STRING.
-        astring_ref_t const_string;
         /// \ref AVTN_INTEGER.
         aint_t integer;
         /// \ref AVTN_REAL.
@@ -512,13 +571,39 @@ typedef struct {
     } v;
 } avalue_t;
 
+/// Is subject of GC?
+AINLINE int32_t avalue_collectable(avalue_t* v)
+{
+    return v->tag.b >= ABT_COLLECTABLE;
+}
+
+/// Garbage collector.
+typedef struct {
+    aalloc_t alloc;
+    void* alloc_ud;
+    uint8_t* cur_heap;
+    uint8_t* new_heap;
+    int32_t heap_cap;
+    int32_t heap_sz;
+    int32_t scan;
+} agc_t;
+
 /// Collectable value header.
 typedef struct {
+    int32_t abt;
     int32_t sz;
     int32_t forwared;
 } agc_header_t;
 
-#define AGC_CAST(T, o) ACAST_FROM_FIELD(T, o, gc)
+#define AGC_CAST(T, gc, idx) \
+    ((T*)((gc)->cur_heap + idx + sizeof(agc_header_t)))
+
+/// Collectable buffer.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_buffer_t;
 
 /// Combination of hash and length.
 typedef struct {
@@ -526,11 +611,29 @@ typedef struct {
     int32_t length;
 } ahash_and_length_t;
 
-/// Is subject of GC?
-AINLINE int32_t avalue_collectable(avalue_t* v)
-{
-    return v->tag.b >= ABT_COLLECTABLE;
-}
+/// Collectable string.
+typedef struct {
+    ahash_and_length_t hal;
+} agc_string_t;
+
+/// Collectable tuple.
+typedef struct {
+    int32_t sz;
+} agc_tuple_t;
+
+/// Collectable array.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_array_t;
+
+/// Collectable map.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_map_t;
 
 #pragma pack(push, 1)
 
@@ -633,7 +736,7 @@ bytes                                 description
 1                                     _
 num of string bytes                   strings
 n * sizeof(:c:type:`ainstruction_t`)  instructions
-n * sizeof(:c:type:`avalue_t`)        constants
+n * sizeof(:c:type:`aconstant_t`)     constants
 n * sizeof(:c:type:`aimport_t`)       imports
 _                                     nested prototypes
 ====================================  ======================
@@ -674,7 +777,7 @@ typedef struct aprototype_t {
     aprototype_header_t* header;
     const char* strings;
     ainstruction_t* instructions;
-    avalue_t* constants;
+    aconstant_t* constants;
     aimport_t* imports;
     struct aprototype_t* nesteds;
     avalue_t* import_values;
@@ -788,6 +891,7 @@ typedef struct aprocess_t {
     avalue_t* stack;
     int32_t stack_cap;
     int32_t sp;
+    agc_t gc;
 } aprocess_t;
 
 /** Process scheduler interface.

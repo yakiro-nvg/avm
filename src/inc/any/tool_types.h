@@ -48,71 +48,6 @@ enum {
     sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
 };
 
-// Constant types.
-typedef enum {
-    ACT_INTEGER,
-    ACT_STRING,
-    ACT_REAL
-} ACTYPE;
-
-#pragma pack(push, 1)
-
-/// Function constant.
-typedef union APACKED {
-    /// Base type.
-    struct ac_base_t {
-        uint32_t type;
-    } b;
-    /// ACT_INTEGER.
-    struct ac_integer_t {
-        uint32_t _;
-        aint_t val;
-    } integer;
-    ///  ACT_STRING.
-    struct ac_string_t {
-        uint32_t _;
-        astring_ref_t ref;
-    } string;
-    /// ACT_REAL.
-    struct ac_real_t {
-        uint32_t _;
-        areal_t val;
-    } real;
-} aasm_constant_t;
-
-#pragma pack(pop)
-
-ASTATIC_ASSERT(sizeof(aasm_constant_t) ==
-    sizeof(uint32_t) +
-    (sizeof(aint_t) > sizeof(areal_t)
-        ? sizeof(aint_t)
-        : sizeof(areal_t)));
-
-// Constant constructors.
-AINLINE aasm_constant_t ac_integer(aint_t val)
-{
-    aasm_constant_t c;
-    c.b.type = ACT_INTEGER;
-    c.integer.val = val;
-    return c;
-}
-
-AINLINE aasm_constant_t ac_string(astring_ref_t string)
-{
-    aasm_constant_t c;
-    c.b.type = ACT_STRING;
-    c.string.ref = string;
-    return c;
-}
-
-AINLINE aasm_constant_t ac_real(areal_t val)
-{
-    aasm_constant_t c;
-    c.b.type = ACT_REAL;
-    c.real.val = val;
-    return c;
-}
-
 /** Byte code assembler prototype.
 \warning `max_*` is **readonly**.
 \ref any_asm_reserve are required to extends these values.
@@ -150,7 +85,7 @@ typedef struct {
 /// Byte code assembler resolved prototype pointers.
 typedef struct {
     ainstruction_t* instructions;
-    aasm_constant_t* constants;
+    aconstant_t* constants;
     aimport_t* imports;
     int32_t* nesteds;
 } aasm_current_t;
