@@ -1,9 +1,11 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#define AERR_NONE       0
-#define AERR_FULL       -1
-#define AERR_MALFORMED  -2
-#define AERR_UNRESOLVED -3
-#define AERR_OVERFLOW   -4
-#define AERR_RUNTIME    -5
+typedef enum {
+    AERR_NONE       = 0,
+    AERR_FULL       = -1,
+    AERR_MALFORMED  = -2,
+    AERR_UNRESOLVED = -3,
+    AERR_OVERFLOW   = -4,
+    AERR_RUNTIME    = -5
+} aerror_t;

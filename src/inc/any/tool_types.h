@@ -4,12 +4,6 @@
 
 #include <any/rt_types.h>
 
-// Used by string table.
-typedef struct {
-    uint32_t hash;
-    int32_t length;
-} ahash_and_length_t;
-
 /** String table.
 
 \warning

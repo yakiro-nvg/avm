@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <string.h>
 #include <any/errno.h>
+#include <any/val_string.h>
 
 #define HASH_FACTOR (2.0f)
 

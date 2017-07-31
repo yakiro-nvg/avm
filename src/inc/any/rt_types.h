@@ -451,7 +451,17 @@ typedef enum {
     /// Variant of number.
     ABT_NUMBER,
     /// Variant of function.
-    ABT_FUNCTION
+    ABT_FUNCTION,
+    /// Start of collectable.
+    ABT_COLLECTABLE,
+    /// Collectable string.
+    ABT_STRING = ABT_COLLECTABLE,
+    /// Collectable tuple.
+    ABT_TUPLE,
+    /// Collectable array.
+    ABT_ARRAY,
+    /// Collectable map.
+    ABT_MAP
 } ABT;
 
 /// Variant tags for \ref ABT_NUMBER.
@@ -497,8 +507,30 @@ typedef struct {
         anative_func_t func;
         /// \ref AVTF_AVM.
         struct aprototype_t* avm_func;
+        /// \ref ABT_COLLECTABLE.
+        int32_t heap_idx;
     } v;
 } avalue_t;
+
+/// Collectable value header.
+typedef struct {
+    int32_t sz;
+    int32_t forwared;
+} agc_header_t;
+
+#define AGC_CAST(T, o) ACAST_FROM_FIELD(T, o, gc)
+
+/// Combination of hash and length.
+typedef struct {
+    uint32_t hash;
+    int32_t length;
+} ahash_and_length_t;
+
+/// Is subject of GC?
+AINLINE int32_t avalue_collectable(avalue_t* v)
+{
+    return v->tag.b >= ABT_COLLECTABLE;
+}
 
 #pragma pack(push, 1)
 

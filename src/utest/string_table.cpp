@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <any/string_table.h>
+#include <any/val_string.h>
 #include <any/errno.h>
 
 #define REQUIRE_STR_EQUALS(a, b) REQUIRE(strcmp(a, b) == 0)
