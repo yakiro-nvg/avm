@@ -55,16 +55,20 @@ static ASTDCALL entry(void* ud)
 aerror_t aprocess_init(
     aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
+    aerror_t ec;
     self->owner = owner;
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
     self->flags = 0;
     self->stack = (avalue_t*)aalloc(
-        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ); // TODO: handle NULL
+        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
+    if (!self->stack) return AERR_FULL;
     self->stack_cap = INIT_STACK_SZ;
     self->sp = 0;
     any_push_nil(self); // stack[0] is nil
-    return agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
+    ec = agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
+    if (ec != AERR_NONE) aalloc(self, self->stack, 0);
+    return ec;
 }
 
 void aprocess_start(
