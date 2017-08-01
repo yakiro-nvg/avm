@@ -1,7 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#include <assert.h>
 #include <any/rt_types.h>
 #include <any/process.h>
 #include <any/gc.h>
@@ -14,7 +13,7 @@ extern "C" {
 ANY_API ahash_and_length_t ahash_and_length(const char* s);
 
 /// Create a new string.
-AINLINE int32_t agc_string_new(agc_t* gc, const char* s, avalue_t* v)
+static AINLINE int32_t agc_string_new(agc_t* gc, const char* s, avalue_t* v)
 {
     ahash_and_length_t hal = ahash_and_length(s);
     int32_t oi = agc_alloc(
@@ -31,7 +30,7 @@ AINLINE int32_t agc_string_new(agc_t* gc, const char* s, avalue_t* v)
 }
 
 /// Push new string onto the stack.
-AINLINE void any_push_string(aprocess_t* p, const char* s)
+static AINLINE void any_push_string(aprocess_t* p, const char* s)
 {
     avalue_t v;
     int32_t ec = agc_string_new(&p->gc, s, &v);
@@ -40,7 +39,7 @@ AINLINE void any_push_string(aprocess_t* p, const char* s)
 }
 
 /// Get NULL terminated string pointer, available until next gc.
-AINLINE const char* any_to_string(aprocess_t* p, int32_t idx)
+static AINLINE const char* any_to_string(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     agc_string_t* s = AGC_CAST(agc_string_t, &p->gc, v->v.heap_idx);

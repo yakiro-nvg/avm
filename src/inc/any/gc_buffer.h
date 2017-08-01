@@ -1,7 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#include <assert.h>
 #include <any/rt_types.h>
 #include <any/process.h>
 #include <any/gc.h>
@@ -11,7 +10,7 @@ extern "C" {
 #endif
 
 /// Create a new fixed size buffer.
-AINLINE int32_t agc_fixed_buffer_new(agc_t* gc, int32_t sz, avalue_t* v)
+static AINLINE int32_t agc_fixed_buffer_new(agc_t* gc, int32_t sz, avalue_t* v)
 {
     int32_t oi = agc_alloc(gc, ABT_FIXED_BUFFER, sz);
     if (oi < 0) return oi;
@@ -21,7 +20,7 @@ AINLINE int32_t agc_fixed_buffer_new(agc_t* gc, int32_t sz, avalue_t* v)
 }
 
 /// Create a new buffer.
-AINLINE int32_t agc_buffer_new(agc_t* gc, int32_t cap, avalue_t* v)
+static AINLINE int32_t agc_buffer_new(agc_t* gc, int32_t cap, avalue_t* v)
 {
     int32_t oi = agc_alloc(gc, ABT_BUFFER, sizeof(agc_buffer_t));
     if (oi < 0) return oi;
@@ -38,7 +37,7 @@ AINLINE int32_t agc_buffer_new(agc_t* gc, int32_t cap, avalue_t* v)
 }
 
 /// Push new buffer onto the stack.
-AINLINE void any_push_buffer(aprocess_t* p, int32_t cap)
+static AINLINE void any_push_buffer(aprocess_t* p, int32_t cap)
 {
     avalue_t v;
     int32_t ec = agc_buffer_new(&p->gc, cap, &v);
@@ -47,7 +46,7 @@ AINLINE void any_push_buffer(aprocess_t* p, int32_t cap)
 }
 
 /// Get buffer pointer, available until next gc.
-AINLINE uint8_t* any_to_buffer(aprocess_t* p, int32_t idx)
+static AINLINE uint8_t* any_to_buffer(aprocess_t* p, int32_t idx)
 {
     agc_buffer_t* b;
     avalue_t* v = p->stack + aprocess_absidx(p, idx);

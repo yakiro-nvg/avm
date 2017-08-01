@@ -5,6 +5,9 @@
 #include <any/list.h>
 #include <any/task.h>
 
+// Forward declarations.
+struct aprocess_t;
+
 // Primitive types.
 typedef int64_t aint_t;
 typedef double  areal_t;
@@ -281,14 +284,14 @@ typedef union {
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-AINLINE ainstruction_t ai_nop()
+static AINLINE ainstruction_t ai_nop()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NOP;
     return i;
 }
 
-AINLINE ainstruction_t ai_pop(int32_t n)
+static AINLINE ainstruction_t ai_pop(int32_t n)
 {
     ainstruction_t i;
     i.b.opcode = AOC_POP;
@@ -296,7 +299,7 @@ AINLINE ainstruction_t ai_pop(int32_t n)
     return i;
 }
 
-AINLINE ainstruction_t ai_ldk(int32_t idx)
+static AINLINE ainstruction_t ai_ldk(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDK;
@@ -304,14 +307,14 @@ AINLINE ainstruction_t ai_ldk(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_nil()
+static AINLINE ainstruction_t ai_nil()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NIL;
     return i;
 }
 
-AINLINE ainstruction_t ai_ldb(int32_t val)
+static AINLINE ainstruction_t ai_ldb(int32_t val)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDB;
@@ -319,7 +322,7 @@ AINLINE ainstruction_t ai_ldb(int32_t val)
     return i;
 }
 
-AINLINE ainstruction_t ai_llv(int32_t idx)
+static AINLINE ainstruction_t ai_llv(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LLV;
@@ -327,7 +330,7 @@ AINLINE ainstruction_t ai_llv(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_slv(int32_t idx)
+static AINLINE ainstruction_t ai_slv(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_SLV;
@@ -335,7 +338,7 @@ AINLINE ainstruction_t ai_slv(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_imp(int32_t idx)
+static AINLINE ainstruction_t ai_imp(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IMP;
@@ -343,7 +346,7 @@ AINLINE ainstruction_t ai_imp(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_jmp(int32_t displacement)
+static AINLINE ainstruction_t ai_jmp(int32_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JMP;
@@ -351,7 +354,7 @@ AINLINE ainstruction_t ai_jmp(int32_t displacement)
     return i;
 }
 
-AINLINE ainstruction_t ai_jin(int32_t displacement)
+static AINLINE ainstruction_t ai_jin(int32_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JIN;
@@ -359,7 +362,7 @@ AINLINE ainstruction_t ai_jin(int32_t displacement)
     return i;
 }
 
-AINLINE ainstruction_t ai_ivk(int32_t nargs)
+static AINLINE ainstruction_t ai_ivk(int32_t nargs)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IVK;
@@ -367,21 +370,21 @@ AINLINE ainstruction_t ai_ivk(int32_t nargs)
     return i;
 }
 
-AINLINE ainstruction_t ai_ret()
+static AINLINE ainstruction_t ai_ret()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RET;
     return i;
 }
 
-AINLINE ainstruction_t ai_snd()
+static AINLINE ainstruction_t ai_snd()
 {
     ainstruction_t i;
     i.b.opcode = AOC_SND;
     return i;
 }
 
-AINLINE ainstruction_t ai_rcv(int32_t displacement)
+static AINLINE ainstruction_t ai_rcv(int32_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_RCV;
@@ -389,7 +392,7 @@ AINLINE ainstruction_t ai_rcv(int32_t displacement)
     return i;
 }
 
-AINLINE ainstruction_t ai_rmv()
+static AINLINE ainstruction_t ai_rmv()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RMV;
@@ -411,7 +414,7 @@ typedef uint32_t apid_gen_t;
 enum { APID_BITS = sizeof(apid_t)*8 };
 
 /// Make a pid from index and generation.
-AINLINE apid_t apid_from(
+static AINLINE apid_t apid_from(
     int8_t idx_bits, int8_t gen_bits, apid_idx_t idx, apid_gen_t gen)
 {
     return
@@ -420,13 +423,13 @@ AINLINE apid_t apid_from(
 }
 
 /// Get index part.
-AINLINE apid_idx_t apid_idx(int8_t idx_bits, apid_t pid)
+static AINLINE apid_idx_t apid_idx(int8_t idx_bits, apid_t pid)
 {
     return pid >> (APID_BITS - idx_bits);
 }
 
 /// Get generation part.
-AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
+static AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
 {
     return (pid << idx_bits) >> (APID_BITS - gen_bits);
 }
@@ -472,7 +475,7 @@ typedef union APACKED {
 #pragma pack(pop)
 
 // Constant constructors.
-AINLINE aconstant_t ac_integer(aint_t val)
+static AINLINE aconstant_t ac_integer(aint_t val)
 {
     aconstant_t c;
     c.b.type = ACT_INTEGER;
@@ -480,7 +483,7 @@ AINLINE aconstant_t ac_integer(aint_t val)
     return c;
 }
 
-AINLINE aconstant_t ac_string(astring_ref_t string)
+static AINLINE aconstant_t ac_string(astring_ref_t string)
 {
     aconstant_t c;
     c.b.type = ACT_STRING;
@@ -488,7 +491,7 @@ AINLINE aconstant_t ac_string(astring_ref_t string)
     return c;
 }
 
-AINLINE aconstant_t ac_real(areal_t val)
+static AINLINE aconstant_t ac_real(areal_t val)
 {
     aconstant_t c;
     c.b.type = ACT_REAL;
@@ -573,7 +576,7 @@ typedef struct {
 } avalue_t;
 
 /// Is subject of GC?
-AINLINE int32_t avalue_collectable(avalue_t* v)
+static AINLINE int32_t avalue_collectable(avalue_t* v)
 {
     return v->tag.b >= ABT_COLLECTABLE;
 }

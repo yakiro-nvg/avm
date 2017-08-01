@@ -25,7 +25,7 @@ ANY_API void avm_shutdown(avm_t* self);
 /** Lock for alive process by pid.
 \return NULL if that is not found or died.
 */
-AINLINE avm_process_t* avm_lock_pid(avm_t* self, apid_t pid)
+static AINLINE avm_process_t* avm_lock_pid(avm_t* self, apid_t pid)
 {
     apid_idx_t idx = apid_idx(self->idx_bits, pid);
     avm_process_t* vp = self->procs + idx;
@@ -43,7 +43,7 @@ AINLINE avm_process_t* avm_lock_pid(avm_t* self, apid_t pid)
 }
 
 /// Unlock a process.
-AINLINE void avm_unlock(avm_process_t* vp)
+static AINLINE void avm_unlock(avm_process_t* vp)
 {
 #ifdef ANY_SMP
     amutex_unlock(&vp->mutex);
@@ -58,7 +58,7 @@ AINLINE void avm_unlock(avm_process_t* vp)
 ANY_API avm_process_t* avm_alloc(avm_t* self);
 
 /// Return this process to the pool.
-AINLINE void avm_free(avm_process_t* vp)
+static AINLINE void avm_free(avm_process_t* vp)
 {
     vp->dead = TRUE;
 }

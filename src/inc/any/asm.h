@@ -78,7 +78,7 @@ ANY_API aasm_prototype_t* aasm_prototype(aasm_t* self);
 ANY_API aasm_current_t aasm_resolve(aasm_t* self);
 
 /// Get prototype at `slot`.
-AINLINE aasm_prototype_t* aasm_prototype_at(aasm_t* self, int32_t slot)
+static AINLINE aasm_prototype_t* aasm_prototype_at(aasm_t* self, int32_t slot)
 {
     return (aasm_prototype_t*)(self->_buff + self->_slots[slot]);
 }

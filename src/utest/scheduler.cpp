@@ -6,6 +6,8 @@
 #include <any/scheduler.h>
 #include <any/process.h>
 
+enum { CSTACK_SZ = 8192 };
+
 static void* myalloc(void*, void* old, int32_t sz)
 {
     return realloc(old, sz);
@@ -21,7 +23,7 @@ static void spawn_new(ascheduler_t* s, avalue_t* entry)
     aprocess_t* p;
     REQUIRE(AERR_NONE == ascheduler_new_process(s, &p));
     aprocess_push(p, entry);
-    aprocess_start(p, 512, 0);
+    aprocess_start(p, CSTACK_SZ, 0);
 }
 
 TEST_CASE("scheduler_new_process")

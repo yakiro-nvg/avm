@@ -1,7 +1,5 @@
 #include <any/process.h>
 
-#include <assert.h>
-#include <stdarg.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/gc.h>
@@ -23,7 +21,7 @@ static void call(aprocess_t* self, void* ud)
     any_call(self, *nargs);
 }
 
-static AINLINE save_ctx(aprocess_t* p, aframe_t* frame, int32_t nargs)
+static AINLINE void save_ctx(aprocess_t* p, aframe_t* frame, int32_t nargs)
 {
     frame->prev = p->frame;
     p->frame = frame;
@@ -31,7 +29,7 @@ static AINLINE save_ctx(aprocess_t* p, aframe_t* frame, int32_t nargs)
     frame->nargs = nargs;
 }
 
-static AINLINE load_ctx(aprocess_t* p)
+static AINLINE void load_ctx(aprocess_t* p)
 {
     int32_t nsp = p->frame->bp - p->frame->nargs;
     assert(p->sp > p->frame->bp && "return value missing");
@@ -40,7 +38,7 @@ static AINLINE load_ctx(aprocess_t* p)
     p->frame = p->frame->prev;
 }
 
-static ASTDCALL entry(void* ud)
+static void ASTDCALL entry(void* ud)
 {
     aframe_t frame;
     aprocess_t* p = (aprocess_t*)ud;

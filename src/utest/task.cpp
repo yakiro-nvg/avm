@@ -23,13 +23,14 @@ TEST_CASE("task")
     atask_t m;
     atask_shadow(&m);
 
-    enum { NUM_TASKS = 256 };
+    enum { NUM_TASKS = 1000 };
 
     static ctx_t ctx[NUM_TASKS];
 
     for (int32_t i = 0; i < NUM_TASKS; ++i) {
         ctx[i].val = 0;
-        atask_create(&ctx[i].self, &m, &fib_func, ctx + i, 512);
+        REQUIRE(AERR_NONE == 
+            atask_create(&ctx[i].self, &m, &fib_func, ctx + i, 512));
     }
 
     for (int32_t i = 0; i < 100; ++i) {

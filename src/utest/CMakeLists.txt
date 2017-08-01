@@ -8,6 +8,7 @@ file(GLOB_RECURSE HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 add_executable(utest ${HEADERS} ${SOURCES})
+add_sanitizers(utest)
 
 target_link_libraries(utest avm)
 add_dependencies(utest catch)

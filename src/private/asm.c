@@ -3,8 +3,6 @@
 
 #ifdef ANY_TOOL
 
-#include <string.h>
-#include <assert.h>
 #include <any/string_table.h>
 
 #define GROW_FACTOR 2

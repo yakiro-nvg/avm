@@ -1,6 +1,5 @@
 #include <any/scheduler.h>
 
-#include <assert.h>
 #include <any/loader.h>
 #include <any/vm.h>
 #include <any/process.h>

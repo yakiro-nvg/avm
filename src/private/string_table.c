@@ -3,8 +3,6 @@
 
 #ifdef ANY_TOOL
 
-#include <assert.h>
-#include <string.h>
 #include <any/gc_string.h>
 
 #define HASH_FACTOR (2.0f)
@@ -80,7 +78,8 @@ static void rebuild_hash_table(astring_table_t* self)
     }
 }
 
-void astring_table_init(astring_table_t* self, int32_t bytes, int32_t average_strlen)
+void astring_table_init(
+    astring_table_t* self, int32_t bytes, int32_t average_strlen)
 {
     const float bytes_per_string = average_strlen + sizeof(uint32_t) + 1 +
         sizeof(hash_slot_t)*HASH_FACTOR;
@@ -144,7 +143,8 @@ astring_ref_t astring_table_to_ref(astring_table_t* self, const char* string)
         if (self->count + 1 >= self->num_hash_slots)
             return AERR_FULL;
 
-        if ((float)self->num_hash_slots / (float)(self->count + 1) < HASH_FACTOR)
+        if ((float)self->num_hash_slots /
+            (float)(self->count + 1) < HASH_FACTOR)
             return AERR_FULL;
 
         if (self->string_bytes + (int)sizeof(uint32_t)+hl.length + 1 >
@@ -166,7 +166,8 @@ astring_ref_t astring_table_to_ref(astring_table_t* self, const char* string)
     }
 }
 
-astring_ref_t astring_table_to_ref_const(const astring_table_t* self, const char* string)
+astring_ref_t astring_table_to_ref_const(
+    const astring_table_t* self, const char* string)
 {
     if (*string) {
         const ahash_and_length_t hl = ahash_and_length(string);
@@ -188,7 +189,8 @@ astring_ref_t astring_table_to_ref_const(const astring_table_t* self, const char
     }
 }
 
-const char* astring_table_to_string(const astring_table_t* self, astring_ref_t ref)
+const char* astring_table_to_string(
+    const astring_table_t* self, astring_ref_t ref)
 {
     return strings_const(self) + ref + sizeof(uint32_t);
 }

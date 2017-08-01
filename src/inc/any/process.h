@@ -1,7 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#include <assert.h>
 #include <any/rt_types.h>
 
 #ifdef __cplusplus
@@ -25,7 +24,7 @@ ANY_API void aprocess_reserve(aprocess_t* self, int32_t more);
 ANY_API void any_error(aprocess_t* p, const char* fmt, ...);
 
 /// Push a value onto the stack, should be internal used.
-AINLINE void aprocess_push(aprocess_t* self, avalue_t* v)
+static AINLINE void aprocess_push(aprocess_t* self, avalue_t* v)
 {
     if (self->sp == self->stack_cap) aprocess_reserve(self, 1);
     *(self->stack + self->sp) = *v;
@@ -33,7 +32,7 @@ AINLINE void aprocess_push(aprocess_t* self, avalue_t* v)
 }
 
 /// Get normalized index.
-AINLINE int32_t aprocess_absidx(aprocess_t* self, int32_t idx)
+static AINLINE int32_t aprocess_absidx(aprocess_t* self, int32_t idx)
 {
     if (idx < -self->frame->nargs) return 0;
     if (idx >= self->sp - self->frame->bp) {
@@ -64,20 +63,20 @@ ANY_API aerror_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud);
 ANY_API void any_throw(aprocess_t* p, int32_t ec);
 
 /// Get the value tag of the value at `idx`.
-AINLINE avalue_tag_t any_type(aprocess_t* p, int32_t idx)
+static AINLINE avalue_tag_t any_type(aprocess_t* p, int32_t idx)
 {
     return p->stack[aprocess_absidx(p, idx)].tag;
 }
 
 // Stack manipulations.
-AINLINE void any_push_nil(aprocess_t* p)
+static AINLINE void any_push_nil(aprocess_t* p)
 {
     avalue_t v;
     v.tag.b = ABT_NIL;
     aprocess_push(p, &v);
 }
 
-AINLINE void any_push_bool(aprocess_t* p, int32_t b)
+static AINLINE void any_push_bool(aprocess_t* p, int32_t b)
 {
     avalue_t v;
     v.tag.b = ABT_BOOL;
@@ -85,7 +84,7 @@ AINLINE void any_push_bool(aprocess_t* p, int32_t b)
     aprocess_push(p, &v);
 }
 
-AINLINE void any_push_integer(aprocess_t* p, aint_t i)
+static AINLINE void any_push_integer(aprocess_t* p, aint_t i)
 {
     avalue_t v;
     v.tag.b = ABT_NUMBER;
@@ -94,7 +93,7 @@ AINLINE void any_push_integer(aprocess_t* p, aint_t i)
     aprocess_push(p, &v);
 }
 
-AINLINE void any_push_real(aprocess_t* p, areal_t r)
+static AINLINE void any_push_real(aprocess_t* p, areal_t r)
 {
     avalue_t v;
     v.tag.b = ABT_NUMBER;
@@ -103,7 +102,7 @@ AINLINE void any_push_real(aprocess_t* p, areal_t r)
     aprocess_push(p, &v);
 }
 
-AINLINE void any_push_pid(aprocess_t* p, apid_t pid)
+static AINLINE void any_push_pid(aprocess_t* p, apid_t pid)
 {
     avalue_t v;
     v.tag.b = ABT_PID;
@@ -111,20 +110,20 @@ AINLINE void any_push_pid(aprocess_t* p, apid_t pid)
     aprocess_push(p, &v);
 }
 
-AINLINE void any_push_idx(aprocess_t* p, int32_t idx)
+static AINLINE void any_push_idx(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     aprocess_push(p, v);
 }
 
-AINLINE int32_t any_to_bool(aprocess_t* p, int32_t idx)
+static AINLINE int32_t any_to_bool(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     assert(v->tag.b == ABT_BOOL);
     return v->v.boolean;
 }
 
-AINLINE aint_t any_to_integer(aprocess_t* p, int32_t idx)
+static AINLINE aint_t any_to_integer(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     assert(v->tag.b == ABT_NUMBER);
@@ -132,7 +131,7 @@ AINLINE aint_t any_to_integer(aprocess_t* p, int32_t idx)
     return v->v.integer;
 }
 
-AINLINE areal_t any_to_real(aprocess_t* p, int32_t idx)
+static AINLINE areal_t any_to_real(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     assert(v->tag.b == ABT_NUMBER);
@@ -140,14 +139,14 @@ AINLINE areal_t any_to_real(aprocess_t* p, int32_t idx)
     return v->v.real;
 }
 
-AINLINE apid_t any_to_pid(aprocess_t* p, int32_t idx)
+static AINLINE apid_t any_to_pid(aprocess_t* p, int32_t idx)
 {
     avalue_t* v = p->stack + aprocess_absidx(p, idx);
     assert(v->tag.b == ABT_PID);
     return v->v.pid;
 }
 
-AINLINE void any_pop(aprocess_t* p, int32_t n)
+static AINLINE void any_pop(aprocess_t* p, int32_t n)
 {
     p->sp -= n;
     if (p->sp < p->frame->bp) {
@@ -155,7 +154,7 @@ AINLINE void any_pop(aprocess_t* p, int32_t n)
     }
 }
 
-AINLINE void any_remove(aprocess_t* p, int32_t idx)
+static AINLINE void any_remove(aprocess_t* p, int32_t idx)
 {
     int32_t num_tails;
     if (idx < 0) any_error(p, "bad index %d", idx);
@@ -170,7 +169,7 @@ AINLINE void any_remove(aprocess_t* p, int32_t idx)
 }
 
 /// Returns the stack size.
-AINLINE int32_t any_count(aprocess_t* p)
+static AINLINE int32_t any_count(aprocess_t* p)
 {
     return p->sp - p->frame->bp;
 }

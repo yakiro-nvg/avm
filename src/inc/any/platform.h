@@ -38,12 +38,22 @@ ASTATIC_ASSERT(sizeof(void*) == 8);
 ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
+#if defined(_M_IX86) || defined(__i386)
+#define AARCH_I386
+#elif defined(__x86_64__) || defined(_M_X64)
+#define AARCH_AMD64
+#elif defined(__arm__)
+#define AARCH_ARM
+#else
+#   error "unknown cpu architecture"
+#endif
+
 #ifdef AMSVC
 #define APACKED
 #define AINLINE __inline
 #elif defined(ACLANG) || defined(AGNUC)
 #define APACKED __attribute__((packed))
-#define AINLINE static inline
+#define AINLINE inline
 #endif
 
 #ifndef TRUE
@@ -55,12 +65,14 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 
 #ifndef ANY_SHARED
 #define ANY_API
+#elif defined(AMSVC)
+#    ifndef ANY_EXPORT
+#        define ANY_API __declspec(dllimport)
+#    else
+#        define ANY_API __declspec(dllexport)
+#    endif
 #else
-#ifndef ANY_EXPORT
-#define ANY_API __declspec(dllimport)
-#else
-#define ANY_API __declspec(dllexport)
-#endif
+#define ANY_API
 #endif
 
 #define AUNUSED(x) ((void)x)
@@ -79,22 +91,22 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #include <windows.h>
 typedef CRITICAL_SECTION amutex_t;
 
-AINLINE void amutex_init(amutex_t* m)
+static AINLINE void amutex_init(amutex_t* m)
 {
     InitializeCriticalSection(m);
 }
 
-AINLINE void amutex_destroy(amutex_t* m)
+static AINLINE void amutex_destroy(amutex_t* m)
 {
     DeleteCriticalSection(m);
 }
 
-AINLINE void amutex_lock(amutex_t* m)
+static AINLINE void amutex_lock(amutex_t* m)
 {
     EnterCriticalSection(m);
 }
 
-AINLINE void amutex_unlock(amutex_t* m)
+static AINLINE void amutex_unlock(amutex_t* m)
 {
     LeaveCriticalSection(m);
 }
@@ -102,22 +114,22 @@ AINLINE void amutex_unlock(amutex_t* m)
 #include <pthread.h>
 typedef pthread_mutex_t amutex_t;
 
-AINLINE void amutex_init(amutex_t* m)
+static AINLINE void amutex_init(amutex_t* m)
 {
     pthread_mutex_init(m, NULL);
 }
 
-AINLINE void amutex_destroy(amutex_t* m)
+static AINLINE void amutex_destroy(amutex_t* m)
 {
     pthread_mutex_destroy(m);
 }
 
-AINLINE void amutex_lock(amutex_t* m)
+static AINLINE void amutex_lock(amutex_t* m)
 {
     pthread_mutex_lock(m);
 }
 
-AINLINE void amutex_unlock(amutex_t* m)
+static AINLINE void amutex_unlock(amutex_t* m)
 {
     pthread_mutex_unlock(m);
 }
@@ -129,6 +141,9 @@ AINLINE void amutex_unlock(amutex_t* m)
 #include <stdint.h>
 #include <setjmp.h>
 #include <stddef.h>
+#include <stdarg.h>
+#include <string.h>
+#include <assert.h>
 
 #if defined(AMSVC) && !defined(snprintf)
 #define snprintf sprintf_s

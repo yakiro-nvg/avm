@@ -10,6 +10,12 @@ extern "C" {
 
 typedef void(ASTDCALL*atask_entry_t)(void*);
 
+#ifdef AWINDOWS
+#include <any/task_fiber.h>
+#elif defined(ACLANG) || defined(AGNUC)
+#include <any/task_gccasm.h>
+#endif
+
 /// Turn caller into a task.
 ANY_API aerror_t atask_shadow(struct atask_t* self);
 
@@ -26,12 +32,6 @@ ANY_API void atask_yield(struct atask_t* self);
 
 /// TODO
 ANY_API void atask_sleep(struct atask_t* self, int32_t nsecs);
-
-#ifdef AWINDOWS
-#include <any/task_fiber.h>
-#elif defined(ACLANG) || defined(AGNUC)
-#include <any/task_gccasm.h>
-#endif
 
 #ifdef __cplusplus
 } // extern "C"

@@ -27,10 +27,9 @@ aerror_t atask_create(
 void atask_delete(struct atask_t* self)
 {
     alist_node_erase(&self->node);
-    if (self->fiber) {
-        DeleteFiber(self->fiber);
-        self->fiber = NULL;
-    }
+    if (!self->fiber) return;
+    DeleteFiber(self->fiber);
+    self->fiber = NULL;
 }
 
 void atask_yield(struct atask_t* self)

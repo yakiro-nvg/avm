@@ -1,6 +1,5 @@
 #include <any/loader.h>
 
-#include <string.h>
 #include <any/version.h>
 #include <any/list.h>
 

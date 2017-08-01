@@ -13,18 +13,15 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 set(AVM_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-if(UNIX AND NOT WIN32 AND NOT APPLE)
-  find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin)
-  if(CMAKE_UNAME)
-    exec_program(uname ARGS -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR)
-    set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL "processor type (i386 and x86_64)")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-    	add_definitions(-fPIC)
-    endif()
-  endif()
-endif()
-
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DANY_DEBUG")
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+find_package(Sanitizers REQUIRED)
+
+option(USE_VALGRIND "Enable Valgrid Support." Off)
+if (USE_VALGRIND)
+    add_definitions(-DANY_USE_VALGRIND)
+endif()
 
 add_definitions(-DANY_SMP -DANY_TOOL)
 

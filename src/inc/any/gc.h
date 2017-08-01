@@ -26,7 +26,7 @@ ANY_API aerror_t agc_reserve(agc_t* self, int32_t more);
 ANY_API void agc_collect(agc_t* self, avalue_t* root, int32_t num_roots);
 
 /// Get current heap size.
-AINLINE int32_t agc_heap_size(agc_t* self)
+static AINLINE int32_t agc_heap_size(agc_t* self)
 {
     return self->heap_sz;
 }

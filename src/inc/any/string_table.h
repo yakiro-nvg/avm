@@ -42,7 +42,8 @@ added because the table is full, the function returns `AERR_FULL`.
 
 \note The empty string is guaranteed to have the reference `0`.
 */
-ANY_API astring_ref_t astring_table_to_ref(astring_table_t* self, const char* string);
+ANY_API astring_ref_t astring_table_to_ref(
+    astring_table_t* self, const char* string);
 
 /** As same as \ref any_st_to_ref, but never adds the string to the table.
 \note If the string doesn't exist in the table AERR_FULL is returned.
@@ -63,7 +64,8 @@ ANY_API const char* astring_table_to_string(
 Calling this with a value which is not a ref returned
 by ref any_st_to_ref results in undefined behavior.
 */
-ANY_API uint32_t astring_table_to_hash(const astring_table_t* self, astring_ref_t ref);
+ANY_API uint32_t astring_table_to_hash(
+    const astring_table_t* self, astring_ref_t ref);
 
 #ifdef __cplusplus
 } // extern "C"
