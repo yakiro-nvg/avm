@@ -691,7 +691,7 @@ typedef struct {
 
 ASTATIC_ASSERT(sizeof(aimport_t) == 8);
 
-AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
+static AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;
