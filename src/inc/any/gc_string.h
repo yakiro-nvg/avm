@@ -2,7 +2,6 @@
 #pragma once
 
 #include <assert.h>
-#include <any/errno.h>
 #include <any/rt_types.h>
 #include <any/process.h>
 #include <any/gc.h>

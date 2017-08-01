@@ -3,10 +3,8 @@
 
 #include <catch.hpp>
 
-#include <any/errno.h>
 #include <any/asm.h>
 #include <any/loader.h>
-#include <any/prototype.h>
 #include <any/list.h>
 
 static void* myalloc(void*, void* old, int32_t sz)

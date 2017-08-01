@@ -6,7 +6,6 @@
 #include <string.h>
 #include <assert.h>
 #include <any/string_table.h>
-#include <any/errno.h>
 
 #define GROW_FACTOR 2
 #define INIT_ST_BYTES 128
@@ -358,10 +357,10 @@ static aconstant_t from_chunk(
     return c;
 }
 
-static int32_t load_chunk(
+static aerror_t load_chunk(
     aasm_t* self, const achunk_header_t* input, int32_t* offset)
 {
-    int32_t err = AERR_NONE;
+    aerror_t ec = AERR_NONE;
     int32_t i;
     aasm_prototype_t* ap = NULL;
     const aprototype_header_t* const p = (const aprototype_header_t*)(
@@ -409,12 +408,12 @@ static int32_t load_chunk(
 
     for (i = 0; i < p->num_nesteds; ++i) {
         aasm_push(self);
-        err = load_chunk(self, input, offset);
-        if (err != AERR_NONE) return err;
+        ec = load_chunk(self, input, offset);
+        if (ec != AERR_NONE) return ec;
         aasm_pop(self);
     }
 
-    return err;
+    return ec;
 }
 
 static int32_t push_unsafe(aasm_t* self)

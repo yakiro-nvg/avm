@@ -1,7 +1,6 @@
 #include <any/process.h>
 
 #include <assert.h>
-#include <any/errno.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/gc.h>
@@ -53,7 +52,7 @@ static ASTDCALL entry(void* ud)
     while (TRUE) atask_yield(&p->task);
 }
 
-void aprocess_init(
+aerror_t aprocess_init(
     aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
     self->owner = owner;
@@ -61,11 +60,11 @@ void aprocess_init(
     self->alloc_ud = alloc_ud;
     self->flags = 0;
     self->stack = (avalue_t*)aalloc(
-        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
+        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ); // TODO: handle NULL
     self->stack_cap = INIT_STACK_SZ;
     self->sp = 0;
     any_push_nil(self); // stack[0] is nil
-    agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud); // TODO: handle error
+    return agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
 }
 
 void aprocess_start(
@@ -101,8 +100,8 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
 void any_find(aprocess_t* p, const char* module, const char* name)
 {
     avalue_t v;
-    int32_t err = aloader_find(&p->owner->vm->loader, module, name, &v);
-    if (err != AERR_NONE) any_push_nil(p);
+    aerror_t ec = aloader_find(&p->owner->vm->loader, module, name, &v);
+    if (ec != AERR_NONE) any_push_nil(p);
     aprocess_push(p, &v);
 }
 
@@ -141,7 +140,7 @@ void any_yield(aprocess_t* p)
     atask_yield(&p->task);
 }
 
-int32_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud)
+aerror_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud)
 {
     int32_t sp = p->sp;
     aframe_t* frame = p->frame;
@@ -172,12 +171,12 @@ void any_error(aprocess_t* p, const char* fmt, ...)
     any_throw(p, AERR_RUNTIME);
 }
 
-int32_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)
+aerror_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)
 {
     aprocess_t* np;
     int32_t i;
-    int32_t err = ascheduler_new_process(p->owner, &np);
-    if (err != AERR_NONE) return err;
+    aerror_t ec = ascheduler_new_process(p->owner, &np);
+    if (ec != AERR_NONE) return ec;
     for (i = 0; i < nargs + 1; ++i) {
         aprocess_push(np, p->stack + p->sp - nargs - 1 + i);
     }

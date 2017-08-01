@@ -1,7 +1,6 @@
 #include <any/scheduler.h>
 
 #include <assert.h>
-#include <any/errno.h>
 #include <any/loader.h>
 #include <any/vm.h>
 #include <any/process.h>
@@ -27,7 +26,7 @@ static void cleanup(ascheduler_t* self, int32_t force)
     }
 }
 
-int32_t ascheduler_init(
+aerror_t ascheduler_init(
     ascheduler_t* self, avm_t* vm, aalloc_t alloc, void* alloc_ud)
 {
     self->alloc = alloc;
@@ -37,11 +36,10 @@ int32_t ascheduler_init(
     return AERR_NONE;
 }
 
-int32_t ascheduler_run_once(ascheduler_t* self)
+void ascheduler_run_once(ascheduler_t* self)
 {
     atask_yield(&self->task);
     cleanup(self, FALSE);
-    return AERR_NONE;
 }
 
 void ascheduler_cleanup(ascheduler_t* self)
@@ -49,7 +47,7 @@ void ascheduler_cleanup(ascheduler_t* self)
     cleanup(self, TRUE);
 }
 
-int32_t ascheduler_new_process(ascheduler_t* self, aprocess_t** p)
+aerror_t ascheduler_new_process(ascheduler_t* self, aprocess_t** p)
 {
     avm_process_t* vp = avm_alloc(self->vm);
     if (!vp) return AERR_FULL;

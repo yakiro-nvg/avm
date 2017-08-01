@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /// Initialize as a new process.
-ANY_API void aprocess_init(
+ANY_API aerror_t aprocess_init(
     aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud);
 
 /// Start process with entry point on top of the stack.
@@ -58,7 +58,7 @@ ANY_API void any_pcall(aprocess_t* p, int32_t nargs);
 ANY_API void any_yield(aprocess_t* p);
 
 /// Execute in protected mode.
-ANY_API int32_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud);
+ANY_API aerror_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud);
 
 /// Throw an error.
 ANY_API void any_throw(aprocess_t* p, int32_t ec);
@@ -176,10 +176,9 @@ AINLINE int32_t any_count(aprocess_t* p)
 }
 
 /** Spawn a new process.
-\brief
-This function follow the same protocol as \ref any_call.
+\brief This function follow the same protocol as \ref any_call.
 */
-ANY_API int32_t any_spawn(
+ANY_API aerror_t any_spawn(
     aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid);
 
 #ifdef __cplusplus

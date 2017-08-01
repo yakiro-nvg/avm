@@ -1,6 +1,5 @@
 #include <any/vm.h>
 
-#include <any/errno.h>
 #include <any/loader.h>
 #include <any/process.h>
 
@@ -21,7 +20,7 @@ static void init_processes(avm_process_t* procs, int32_t num)
     }
 }
 
-int32_t avm_startup(
+aerror_t avm_startup(
     avm_t* self, int8_t idx_bits, int8_t gen_bits,
     aalloc_t alloc, void* alloc_ud)
 {

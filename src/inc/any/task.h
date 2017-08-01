@@ -2,6 +2,7 @@
 #pragma once
 
 #include <any/platform.h>
+#include <any/errno.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -10,10 +11,10 @@ extern "C" {
 typedef void(ASTDCALL*atask_entry_t)(void*);
 
 /// Turn caller into a task.
-ANY_API int32_t atask_shadow(struct atask_t* self);
+ANY_API aerror_t atask_shadow(struct atask_t* self);
 
 /// TODO
-ANY_API int32_t atask_create(
+ANY_API aerror_t atask_create(
     struct atask_t* self, struct atask_t* root,
     atask_entry_t entry, void* ud, int32_t stack_sz);
 

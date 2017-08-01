@@ -1,8 +1,6 @@
 #include <any/loader.h>
 
 #include <string.h>
-#include <any/errno.h>
-#include <any/prototype.h>
 #include <any/version.h>
 #include <any/list.h>
 
@@ -31,8 +29,8 @@ static int32_t calc_sizes(
     if (*off > sz) return AERR_MALFORMED;
 
     for (i = 0; i < p->num_nesteds; ++i) {
-        int32_t err = calc_sizes(b, sz, off, num_imps, num_protos);
-        if (err != AERR_NONE) return err;
+        aerror_t ec = calc_sizes(b, sz, off, num_imps, num_protos);
+        if (ec != AERR_NONE) return ec;
     }
 
     return AERR_NONE;
@@ -139,7 +137,8 @@ static int32_t has_chunk(alist_t* list, alist_node_t* node)
 
 static int32_t resolve(aloader_t* self, aprototype_t* p)
 {
-    int32_t i, err;
+    int32_t i;
+    aerror_t ec;
 
     // for each import
     for (i = 0; i < p->header->num_imports; ++i) {
@@ -147,19 +146,19 @@ static int32_t resolve(aloader_t* self, aprototype_t* p)
         const char* m_name = p->strings + imp->module;
         const char* s_name = p->strings + imp->name;
         avalue_t* val = p->import_values + i;
-        err = find_in_libs(&self->libs, m_name, s_name, val);
-        if (err == AERR_NONE) continue;
-        err = find_in_list(&self->pendings, m_name, s_name, val);
-        if (err == AERR_NONE) continue;
-        err = find_in_list(&self->runnings, m_name, s_name, val);
-        if (err == AERR_NONE) continue;
+        ec = find_in_libs(&self->libs, m_name, s_name, val);
+        if (ec == AERR_NONE) continue;
+        ec = find_in_list(&self->pendings, m_name, s_name, val);
+        if (ec == AERR_NONE) continue;
+        ec = find_in_list(&self->runnings, m_name, s_name, val);
+        if (ec == AERR_NONE) continue;
         return AERR_UNRESOLVED;
     }
 
     // recursive for children
     for (i = 0; i < p->header->num_nesteds; ++i) {
-        err = resolve(self, p->nesteds + i);
-        if (err != AERR_NONE) return err;
+        ec = resolve(self, p->nesteds + i);
+        if (ec != AERR_NONE) return ec;
     }
 
     return AERR_NONE;
@@ -236,7 +235,8 @@ int32_t aloader_add_chunk(
     aalloc_t chunk_alloc, void* chunk_alloc_ud)
 {
     achunk_t* c;
-    int32_t err, off, num_imps, num_protos;
+    int32_t off, num_imps, num_protos;
+    aerror_t ec;
 
     if (chunk_sz < sizeof(achunk_header_t) ||
         memcmp(chunk, &CHUNK_HEADER, sizeof(achunk_header_t)) != 0)
@@ -244,8 +244,8 @@ int32_t aloader_add_chunk(
     off = sizeof(achunk_header_t);
 
     num_imps = 0; num_protos = 1 /* include module proto */;
-    err = calc_sizes((int8_t*)chunk, chunk_sz, &off, &num_imps, &num_protos);
-    if (err != AERR_NONE) return err;
+    ec = calc_sizes((int8_t*)chunk, chunk_sz, &off, &num_imps, &num_protos);
+    if (ec != AERR_NONE) return ec;
 
     c = (achunk_t*)self->alloc(self->alloc_ud, NULL,
         sizeof(achunk_t) +
@@ -268,7 +268,7 @@ void aloader_add_lib(aloader_t* self, alib_t* lib)
     alist_push_back(&self->libs, &lib->node);
 }
 
-int32_t aloader_link(aloader_t* self, int32_t safe)
+aerror_t aloader_link(aloader_t* self, int32_t safe)
 {
     alist_node_t* const garbage_back = alist_back(&self->garbages);
     avalue_t* old_imps;
@@ -301,9 +301,9 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
     i = alist_head(&self->pendings);
     while (!alist_is_end(&self->pendings, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-        int32_t err = resolve(self, chunk->prototypes);
-        if (err != AERR_NONE) {
-            if (!safe) return err;
+        aerror_t ec = resolve(self, chunk->prototypes);
+        if (ec != AERR_NONE) {
+            if (!safe) return ec;
             // rollback garbages
             i = garbage_back;
             while (!alist_is_end(&self->garbages, i)) {
@@ -314,7 +314,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
             }
             // empty pendings
             free_chunk_list(self, &self->pendings, FALSE);
-            return err;
+            return ec;
         }
         i = i->next;
     }
@@ -334,9 +334,9 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
     i = alist_head(&self->runnings);
     while (!alist_is_end(&self->runnings, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-        int32_t err = resolve(self, chunk->prototypes);
-        if (err != AERR_NONE) {
-            if (!safe) return err;
+        aerror_t ec = resolve(self, chunk->prototypes);
+        if (ec != AERR_NONE) {
+            if (!safe) return ec;
             // rollback running imports
             i = alist_head(&self->runnings);
             while (!alist_is_end(&self->runnings, i)) {
@@ -355,7 +355,7 @@ int32_t aloader_link(aloader_t* self, int32_t safe)
             }
             // empty pendings
             free_chunk_list(self, &self->pendings, FALSE);
-            return err;
+            return ec;
         }
         i = i->next;
     }
@@ -378,15 +378,15 @@ void aloader_sweep(aloader_t* self)
     free_chunk_list(self, &self->garbages, TRUE);
 }
 
-int32_t aloader_find(
+aerror_t aloader_find(
     aloader_t* self, const char* module, const char* name, avalue_t* value)
 {
-    int32_t err;
+    aerror_t ec;
 
-    err = find_in_libs(&self->libs, module, name, value);
-    if (err == AERR_NONE) return AERR_NONE;
-    err = find_in_list(&self->runnings, module, name, value);
-    if (err == AERR_NONE) return AERR_NONE;
+    ec = find_in_libs(&self->libs, module, name, value);
+    if (ec == AERR_NONE) return AERR_NONE;
+    ec = find_in_list(&self->runnings, module, name, value);
+    if (ec == AERR_NONE) return AERR_NONE;
 
     return AERR_UNRESOLVED;
 }

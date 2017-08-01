@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any/platform.h>
+#include <any/errno.h>
 #include <any/list.h>
 #include <any/task.h>
 
@@ -523,7 +524,7 @@ typedef enum {
     ABT_ARRAY,
     /// Collectable map.
     ABT_MAP
-} ABT;
+} aabt_t;
 
 /// Variant tags for \ref ABT_NUMBER.
 typedef enum {
@@ -531,7 +532,7 @@ typedef enum {
     AVTN_INTEGER,
     /// Floating-point number.
     AVTN_REAL
-} AVT_NUMBER;
+} avt_number_t;
 
 /// Variant tags for \ref ABT_FUNCTION.
 typedef enum {
@@ -539,7 +540,7 @@ typedef enum {
     AVTF_NATIVE,
     /// Byte code function.
     AVTF_AVM
-} AVT_FUNCTION;
+} avt_function_t;
 
 /// Value tag.
 typedef struct {
@@ -838,7 +839,7 @@ typedef struct aframe_t {
 /// Error catching points.
 typedef struct acatch_t {
     struct acatch_t* prev;
-    volatile int32_t status;
+    volatile aerror_t status;
     jmp_buf jbuff;
 } acatch_t;
 

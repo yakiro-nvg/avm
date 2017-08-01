@@ -1,7 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <catch.hpp>
 
-#include <any/errno.h>
 #include <any/rt_types.h>
 #include <any/process.h>
 #include <any/vm.h>

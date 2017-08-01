@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <any/vm.h>
 #include <any/scheduler.h>
-#include <any/errno.h>
 
 static void* myalloc(void*, void* old, int32_t sz)
 {

@@ -1,7 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/gc.h>
 
-#include <any/errno.h>
 #include <any/process.h>
 
 #define GROW_FACTOR 2
@@ -62,7 +61,7 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
     }
 }
 
-int32_t agc_init(agc_t* self, int32_t heap_cap, aalloc_t alloc, void* alloc_ud)
+aerror_t agc_init(agc_t* self, int32_t heap_cap, aalloc_t alloc, void* alloc_ud)
 {
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
@@ -83,7 +82,7 @@ void agc_cleanup(agc_t* self)
     self->heap_sz = 0;
 }
 
-int32_t agc_alloc(agc_t* self, int32_t abt, int32_t sz)
+int32_t agc_alloc(agc_t* self, aabt_t abt, int32_t sz)
 {
     agc_header_t* gch;
     int32_t more = sz + sizeof(agc_header_t);
@@ -98,7 +97,7 @@ int32_t agc_alloc(agc_t* self, int32_t abt, int32_t sz)
     return heap_idx;
 }
 
-int32_t agc_reserve(agc_t* self, int32_t more)
+aerror_t agc_reserve(agc_t* self, int32_t more)
 {
     uint8_t* nh;
     int32_t new_cap = self->heap_cap;

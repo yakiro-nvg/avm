@@ -14,9 +14,8 @@ be configured by `idx_bits` and `gen_bits`. The index will be used to directly
 lookup for a process from array. In additional, the generation part also be used
 to distinguish processes created at the same index slot. That caused by limited
 size of process array, eventually the index will be reused.
-\return AERR_NONE if successful.
 */
-ANY_API int32_t avm_startup(
+ANY_API aerror_t avm_startup(
     avm_t* self, int8_t idx_bits, int8_t gen_bits,
     aalloc_t alloc, void* alloc_ud);
 
