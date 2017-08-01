@@ -49,13 +49,15 @@ void ascheduler_cleanup(ascheduler_t* self)
 
 aerror_t ascheduler_new_process(ascheduler_t* self, aprocess_t** p)
 {
+    aerror_t ec;
     avm_process_t* vp = avm_alloc(self->vm);
     if (!vp) return AERR_FULL;
     *p = &vp->p;
 #ifdef ANY_SMP
     amutex_lock(&vp->mutex);
 #endif
-    aprocess_init(*p, self, self->alloc, self->alloc_ud);
+    ec = aprocess_init(*p, self, self->alloc, self->alloc_ud);
+    if (ec != AERR_NONE) return ec;
 #ifdef ANY_SMP
     amutex_unlock(&vp->mutex);
 #endif
