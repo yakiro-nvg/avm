@@ -1,9 +1,11 @@
 #include <any/process.h>
 
 #include <assert.h>
+#include <stdarg.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/gc.h>
+#include <any/gc_string.h>
 
 #define GROW_FACTOR 2
 #define INIT_STACK_SZ 64
@@ -170,8 +172,12 @@ void any_throw(aprocess_t* p, int32_t ec)
 
 void any_error(aprocess_t* p, const char* fmt, ...)
 {
-    AUNUSED(fmt);
-    any_push_nil(p); // TODO: push error message
+    va_list args;
+    char buf[128];
+    va_start(args, fmt);
+    snprintf(buf, sizeof(buf), fmt, args);
+    any_push_string(p, buf);
+    va_end(args);
     any_throw(p, AERR_RUNTIME);
 }
 
