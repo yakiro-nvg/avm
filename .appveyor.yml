@@ -21,6 +21,7 @@ configuration:
   - RelWithDebInfo
 
 install:
+  - git submodule update --init --recursive
   - cmake -G "%TOOLSET%"
 
 build_script:
