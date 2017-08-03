@@ -22,7 +22,7 @@ configuration:
 
 install:
   - git submodule update --init --recursive
-  - cmake -G "%TOOLSET%"
+  - cmake -G "%TOOLSET%" -DTASK_BACKEND=fiber
 
 build_script:
   - cmake --build . --config %CONFIGURATION%

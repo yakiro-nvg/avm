@@ -221,7 +221,7 @@ TEST_CASE("asm_nested")
     aasm_init(&a, &myalloc, NULL);
     REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
 
-    enum { PUSH_COUNT = 25 };
+    static int32_t PUSH_COUNT = 25;
 
     for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
@@ -256,7 +256,7 @@ TEST_CASE("asm_save_load")
     aasm_init(&a1, &myalloc, NULL);
     REQUIRE(aasm_load(&a1, NULL) == AERR_NONE);
 
-    enum { PUSH_COUNT = 5 };
+    static int32_t PUSH_COUNT = 5;
 
     for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
         for (int32_t j = 0; j < PUSH_COUNT; ++j) {
