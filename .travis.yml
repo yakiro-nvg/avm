@@ -96,12 +96,13 @@ matrix:
       compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
 
-    # 4/ Linux Coverage Build
+    # 4/ Coverage Build
     - os: linux
       compiler: gcc
-      addons: *gcc5
+      addons: &gcc5
         apt:
-          packages: ['lcov']
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-5', 'lcov']
       env: COMPILER='g++-5' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
       
 before_install:
