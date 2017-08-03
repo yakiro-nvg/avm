@@ -1,6 +1,6 @@
 #include <any/task.h>
 
-#ifdef ATASK_FIBER
+#ifdef ANY_TASK_FIBER
 
 aerror_t atask_shadow(struct atask_t* self)
 {
@@ -44,6 +44,6 @@ void atask_sleep(struct atask_t* self, int32_t nsecs)
     Sleep(nsecs * 1000000);
 }
 
-#else // ATASK_FIBER
+#else // ANY_TASK_FIBER
 static char non_empty_unit;
 #endif

@@ -1,21 +1,23 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 
+#ifdef ANY_TASK_GCCASM
+
 .text
 
+#ifdef __APPLE_CC__
+#define ENTRYP _atask_ctx_entryp
+#define SWITCH _atask_ctx_switch
+#else
 #define ENTRYP atask_ctx_entryp
 #define SWITCH atask_ctx_switch
+#endif
 
 .globl ENTRYP
-.type  ENTRYP, @function
-
-
 .globl SWITCH
-.type  SWITCH, @function
 
 #if defined(__i386__)
 #error "TODO"
 #elif defined(__x86_64__)
-
 ENTRYP:
     movq    %r13, %rdi
     jmpq    *%r12
@@ -43,3 +45,5 @@ SWITCH:
 #elif defined(__arm__)
 #error "TODO"
 #endif
+
+#endif // ANY_TASK_GCCASM

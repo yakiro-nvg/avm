@@ -78,8 +78,8 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
 
 static void basic_check(aasm_t* a, basic_test_ctx& t)
 {
-    auto p = aasm_prototype(a);
-    auto c = aasm_resolve(a);
+    aasm_prototype_t* p = aasm_prototype(a);
+    aasm_current_t c = aasm_resolve(a);
 
     num_vs_capacity_check(p);
 
@@ -127,10 +127,10 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
 static void require_equals(aasm_t* a1, aasm_t* a2)
 {
-    auto p1 = aasm_prototype(a1);
-    auto p2 = aasm_prototype(a2);
-    auto c1 = aasm_resolve(a1);
-    auto c2 = aasm_resolve(a2);
+    aasm_prototype_t* p1 = aasm_prototype(a1);
+    aasm_prototype_t* p2 = aasm_prototype(a2);
+    aasm_current_t c1 = aasm_resolve(a1);
+    aasm_current_t c2 = aasm_resolve(a2);
 
     REQUIRE_STR_EQUALS(
         astring_table_to_string(a1->st, p1->source),
@@ -185,7 +185,7 @@ TEST_CASE("asm_module")
     aasm_t a;
     aasm_init(&a, &myalloc, NULL);
     REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
-    auto p = aasm_prototype(&a);
+    aasm_prototype_t* p = aasm_prototype(&a);
 
     REQUIRE(p->source == 0);
     REQUIRE(p->symbol == 0);

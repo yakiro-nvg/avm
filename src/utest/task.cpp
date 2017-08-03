@@ -3,6 +3,8 @@
 
 #include <any/rt_types.h>
 
+enum { CSTACK_SZ = 8192 };
+
 struct ctx_t
 {
     int32_t val;
@@ -30,7 +32,7 @@ TEST_CASE("task")
     for (int32_t i = 0; i < NUM_TASKS; ++i) {
         ctx[i].val = 0;
         REQUIRE(AERR_NONE == 
-            atask_create(&ctx[i].self, &m, &fib_func, ctx + i, 512));
+            atask_create(&ctx[i].self, &m, &fib_func, ctx + i, CSTACK_SZ));
     }
 
     for (int32_t i = 0; i < 100; ++i) {

@@ -6,7 +6,7 @@
 #include <any/vm.h>
 #include <any/scheduler.h>
 
-enum { CSTACK_SZ = 8192 };
+enum { CSTACK_SZ = 16384 };
 
 static void* myalloc(void*, void* old, int32_t sz)
 {

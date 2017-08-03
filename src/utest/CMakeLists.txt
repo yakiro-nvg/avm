@@ -13,3 +13,8 @@ add_sanitizers(utest)
 target_link_libraries(utest avm)
 add_dependencies(utest catch)
 add_test(NAME utest COMMAND utest)
+
+if(CHECK_COVERAGE)
+    set(COVERAGE_EXCLUDES '/usr/*' '*/catch/*')
+    setup_target_for_coverage(NAME coverage EXECUTABLE ctest DEPENDENCIES utest)
+endif()

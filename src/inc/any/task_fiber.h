@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#define ATASK_FIBER
-
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

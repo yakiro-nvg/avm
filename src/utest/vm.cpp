@@ -31,7 +31,7 @@ TEST_CASE("vm_allocation")
     // basic
     for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
         for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
-            auto vp = avm_alloc(&vm);
+            avm_process_t* vp = avm_alloc(&vm);
             REQUIRE(vp != NULL);
             REQUIRE(vp == avm_lock_pid(&vm, vp->p.pid));
             avm_unlock(vp);
