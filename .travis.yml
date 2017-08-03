@@ -95,6 +95,12 @@ matrix:
       osx_image: xcode6.4
       compiler: clang
       env: COMPILER='clang++' BUILD_TYPE='Release'
+
+    # 4/ Linux Coverage Build
+    - os: linux
+      compiler: gcc
+      addons: *gcc5
+      env: COMPILER='g++-5' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
       
 before_install:
   - |
@@ -102,13 +108,32 @@ before_install:
       brew update
       brew outdated cmake || brew upgrade cmake
     fi
+    if [[ "${CHECK_COVERAGE}" == "true" ]]; then
+      pip install --user cpp-coveralls
+    fi
 
 before_script:
-  - export CXX=${COMPILER}
-  - cd ${TRAVIS_BUILD_DIR}
-  - cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
-  - cd Build
+  - |
+    export CXX=${COMPILER}
+    cd ${TRAVIS_BUILD_DIR}
+    if [[ "${CHECK_COVERAGE}" == "On" ]]; then
+      cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm -DCHECK_COVERAGE=On
+    else
+      cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
+    fi
+    cd Build
 
 script:
-  - make -j 2
-  - ctest -V -j 2
+  - |
+    make -j 2
+    if [[ "${CHECK_COVERAGE}" == "On" ]]; then
+      ctest -V -j 2
+    else
+      make coverage -j 2
+    fi
+
+after_success:
+  - |
+    if [[ "${CHECK_COVERAGE}" == "On" ]]; then
+      coveralls -E '/usr/.*' -E '.*/catch/.*'
+    fi
