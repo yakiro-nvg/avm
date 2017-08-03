@@ -1,9 +1,6 @@
 #include <any/task.h>
 
-#include <malloc.h>
-#include <string.h>
-
-#ifdef ATASK_GCCASM
+#ifdef ANY_TASK_GCCASM
 
 #define ALIGNED_SP(p, s) \
     (((char*)0) + ((((char*)(p)-(char*)0)+(s)) & -16))
@@ -11,7 +8,7 @@
 #define STACK_ADJUST(p, n) &((size_t*)p)[-n]
 
 #ifdef ANY_USE_VALGRIND
-#include <valgrind/valgrind.h>
+#include <valgrind.h>
 #define STACK_REG(t, p, sz) (t)->vgid = VALGRIND_STACK_REGISTER(p, p+sz)
 #define STACK_DEREG(t)      VALGRIND_STACK_DEREGISTER((t)->vgid)
 #else
@@ -79,6 +76,6 @@ void atask_sleep(struct atask_t* self, int32_t nsecs)
     assert(!"TODO");
 }
 
-#else // ATASK_GCCASM
+#else // ANY_TASK_GCCASM
 static char non_empty_unit;
 #endif

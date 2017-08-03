@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#define ATASK_GCCASM
-
 #include <any/platform.h>
 #include <any/list.h>
 

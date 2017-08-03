@@ -10,9 +10,9 @@ extern "C" {
 
 typedef void(ASTDCALL*atask_entry_t)(void*);
 
-#ifdef AWINDOWS
+#if defined(ANY_TASK_FIBER)
 #include <any/task_fiber.h>
-#elif defined(ACLANG) || defined(AGNUC)
+#elif defined(ANY_TASK_GCCASM)
 #include <any/task_gccasm.h>
 #endif
 

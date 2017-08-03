@@ -139,6 +139,7 @@ static AINLINE void amutex_unlock(amutex_t* m)
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <setjmp.h>
 #include <stddef.h>
 #include <stdarg.h>
