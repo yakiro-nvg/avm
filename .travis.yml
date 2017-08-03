@@ -130,7 +130,7 @@ script:
   - |
     make -j 2
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
-      make coverage -j 2
+      make coverage
     else
       ctest -V -j 2
     fi
