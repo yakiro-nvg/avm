@@ -108,7 +108,8 @@ before_install:
       brew update
       brew outdated cmake || brew upgrade cmake
     fi
-    if [[ "${CHECK_COVERAGE}" == "true" ]]; then
+    if [[ "${CHECK_COVERAGE}" == "On" ]]; then
+      sudo apt-get install lcov
       pip install --user cpp-coveralls
     fi
 
@@ -127,9 +128,9 @@ script:
   - |
     make -j 2
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
-      ctest -V -j 2
-    else
       make coverage -j 2
+    else
+      ctest -V -j 2
     fi
 
 after_success:
