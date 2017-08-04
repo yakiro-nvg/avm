@@ -10,7 +10,7 @@ env:
   secure: "u/PPZ51W2Jyzj1Qh0komyP3SkZqKIbQrT+gXBc2XmJIbw0RJSVVoEZSdDafJSXgRkuN5X3WPjJu6uMd3pA8kaF2+4QsStPK4dW4yySnOUqpaPi/yaAkjMMeD9p/x10yQTYkJq/0bQ6Y9gb5NtL5PjbyXprAAQeMeeSV4mGckAM7KlYkAFp+rcXQkj6I4kry5QFsIR7pgP86cH5oAvmiV+QXacVspWVke2kwAUv5wktZFYGV3tiQSfh39Z5GvpHLlwaZ3YiGQChph7bzIFcZ2t69BmPM/1TahuyANRrqDAsTMl+iC+ppc7u9jb+8ergsM4MOeS1ZIHwzAeQGCr++8rVDXcfqouD78ftkELN+fUPYUqmJbG7DHH7mCXuT3jk1UzjBnTfS1PM5//aI0nEF87FupQg3K1SbGC88qW48+wNikKNfIwVcsQ+aFLEEsxoxQ0usfaYxbiUQ0avQASgdZxwjd0pp2ilqhRdEg30X/4s5JSqbT813s/fxmeE6P0tnWeX2ixIqydiPjIvxm2SN0X5FTk2yLH4pWarmI3H4kKqGT2RwDQKaiR2cb2E0V3IMf21++bWJhGvJncCLmDQjzsYy6om6XQVdFKzLN+O/0j0TMZB9rJIlfneori8h1rBDOpHZ3o8ofdN0QXdYmTA3qMgwAJE5VWwgjBf+lJ+St6pE="
 
 before_install:
-    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
   apt:
@@ -22,16 +22,10 @@ addons:
       description: "Build submitted via Travis CI"
     notification_email: giangnv.is@gmail.com
     build_command_prepend: "make clean"
-    build_command:   "make build"
+      - |
+        export CXX=g++-4.6
+        cd ${TRAVIS_BUILD_DIR}
+        cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=Debug -DTASK_BACKEND=gccasm
+        cd Build
+    build_command: "make"
     branch_pattern: coverity_scan
-
-before_script:
-  - |
-    export CXX=g++-4.6
-    cd ${TRAVIS_BUILD_DIR}
-    cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=Debug -DTASK_BACKEND=gccasm
-    cd Build
-
-script:
-  - |
-    make -j 2
