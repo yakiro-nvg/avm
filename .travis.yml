@@ -127,6 +127,7 @@ before_script:
     cd ${TRAVIS_BUILD_DIR}
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm -DCHECK_COVERAGE=On
+      ../cc-test-reporter before-build
     else
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
     fi
@@ -145,5 +146,5 @@ after_success:
   - |
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch.hpp' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
-      ../cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t gcov
+      ../cc-test-reporter after-build --debug --exit-code $TRAVIS_TEST_RESULT -t gcov
     fi
