@@ -138,5 +138,5 @@ script:
 after_success:
   - |
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
-      coveralls -E '/usr/.*' -E '.*/catch/.*'
+      coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch/.*'
     fi
