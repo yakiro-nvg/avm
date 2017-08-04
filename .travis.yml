@@ -144,6 +144,6 @@ script:
 after_success:
   - |
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
-      coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch/.*' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
+      coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch.hpp' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
       ../cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
     fi
