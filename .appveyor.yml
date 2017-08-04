@@ -1,5 +1,9 @@
 shallow_clone: false
 
+branches:
+  only: 
+    - master
+
 os:
   - Visual Studio 2015
 
