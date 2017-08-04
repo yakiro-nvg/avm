@@ -102,8 +102,8 @@ matrix:
       addons: 
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-6', 'lcov']
-      env: COMPILER='g++-6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
+          packages: ['cmake', 'g++-4.6', 'lcov']
+      env: COMPILER='g++-4.6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
       
 before_install:
   - |
