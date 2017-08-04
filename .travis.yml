@@ -21,11 +21,13 @@ addons:
       name: "innostory/any-vm"
       description: "Build submitted via Travis CI"
     notification_email: giangnv.is@gmail.com
-    build_command_prepend: "make clean"
-      - |
-        export CXX=g++-4.6
-        cd ${TRAVIS_BUILD_DIR}
-        cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=Debug -DTASK_BACKEND=gccasm
-        cd Build
-    build_command: "make"
     branch_pattern: coverity_scan
+
+before_script:
+  - |
+    export CXX=g++-4.6
+    cd ${TRAVIS_BUILD_DIR}
+    cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=Debug -DTASK_BACKEND=gccasm
+    cd Build
+script:
+  - make
