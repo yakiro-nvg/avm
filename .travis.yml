@@ -57,7 +57,6 @@ matrix:
       addons: *gcc48
       env: COMPILER='g++-4.8' BUILD_TYPE='Debug'
 
-
     - os: linux
       compiler: gcc
       addons: &gcc49
@@ -127,7 +126,6 @@ before_script:
     cd ${TRAVIS_BUILD_DIR}
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm -DCHECK_COVERAGE=On
-      ../cc-test-reporter before-build
     else
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
     fi
@@ -137,6 +135,7 @@ script:
   - |
     make -j 2
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
+      ./cc-test-reporter before-build
       make coverage
     else
       ctest -V -j 2
