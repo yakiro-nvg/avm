@@ -103,8 +103,12 @@ matrix:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['cmake', 'g++-4.6', 'lcov']
-      env: COMPILER='g++-4.6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
-      
+      env: 
+        - |
+          COMPILER='g++-4.6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
+          CC_TEST_REPORTER_ID=9dc79ec67e0d8ace1a24b2fa04db9ecfa91a9c7e838c9790d5833d42f1dac663
+          GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
+
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
@@ -113,6 +117,8 @@ before_install:
     fi
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       pip install --user cpp-coveralls
+      curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      chmod +x ./cc-test-reporter
     fi
 
 before_script:
@@ -139,4 +145,5 @@ after_success:
   - |
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch/.*' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
+      ../cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
     fi
