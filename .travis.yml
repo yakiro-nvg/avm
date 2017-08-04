@@ -99,11 +99,11 @@ matrix:
     # 4/ Coverage Build
     - os: linux
       compiler: gcc
-      addons: &gcc5
+      addons: 
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-5', 'lcov']
-      env: COMPILER='g++-5' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
+          packages: ['cmake', 'g++-6', 'lcov']
+      env: COMPILER='g++-6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
       
 before_install:
   - |
