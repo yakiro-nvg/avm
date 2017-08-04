@@ -145,5 +145,6 @@ after_success:
   - |
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch.hpp' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
-      ../cc-test-reporter after-build --debug --exit-code $TRAVIS_TEST_RESULT -t gcov
+      ../cc-test-reporter format-coverage ./src/private/CMakeFiles/avm.dir/ -t gcov --exit-code $TRAVIS_TEST_RESULT
+      ../cc-test-reporter upload-coverage
     fi
