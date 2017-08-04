@@ -11,8 +11,11 @@ add_executable(utest ${HEADERS} ${SOURCES})
 add_sanitizers(utest)
 
 target_link_libraries(utest avm)
+
 add_dependencies(utest catch)
-add_test(NAME utest COMMAND utest)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CATCH_CONTRIB_DIR})
+include(ParseAndAddCatchTests)
+ParseAndAddCatchTests(utest)
 
 if(CHECK_COVERAGE)
     setup_target_for_coverage(NAME coverage EXECUTABLE ctest DEPENDENCIES utest)
