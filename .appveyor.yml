@@ -1,21 +1,29 @@
-shallow_clone: true
+shallow_clone: false
 
 os:
   - Visual Studio 2015
 
 environment:
   matrix:
-  - TOOLSET: vs2010
-  - TOOLSET: vs2012
-  - TOOLSET: vs2013
-  - TOOLSET: vs2015
+  - TOOLSET: Visual Studio 14 2015
+  - TOOLSET: Visual Studio 14 2015 Win64
+  - TOOLSET: Visual Studio 12 2013
+  - TOOLSET: Visual Studio 12 2013 Win64
+  - TOOLSET: Visual Studio 11 2012
+  - TOOLSET: Visual Studio 11 2012 Win64
+  - TOOLSET: Visual Studio 10 2010
+  - TOOLSET: Visual Studio 10 2010 Win64
 
 configuration:
   - Debug
   - Release
+  - MinSizeRel
+  - RelWithDebInfo
 
 install:
-  - tools\bin\windows\genie --with-tools %TOOLSET%
+  - git submodule update --init --recursive
+  - cmake -G "%TOOLSET%" -DTASK_BACKEND=fiber
 
-build:
-  project: .build/projects/$(TOOLSET)/any-vm.sln
+build_script:
+  - cmake --build . --config %CONFIGURATION%
+  - ctest -C %CONFIGURATION%

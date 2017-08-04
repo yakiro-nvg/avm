@@ -1,4 +1,3 @@
 .build/
-win32_vs2010/
 /docs/.doxyxml/
 /docs/.build_docs/

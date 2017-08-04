@@ -7,45 +7,33 @@
 extern "C" {
 #endif
 
-/** Link multiple chunk of bytecode together.
-\brief 
-This function will validate these chunks and try to resolve all required pointers.
-After that, this chunk prototypes becomes ready to execute, with correct resolved
-\ref aimport_t and \ref acurrent_t pointers. This function is `pure`, that means 
-this can't not touch other variables but only input. Which also means no global
-state and no dynamic memory allocation required.
+/// Initialize as a new byte code loader.
+ANY_API void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud);
 
-This design make somethings simpler and somethings trickier. If we only have a few
-chunks which are embedded inside the application, and be statically allocated at 
-the compile time, then that will be really straight forward. However, things will
-become harder when we needed to reload/upgrade bytecode in runtime. There are no 
-way to reclaim the allocated memory of successfully linked chunk at this level. 
-Obviously we need to rely on something at higher level which in turn traversal all 
-values in the stack and heap to determine what chunk is unreferenced so that can 
-not be imported anymore. Otherwise we will lost this memory chunk forever, which 
-may just `reasonable right` or `seriously wrong`. That is case by case and is up 
-to you to decide. Generally speaking, just move on.
+/// Release all internal allocated memory, result as a *fresh* loader.
+ANY_API void aloader_cleanup(aloader_t* self);
 
-This design also do not take care of rolling back these chunks to its previously
-good working state, since that isn't mandatory at all. There are dumb use cases 
-and hardware which aren't ever willing to support hot bytecode reloading. That 
-things also are the targets of AVM, so we must understand that a portable device 
-which requires fast bring ups time are really different from web or game servers. 
-Therefore, you are responsible to backup your chunks first if required.
-
-Another issue is slow looking up time for prototype from name, since we don't ever 
-try to build a hash table at all. Therefore, reflection should also be handle by 
-another component if you ever wish to invoke a module level function by reflection. 
-Which responsible to making a hash table for you. However, that use cases is rare,
-usually we only need to lookup once time to find the entry point at the startup. 
-Other references are resolved using \ref aimport_t by this function.
-
-\note Input definition must be NULL terminated, by NULL pointer or NULL name.
-
-\return `AERR_NONE` if successful.
+/** Add new byte code chunk to `pendings` list.
+\note `chunk_alloc` is optional, used to free `chunk` if necessary.
 */
-ANY_API int32_t any_link(
-    achunk_t** chunks,  int32_t* sizes, const anative_module_t* natives);
+ANY_API aerror_t aloader_add_chunk(
+    aloader_t* self, achunk_header_t* chunk, int32_t chunk_sz,
+    aalloc_t chunk_alloc, void* chunk_alloc_ud);
+
+/// Add new native lib module.
+ANY_API void aloader_add_lib(aloader_t* self, alib_t* lib);
+
+/** Link chunks of byte code together.
+\brief There is `safe` option that rolling back the state in case of failed.
+*/
+ANY_API aerror_t aloader_link(aloader_t* self, int32_t safe);
+
+/// Free chunks in `garbages` list that are not marked for `retain`.
+ANY_API void aloader_sweep(aloader_t* self);
+
+/// Lookup for a module level symbol.
+ANY_API aerror_t aloader_find(
+    aloader_t* self, const char* module, const char* name, avalue_t* value);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -4,17 +4,20 @@
 #ifdef _MSC_VER
 #define AMSVC _MSC_VER
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
+#define ASTDCALL __stdcall
 #pragma warning(disable: 4127) // conditional expression is constant
 #elif defined(__clang__)
 #define ACLANG (((__clang_major__)*100) + \
     (__clang_minor__*10) + \
      __clang_patchlevel__)
 #define ASTATIC_ASSERT(c) _Static_assert(c, "failed")
+#define ASTDCALL
 #elif defined(__GNUC__)
 #define AGNUC (((__GNUC__)*100) + \
     (__GNUC_MINOR__*10) + \
      __GNUC_PATCHLEVEL__)
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
+#define ASTDCALL
 #else
 #   error "unknown compiler"
 #endif
@@ -28,9 +31,21 @@
 #endif
 
 #if defined(__x86_64__) || defined(_M_X64) || defined(__arm64__)
-#define A64_BIT
+#define A64_BITS
+ASTATIC_ASSERT(sizeof(void*) == 8);
 #else
-#define A32_BIT
+#define A32_BITS
+ASTATIC_ASSERT(sizeof(void*) == 4);
+#endif
+
+#if defined(_M_IX86) || defined(__i386)
+#define AARCH_I386
+#elif defined(__x86_64__) || defined(_M_X64)
+#define AARCH_AMD64
+#elif defined(__arm__)
+#define AARCH_ARM
+#else
+#   error "unknown cpu architecture"
 #endif
 
 #ifdef AMSVC
@@ -38,7 +53,7 @@
 #define AINLINE __inline
 #elif defined(ACLANG) || defined(AGNUC)
 #define APACKED __attribute__((packed))
-#define AINLINE static inline
+#define AINLINE inline
 #endif
 
 #ifndef TRUE
@@ -50,12 +65,14 @@
 
 #ifndef ANY_SHARED
 #define ANY_API
+#elif defined(AMSVC)
+#    ifndef ANY_EXPORT
+#        define ANY_API __declspec(dllimport)
+#    else
+#        define ANY_API __declspec(dllexport)
+#    endif
 #else
-#ifndef ANY_EXPORT
-#define ANY_API	__declspec(dllimport)
-#else
-#define ANY_API __declspec(dllexport)
-#endif
+#define ANY_API
 #endif
 
 #define AUNUSED(x) ((void)x)
@@ -65,3 +82,72 @@
 #ifndef NULL
 #define NULL 0
 #endif
+
+#ifdef ANY_SMP
+
+#ifdef AWINDOWS
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+typedef CRITICAL_SECTION amutex_t;
+
+static AINLINE void amutex_init(amutex_t* m)
+{
+    InitializeCriticalSection(m);
+}
+
+static AINLINE void amutex_destroy(amutex_t* m)
+{
+    DeleteCriticalSection(m);
+}
+
+static AINLINE void amutex_lock(amutex_t* m)
+{
+    EnterCriticalSection(m);
+}
+
+static AINLINE void amutex_unlock(amutex_t* m)
+{
+    LeaveCriticalSection(m);
+}
+#elif defined(AAPPLE) || defined(ALINUX)
+#include <pthread.h>
+typedef pthread_mutex_t amutex_t;
+
+static AINLINE void amutex_init(amutex_t* m)
+{
+    pthread_mutex_init(m, NULL);
+}
+
+static AINLINE void amutex_destroy(amutex_t* m)
+{
+    pthread_mutex_destroy(m);
+}
+
+static AINLINE void amutex_lock(amutex_t* m)
+{
+    pthread_mutex_lock(m);
+}
+
+static AINLINE void amutex_unlock(amutex_t* m)
+{
+    pthread_mutex_unlock(m);
+}
+#endif
+
+#endif // ANY_SMP
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#include <stddef.h>
+#include <stdarg.h>
+#include <string.h>
+#include <assert.h>
+
+#if defined(AMSVC) && !defined(snprintf)
+#define snprintf sprintf_s
+#endif
+
+#define ACAST_FROM_FIELD(T, n, field) ((T*)(((uint8_t*)n) - offsetof(T, field)))

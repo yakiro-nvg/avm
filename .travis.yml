@@ -10,9 +10,12 @@ env:
    - secure: "P0ZRBm6IjguI8BRn8ykkqfHlHzbe5ylNJHGciMWKo7plHTq/SSROtKNDh5KAOXQfIlcfgN62cukcpUeXTgtNAa58YUpAuSlkB4nRPK693Dj6zivbFC8cbAibex/RNTb19w7xkCCwKzrx6ESrit6Obj6b/nwpxopU6586bEIzP9I1qW1qYuE6wuBxD9tqWH7YOrE6XJWmatmwxhcd7DK6uxjtyiSaz0nARJyb5IeTjZer8E0O9RU6qCNNHScB2I1C12WEy75q3GkAx9YBB9s+kpKHfj+cbDYjpvZyYQz16s6IIvWi5z0+nl/ywIKkneG1bLUW7AXoZmVpYT/pqg/pWXu0Bf6ROWcV1Rh3eUCbBDbR6TZy4iQFYCmc9CMAuXushUgmhR7IPipa35L3i8Zv2/zbLHD1poRuNs3yUN9SfohD+pVpgUrtNf+yC2dpkEWLLpmwKdYpnFJeqK0HcmQhZtZ0JBGzYvizuv3vj3GrrY3Bk02vB09ghGbXz5ghzyQ6z8DpNxBxAqfZWXakeWxWCKvWKuIPfA6FQZHlaQeGVGdjKxIfsPl92taDxDPYpsztwn5NP7MB1B4Vc3+qlslB/EaBtzkE2b2g5AQ5X6ht14zw/HFmZ9YWnVeN+uun/pKdfPzN2ftSjHN2oqzY5/Ml6e7Ro829k/V4Sa8qcH6kuCQ="
 
 before_install:
-      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
+  apt:
+    sources: ['ubuntu-toolchain-r-test']
+    packages: ['cmake', 'g++-4.6']
   coverity_scan:
     project:
       name: "innostory/any-vm"
@@ -22,5 +25,13 @@ addons:
     build_command:   "make build"
     branch_pattern: coverity_scan
 
+before_script:
+  - |
+    export CXX=g++-4.6
+    cd ${TRAVIS_BUILD_DIR}
+    cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=Debug -DTASK_BACKEND=gccasm
+    cd Build
+
 script:
-  - make build
+  - |
+    make -j 2

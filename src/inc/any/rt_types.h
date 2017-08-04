@@ -1,15 +1,19 @@
 #pragma once
 
 #include <any/platform.h>
-#include <stdint.h>
+#include <any/errno.h>
+#include <any/list.h>
+#include <any/task.h>
+
+// Forward declarations.
+struct aprocess_t;
 
 // Primitive types.
-typedef uint64_t asize_t;
 typedef int64_t aint_t;
-typedef double areal_t;
+typedef double  areal_t;
 
 // Specify the operation to be performed by the instructions.
-enum AOPCODE {
+typedef enum {
     AOC_NOP = 0,
     AOC_POP = 1,
     AOC_LDK = 10,
@@ -21,8 +25,11 @@ enum AOPCODE {
     AOC_JMP = 30,
     AOC_JIN = 31,
     AOC_IVK = 40,
-    AOC_RET = 41
-};
+    AOC_RET = 41,
+    AOC_SND = 50,
+    AOC_RCV = 51,
+    AOC_RMV = 52
+} AOPCODE;
 
 /** Base type.
 \rst
@@ -32,7 +39,7 @@ enum AOPCODE {
 opcode  payload
 ======  =======
 \endrst
-*/ 
+*/
 typedef struct {
     uint32_t opcode : 8;
     uint32_t _ : 24;
@@ -178,12 +185,8 @@ typedef struct {
 } ai_jin_t;
 
 /** Function call.
-
-\brief 
-Pop `nargs` arguments and next a closure from the stack
-then call it. The result will be pushed back onto the
-stack after that.
-
+\brief Please refer \ref aprocess_t for the protocol.
+\note Result will be placed on top of the stack.
 \rst
 =======  =======
 8 bits   24 bits
@@ -198,7 +201,7 @@ typedef struct {
 } ai_ivk_t;
 
 /** Returning from a function call.
-\brief Top of the stack will be returned as result.
+\brief Top of the stack will be returned as the result.
 \rst
 =======  =======
 8 bits   24 bits
@@ -210,6 +213,53 @@ AOC_RET  _
 typedef struct {
     uint32_t _;
 } ai_ret_t;
+
+/** Pop a target pid and next a message from the stack and send it.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_SND  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_snd_t;
+
+/** Picks up next message in the queue and places it onto the stack.
+\brief If there is no more message, jump to signed `displacement`.
+A `timeout` value will be popped from the stack, that will be used by AVM to
+determine if it must wait for this period before it decided that there is no
+more message in the queue. This `timeout` is signed and in milliseconds, a
+negative value means infinite waiting.
+\note This instruction will not remove messages from the queue.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_RCV  displacement
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _ : 8;
+    int32_t displacement : 24;
+} ai_rcv_t;
+
+/** Remove current message which is previously peeked by \ref ai_rct_t.
+\brief The peek pointer will be rewound to the front.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_RMV  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_rmv_t;
 
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
@@ -226,19 +276,22 @@ typedef union {
     ai_jin_t jin;
     ai_ivk_t ivk;
     ai_ret_t ret;
+    ai_snd_t snd;
+    ai_rcv_t rcv;
+    ai_rmv_t rmv;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-AINLINE ainstruction_t ai_nop()
+static AINLINE ainstruction_t ai_nop()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NOP;
     return i;
 }
 
-AINLINE ainstruction_t ai_pop(int32_t n)
+static AINLINE ainstruction_t ai_pop(int32_t n)
 {
     ainstruction_t i;
     i.b.opcode = AOC_POP;
@@ -246,7 +299,7 @@ AINLINE ainstruction_t ai_pop(int32_t n)
     return i;
 }
 
-AINLINE ainstruction_t ai_ldk(int32_t idx)
+static AINLINE ainstruction_t ai_ldk(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDK;
@@ -254,14 +307,14 @@ AINLINE ainstruction_t ai_ldk(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_nil()
+static AINLINE ainstruction_t ai_nil()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NIL;
     return i;
 }
 
-AINLINE ainstruction_t ai_ldb(int32_t val)
+static AINLINE ainstruction_t ai_ldb(int32_t val)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDB;
@@ -269,7 +322,7 @@ AINLINE ainstruction_t ai_ldb(int32_t val)
     return i;
 }
 
-AINLINE ainstruction_t ai_llv(int32_t idx)
+static AINLINE ainstruction_t ai_llv(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LLV;
@@ -277,7 +330,7 @@ AINLINE ainstruction_t ai_llv(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_slv(int32_t idx)
+static AINLINE ainstruction_t ai_slv(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_SLV;
@@ -285,7 +338,7 @@ AINLINE ainstruction_t ai_slv(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_imp(int32_t idx)
+static AINLINE ainstruction_t ai_imp(int32_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IMP;
@@ -293,7 +346,7 @@ AINLINE ainstruction_t ai_imp(int32_t idx)
     return i;
 }
 
-AINLINE ainstruction_t ai_jmp(int32_t displacement)
+static AINLINE ainstruction_t ai_jmp(int32_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JMP;
@@ -301,7 +354,7 @@ AINLINE ainstruction_t ai_jmp(int32_t displacement)
     return i;
 }
 
-AINLINE ainstruction_t ai_jin(int32_t displacement)
+static AINLINE ainstruction_t ai_jin(int32_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JIN;
@@ -309,7 +362,7 @@ AINLINE ainstruction_t ai_jin(int32_t displacement)
     return i;
 }
 
-AINLINE ainstruction_t ai_ivk(int32_t nargs)
+static AINLINE ainstruction_t ai_ivk(int32_t nargs)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IVK;
@@ -317,10 +370,32 @@ AINLINE ainstruction_t ai_ivk(int32_t nargs)
     return i;
 }
 
-AINLINE ainstruction_t ai_ret()
+static AINLINE ainstruction_t ai_ret()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RET;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_snd()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_SND;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_rcv(int32_t displacement)
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_RCV;
+    i.rcv.displacement = displacement;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_rmv()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_RMV;
     return i;
 }
 
@@ -330,111 +405,253 @@ AINLINE ainstruction_t ai_ret()
 `sz`  = 0 to free,
 otherwise realloc.
 */
-typedef void* (*arealloc_t)(void* userdata, void* old, int32_t sz);
+typedef void* (*aalloc_t)(void* ud, void* old, int32_t sz);
+
+/// Process identifier.
+typedef uint32_t apid_t;
+typedef uint32_t apid_idx_t;
+typedef uint32_t apid_gen_t;
+enum { APID_BITS = sizeof(apid_t)*8 };
+
+/// Make a pid from index and generation.
+static AINLINE apid_t apid_from(
+    int8_t idx_bits, int8_t gen_bits, apid_idx_t idx, apid_gen_t gen)
+{
+    return
+        (idx << (APID_BITS - idx_bits)) |
+        (gen << (APID_BITS - idx_bits - gen_bits));
+}
+
+/// Get index part.
+static AINLINE apid_idx_t apid_idx(int8_t idx_bits, apid_t pid)
+{
+    return pid >> (APID_BITS - idx_bits);
+}
+
+/// Get generation part.
+static AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
+{
+    return (pid << idx_bits) >> (APID_BITS - gen_bits);
+}
 
 /// Reference to a string
 typedef int32_t astring_ref_t;
 
 /// Native function.
-typedef int32_t(*anative_func_t)(void*);
+typedef void(*anative_func_t)(struct aprocess_t*);
 
-/// Native module function.
-typedef struct {
-    const char* name;
-    anative_func_t func;
-} anative_module_func_t;
+// Constant types.
+typedef enum {
+    ACT_INTEGER,
+    ACT_STRING,
+    ACT_REAL
+} ACTYPE;
 
-/// Native module.
-typedef struct {
-    const char* name;
-    const anative_module_func_t* funcs;
-} anative_module_t;
+#pragma pack(push, 1)
+
+/// Prototype constant.
+typedef union APACKED {
+    /// Base type.
+    struct ac_base_t {
+        uint32_t type;
+    } b;
+    /// ACT_INTEGER.
+    struct ac_integer_t {
+        uint32_t _;
+        aint_t val;
+    } integer;
+    ///  ACT_STRING.
+    struct ac_string_t {
+        uint32_t _;
+        astring_ref_t ref;
+    } string;
+    /// ACT_REAL.
+    struct ac_real_t {
+        uint32_t _;
+        areal_t val;
+    } real;
+} aconstant_t;
+
+#pragma pack(pop)
+
+// Constant constructors.
+static AINLINE aconstant_t ac_integer(aint_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_INTEGER;
+    c.integer.val = val;
+    return c;
+}
+
+static AINLINE aconstant_t ac_string(astring_ref_t string)
+{
+    aconstant_t c;
+    c.b.type = ACT_STRING;
+    c.string.ref = string;
+    return c;
+}
+
+static AINLINE aconstant_t ac_real(areal_t val)
+{
+    aconstant_t c;
+    c.b.type = ACT_REAL;
+    c.real.val = val;
+    return c;
+}
 
 /// Basic value tags.
-enum ATB {
+typedef enum {
     /// No value.
-    ATB_NIL,
+    ABT_NIL,
+    /// Process identifier.
+    ABT_PID,
     /// Either `true`: 1 or `false`: 0.
-    ATB_BOOL,
+    ABT_BOOL,
     /// Raw pointer.
-    ATB_POINTER,
-    /// Constant string.
-    ATB_CONST_STRING,
+    ABT_POINTER,
     /// Variant of number.
-    ATB_NUMBER,
+    ABT_NUMBER,
     /// Variant of function.
-    ATB_FUNCTION
-};
+    ABT_FUNCTION,
+    /// Start of collectable.
+    ABT_COLLECTABLE,
+    /// Collectable fixed size buffer.
+    ABT_FIXED_BUFFER = ABT_COLLECTABLE,
+    /// Collectable buffer.
+    ABT_BUFFER,
+    /// Collectable string.
+    ABT_STRING,
+    /// Collectable tuple.
+    ABT_TUPLE,
+    /// Collectable array.
+    ABT_ARRAY,
+    /// Collectable map.
+    ABT_MAP
+} aabt_t;
 
-/// Variant tags for \ref ATB_FUNCTION.
-enum AVT_FUNCTION {
-    AVTF_NATIVE,
-    AVTF_PURE
-};
-
-/// Variant tags for \ref ATB_NUMBER.
-enum AVT_NUMBER {
+/// Variant tags for \ref ABT_NUMBER.
+typedef enum {
     /// No fractional.
     AVTN_INTEGER,
     /// Floating-point number.
     AVTN_REAL
-};
+} avt_number_t;
+
+/// Variant tags for \ref ABT_FUNCTION.
+typedef enum {
+    /// C lib function.
+    AVTF_NATIVE,
+    /// Byte code function.
+    AVTF_AVM
+} avt_function_t;
 
 /// Value tag.
 typedef struct {
-    int8_t tag;
+    int8_t b;
     int8_t variant;
     int8_t _[2];
-} avtag_t;
+} avalue_tag_t;
 
-/** Tagged value.
-
-\brief
-AVM is dynamically typed. Each value carries its own type in `avtag_t`. There are
-some values which are subject to automatic memory management, which are marked 
-`collectable`. The scope of such values are not corresponding to the lexical 
-scope, opposite to `non collectable` values which are placed on the stack and will 
-be disappeared as soon as the stack grow back. 
-
-\note `collectable` type is also called `reference type`. 
-*/
+/// Tagged value.
 typedef struct {
-    avtag_t tag;
+    avalue_tag_t tag;
     union {
-        /// \ref ATB_BOOL.
-        int32_t b;
-        /// \ref ATB_POINTER.
-        void* p;
-        /// \ref ATB_CONST_STRING.
-        astring_ref_t cs;
-        /// \ref AVT_INTEGER.
-        aint_t i;
-        /// \ref AVT_REAL.
-        areal_t r;
-        /// \ref AVT_NATIVE_FUNC.
-        anative_func_t f;
-        /// \ref AVT_MODULE_FUNC.
-        struct aprototype_s* mf;
+        /// \ref ABT_PID.
+        apid_t pid;
+        /// \ref ABT_BOOL.
+        int32_t boolean;
+        /// \ref ABT_POINTER.
+        void* ptr;
+        /// \ref AVTN_INTEGER.
+        aint_t integer;
+        /// \ref AVTN_REAL.
+        areal_t real;
+        /// \ref AVTF_NATIVE.
+        anative_func_t func;
+        /// \ref AVTF_AVM.
+        struct aprototype_t* avm_func;
+        /// \ref ABT_COLLECTABLE.
+        int32_t heap_idx;
     } v;
 } avalue_t;
 
+/// Is subject of GC?
+static AINLINE int32_t avalue_collectable(avalue_t* v)
+{
+    return v->tag.b >= ABT_COLLECTABLE;
+}
+
+/// Garbage collector.
+typedef struct {
+    aalloc_t alloc;
+    void* alloc_ud;
+    uint8_t* cur_heap;
+    uint8_t* new_heap;
+    int32_t heap_cap;
+    int32_t heap_sz;
+    int32_t scan;
+} agc_t;
+
+/// Collectable value header.
+typedef struct {
+    int32_t abt;
+    int32_t sz;
+    int32_t forwared;
+} agc_header_t;
+
+#define AGC_CAST(T, gc, idx) \
+    ((T*)((gc)->cur_heap + idx + sizeof(agc_header_t)))
+
+/// Collectable buffer.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_buffer_t;
+
+/// Combination of hash and length.
+typedef struct {
+    uint32_t hash;
+    int32_t length;
+} ahash_and_length_t;
+
+/// Collectable string.
+typedef struct {
+    ahash_and_length_t hal;
+} agc_string_t;
+
+/// Collectable tuple.
+typedef struct {
+    int32_t sz;
+} agc_tuple_t;
+
+/// Collectable array.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_array_t;
+
+/// Collectable map.
+typedef struct {
+    avalue_t buff;
+    int32_t cap;
+    int32_t sz;
+} agc_map_t;
+
 #pragma pack(push, 1)
 
-/** Bytecode chunk.
-
+/** Byte code chunk.
 \brief Layout: [`header`] [`module prototype`].
-
 AVM is dynamic, stack based abstract machine which rely on a strong coupled,
-relocatable and recursive intermediate representation called `bytecode chunk`.
-That designed to be loaded and executed directly from the storages with as 
-least effort as possible.
-
-The bytecode chunk includes everything we need for a module to be executed
-except the imports. This chunk is portable in theory, however there's no need
-to actually do that in real-life. AVM will not even try to make any effort to
-load an incompatible chunks. Of course, if we really **need** this feature, a
-bytecode rewriter can always be implemented as an external tool.
-
+relocatable and recursive intermediate representation called `byte code chunk`.
+That is designed to be loaded and executed directly from the storages with as
+least effort as possible. The byte code chunk includes everything we need for
+a module to be executed except the external value (called import). This chunk
+is portable in theory. However, there is no need to actually do that in real-
+life. AVM will not even try to make any effort to load an incompatible chunks.
+Of course, if we really **need** this as a feature, byte code rewriter could
+be implemented as an external tool.
 \par Header format.
 \rst
 =====  ===================  ===================
@@ -443,44 +660,38 @@ bytes  description          value
 4      signature            0x41 0x6E 0x79 0x00
 1      version number       0x{MAJOR}{MINOR}
 1      is big endian?       1 = big, 0 = little
-1      size of size_t       default 8 bytes
 1      size of integer      default 8 bytes
 1      size of float        default 8 bytes
 1      size of instruction  always 4
-2      _                    _
+3      _                    _
 =====  ===================  ===================
 \endrst
-
 \note The header portion is not affected by endianess.
 */
 typedef struct APACKED {
     uint8_t  signature[4];
-
     uint32_t major_ver       : 4;
     uint32_t minor_ver       : 4;
     uint32_t big_endian      : 8;
-    uint32_t size_of_size_t  : 8;
     uint32_t size_of_integer : 8;
-
-    uint8_t  size_of_float;
+    uint32_t size_of_float   : 8;
     uint8_t  size_of_instruction;
-    uint8_t  _[2];
-} achunk_t;
+    uint8_t  _[3];
+} achunk_header_t;
 
 #pragma pack(pop)
 
-ASTATIC_ASSERT(sizeof(achunk_t) == 12);
+ASTATIC_ASSERT(sizeof(achunk_header_t) == 12);
 
 /// Function import.
 typedef struct {
     astring_ref_t module;
     astring_ref_t name;
-    avalue_t resolved;
 } aimport_t;
 
-ASTATIC_ASSERT(sizeof(aimport_t) == 8 + sizeof(avalue_t));
+ASTATIC_ASSERT(sizeof(aimport_t) == 8);
 
-AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
+static AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
 {
     aimport_t i;
     i.module = module;
@@ -488,73 +699,54 @@ AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
     return i;
 }
 
-/// Resolved prototype pointers.
-typedef struct {
-    ainstruction_t* instructions;
-    avalue_t* constants;
-    aimport_t* imports;
-    struct aprototype_s** nesteds;
-} acurrent_t;
-
 /** Function prototype.
-
 \brief
-This struct represents the header portion of a function prototype. Each
-prototype is self-contained and relocatable, all references are relative
-to their corresponding header. That means we can safety copy a memory blob 
-of prototype and move it around, save to and loaded from disk without any 
-need for patching.
+This struct represents the header portion of a function prototype. Prototype is
+self-contained and relocatable, references are relative to their corresponding
+header. That means we can safety copy a memory blob of prototype and move that
+around, save to and loaded from disk without any need for patching.
 
-The first prototype in chunk is `module prototype`, which is unable to be
-executed. There are no instructions, upvalues, arguments, constants, local
-variables and imports in this kind of prototype. All nesteds of that will
-be treated as `module function`. Which can't accept upvalues and will be 
-exported as the name specified in the `symbol` field. That allow such 
-functions to be imported later by other modules.
+The first prototype in chunk is `module prototype`, there are no global scope in
+AVM. The most outer scope is `module`, which is only consists of nested function
+and constant. There are no instruction, up-value, argument, local var and import
+in this kind of prototype. Either that make non-sense or strictly prohibited to
+prevent the possibility of race condition. Nested of module prototype is `module
+function`. Which can be exported by the name specified in `symbol`. That allows
+such functions to be imported to use by other modules.
 
-In AVM, there are two kind of string, `static` and `collectable`. Compile
-time strings are `static` and must be referenced by `astring_ref_t` which
-is just an offset to the dedicated **per prototype** string pool. We don't
-want to share these pools between prototype to make relocating trivial.
-
-To reduce the loading time and make memory management simpler, prototype
-must be able to loaded from the storages as-is by just a single read. No 
-more memory allocation are required. The prototype format itself reserved 
-few bytes to be used by the runtime. Remember that, despite being called 
-`bytecode`, we don't prefer polite and portable bytecode over performance 
-and simplicity. For each platform, you are expected to run the compiler 
-or rewriter again.The runtime is stupid and don't want to take challenges. 
-The best things that AVM runtime provides is just sandbox guarantees, by 
-prevent malformed bytecode to crash the system, nothing more.
+In AVM, there are two kind of string, `static` and `collectable`. Compile time
+string are `static` and must be referenced by `astring_ref_t` which is just an
+offset to the dedicated **per prototype** string pool. We don't want to share
+these pools between prototype to make relocating trivial. General speaking, the
+whole prototype is read-only, which is only accessible using related instruction
+to ensure the thread safety and security, we could easily mmap a prototype from
+storages, as well as traditional OS executable.
 
 \par Memory layout:
 \rst
-====================================  =========================  =======
-bytes                                 description                scope
-====================================  =========================  =======
-4 signed                              source file name           _
-4 signed                              to be exported             _
-4 signed                              num of string bytes        _
-4 signed                              num of instructions        _
-2 signed                              num of nesteds             _
-1 unsigned                            num of upvalues            _
-1 unsigned                            num of arguments           _
-1 unsigned                            num of constants           _
-1 unsigned                            num of local variables     _
-1 unsigned                            num of imports             _
-1                                     _                          _
-sizeof(:c:type:`acurrent_t`)          resolved pointers          runtime
-num of string bytes                   pool of strings            _
-n * sizeof(:c:type:`ainstruction_t`)  pool of instructions       _
-n * sizeof(:c:type:`avalue_t`)        pool of constants          _
-n * sizeof(:c:type:`aimport_t`)       pool of imports            _
-n * sizeof(void*)                     nested prototype pointers  runtime
-_                                     nested prototypes          _
-====================================  =========================  =======
+====================================  ======================
+bytes                                 description
+====================================  ======================
+4 signed                              source file name
+4 signed                              to be exported
+4 signed                              num of string bytes
+4 signed                              num of instructions
+2 signed                              num of nesteds
+1 unsigned                            num of up-values
+1 unsigned                            num of arguments
+1 unsigned                            num of constants
+1 unsigned                            num of local variables
+1 unsigned                            num of imports
+1                                     _
+num of string bytes                   strings
+n * sizeof(:c:type:`ainstruction_t`)  instructions
+n * sizeof(:c:type:`aconstant_t`)     constants
+n * sizeof(:c:type:`aimport_t`)       imports
+_                                     nested prototypes
+====================================  ======================
 \endrst
-\note Portions with `runtime scope` are reversed in compile time.
 */
-typedef struct aprototype_s {
+typedef struct {
     astring_ref_t source;
     astring_ref_t symbol;
     int32_t strings_sz;
@@ -566,7 +758,197 @@ typedef struct aprototype_s {
     uint8_t num_local_vars;
     uint8_t num_imports;
     uint8_t _;
-    acurrent_t resolved;
+} aprototype_header_t;
+
+ASTATIC_ASSERT(sizeof(aprototype_header_t) == 24);
+
+/// Lib function.
+typedef struct {
+    const char* name;
+    anative_func_t func;
+} alib_func_t;
+
+/// Lib module.
+typedef struct {
+    const char* name;
+    const alib_func_t* funcs;
+    alist_node_t node;
+} alib_t;
+
+/// Runtime prototype.
+typedef struct aprototype_t {
+    struct achunk_t* chunk;
+    aprototype_header_t* header;
+    const char* strings;
+    ainstruction_t* instructions;
+    aconstant_t* constants;
+    aimport_t* imports;
+    struct aprototype_t* nesteds;
+    avalue_t* import_values;
 } aprototype_t;
 
-ASTATIC_ASSERT(sizeof(aprototype_t) == 24 + sizeof(acurrent_t));
+/// Runtime byte code chunk.
+typedef struct achunk_t {
+    achunk_header_t* header;
+    aalloc_t alloc;
+    void* alloc_ud;
+    avalue_t* imports;
+    aprototype_t* prototypes;
+    alist_node_t node;
+    int32_t retain;
+} achunk_t;
+
+/** Byte code loader.
+\brief
+AVM byte code loading and linking is done by `aloader_t`, with heavily focused
+to be able to support `hot reloading`. That means we can introduce a new version
+of already loaded module on-the-fly, without the need of shut down the system.
+There are 3 state of chunk which is managed by loader, `pending`, `running` and
+`garbage`. Newly added chunk is `pending`, which is invisible until successfully
+be linked with other chunk and get its imports resolved. `running` is where the
+latest chunks are stored, `aloader_find` will try to search in there. The last
+state is `garbage`, as the name suggested, is out-of-date but still be there so
+already referenced may continue to work. `aloader_sweep` could be used to free
+these chunks.
+*/
+typedef struct {
+    aalloc_t alloc;
+    void* alloc_ud;
+    alist_t pendings;
+    alist_t runnings;
+    alist_t garbages;
+    alist_t libs;
+} aloader_t;
+
+/// Message box.
+typedef struct {
+    avalue_t* msgs;
+    int32_t sz;
+    int32_t cap;
+} ambox_t;
+
+/// Process flags.
+typedef enum {
+    APF_EXIT = 1 << 0
+} APFLAGS;
+
+/// Process stack frame.
+typedef struct aframe_t {
+    struct aframe_t* prev;
+    int32_t bp;
+    int32_t nargs;
+} aframe_t;
+
+/// Error catching points.
+typedef struct acatch_t {
+    struct acatch_t* prev;
+    volatile aerror_t status;
+    jmp_buf jbuff;
+} acatch_t;
+
+/** Light weight processes.
+\brief
+AVM concurrency is rely on `actor model`, which is inspired by Erlang. In this
+model, each concurrent task will be represented as a `aprocess_t`. Which is, in
+general have isolated state, that means such state can not be touched by other
+actor. The only way an actor can affect each others is through message, to tell
+the owner of that state to make the modification by itself. Therefore, we avoid
+the need for explicitly locking to the state and lot of consequence trouble like
+deadlock. Well, frankly speaking, deadlock still be possible if there are actors
+that is at the same time blocking wait for messages from each other, but mostly
+that remains easier to deal with. AVM process is also light weight in compared
+to most of OS threads. The overhead in memory footprint, creation, termination
+and scheduling is low. Therefore, a massive amount of process could be spawned.
+
+\par Virtual stack.
+Besides of the native C stack, AVM also using a dedicated, dynamic sized stack
+for `avalue_t`, which is subject of Garbage Collector. Indexing for this stack
+is relative to current function frame. Negative value of the index is used to
+point to the argument, that must be passed in reversed order. Underflow always
+result as a nil value.
+
+=====  ================
+index  description
+=====  ================
+ 4     overflow   (sp)
+ 3     local var3 (top)
+ 2     local var2
+ 1     local var1
+ 0     local var0 (bp)
+-1     argument 1
+-2     argument 2
+-3     argument 3
+-4     nil
+-5     nil
+=====  ================
+*/
+typedef struct aprocess_t {
+    int32_t flags;
+    apid_t pid;
+    aalloc_t alloc;
+    void* alloc_ud;
+    struct ascheduler_t* owner;
+    atask_t task;
+    ambox_t mbox;
+    acatch_t* error_jmp;
+    aframe_t* frame;
+    avalue_t* stack;
+    int32_t stack_cap;
+    int32_t sp;
+    agc_t gc;
+} aprocess_t;
+
+/** Process scheduler interface.
+\brief
+AVM is designed to be resumable, that sounds tricky and non-portable at first.
+However, we believe that its worth. Generally, we don't want the users to worry
+about whether C stack is resumable or not, and if not then what happen. Yielding
+native function and across native function is just mandatory use cases in AVM.
+A new \ref atask_t is required for each new process. That allows AVM to save the
+context of a process and comeback later, in native side.
+*/
+typedef struct ascheduler_t {
+    aalloc_t alloc;
+    void* alloc_ud;
+    struct avm_t* vm;
+    atask_t task;
+} ascheduler_t;
+
+/// VM managed process.
+typedef struct {
+#ifdef ANY_SMP
+    amutex_t mutex;
+#endif
+    volatile int32_t dead;
+    aprocess_t p;
+} avm_process_t;
+
+/** VM Engine.
+\par System architecture.
+                                        +--------+           +----------+
+            +-------+                   | alib_t <-----+-----> achunk_t |
+            | avm_t +-------+           +--------+     |     +----------+
+            +-------+       |                          |
+                        `provides`               `load & link`
+                            |                          |
++--------------+         +--v---------+          +-----+-----+
+| ascheduler_t +--`run`--> aprocess_t +-`import`-> aloader_t |
++--------------+         +-------+----+          +-----------+
+                                 |
+                            `interpret`
+                                 |     +---------------+
+                                 +-----> adispatcher_t |
+                                       +---------------+
+*/
+typedef struct avm_t {
+#ifdef ANY_SMP
+    amutex_t mutex;
+#endif
+    aalloc_t alloc;
+    void* alloc_ud;
+    avm_process_t* procs;
+    aloader_t loader;
+    int8_t idx_bits;
+    int8_t gen_bits;
+    apid_idx_t next_idx;
+} avm_t;
