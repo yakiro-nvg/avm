@@ -1,3 +1,4 @@
+/* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/scheduler.h>
 
 #include <any/loader.h>
@@ -56,9 +57,8 @@ aerror_t ascheduler_new_process(ascheduler_t* self, aprocess_t** p)
     amutex_lock(&vp->mutex);
 #endif
     ec = aprocess_init(*p, self, self->alloc, self->alloc_ud);
-    if (ec != AERR_NONE) return ec;
 #ifdef ANY_SMP
     amutex_unlock(&vp->mutex);
 #endif
-    return AERR_NONE;
+    return ec;
 }

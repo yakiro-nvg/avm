@@ -12,10 +12,18 @@
 
 #include <time.h>
 #include <stdlib.h>
+#include <exception>
 
 int runAllTests(int argc, const char* argv[])
 {
-    return Catch::Session().run(argc, argv);
+    int r = 0;
+    try {
+        r = Catch::Session().run(argc, argv);
+    } catch (std::exception& e) {
+        printf("unexpected exception %s\n", e.what());
+        r = 1;
+    }
+    return r;
 }
 
 int main(int argc, const char* argv[])

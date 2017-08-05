@@ -1,3 +1,4 @@
+/* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/loader.h>
 
 #include <any/version.h>
@@ -191,7 +192,7 @@ static void backup_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
     memcpy(
         imp + *off,
         pt->import_values,
-        sizeof(avalue_t*) * pt->header->num_imports);
+        sizeof(avalue_t) * pt->header->num_imports);
     *off += pt->header->num_imports;
     for (i = 0; i < pt->header->num_nesteds; ++i) {
         backup_imports(pt->nesteds + i, off, imp);
@@ -204,7 +205,7 @@ static void rollback_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
     memcpy(
         pt->import_values,
         imp + *off,
-        sizeof(avalue_t*) * pt->header->num_imports);
+        sizeof(avalue_t) * pt->header->num_imports);
     *off += pt->header->num_imports;
     for (i = 0; i < pt->header->num_nesteds; ++i) {
         rollback_imports(pt->nesteds + i, off, imp);
