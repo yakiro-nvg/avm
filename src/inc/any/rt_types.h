@@ -248,7 +248,7 @@ typedef struct {
     int32_t displacement : 24;
 } ai_rcv_t;
 
-/** Remove current message which is previously peeked by \ref ai_rct_t.
+/** Remove current message which is previously peeked by \ref ai_rcv_t.
 \brief The peek pointer will be rewound to the front.
 \rst
 =======  =======

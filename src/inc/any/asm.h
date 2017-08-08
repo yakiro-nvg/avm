@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 /** Initialization as a new assembler.
-\note Must be followed by an \ref any_asm_load.
+\note Must be followed by an \ref aasm_load.
 */
 ANY_API void aasm_init(aasm_t* self, aalloc_t alloc, void* alloc_ud);
 
@@ -63,7 +63,7 @@ ANY_API void aasm_open(aasm_t* self, int32_t idx);
 */
 ANY_API int32_t aasm_pop(aasm_t* self);
 
-/** Wrapper of \ref any_st_to_ref to `self->st` string table.
+/** Wrapper of \ref astring_table_to_ref to `self->st` string table.
 \brief Automatically grow if necessary.
 */
 ANY_API astring_ref_t aasm_string_to_ref(aasm_t* self, const char* string);

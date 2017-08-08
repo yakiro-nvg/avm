@@ -25,7 +25,7 @@ allocating the buffer. If the buffer runs out of memory you are responsible
 for resizing it before you can add more strings.
 
 String table is POD, that can be saved to and loaded from disk without any
-need for pointer patching. Just make sure to call \ref any_st_pack before
+need for pointer patching. Just make sure to call \ref astring_table_pack before
 saving so that it uses as little memory as possible.
 
 This structure representing a string table. The data for string table is
@@ -51,7 +51,7 @@ enum {
 
 /** Byte code assembler prototype.
 \warning `max_*` is **readonly**.
-\ref any_asm_reserve are required to extends these values.
+\ref aasm_reserve are required to extends these values.
 */
 typedef struct {
     astring_ref_t source;
@@ -98,18 +98,18 @@ typedef struct {
 like optimization, which provides direct access to the assembler internal. The
 content of these structure may be relocated after a call to these following
 functions, use it at your own risk:
-- \ref any_asm_emit
-- \ref any_asm_add_constant
-- \ref any_asm_add_import
-- \ref any_asm_reserve
-- \ref any_asm_push
+- \ref aasm_emit
+- \ref aasm_add_constant
+- \ref aasm_add_import
+- \ref aasm_reserve
+- \ref aasm_push
 
 \brief
 The assembler is context sensitive, which can be used to authoring multiple
 prototypes with just only single instance, in nested manner. Generally, for
-each \ref any_asm_push or \ref any_asm_open a new context will be created for
+each \ref aasm_push or \ref aasm_open a new context will be created for
 nested prototype, and that also saves the current context onto an internal
-stack, which can be restored later by a corresponding \ref any_asm_pop.
+stack, which can be restored later by a corresponding \ref aasm_pop.
 
 This struct itself is not POD, then must rely on \ref achunk_header_t as the
 portable format for exchanges. That format enable assembler as a **framework**

@@ -45,7 +45,7 @@ added because the table is full, the function returns `AERR_FULL`.
 ANY_API astring_ref_t astring_table_to_ref(
     astring_table_t* self, const char* string);
 
-/** As same as \ref any_st_to_ref, but never adds the string to the table.
+/** As same as \ref astring_table_to_ref, but never adds the string to the table.
 \note If the string doesn't exist in the table AERR_FULL is returned.
 */
 ANY_API astring_ref_t astring_table_to_ref_const(
@@ -54,7 +54,7 @@ ANY_API astring_ref_t astring_table_to_ref_const(
 /** Returns the string corresponding to the `ref`.
 \warning
 Calling this with a value which is not a ref returned
-by \ref any_st_to_ref results in undefined behavior.
+by \ref astring_table_to_ref results in undefined behavior.
 */
 ANY_API const char* astring_table_to_string(
     const astring_table_t* self, astring_ref_t ref);

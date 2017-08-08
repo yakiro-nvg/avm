@@ -1,16 +1,25 @@
-========
-Bytecode
-========
+=========
+Utilities
+=========
 
-Code Chunk
-==========
-.. doxygenstruct:: achunk_header_t
+Intrusive Linked-List
+=====================
+.. doxygenstruct::   alist_t
+.. doxygenstruct::   alist_node_t
+.. doxygenfunction:: alist_init
+.. doxygenfunction:: alist_node_insert
+.. doxygenfunction:: alist_push_head
+.. doxygenfunction:: alist_push_back
+.. doxygenfunction:: alist_node_erase
+.. doxygenfunction:: alist_head
+.. doxygenfunction:: alist_back
+.. doxygenfunction:: alist_is_end
 
 Function Prototype
 ==================
 .. doxygenstruct:: aprototype_header_t
 .. doxygenstruct:: aimport_t
-.. doxygenunion::  aconstant_t
+.. doxygenstruct:: aconstant_t
 
 Instruction Set
 ===============
