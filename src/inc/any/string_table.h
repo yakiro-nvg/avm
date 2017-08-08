@@ -62,7 +62,7 @@ ANY_API const char* astring_table_to_string(
 /** Returns the hashed value corresponding the the `ref`.
 \warning
 Calling this with a value which is not a ref returned
-by ref any_st_to_ref results in undefined behavior.
+by \ref astring_table_to_ref results in undefined behavior.
 */
 ANY_API uint32_t astring_table_to_hash(
     const astring_table_t* self, astring_ref_t ref);

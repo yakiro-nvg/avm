@@ -25,8 +25,8 @@ allocating the buffer. If the buffer runs out of memory you are responsible
 for resizing it before you can add more strings.
 
 String table is POD, that can be saved to and loaded from disk without any
-need for pointer patching. Just make sure to call \ref astring_table_pack before
-saving so that it uses as little memory as possible.
+need for pointer patching. Just make sure to call \ref astring_table_pack
+before saving so that it uses as little memory as possible.
 
 This structure representing a string table. The data for string table is
 stored directly after this header in memory and consists of a hash table
