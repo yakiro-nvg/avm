@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>Runtime &#8212; Any-VM 0.1.0 documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -30,7 +27,7 @@
     <link rel="prev" title="Bytecode" href="bytecode.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         Any-VM 0.1.0 documentation
     </a></h1></header>
@@ -63,193 +60,781 @@
 <h1>Runtime<a class="headerlink" href="#runtime" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="bytecode-loader">
 <h2>Bytecode Loader<a class="headerlink" href="#bytecode-loader" title="Permalink to this headline">¶</a></h2>
+<dl class="struct">
+<dt id="c.aloader_t">
+<span class="target" id="any-vmstructaloader__t"></span><em class="property">struct </em><code class="descname">aloader_t</code><a class="headerlink" href="#c.aloader_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Byte code loader. </p>
+<p>AVM byte code loading and linking is done by <code class="docutils literal"><a class="reference internal" href="#any-vmstructaloader__t"><span class="std std-ref"><span class="pre">aloader_t</span></span></a></code>, with heavily focused to be able to support <code class="docutils literal"><span class="pre">hot</span> <span class="pre">reloading</span></code>. That means we can introduce a new version of already loaded module on-the-fly, without the need of shut down the system. There are 3 state of chunk which is managed by loader, <code class="docutils literal"><span class="pre">pending</span></code>, <code class="docutils literal"><span class="pre">running</span></code> and <code class="docutils literal"><span class="pre">garbage</span></code>. Newly added chunk is <code class="docutils literal"><span class="pre">pending</span></code>, which is invisible until successfully be linked with other chunk and get its imports resolved. <code class="docutils literal"><span class="pre">running</span></code> is where the latest chunks are stored, <code class="docutils literal"><span class="pre">aloader_find</span></code> will try to search in there. The last state is <code class="docutils literal"><span class="pre">garbage</span></code>, as the name suggested, is out-of-date but still be there so already referenced may continue to work. <code class="docutils literal"><span class="pre">aloader_sweep</span></code> could be used to free these chunks. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aloader_t::alloc">
+<span class="target" id="any-vmstructaloader__t_1a18679d367f6466a194f2eba66169606f"></span>aalloc_t <code class="descname">alloc</code><a class="headerlink" href="#c.aloader_t::alloc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aloader_t::alloc_ud">
+<span class="target" id="any-vmstructaloader__t_1af4a52a1b808d7e8aee772be29635cba2"></span>void* <code class="descname">alloc_ud</code><a class="headerlink" href="#c.aloader_t::alloc_ud" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aloader_t::pendings">
+<span class="target" id="any-vmstructaloader__t_1a3d58702e804f3fe16dd4db97fe64b1cf"></span><a class="reference internal" href="utilities.html#c.alist_t" title="alist_t">alist_t</a> <code class="descname">pendings</code><a class="headerlink" href="#c.aloader_t::pendings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aloader_t::runnings">
+<span class="target" id="any-vmstructaloader__t_1ac0d4ac4508f7baa1420e3b7bb52a7b13"></span><a class="reference internal" href="utilities.html#c.alist_t" title="alist_t">alist_t</a> <code class="descname">runnings</code><a class="headerlink" href="#c.aloader_t::runnings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aloader_t::garbages">
+<span class="target" id="any-vmstructaloader__t_1aab57a38f51754f73c362f77390382f23"></span><a class="reference internal" href="utilities.html#c.alist_t" title="alist_t">alist_t</a> <code class="descname">garbages</code><a class="headerlink" href="#c.aloader_t::garbages" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aloader_t::libs">
+<span class="target" id="any-vmstructaloader__t_1a5c631b9bd10a039b29d35968b8466b3a"></span><a class="reference internal" href="utilities.html#c.alist_t" title="alist_t">alist_t</a> <code class="descname">libs</code><a class="headerlink" href="#c.aloader_t::libs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
 <dl class="function">
-<dt id="c.any_link">
-<span class="target" id="any-vmloader_8h_1a98974850b7a8cffdedd76b53d271e018"></span>int32_t <code class="descname">any_link</code><span class="sig-paren">(</span><a class="reference internal" href="bytecode.html#c.achunk_t" title="achunk_t">achunk_t</a>  **<em>&nbsp;chunks</em>, int32_t *<em>&nbsp;sizes</em>, const  anative_module_t  *<em>&nbsp;natives</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_link" title="Permalink to this definition">¶</a></dt>
-<dd><p>Link multiple chunk of bytecode together. </p>
-<p>This function will validate these chunks and try to resolve all required pointers. After that, this chunk prototypes becomes ready to execute, with correct resolved <a class="reference internal" href="bytecode.html#any-vmstructaimport__t"><span class="std std-ref">aimport_t</span></a> and <a class="reference internal" href="bytecode.html#any-vmstructacurrent__t"><span class="std std-ref">acurrent_t</span></a> pointers. This function is <code class="docutils literal"><span class="pre">pure</span></code>, that means this can&#8217;t not touch other variables but only input. Which also means no global state and no dynamic memory allocation required.</p>
-<p>This design make somethings simpler and somethings trickier. If we only have a few chunks which are embedded inside the application, and be statically allocated at the compile time, then that will be really straight forward. However, things will become harder when we needed to reload/upgrade bytecode in runtime. There are no way to reclaim the allocated memory of successfully linked chunk at this level. Obviously we need to rely on something at higher level which in turn traversal all values in the stack and heap to determine what chunk is unreferenced so that can not be imported anymore. Otherwise we will lost this memory chunk forever, which may just <code class="docutils literal"><span class="pre">reasonable</span> <span class="pre">right</span></code> or <code class="docutils literal"><span class="pre">seriously</span> <span class="pre">wrong</span></code>. That is case by case and is up to you to decide. Generally speaking, just move on.</p>
-<p>This design also do not take care of rolling back these chunks to its previously good working state, since that isn&#8217;t mandatory at all. There are dumb use cases and hardware which aren&#8217;t ever willing to support hot bytecode reloading. That things also are the targets of AVM, so we must understand that a portable device which requires fast bring ups time are really different from web or game servers. Therefore, you are responsible to backup your chunks first if required.</p>
-<p>Another issue is slow looking up time for prototype from name, since we don&#8217;t ever try to build a hash table at all. Therefore, reflection should also be handle by another component if you ever wish to invoke a module level function by reflection. Which responsible to making a hash table for you. However, that use cases is rare, usually we only need to lookup once time to find the entry point at the startup. Other references are resolved using <a class="reference internal" href="bytecode.html#any-vmstructaimport__t"><span class="std std-ref">aimport_t</span></a> by this function.</p>
+<dt id="c.aloader_init">
+<span class="target" id="any-vmloader_8h_1aa38237102f2c406ce36e60f3f5ebe744"></span>void <code class="descname">aloader_init</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em>, aalloc_t<em>&nbsp;alloc</em>, void *<em>&nbsp;alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new byte code loader. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_cleanup">
+<span class="target" id="any-vmloader_8h_1a985785b18517af5182fb055b26ec9739"></span>void <code class="descname">aloader_cleanup</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release all internal allocated memory, result as a <em>fresh</em> loader. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_add_chunk">
+<span class="target" id="any-vmloader_8h_1aa2e7da5ce6010faf94995c874be5d4ac"></span>aerror_t <code class="descname">aloader_add_chunk</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="bytecode.html#c.achunk_header_t" title="achunk_header_t">achunk_header_t</a>  *<em>&nbsp;chunk</em>, int32_t<em>&nbsp;chunk_sz</em>, aalloc_t<em>&nbsp;chunk_alloc</em>, void *<em>&nbsp;chunk_alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_add_chunk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new byte code chunk to <code class="docutils literal"><span class="pre">pendings</span></code> list. </p>
 <p><dl class="docutils">
-<dt><strong>Return</strong></dt>
-<dd><code class="docutils literal"><span class="pre">AERR_NONE</span></code> if successful. </dd>
+<dt><strong>Note</strong></dt>
+<dd><code class="docutils literal"><span class="pre">chunk_alloc</span></code> is optional, used to free <code class="docutils literal"><span class="pre">chunk</span></code> if necessary. </dd>
 </dl>
 </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_add_lib">
+<span class="target" id="any-vmloader_8h_1a126d3c8cefaa63f24e9e94345664de36"></span>void <code class="descname">aloader_add_lib</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em>, alib_t  *<em>&nbsp;lib</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_add_lib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add new native lib module. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_link">
+<span class="target" id="any-vmloader_8h_1a8336681a028b6a092a625508da1c9eb4"></span>aerror_t <code class="descname">aloader_link</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;safe</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_link" title="Permalink to this definition">¶</a></dt>
+<dd><p>Link chunks of byte code together. </p>
+<p>There is <code class="docutils literal"><span class="pre">safe</span></code> option that rolling back the state in case of failed. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_sweep">
+<span class="target" id="any-vmloader_8h_1aa21151dccc3fa347076101b0b46e644e"></span>void <code class="descname">aloader_sweep</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_sweep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Free chunks in <code class="docutils literal"><span class="pre">garbages</span></code> list that are not marked for <code class="docutils literal"><span class="pre">retain</span></code>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aloader_find">
+<span class="target" id="any-vmloader_8h_1a18096c975df1d4e7e1f19311747d3515"></span>aerror_t <code class="descname">aloader_find</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a>  *<em>&nbsp;self</em>, const char *<em>&nbsp;module</em>, const char *<em>&nbsp;name</em>, <a class="reference internal" href="#c.avalue_t" title="avalue_t">avalue_t</a>  *<em>&nbsp;value</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aloader_find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookup for a module level symbol. </p>
 </dd></dl>
 
 </div>
 <div class="section" id="value-types">
 <h2>Value Types<a class="headerlink" href="#value-types" title="Permalink to this headline">¶</a></h2>
-<dl class="typedef">
-<dt id="c.anative_func_t">
-<span class="target" id="any-vmrt__types_8h_1ac65b1491ee9654eba91dae7344dc561c"></span><em class="property">typedef </em>int32_t<code class="descname">(* anative_func_t)</code><span class="sig-paren">(</span>void<em>&nbsp;*</em><span class="sig-paren">)</span><a class="headerlink" href="#c.anative_func_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Native function. </p>
-</dd></dl>
-
 <dl class="struct">
 <dt id="c.avalue_t">
 <span class="target" id="any-vmstructavalue__t"></span><em class="property">struct </em><code class="descname">avalue_t</code><a class="headerlink" href="#c.avalue_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Tagged value. </p>
-<p>AVM is dynamically typed. Each value carries its own type in <code class="docutils literal"><a class="reference internal" href="#any-vmstructavtag__t"><span class="std std-ref"><span class="pre">avtag_t</span></span></a></code>. There are some values which are subject to automatic memory management, which are marked <code class="docutils literal"><span class="pre">collectable</span></code>. The scope of such values are not corresponding to the lexical scope, opposite to <code class="docutils literal"><span class="pre">non</span> <span class="pre">collectable</span></code> values which are placed on the stack and will be disappeared as soon as the stack grow back.</p>
-<p><dl class="docutils">
-<dt><strong>Note</strong></dt>
-<dd><code class="docutils literal"><span class="pre">collectable</span></code> type is also called <code class="docutils literal"><span class="pre">reference</span> <span class="pre">type</span></code>. </dd>
-</dl>
-</p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
 <dt id="c.avalue_t::tag">
-<span class="target" id="any-vmstructavalue__t_1a0fc408cffeb8bce39672971ff2730d75"></span><a class="reference internal" href="#c.avtag_t" title="avtag_t">avtag_t</a> <code class="descname">tag</code><a class="headerlink" href="#c.avalue_t::tag" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmstructavalue__t_1a2974b3c44e28563eacbbd2681bcc16d4"></span><a class="reference internal" href="#c.avalue_tag_t" title="avalue_tag_t">avalue_tag_t</a> <code class="descname">tag</code><a class="headerlink" href="#c.avalue_t::tag" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::b">
-<span class="target" id="any-vmstructavalue__t_1a6c451543343c9dda73f5cdf3c4f6903e"></span>int32_t <code class="descname">b</code><a class="headerlink" href="#c.avalue_t::b" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ac3ccffc88c9f0358cd34e42d5d57789f"><span class="std std-ref">ATB_BOOL</span></a>. </p>
+<dt id="c.avalue_t::pid">
+<span class="target" id="any-vmstructavalue__t_1af705743acf7de72eddba87fb6001df21"></span>apid_t <code class="descname">pid</code><a class="headerlink" href="#c.avalue_t::pid" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba2213f563ff0ff34b77f6f02a7aaee8ef"><span class="std std-ref">ABT_PID</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::p">
-<span class="target" id="any-vmstructavalue__t_1a5e95853ddc070c2419a4a90bd150ce4e"></span>void* <code class="descname">p</code><a class="headerlink" href="#c.avalue_t::p" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a7c646fa14ec0f04cf1b73c6e6590ddc1"><span class="std std-ref">ATB_POINTER</span></a>. </p>
+<dt id="c.avalue_t::boolean">
+<span class="target" id="any-vmstructavalue__t_1a821956a6859879d669a22ff7a4c1004c"></span>int32_t <code class="descname">boolean</code><a class="headerlink" href="#c.avalue_t::boolean" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbae4e581f97bea7f29522efb7ca507ded4"><span class="std std-ref">ABT_BOOL</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::cs">
-<span class="target" id="any-vmstructavalue__t_1a7b98512bf647c01b5cd1aa3ea0ca7799"></span>astring_ref_t <code class="descname">cs</code><a class="headerlink" href="#c.avalue_t::cs" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ad79645e5893d64873eb28e24b4830052"><span class="std std-ref">ATB_CONST_STRING</span></a>. </p>
+<dt id="c.avalue_t::ptr">
+<span class="target" id="any-vmstructavalue__t_1a4827986bffe90c3f56d5d01916e4b6a1"></span>void* <code class="descname">ptr</code><a class="headerlink" href="#c.avalue_t::ptr" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbac43e763d823809970349f08063d5c7e5"><span class="std std-ref">ABT_POINTER</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::i">
-<span class="target" id="any-vmstructavalue__t_1a662bc1cea5a815c9f137d8c1bb22b633"></span>aint_t <code class="descname">i</code><a class="headerlink" href="#c.avalue_t::i" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1ad0c900170ea907c75b8780580913878b"><span class="std std-ref">AVT_INTEGER</span></a>. </p>
+<dt id="c.avalue_t::integer">
+<span class="target" id="any-vmstructavalue__t_1adff7a421df84ee319db0dfd48193295b"></span>aint_t <code class="descname">integer</code><a class="headerlink" href="#c.avalue_t::integer" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1a50bf11507b5ee87445836ca74a6f39c1ab149cc66fdee77ed735975dad1617081"><span class="std std-ref">AVTN_INTEGER</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::r">
-<span class="target" id="any-vmstructavalue__t_1ac082a83cc86eadeebdc27dd4557ceaa9"></span>areal_t <code class="descname">r</code><a class="headerlink" href="#c.avalue_t::r" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1a598ff725aab99b3045340e9b9a77e1ba"><span class="std std-ref">AVT_REAL</span></a>. </p>
+<dt id="c.avalue_t::real">
+<span class="target" id="any-vmstructavalue__t_1a3de8dc085b29577d31e9828c80b2a299"></span>areal_t <code class="descname">real</code><a class="headerlink" href="#c.avalue_t::real" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1a50bf11507b5ee87445836ca74a6f39c1ac3eafe2bd94a5120e6ab07afee5bacb4"><span class="std std-ref">AVTN_REAL</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::f">
-<span class="target" id="any-vmstructavalue__t_1acb014497afc5b010eaebf3e2efdc9b8b"></span><a class="reference internal" href="#c.anative_func_t" title="anative_func_t">anative_func_t</a> <code class="descname">f</code><a class="headerlink" href="#c.avalue_t::f" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883a25d4bc86b78814a4df5717a7e11709a2"><span class="std std-ref">AVT_NATIVE_FUNC</span></a>. </p>
+<dt id="c.avalue_t::func">
+<span class="target" id="any-vmstructavalue__t_1a670be92ef987b9b22d47006bfe6a225c"></span><a class="reference internal" href="#c.anative_func_t" title="anative_func_t">anative_func_t</a> <code class="descname">func</code><a class="headerlink" href="#c.avalue_t::func" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1a297881f302d90ebdd2b7efd6e49c6fe1a085889022b8a8f8d720052109f571021"><span class="std std-ref">AVTF_NATIVE</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
-<dt id="c.avalue_t::mf">
-<span class="target" id="any-vmstructavalue__t_1a621087c55ef377827ec629b85c12b149"></span>struct aprototype_s* <code class="descname">mf</code><a class="headerlink" href="#c.avalue_t::mf" title="Permalink to this definition">¶</a></dt>
-<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883aa7c4b24b761d110d794c07cb6f72cde3"><span class="std std-ref">AVT_MODULE_FUNC</span></a>. </p>
+<dt id="c.avalue_t::avm_func">
+<span class="target" id="any-vmstructavalue__t_1a5717c1cb2f30831b49317d13debf3f99"></span>struct aprototype_t* <code class="descname">avm_func</code><a class="headerlink" href="#c.avalue_t::avm_func" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1a297881f302d90ebdd2b7efd6e49c6fe1a91675d9b69d5fb74bac8956b9078ed1e"><span class="std std-ref">AVTF_AVM</span></a>. </p>
+</dd></dl>
+
+<dl class="variable">
+<dt id="c.avalue_t::heap_idx">
+<span class="target" id="any-vmstructavalue__t_1a49292c96651bb320baf75fe688d16479"></span>int32_t <code class="descname">heap_idx</code><a class="headerlink" href="#c.avalue_t::heap_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba523cc8e8947a99cc69f1997ec0f78048"><span class="std std-ref">ABT_COLLECTABLE</span></a>. </p>
 </dd></dl>
 
 <dl class="variable">
 <dt id="c.avalue_t::v">
-<span class="target" id="any-vmstructavalue__t_1a7bd05f8bd3c708cf4d003b290f5d0014"></span>union <a class="reference internal" href="#c.avalue_t" title="avalue_t">avalue_t</a>::&#64;0  <code class="descname">v</code><a class="headerlink" href="#c.avalue_t::v" title="Permalink to this definition">¶</a></dt>
+<span class="target" id="any-vmstructavalue__t_1af65e3653f05f43ea0c9b0e271907b260"></span>union <a class="reference internal" href="#c.avalue_t" title="avalue_t">avalue_t</a>::&#64;1  <code class="descname">v</code><a class="headerlink" href="#c.avalue_t::v" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
 <dl class="struct">
-<dt id="c.avtag_t">
-<span class="target" id="any-vmstructavtag__t"></span><em class="property">struct </em><code class="descname">avtag_t</code><a class="headerlink" href="#c.avtag_t" title="Permalink to this definition">¶</a></dt>
+<dt id="c.avalue_tag_t">
+<span class="target" id="any-vmstructavalue__tag__t"></span><em class="property">struct </em><code class="descname">avalue_tag_t</code><a class="headerlink" href="#c.avalue_tag_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Value tag. </p>
 <div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt id="c.avtag_t::tag">
-<span class="target" id="any-vmstructavtag__t_1a49227db6c6ed8de02c72c7c9ecd9d99c"></span>int8_t <code class="descname">tag</code><a class="headerlink" href="#c.avtag_t::tag" title="Permalink to this definition">¶</a></dt>
+<dt id="c.avalue_tag_t::b">
+<span class="target" id="any-vmstructavalue__tag__t_1aacd14868683eb90bd8c2820bc7d923b1"></span>int8_t <code class="descname">b</code><a class="headerlink" href="#c.avalue_tag_t::b" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="variable">
-<dt id="c.avtag_t::variant">
-<span class="target" id="any-vmstructavtag__t_1a487d885d6fc0462fcc44595aab28b0b0"></span>int8_t <code class="descname">variant</code><a class="headerlink" href="#c.avtag_t::variant" title="Permalink to this definition">¶</a></dt>
+<dt id="c.avalue_tag_t::variant">
+<span class="target" id="any-vmstructavalue__tag__t_1a96fe54ed6efa4fb629775ffd21310261"></span>int8_t <code class="descname">variant</code><a class="headerlink" href="#c.avalue_tag_t::variant" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
 </dd></dl>
 
+<dl class="typedef">
+<dt id="c.anative_func_t">
+<span class="target" id="any-vmrt__types_8h_1a187d2961a0daa78a031c17a1a71fa66e"></span><em class="property">typedef </em>void<code class="descname">(* anative_func_t)</code><span class="sig-paren">(</span>struct <a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a><em>&nbsp;*</em><span class="sig-paren">)</span><a class="headerlink" href="#c.anative_func_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Native function. </p>
+</dd></dl>
+
 <dl class="enum">
-<dt id="c.ATB">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410"></span><em class="property">enum </em><code class="descname">ATB</code><a class="headerlink" href="#c.ATB" title="Permalink to this definition">¶</a></dt>
+<dt id="c.aabt_t">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fb"></span><em class="property">enum </em><code class="descname">aabt_t</code><a class="headerlink" href="#c.aabt_t" title="Permalink to this definition">¶</a></dt>
 <dd><p>Basic value tags. </p>
 <p><em>Values:</em></p>
 <dl class="enumvalue">
-<dt id="c.ATB_NIL">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a6a8d49acc99d95dc314960ebdfaeb7a5"></span><code class="descname">ATB_NIL</code><a class="headerlink" href="#c.ATB_NIL" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ABT_NIL">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba5af53d3b472ff71263681dfc3ca0d33b"></span><code class="descname">ABT_NIL</code><a class="headerlink" href="#c.ABT_NIL" title="Permalink to this definition">¶</a></dt>
 <dd><p>No value. </p>
 </dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.ATB_BOOL">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ac3ccffc88c9f0358cd34e42d5d57789f"></span><code class="descname">ATB_BOOL</code><a class="headerlink" href="#c.ATB_BOOL" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ABT_PID">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba2213f563ff0ff34b77f6f02a7aaee8ef"></span><code class="descname">ABT_PID</code><a class="headerlink" href="#c.ABT_PID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process identifier. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_BOOL">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbae4e581f97bea7f29522efb7ca507ded4"></span><code class="descname">ABT_BOOL</code><a class="headerlink" href="#c.ABT_BOOL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Either <code class="docutils literal"><span class="pre">true</span></code>: 1 or <code class="docutils literal"><span class="pre">false</span></code>: 0. </p>
 </dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.ATB_POINTER">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a7c646fa14ec0f04cf1b73c6e6590ddc1"></span><code class="descname">ATB_POINTER</code><a class="headerlink" href="#c.ATB_POINTER" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ABT_POINTER">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbac43e763d823809970349f08063d5c7e5"></span><code class="descname">ABT_POINTER</code><a class="headerlink" href="#c.ABT_POINTER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Raw pointer. </p>
 </dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.ATB_CONST_STRING">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410ad79645e5893d64873eb28e24b4830052"></span><code class="descname">ATB_CONST_STRING</code><a class="headerlink" href="#c.ATB_CONST_STRING" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constant string. </p>
-</dd></dl>
-
-<dl class="enumvalue">
-<dt id="c.ATB_NUMBER">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a91d563172deeddfd529bc77a4938fc7c"></span><code class="descname">ATB_NUMBER</code><a class="headerlink" href="#c.ATB_NUMBER" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ABT_NUMBER">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba1a8b9ae96dd471ffd4d5073ea858e05d"></span><code class="descname">ABT_NUMBER</code><a class="headerlink" href="#c.ABT_NUMBER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variant of number. </p>
 </dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.ATB_FUNCTION">
-<span class="target" id="any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410acd3038604eaf80d17f780da1c917bedf"></span><code class="descname">ATB_FUNCTION</code><a class="headerlink" href="#c.ATB_FUNCTION" title="Permalink to this definition">¶</a></dt>
+<dt id="c.ABT_FUNCTION">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbaf260ba7ca6385d683b9a860995d3ea22"></span><code class="descname">ABT_FUNCTION</code><a class="headerlink" href="#c.ABT_FUNCTION" title="Permalink to this definition">¶</a></dt>
 <dd><p>Variant of function. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_COLLECTABLE">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba523cc8e8947a99cc69f1997ec0f78048"></span><code class="descname">ABT_COLLECTABLE</code><a class="headerlink" href="#c.ABT_COLLECTABLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start of collectable. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_FIXED_BUFFER">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba829e3bba970637723e183fe6006ca347"></span><code class="descname">ABT_FIXED_BUFFER</code> = ABT_COLLECTABLE<a class="headerlink" href="#c.ABT_FIXED_BUFFER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable fixed size buffer. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_BUFFER">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba3f7c2bc9ae51f360ef82c14be9cd9e28"></span><code class="descname">ABT_BUFFER</code><a class="headerlink" href="#c.ABT_BUFFER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable buffer. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_STRING">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba92c02a81075bd51a4188c2c2b0be8810"></span><code class="descname">ABT_STRING</code><a class="headerlink" href="#c.ABT_STRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable string. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_TUPLE">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba99e4bb839eb3190ed03cb4ff48844084"></span><code class="descname">ABT_TUPLE</code><a class="headerlink" href="#c.ABT_TUPLE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable tuple. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_ARRAY">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba251a126bd78f6799561b60405d42cb28"></span><code class="descname">ABT_ARRAY</code><a class="headerlink" href="#c.ABT_ARRAY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable array. </p>
+</dd></dl>
+
+<dl class="enumvalue">
+<dt id="c.ABT_MAP">
+<span class="target" id="any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbae3aa67b4c405924ec4fa2708e825857d"></span><code class="descname">ABT_MAP</code><a class="headerlink" href="#c.ABT_MAP" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collectable map. </p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="enum">
-<dt id="c.AVT_NUMBER">
-<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1"></span><em class="property">enum </em><code class="descname">AVT_NUMBER</code><a class="headerlink" href="#c.AVT_NUMBER" title="Permalink to this definition">¶</a></dt>
-<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410a91d563172deeddfd529bc77a4938fc7c"><span class="std std-ref">ATB_NUMBER</span></a>. </p>
+<dt id="c.avt_number_t">
+<span class="target" id="any-vmrt__types_8h_1a50bf11507b5ee87445836ca74a6f39c1"></span><em class="property">enum </em><code class="descname">avt_number_t</code><a class="headerlink" href="#c.avt_number_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fba1a8b9ae96dd471ffd4d5073ea858e05d"><span class="std std-ref">ABT_NUMBER</span></a>. </p>
 <p><em>Values:</em></p>
 <dl class="enumvalue">
-<dt id="c.AVT_INTEGER">
-<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1ad0c900170ea907c75b8780580913878b"></span><code class="descname">AVT_INTEGER</code><a class="headerlink" href="#c.AVT_INTEGER" title="Permalink to this definition">¶</a></dt>
+<dt id="c.AVTN_INTEGER">
+<span class="target" id="any-vmrt__types_8h_1a50bf11507b5ee87445836ca74a6f39c1ab149cc66fdee77ed735975dad1617081"></span><code class="descname">AVTN_INTEGER</code><a class="headerlink" href="#c.AVTN_INTEGER" title="Permalink to this definition">¶</a></dt>
 <dd><p>No fractional. </p>
 </dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.AVT_REAL">
-<span class="target" id="any-vmrt__types_8h_1aba0295b9f2c2e60585882dfc3a8608e1a598ff725aab99b3045340e9b9a77e1ba"></span><code class="descname">AVT_REAL</code><a class="headerlink" href="#c.AVT_REAL" title="Permalink to this definition">¶</a></dt>
+<dt id="c.AVTN_REAL">
+<span class="target" id="any-vmrt__types_8h_1a50bf11507b5ee87445836ca74a6f39c1ac3eafe2bd94a5120e6ab07afee5bacb4"></span><code class="descname">AVTN_REAL</code><a class="headerlink" href="#c.AVTN_REAL" title="Permalink to this definition">¶</a></dt>
 <dd><p>Floating-point number. </p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="enum">
-<dt id="c.AVT_FUNCTION">
-<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883"></span><em class="property">enum </em><code class="descname">AVT_FUNCTION</code><a class="headerlink" href="#c.AVT_FUNCTION" title="Permalink to this definition">¶</a></dt>
-<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1ac6cb09b08c597a0cd8370c548db44410acd3038604eaf80d17f780da1c917bedf"><span class="std std-ref">ATB_FUNCTION</span></a>. </p>
+<dt id="c.avt_function_t">
+<span class="target" id="any-vmrt__types_8h_1a297881f302d90ebdd2b7efd6e49c6fe1"></span><em class="property">enum </em><code class="descname">avt_function_t</code><a class="headerlink" href="#c.avt_function_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variant tags for <a class="reference internal" href="#any-vmrt__types_8h_1afd07451dd1f35847a14313fda34975fbaf260ba7ca6385d683b9a860995d3ea22"><span class="std std-ref">ABT_FUNCTION</span></a>. </p>
 <p><em>Values:</em></p>
 <dl class="enumvalue">
-<dt id="c.AVT_NATIVE_FUNC">
-<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883a25d4bc86b78814a4df5717a7e11709a2"></span><code class="descname">AVT_NATIVE_FUNC</code><a class="headerlink" href="#c.AVT_NATIVE_FUNC" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="c.AVTF_NATIVE">
+<span class="target" id="any-vmrt__types_8h_1a297881f302d90ebdd2b7efd6e49c6fe1a085889022b8a8f8d720052109f571021"></span><code class="descname">AVTF_NATIVE</code><a class="headerlink" href="#c.AVTF_NATIVE" title="Permalink to this definition">¶</a></dt>
+<dd><p>C lib function. </p>
+</dd></dl>
 
 <dl class="enumvalue">
-<dt id="c.AVT_MODULE_FUNC">
-<span class="target" id="any-vmrt__types_8h_1abfcf3355223b9fcfc3648a104073d883aa7c4b24b761d110d794c07cb6f72cde3"></span><code class="descname">AVT_MODULE_FUNC</code><a class="headerlink" href="#c.AVT_MODULE_FUNC" title="Permalink to this definition">¶</a></dt>
+<dt id="c.AVTF_AVM">
+<span class="target" id="any-vmrt__types_8h_1a297881f302d90ebdd2b7efd6e49c6fe1a91675d9b69d5fb74bac8956b9078ed1e"></span><code class="descname">AVTF_AVM</code><a class="headerlink" href="#c.AVTF_AVM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Byte code function. </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="light-weight-process">
+<h2>Light-weight Process<a class="headerlink" href="#light-weight-process" title="Permalink to this headline">¶</a></h2>
+<dl class="struct">
+<dt id="c.aprocess_t">
+<span class="target" id="any-vmstructaprocess__t"></span><em class="property">struct </em><code class="descname">aprocess_t</code><a class="headerlink" href="#c.aprocess_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Light weight processes. </p>
+<p>AVM concurrency is rely on <code class="docutils literal"><span class="pre">actor</span> <span class="pre">model</span></code>, which is inspired by Erlang. In this model, each concurrent task will be represented as a <code class="docutils literal"><a class="reference internal" href="#any-vmstructaprocess__t"><span class="std std-ref"><span class="pre">aprocess_t</span></span></a></code>. Which is, in general have isolated state, that means such state can not be touched by other actor. The only way an actor can affect each others is through message, to tell the owner of that state to make the modification by itself. Therefore, we avoid the need for explicitly locking to the state and lot of consequence trouble like deadlock. Well, frankly speaking, deadlock still be possible if there are actors that is at the same time blocking wait for messages from each other, but mostly that remains easier to deal with. AVM process is also light weight in compared to most of OS threads. The overhead in memory footprint, creation, termination and scheduling is low. Therefore, a massive amount of process could be spawned.</p>
+<p>
+===== ================ index description ===== ================ 4 overflow (sp) 3 local var3 (top) 2 local var2 1 local var1 0 local var0 (bp) -1 argument 1 -2 argument 2 -3 argument 3 -4 nil -5 nil ===== ================ <dl class="docutils">
+<dt><strong>Virtual stack.</strong></dt>
+<dd>Besides of the native C stack, AVM also using a dedicated, dynamic sized stack for <code class="docutils literal"><a class="reference internal" href="#any-vmstructavalue__t"><span class="std std-ref"><span class="pre">avalue_t</span></span></a></code>, which is subject of Garbage Collector. Indexing for this stack is relative to current function frame. Negative value of the index is used to point to the argument, that must be passed in reversed order. Underflow always result as a nil value.</dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.aprocess_t::flags">
+<span class="target" id="any-vmstructaprocess__t_1ac3f39369d900ddf3b64d0611499a17ee"></span>int32_t <code class="descname">flags</code><a class="headerlink" href="#c.aprocess_t::flags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+<dl class="variable">
+<dt id="c.aprocess_t::pid">
+<span class="target" id="any-vmstructaprocess__t_1afea5d96253b160b7004e99e9751e7ab7"></span>apid_t <code class="descname">pid</code><a class="headerlink" href="#c.aprocess_t::pid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::alloc">
+<span class="target" id="any-vmstructaprocess__t_1a0de9bd51c5a349fb033a4e16dc59a314"></span>aalloc_t <code class="descname">alloc</code><a class="headerlink" href="#c.aprocess_t::alloc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::alloc_ud">
+<span class="target" id="any-vmstructaprocess__t_1a1a152332cc62b6798535636f610146c5"></span>void* <code class="descname">alloc_ud</code><a class="headerlink" href="#c.aprocess_t::alloc_ud" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::owner">
+<span class="target" id="any-vmstructaprocess__t_1ad0579c4329377da08c96e81007b7410f"></span>struct <a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>* <code class="descname">owner</code><a class="headerlink" href="#c.aprocess_t::owner" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::task">
+<span class="target" id="any-vmstructaprocess__t_1aa7c9088a074ce6005960a1dfa6412300"></span><a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a> <code class="descname">task</code><a class="headerlink" href="#c.aprocess_t::task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::mbox">
+<span class="target" id="any-vmstructaprocess__t_1a99b7ece1990f839adcb485c10043c017"></span>ambox_t <code class="descname">mbox</code><a class="headerlink" href="#c.aprocess_t::mbox" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::error_jmp">
+<span class="target" id="any-vmstructaprocess__t_1a9a2ea6ec97c3b813458dae93e156f739"></span>acatch_t* <code class="descname">error_jmp</code><a class="headerlink" href="#c.aprocess_t::error_jmp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::frame">
+<span class="target" id="any-vmstructaprocess__t_1ae440cbfd368453f9da9c3cb9c54c131d"></span>aframe_t* <code class="descname">frame</code><a class="headerlink" href="#c.aprocess_t::frame" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::stack">
+<span class="target" id="any-vmstructaprocess__t_1a3f76d29ed482d2fd4ae0b93f5929b41e"></span><a class="reference internal" href="#c.avalue_t" title="avalue_t">avalue_t</a>* <code class="descname">stack</code><a class="headerlink" href="#c.aprocess_t::stack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::stack_cap">
+<span class="target" id="any-vmstructaprocess__t_1a731e596c5598a8e719d6948e29015058"></span>int32_t <code class="descname">stack_cap</code><a class="headerlink" href="#c.aprocess_t::stack_cap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::sp">
+<span class="target" id="any-vmstructaprocess__t_1af40c031b3d6c5e1cd491b0fab737df75"></span>int32_t <code class="descname">sp</code><a class="headerlink" href="#c.aprocess_t::sp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.aprocess_t::gc">
+<span class="target" id="any-vmstructaprocess__t_1a092648cb1b7c1c17df79380d292cae97"></span><a class="reference internal" href="memory.html#c.agc_t" title="agc_t">agc_t</a> <code class="descname">gc</code><a class="headerlink" href="#c.aprocess_t::gc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aprocess_init">
+<span class="target" id="any-vmprocess_8h_1aecdb890c26a07cf96dffee5e2ac3d861"></span>aerror_t <code class="descname">aprocess_init</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>  *<em>&nbsp;owner</em>, aalloc_t<em>&nbsp;alloc</em>, void *<em>&nbsp;alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aprocess_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new process. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aprocess_start">
+<span class="target" id="any-vmprocess_8h_1a74c4312138920225df27a8e1661645f7"></span>void <code class="descname">aprocess_start</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;cstack_sz</em>, int32_t<em>&nbsp;nargs</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aprocess_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start process with entry point on top of the stack. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aprocess_cleanup">
+<span class="target" id="any-vmprocess_8h_1a4cc2265d4c5dbd300fc9f6b1dbee573a"></span>void <code class="descname">aprocess_cleanup</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aprocess_cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release all internal allocated memory. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aprocess_reserve">
+<span class="target" id="any-vmprocess_8h_1ae04b262458c8039c8e19e10097b6c970"></span>void <code class="descname">aprocess_reserve</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;more</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aprocess_reserve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that there are <code class="docutils literal"><span class="pre">more</span></code> bytes in the stack. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.aprocess_absidx">
+<span class="target" id="any-vmprocess_8h_1a2255a96a3a460a3972ff2ee231535a5c"></span>static int32_t <code class="descname">aprocess_absidx</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.aprocess_absidx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get normalized index. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="native-library-api">
+<h2>Native Library API<a class="headerlink" href="#native-library-api" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="c.any_error">
+<span class="target" id="any-vmprocess_8h_1a0c90ebccdab75213d442a42885e737a0"></span>void <code class="descname">any_error</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, const char *<em>&nbsp;fmt</em>, ...<span class="sig-paren">)</span><a class="headerlink" href="#c.any_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Throw an error, with description string pushed onto the stack. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_find">
+<span class="target" id="any-vmprocess_8h_1a5c3327e4954b421683cec9717933ab6b"></span>void <code class="descname">any_find</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, const char *<em>&nbsp;module</em>, const char *<em>&nbsp;name</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_find" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lookup for a module level symbol and push it onto the stack. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_call">
+<span class="target" id="any-vmprocess_8h_1a3ec42abc16959dec45d6fa6b94e90f8f"></span>void <code class="descname">any_call</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;nargs</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_call" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call a function on top of the stack. </p>
+<p>Please refer <a class="reference internal" href="#any-vmstructaprocess__t"><span class="std std-ref">aprocess_t</span></a> for the protocol. <dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>Result will be placed on top of the stack. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_pcall">
+<span class="target" id="any-vmprocess_8h_1a9546971864a63a5a4e4c447c1d2054cc"></span>void <code class="descname">any_pcall</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;nargs</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_pcall" title="Permalink to this definition">¶</a></dt>
+<dd><p><a class="reference internal" href="#any-vmprocess_8h_1a3ec42abc16959dec45d6fa6b94e90f8f"><span class="std std-ref">any_call</span></a> in protected mode. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_yield">
+<span class="target" id="any-vmprocess_8h_1a04a8646db58bee5ad55f7dc2b0308a89"></span>void <code class="descname">any_yield</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suspends the execution flow. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_try">
+<span class="target" id="any-vmprocess_8h_1ae89fb476f47436659ce3a93feafb5631"></span>aerror_t <code class="descname">any_try</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, void(<em>*f</em>)( <a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *, void *), void *<em>&nbsp;ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_try" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute in protected mode. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_throw">
+<span class="target" id="any-vmprocess_8h_1aade4f2661a3b1fd6411e56594dc8c6bc"></span>void <code class="descname">any_throw</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;ec</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_throw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Throw an error. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_type">
+<span class="target" id="any-vmprocess_8h_1a6926b4804bf62e28e247c31bb7522de0"></span>static <a class="reference internal" href="#c.avalue_tag_t" title="avalue_tag_t">avalue_tag_t</a> <code class="descname">any_type</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value tag of the value at <code class="docutils literal"><span class="pre">idx</span></code>. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_nil">
+<span class="target" id="any-vmprocess_8h_1a8a770f4e991b85071f689de6ad67527d"></span>static void <code class="descname">any_push_nil</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_nil" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_bool">
+<span class="target" id="any-vmprocess_8h_1a35678e8a04e9a88aee1a71922f0cfe0b"></span>static void <code class="descname">any_push_bool</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;b</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_integer">
+<span class="target" id="any-vmprocess_8h_1a826ff74104d848ffe6c343d3ab06f0c6"></span>static void <code class="descname">any_push_integer</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, aint_t<em>&nbsp;i</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_real">
+<span class="target" id="any-vmprocess_8h_1a39a2de5d3cb2c9ccb59a6f4407009c90"></span>static void <code class="descname">any_push_real</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, areal_t<em>&nbsp;r</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_pid">
+<span class="target" id="any-vmprocess_8h_1a030b0926aa053a7bb85b49e407b9885f"></span>static void <code class="descname">any_push_pid</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, apid_t<em>&nbsp;pid</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_pid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_push_idx">
+<span class="target" id="any-vmprocess_8h_1a3b37b9a36d584bb6fee60634a383a769"></span>static void <code class="descname">any_push_idx</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_push_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_to_bool">
+<span class="target" id="any-vmprocess_8h_1af78225326eee6802940bf0bec7a01795"></span>static int32_t <code class="descname">any_to_bool</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_to_bool" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_to_integer">
+<span class="target" id="any-vmprocess_8h_1a0c4b58f0038fb21d61116d70fe06ba04"></span>static aint_t <code class="descname">any_to_integer</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_to_integer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_to_real">
+<span class="target" id="any-vmprocess_8h_1a9e1991bcd6ba628f32c3c9f32b614a7b"></span>static areal_t <code class="descname">any_to_real</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_to_real" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_to_pid">
+<span class="target" id="any-vmprocess_8h_1a0796a1e6a0456954cdc2503f708e75fa"></span>static apid_t <code class="descname">any_to_pid</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_to_pid" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_pop">
+<span class="target" id="any-vmprocess_8h_1a3b31ecadd33f7f749a9d7e2444d60a24"></span>static void <code class="descname">any_pop</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;n</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_pop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_remove">
+<span class="target" id="any-vmprocess_8h_1a2dff7e95eaf6d843f2678c6a30c907dc"></span>static void <code class="descname">any_remove</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;idx</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_remove" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.any_count">
+<span class="target" id="any-vmprocess_8h_1a2c4aa25ed03facd3d6fe448efb5b8d47"></span>static int32_t <code class="descname">any_count</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the stack size. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.any_spawn">
+<span class="target" id="any-vmprocess_8h_1a984581bc3d9ca921df62f1b4ff2f0878"></span>aerror_t <code class="descname">any_spawn</code><span class="sig-paren">(</span><a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  *<em>&nbsp;p</em>, int32_t<em>&nbsp;cstack_sz</em>, int32_t<em>&nbsp;nargs</em>, apid_t  *<em>&nbsp;pid</em><span class="sig-paren">)</span><a class="headerlink" href="#c.any_spawn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Spawn a new process. </p>
+<p>This function follow the same protocol as <a class="reference internal" href="#any-vmprocess_8h_1a3ec42abc16959dec45d6fa6b94e90f8f"><span class="std std-ref">any_call</span></a>. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="realtime-fair-scheduler">
+<h2>Realtime-fair Scheduler<a class="headerlink" href="#realtime-fair-scheduler" title="Permalink to this headline">¶</a></h2>
+<dl class="struct">
+<dt id="c.ascheduler_t">
+<span class="target" id="any-vmstructascheduler__t"></span><em class="property">struct </em><code class="descname">ascheduler_t</code><a class="headerlink" href="#c.ascheduler_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process scheduler interface. </p>
+<p>AVM is designed to be resumable, that sounds tricky and non-portable at first. However, we believe that its worth. Generally, we don’t want the users to worry about whether C stack is resumable or not, and if not then what happen. Yielding native function and across native function is just mandatory use cases in AVM. A new <a class="reference internal" href="#any-vmstructatask__t"><span class="std std-ref">atask_t</span></a> is required for each new process. That allows AVM to save the context of a process and comeback later, in native side. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.ascheduler_t::alloc">
+<span class="target" id="any-vmstructascheduler__t_1aa614e6683394a0b11e71d3830f62a988"></span>aalloc_t <code class="descname">alloc</code><a class="headerlink" href="#c.ascheduler_t::alloc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ascheduler_t::alloc_ud">
+<span class="target" id="any-vmstructascheduler__t_1aced3d44fc4b91473c662e37f00009acc"></span>void* <code class="descname">alloc_ud</code><a class="headerlink" href="#c.ascheduler_t::alloc_ud" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ascheduler_t::vm">
+<span class="target" id="any-vmstructascheduler__t_1aacbe93c00d5c8f647d40a4064dc07f07"></span>struct <a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>* <code class="descname">vm</code><a class="headerlink" href="#c.ascheduler_t::vm" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.ascheduler_t::task">
+<span class="target" id="any-vmstructascheduler__t_1a1880d61b594a565ed3e7073f73fcc427"></span><a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a> <code class="descname">task</code><a class="headerlink" href="#c.ascheduler_t::task" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.ascheduler_init">
+<span class="target" id="any-vmscheduler_8h_1a1869ef64d4155a545bdf3b70e27ba5bd"></span>aerror_t <code class="descname">ascheduler_init</code><span class="sig-paren">(</span><a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>  *<em>&nbsp;vm</em>, aalloc_t<em>&nbsp;alloc</em>, void *<em>&nbsp;alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.ascheduler_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new scheduler. </p>
+<p>It will shadow current thread. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.ascheduler_cleanup">
+<span class="target" id="any-vmscheduler_8h_1aaf8013b95d5303357c74fdb0d7d434bc"></span>void <code class="descname">ascheduler_cleanup</code><span class="sig-paren">(</span><a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.ascheduler_cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release all processes. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.ascheduler_run_once">
+<span class="target" id="any-vmscheduler_8h_1aa227fb5daa8b5f37ec1894c204a508c5"></span>void <code class="descname">ascheduler_run_once</code><span class="sig-paren">(</span><a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.ascheduler_run_once" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all processes, must be called on the creation thread. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.ascheduler_new_process">
+<span class="target" id="any-vmscheduler_8h_1a8eb7d025e673dedcd804f2a5cc05ac36"></span>aerror_t <code class="descname">ascheduler_new_process</code><span class="sig-paren">(</span><a class="reference internal" href="#c.ascheduler_t" title="ascheduler_t">ascheduler_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.aprocess_t" title="aprocess_t">aprocess_t</a>  **<em>&nbsp;p</em><span class="sig-paren">)</span><a class="headerlink" href="#c.ascheduler_new_process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new process, and store its pointer to <code class="docutils literal"><span class="pre">p</span></code>. </p>
+<p><dl class="docutils">
+<dt><strong>Note</strong></dt>
+<dd>Must be started manually. </dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+<div class="section" id="virtual-machine">
+<h2>Virtual Machine<a class="headerlink" href="#virtual-machine" title="Permalink to this headline">¶</a></h2>
+<dl class="struct">
+<dt id="c.avm_t">
+<span class="target" id="any-vmstructavm__t"></span><em class="property">struct </em><code class="descname">avm_t</code><a class="headerlink" href="#c.avm_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>VM Engine. </p>
+<p><dl class="docutils">
+<dt><strong>System architecture.</strong></dt>
+<dd>+—–+ +——-+ +—-+ | alib_t &lt;–+–&gt; achunk_t | | <a class="reference internal" href="#any-vmstructavm__t"><span class="std std-ref">avm_t</span></a> +—-+ +—–+ | +——-+ +—-+ | | <code class="docutils literal"><span class="pre">provides</span></code> <code class="docutils literal"><span class="pre">load</span> <span class="pre">&amp;</span> <span class="pre">link</span></code> | | +———–+ +v——+ +–+–+ | <a class="reference internal" href="#any-vmstructascheduler__t"><span class="std std-ref">ascheduler_t</span></a> +<code class="docutils literal"><span class="pre">run</span></code>&gt; <a class="reference internal" href="#any-vmstructaprocess__t"><span class="std std-ref">aprocess_t</span></a> +-<code class="docutils literal"><span class="pre">import</span></code>-&gt; <a class="reference internal" href="#any-vmstructaloader__t"><span class="std std-ref">aloader_t</span></a> | +———–+ +—-+-+ +——–+ | <code class="docutils literal"><span class="pre">interpret</span></code> | +————+ +–&gt; adispatcher_t | +————+ </dd>
+</dl>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.avm_t::alloc">
+<span class="target" id="any-vmstructavm__t_1aabfcfb97c2969f616f8f84a5b0802c35"></span>aalloc_t <code class="descname">alloc</code><a class="headerlink" href="#c.avm_t::alloc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::alloc_ud">
+<span class="target" id="any-vmstructavm__t_1a651d396dacde9e1d047a896edb286eba"></span>void* <code class="descname">alloc_ud</code><a class="headerlink" href="#c.avm_t::alloc_ud" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::procs">
+<span class="target" id="any-vmstructavm__t_1a30048ab45ded9ba088260ab651558172"></span>avm_process_t* <code class="descname">procs</code><a class="headerlink" href="#c.avm_t::procs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::loader">
+<span class="target" id="any-vmstructavm__t_1a9d56a6834e7a3fed5671260095e8e74b"></span><a class="reference internal" href="#c.aloader_t" title="aloader_t">aloader_t</a> <code class="descname">loader</code><a class="headerlink" href="#c.avm_t::loader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::idx_bits">
+<span class="target" id="any-vmstructavm__t_1aef684bfb16cdc8b99832e54f92d33011"></span>int8_t <code class="descname">idx_bits</code><a class="headerlink" href="#c.avm_t::idx_bits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::gen_bits">
+<span class="target" id="any-vmstructavm__t_1a497153b96c47fc2c78cc128fb4fe7c7c"></span>int8_t <code class="descname">gen_bits</code><a class="headerlink" href="#c.avm_t::gen_bits" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.avm_t::next_idx">
+<span class="target" id="any-vmstructavm__t_1a83725fab93f0b074299ddf07d9295223"></span>apid_idx_t <code class="descname">next_idx</code><a class="headerlink" href="#c.avm_t::next_idx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_startup">
+<span class="target" id="any-vmvm_8h_1aa42d9908fe24c4c4514dec13e5e55e5d"></span>aerror_t <code class="descname">avm_startup</code><span class="sig-paren">(</span><a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>  *<em>&nbsp;self</em>, int8_t<em>&nbsp;idx_bits</em>, int8_t<em>&nbsp;gen_bits</em>, aalloc_t<em>&nbsp;alloc</em>, void *<em>&nbsp;alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_startup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new Virtual Machine. </p>
+<p>The <code class="docutils literal"><span class="pre">apid_t</span></code> consists of two parts are <code class="docutils literal"><span class="pre">index</span></code> and <code class="docutils literal"><span class="pre">generation</span></code>, its lengths can be configured by <code class="docutils literal"><span class="pre">idx_bits</span></code> and <code class="docutils literal"><span class="pre">gen_bits</span></code>. The index will be used to directly lookup for a process from array. In additional, the generation part also be used to distinguish processes created at the same index slot. That caused by limited size of process array, eventually the index will be reused. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_shutdown">
+<span class="target" id="any-vmvm_8h_1a37ea124111296137d8725ec00d93a7e5"></span>void <code class="descname">avm_shutdown</code><span class="sig-paren">(</span><a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_shutdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gracefully cleanup the VM. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_lock_pid">
+<span class="target" id="any-vmvm_8h_1a22fd79533838e03c3e3ed3789038e00d"></span>static avm_process_t* <code class="descname">avm_lock_pid</code><span class="sig-paren">(</span><a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>  *<em>&nbsp;self</em>, apid_t<em>&nbsp;pid</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_lock_pid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lock for alive process by pid. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>NULL if that is not found or died. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_unlock">
+<span class="target" id="any-vmvm_8h_1afb085d1a1a463e6adc5c4985d34b940f"></span>static void <code class="descname">avm_unlock</code><span class="sig-paren">(</span>avm_process_t  *<em>&nbsp;vp</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_unlock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unlock a process. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_alloc">
+<span class="target" id="any-vmvm_8h_1a52fa0685627c9d170e2b4c60c8805174"></span>avm_process_t* <code class="descname">avm_alloc</code><span class="sig-paren">(</span><a class="reference internal" href="#c.avm_t" title="avm_t">avm_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_alloc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Take an unused slot from the pool. </p>
+<p><dl class="docutils">
+<dt><strong>Return</strong></dt>
+<dd>NULL if no more space. </dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.avm_free">
+<span class="target" id="any-vmvm_8h_1a7d952e5d130cce630acb156b123cc453"></span>static void <code class="descname">avm_free</code><span class="sig-paren">(</span>avm_process_t  *<em>&nbsp;vp</em><span class="sig-paren">)</span><a class="headerlink" href="#c.avm_free" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return this process to the pool. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="multi-tasking">
+<h2>Multi-tasking<a class="headerlink" href="#multi-tasking" title="Permalink to this headline">¶</a></h2>
+<dl class="struct">
+<dt id="c.atask_t">
+<span class="target" id="any-vmstructatask__t"></span><em class="property">struct </em><code class="descname">atask_t</code><a class="headerlink" href="#c.atask_t" title="Permalink to this definition">¶</a></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.atask_t::fiber">
+<span class="target" id="any-vmstructatask__t_1a0c237b41bcfa31d9897cdedcd427ae64"></span>LPVOID <code class="descname">fiber</code><a class="headerlink" href="#c.atask_t::fiber" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.atask_t::node">
+<span class="target" id="any-vmstructatask__t_1afd152361ae19070d3f63df0a97305f7a"></span><a class="reference internal" href="utilities.html#c.alist_node_t" title="alist_node_t">alist_node_t</a> <code class="descname">node</code><a class="headerlink" href="#c.atask_t::node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.atask_t::ctx">
+<span class="target" id="any-vmstructatask__t_1a5c48204696eb432cfefe1766332dec76"></span>atask_ctx_t <code class="descname">ctx</code><a class="headerlink" href="#c.atask_t::ctx" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.atask_t::stack">
+<span class="target" id="any-vmstructatask__t_1a785e318101946da4beb6ff2cce51cd63"></span>void* <code class="descname">stack</code><a class="headerlink" href="#c.atask_t::stack" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="typedef">
+<dt id="c.(ASTDCALL* atask_entry_t)">
+<span class="target" id="any-vmtask_8h_1a020783b849063915dc02f7b680fa7b20"></span><em class="property">typedef </em>void<code class="descname">(ASTDCALL* atask_entry_t)</code><span class="sig-paren">(</span>void<em>&nbsp;*</em><span class="sig-paren">)</span><a class="headerlink" href="#c.(ASTDCALL* atask_entry_t)" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="c.atask_shadow">
+<span class="target" id="any-vmtask_8h_1a572d9ce0dc0bc251fd3234993cbc73b4"></span>aerror_t <code class="descname">atask_shadow</code><span class="sig-paren">(</span>struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atask_shadow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Turn caller into a task. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.atask_create">
+<span class="target" id="any-vmtask_8h_1ac6241fceb51b5b788d9072fed3b8426b"></span>aerror_t <code class="descname">atask_create</code><span class="sig-paren">(</span>struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;self</em>, struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;root</em>, atask_entry_t<em>&nbsp;entry</em>, void *<em>&nbsp;ud</em>, int32_t<em>&nbsp;stack_sz</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atask_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.atask_delete">
+<span class="target" id="any-vmtask_8h_1a4d6aaf0a4288247f109cb593fd267ccd"></span>void <code class="descname">atask_delete</code><span class="sig-paren">(</span>struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atask_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.atask_yield">
+<span class="target" id="any-vmtask_8h_1ae6d9b738189df805f68a686a07deae4d"></span>void <code class="descname">atask_yield</code><span class="sig-paren">(</span>struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atask_yield" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.atask_sleep">
+<span class="target" id="any-vmtask_8h_1a69bf2604f730009b25f4c700cee8356f"></span>void <code class="descname">atask_sleep</code><span class="sig-paren">(</span>struct  <a class="reference internal" href="#c.atask_t" title="atask_t">atask_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;nsecs</em><span class="sig-paren">)</span><a class="headerlink" href="#c.atask_sleep" title="Permalink to this definition">¶</a></dt>
+<dd><p>TODO. </p>
 </dd></dl>
 
 </div>
@@ -266,6 +851,11 @@
 <li><a class="reference internal" href="#">Runtime</a><ul>
 <li><a class="reference internal" href="#bytecode-loader">Bytecode Loader</a></li>
 <li><a class="reference internal" href="#value-types">Value Types</a></li>
+<li><a class="reference internal" href="#light-weight-process">Light-weight Process</a></li>
+<li><a class="reference internal" href="#native-library-api">Native Library API</a></li>
+<li><a class="reference internal" href="#realtime-fair-scheduler">Realtime-fair Scheduler</a></li>
+<li><a class="reference internal" href="#virtual-machine">Virtual Machine</a></li>
+<li><a class="reference internal" href="#multi-tasking">Multi-tasking</a></li>
 </ul>
 </li>
 </ul>
@@ -276,22 +866,20 @@
   <h4>Next topic</h4>
   <p class="topless"><a href="memory.html"
                         title="next chapter">API Reference</a></p>
-<div class="sourcelink">
-  <a href="_sources/runtime.rst.txt" rel="nofollow">
-    Show page source
-  </a>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/runtime.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form class="search" action="search.html" method="get">
+  <input type="text" name="q"
+   placeholder="type to search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
         </div>
       </div>
       <div class="clearer"></div>
@@ -317,7 +905,7 @@
   </div>
   <footer id="pagefooter">&copy; 2017 Nguyễn Việt Giang. All rights reserved.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.5
+      1.6.3
         with the <a href="http://github.com/irskep/sphinx-better-theme">
           better</a> theme.
 

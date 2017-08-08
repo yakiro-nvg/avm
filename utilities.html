@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Bytecode &#8212; Any-VM 0.1.0 documentation</title>
+    <title>Utilities &#8212; Any-VM 0.1.0 documentation</title>
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript">
@@ -23,8 +23,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Runtime" href="runtime.html" />
-    <link rel="prev" title="API Reference" href="api.html" />
+    <link rel="prev" title="API Reference" href="memory.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
   <body>
@@ -36,11 +35,7 @@
     <ul>
         <li>
           &larr;
-          <a href="api.html" title="Previous document">API Reference</a>
-        </li>
-        <li>
-          <a href="runtime.html" title="Next document">Runtime</a>
-          &rarr;
+          <a href="memory.html" title="Previous document">API Reference</a>
         </li>
     </ul>
   </nav>
@@ -56,102 +51,87 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="bytecode">
-<h1>Bytecode<a class="headerlink" href="#bytecode" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="code-chunk">
-<h2>Code Chunk<a class="headerlink" href="#code-chunk" title="Permalink to this headline">¶</a></h2>
+  <div class="section" id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="intrusive-linked-list">
+<h2>Intrusive Linked-List<a class="headerlink" href="#intrusive-linked-list" title="Permalink to this headline">¶</a></h2>
 <dl class="struct">
-<dt id="c.achunk_header_t">
-<span class="target" id="any-vmstructachunk__header__t"></span><em class="property">struct </em><code class="descname">achunk_header_t</code><a class="headerlink" href="#c.achunk_header_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Byte code chunk. </p>
-<p>Layout: [<code class="docutils literal"><span class="pre">header</span></code>] [<code class="docutils literal"><span class="pre">module</span> <span class="pre">prototype</span></code>]. AVM is dynamic, stack based abstract machine which rely on a strong coupled, relocatable and recursive intermediate representation called <code class="docutils literal"><span class="pre">byte</span> <span class="pre">code</span> <span class="pre">chunk</span></code>. That is designed to be loaded and executed directly from the storages with as least effort as possible. The byte code chunk includes everything we need for a module to be executed except the external value (called import). This chunk is portable in theory. However, there is no need to actually do that in real- life. AVM will not even try to make any effort to load an incompatible chunks. Of course, if we really <strong>need</strong> this as a feature, byte code rewriter could be implemented as an external tool. <dl class="docutils">
-<dt><strong>Header format.</strong></dt>
-<dd><table border="1" class="docutils">
-<colgroup>
-<col width="12%" />
-<col width="44%" />
-<col width="44%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">bytes</th>
-<th class="head">description</th>
-<th class="head">value</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td>4</td>
-<td>signature</td>
-<td>0x41 0x6E 0x79 0x00</td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>version number</td>
-<td>0x{MAJOR}{MINOR}</td>
-</tr>
-<tr class="row-even"><td>1</td>
-<td>is big endian?</td>
-<td>1 = big, 0 = little</td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>size of integer</td>
-<td>default 8 bytes</td>
-</tr>
-<tr class="row-even"><td>1</td>
-<td>size of float</td>
-<td>default 8 bytes</td>
-</tr>
-<tr class="row-odd"><td>1</td>
-<td>size of instruction</td>
-<td>always 4</td>
-</tr>
-<tr class="row-even"><td>3</td>
-<td>_</td>
-<td>_</td>
-</tr>
-</tbody>
-</table>
- </dd>
-<dt><strong>Note</strong></dt>
-<dd>The header portion is not affected by endianess. </dd>
-</dl>
-</p>
-<div class="breathe-sectiondef docutils container">
+<dt id="c.alist_t">
+<span class="target" id="any-vmstructalist__t"></span><em class="property">struct </em><code class="descname">alist_t</code><a class="headerlink" href="#c.alist_t" title="Permalink to this definition">¶</a></dt>
+<dd><div class="breathe-sectiondef docutils container">
 <p class="breathe-sectiondef-title rubric">Public Members</p>
 <dl class="variable">
-<dt>
-<span class="target" id="any-vmstructachunk__header__t_1a02ac4d81c1009b1b0fc91136be4acb06"></span><code class="descname">uint8_t achunk_header_t::signature[4]</code></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::major_ver">
-<span class="target" id="any-vmstructachunk__header__t_1a16b0f073855517819f5e13814ff61a9d"></span>uint32_t <code class="descname">major_ver</code><a class="headerlink" href="#c.achunk_header_t::major_ver" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::minor_ver">
-<span class="target" id="any-vmstructachunk__header__t_1a96866cdd7753a902828e8f043629e9b3"></span>uint32_t <code class="descname">minor_ver</code><a class="headerlink" href="#c.achunk_header_t::minor_ver" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::big_endian">
-<span class="target" id="any-vmstructachunk__header__t_1a47188f45105b7b0ae2efdbc4593b6b51"></span>uint32_t <code class="descname">big_endian</code><a class="headerlink" href="#c.achunk_header_t::big_endian" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::size_of_integer">
-<span class="target" id="any-vmstructachunk__header__t_1a390c90afc9aeb311922cd9b980d0c7dd"></span>uint32_t <code class="descname">size_of_integer</code><a class="headerlink" href="#c.achunk_header_t::size_of_integer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::size_of_float">
-<span class="target" id="any-vmstructachunk__header__t_1a75f380c748a15b3db7acc33dfd27f2d1"></span>uint32_t <code class="descname">size_of_float</code><a class="headerlink" href="#c.achunk_header_t::size_of_float" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.achunk_header_t::size_of_instruction">
-<span class="target" id="any-vmstructachunk__header__t_1af770f8d8ead824b0e065fa6aa1d293c3"></span>uint8_t <code class="descname">size_of_instruction</code><a class="headerlink" href="#c.achunk_header_t::size_of_instruction" title="Permalink to this definition">¶</a></dt>
+<dt id="c.alist_t::root">
+<span class="target" id="any-vmstructalist__t_1a74bfef78ab69c1ab5b47349ae7fa80da"></span><a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a> <code class="descname">root</code><a class="headerlink" href="#c.alist_t::root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
+</dd></dl>
+
+<dl class="struct">
+<dt id="c.alist_node_t">
+<span class="target" id="any-vmstructalist__node__t"></span><em class="property">struct </em><code class="descname">alist_node_t</code><a class="headerlink" href="#c.alist_node_t" title="Permalink to this definition">¶</a></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.alist_node_t::next">
+<span class="target" id="any-vmstructalist__node__t_1a293db583670c84d552a243e3405ed0e8"></span>struct <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>* <code class="descname">next</code><a class="headerlink" href="#c.alist_node_t::next" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.alist_node_t::prev">
+<span class="target" id="any-vmstructalist__node__t_1ac2a3fbe7c78be9b7e6ef3e63a80811ab"></span>struct <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>* <code class="descname">prev</code><a class="headerlink" href="#c.alist_node_t::prev" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_init">
+<span class="target" id="any-vmlist_8h_1a9912bb94d2449885c8376f241bf496b3"></span>static void <code class="descname">alist_init</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new list. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_node_insert">
+<span class="target" id="any-vmlist_8h_1aaff4d1974ccd7a6a156cb299f1755863"></span>static void <code class="descname">alist_node_insert</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;prev</em>, <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;next</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_node_insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add node between next and previous. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_push_head">
+<span class="target" id="any-vmlist_8h_1a6819c890275e370153dfab5817852369"></span>static void <code class="descname">alist_push_head</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;node</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_push_head" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add node to head of list. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_push_back">
+<span class="target" id="any-vmlist_8h_1afe82fd79f3a4166c1c9902fddc7c9b70"></span>static void <code class="descname">alist_push_back</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;node</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_push_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add node to back of list. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_node_erase">
+<span class="target" id="any-vmlist_8h_1a52a0e2c82e6e0ff895a624b86fd0b2a3"></span>static void <code class="descname">alist_node_erase</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_node_erase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove node from list. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_head">
+<span class="target" id="any-vmlist_8h_1ae4eb3635065af7317b823e56639a60c6"></span>static <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>* <code class="descname">alist_head</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_head" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the fist node. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_back">
+<span class="target" id="any-vmlist_8h_1a39ee49fb619dbaafc4d3e1722414a23e"></span>static <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>* <code class="descname">alist_back</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_back" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last node. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.alist_is_end">
+<span class="target" id="any-vmlist_8h_1a44b6b84146786a4862fe70528461bfdb"></span>static int32_t <code class="descname">alist_is_end</code><span class="sig-paren">(</span><a class="reference internal" href="#c.alist_t" title="alist_t">alist_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="#c.alist_node_t" title="alist_node_t">alist_node_t</a>  *<em>&nbsp;node</em><span class="sig-paren">)</span><a class="headerlink" href="#c.alist_is_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check whether node is end. </p>
 </dd></dl>
 
 </div>
@@ -216,7 +196,7 @@
 <tr class="row-even"><td>n * sizeof(<a class="reference internal" href="#c.ainstruction_t" title="ainstruction_t"><code class="xref c c-type docutils literal"><span class="pre">ainstruction_t</span></code></a>)</td>
 <td>instructions</td>
 </tr>
-<tr class="row-odd"><td>n * sizeof(<a class="reference internal" href="#c.aconstant_t" title="aconstant_t"><code class="xref c c-type docutils literal"><span class="pre">aconstant_t</span></code></a>)</td>
+<tr class="row-odd"><td>n * sizeof(<code class="xref c c-type docutils literal"><span class="pre">aconstant_t</span></code>)</td>
 <td>constants</td>
 </tr>
 <tr class="row-even"><td>n * sizeof(<a class="reference internal" href="#c.aimport_t" title="aimport_t"><code class="xref c c-type docutils literal"><span class="pre">aimport_t</span></code></a>)</td>
@@ -304,91 +284,10 @@
 </div>
 </dd></dl>
 
-<dl class="union">
-<dt id="c.aconstant_t">
-<span class="target" id="any-vmunionaconstant__t"></span><em class="property">union </em><code class="descname">aconstant_t</code><a class="headerlink" href="#c.aconstant_t" title="Permalink to this definition">¶</a></dt>
-<dd><em>#include &lt;rt_types.h&gt;</em><p>Prototype constant. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aconstant_t::b">
-<span class="target" id="any-vmunionaconstant__t_1a7881d21b33dfe18c16f8b6e0aec33aad"></span>struct <a class="reference internal" href="#c.aconstant_t" title="aconstant_t">aconstant_t</a>::ac_base_t  <code class="descname">b</code><a class="headerlink" href="#c.aconstant_t::b" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aconstant_t::integer">
-<span class="target" id="any-vmunionaconstant__t_1a6cd3a2ebd826860b85c2b4377074f871"></span>struct <a class="reference internal" href="#c.aconstant_t" title="aconstant_t">aconstant_t</a>::ac_integer_t  <code class="descname">integer</code><a class="headerlink" href="#c.aconstant_t::integer" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aconstant_t::string">
-<span class="target" id="any-vmunionaconstant__t_1a37e7ae845611e5ab90c6065ee7b4e80a"></span>struct <a class="reference internal" href="#c.aconstant_t" title="aconstant_t">aconstant_t</a>::ac_string_t  <code class="descname">string</code><a class="headerlink" href="#c.aconstant_t::string" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="variable">
-<dt id="c.aconstant_t::real">
-<span class="target" id="any-vmunionaconstant__t_1a2e360e84f6b26fd6edd9aefd6b342f1d"></span>struct <a class="reference internal" href="#c.aconstant_t" title="aconstant_t">aconstant_t</a>::ac_real_t  <code class="descname">real</code><a class="headerlink" href="#c.aconstant_t::real" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">doxygenstruct: Cannot find class “aconstant_t” in doxygen xml output for project “any-vm” from directory: .doxyxml/</p>
 </div>
-<dl class="struct">
-<dt id="c.aconstant_t::ac_base_t">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__base__t"></span><em class="property">struct </em><code class="descname">ac_base_t</code><a class="headerlink" href="#c.aconstant_t::ac_base_t" title="Permalink to this definition">¶</a></dt>
-<dd><em>#include &lt;rt_types.h&gt;</em><p>Base type. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aconstant_t::ac_base_t::type">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__base__t_1ab48a6e9e1a5e8cf8fe8148c87fc98ebe"></span>uint32_t <code class="descname">ac_base_t::type</code><a class="headerlink" href="#c.aconstant_t::ac_base_t::type" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.aconstant_t::ac_integer_t">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__integer__t"></span><em class="property">struct </em><code class="descname">ac_integer_t</code><a class="headerlink" href="#c.aconstant_t::ac_integer_t" title="Permalink to this definition">¶</a></dt>
-<dd><em>#include &lt;rt_types.h&gt;</em><p>ACT_INTEGER. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aconstant_t::ac_integer_t::val">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__integer__t_1a009f12a60407530e2f6a91341038dede"></span>aint_t <code class="descname">ac_integer_t::val</code><a class="headerlink" href="#c.aconstant_t::ac_integer_t::val" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.aconstant_t::ac_real_t">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__real__t"></span><em class="property">struct </em><code class="descname">ac_real_t</code><a class="headerlink" href="#c.aconstant_t::ac_real_t" title="Permalink to this definition">¶</a></dt>
-<dd><em>#include &lt;rt_types.h&gt;</em><p>ACT_REAL. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aconstant_t::ac_real_t::val">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__real__t_1a2a1de85014ba5d56e77b13de2ec2abe5"></span>areal_t <code class="descname">ac_real_t::val</code><a class="headerlink" href="#c.aconstant_t::ac_real_t::val" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-<dl class="struct">
-<dt id="c.aconstant_t::ac_string_t">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__string__t"></span><em class="property">struct </em><code class="descname">ac_string_t</code><a class="headerlink" href="#c.aconstant_t::ac_string_t" title="Permalink to this definition">¶</a></dt>
-<dd><em>#include &lt;rt_types.h&gt;</em><p>ACT_STRING. </p>
-<div class="breathe-sectiondef docutils container">
-<p class="breathe-sectiondef-title rubric">Public Members</p>
-<dl class="variable">
-<dt id="c.aconstant_t::ac_string_t::ref">
-<span class="target" id="any-vmstructaconstant__t_1_1ac__string__t_1aa84651ef1b56816a21debf68ab12d635"></span>astring_ref_t <code class="descname">ac_string_t::ref</code><a class="headerlink" href="#c.aconstant_t::ac_string_t::ref" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 <div class="section" id="instruction-set">
 <h2>Instruction Set<a class="headerlink" href="#instruction-set" title="Permalink to this headline">¶</a></h2>
@@ -956,8 +855,8 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Bytecode</a><ul>
-<li><a class="reference internal" href="#code-chunk">Code Chunk</a></li>
+<li><a class="reference internal" href="#">Utilities</a><ul>
+<li><a class="reference internal" href="#intrusive-linked-list">Intrusive Linked-List</a></li>
 <li><a class="reference internal" href="#function-prototype">Function Prototype</a></li>
 <li><a class="reference internal" href="#instruction-set">Instruction Set</a></li>
 </ul>
@@ -965,15 +864,12 @@
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="api.html"
+  <p class="topless"><a href="memory.html"
                         title="previous chapter">API Reference</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="runtime.html"
-                        title="next chapter">Runtime</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/bytecode.rst.txt"
+      <li><a href="_sources/utilities.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -993,11 +889,7 @@
     <ul>
         <li>
           &larr;
-          <a href="api.html" title="Previous document">API Reference</a>
-        </li>
-        <li>
-          <a href="runtime.html" title="Next document">Runtime</a>
-          &rarr;
+          <a href="memory.html" title="Previous document">API Reference</a>
         </li>
     </ul>
   </nav>

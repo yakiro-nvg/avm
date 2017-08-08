@@ -1,16 +1,13 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
     <title>API Reference &#8212; Any-VM 0.1.0 documentation</title>
-    
     <link rel="stylesheet" href="_static/better.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
@@ -26,10 +23,11 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utilities" href="utilities.html" />
     <link rel="prev" title="Runtime" href="runtime.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   </head>
-  <body role="document">
+  <body>
     <header id="pageheader"><h1><a href="index.html ">
         Any-VM 0.1.0 documentation
     </a></h1></header>
@@ -39,6 +37,10 @@
         <li>
           &larr;
           <a href="runtime.html" title="Previous document">Runtime</a>
+        </li>
+        <li>
+          <a href="utilities.html" title="Next document">Utilities</a>
+          &rarr;
         </li>
     </ul>
   </nav>
@@ -56,23 +58,96 @@
             
   <div class="section" id="api-reference">
 <h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basic">
-<h2>Basic<a class="headerlink" href="#basic" title="Permalink to this headline">¶</a></h2>
-<p>TODO</p>
-</div>
 <div class="section" id="garbage-collector">
 <h2>Garbage Collector<a class="headerlink" href="#garbage-collector" title="Permalink to this headline">¶</a></h2>
-<p>TODO</p>
+<dl class="struct">
+<dt id="c.agc_t">
+<span class="target" id="any-vmstructagc__t"></span><em class="property">struct </em><code class="descname">agc_t</code><a class="headerlink" href="#c.agc_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Garbage collector. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Members</p>
+<dl class="variable">
+<dt id="c.agc_t::alloc">
+<span class="target" id="any-vmstructagc__t_1a095a3359d5cb8802c5c1de6971b6166e"></span>aalloc_t <code class="descname">alloc</code><a class="headerlink" href="#c.agc_t::alloc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::alloc_ud">
+<span class="target" id="any-vmstructagc__t_1a2bd90155d41ef65e20d760ad0545dc1a"></span>void* <code class="descname">alloc_ud</code><a class="headerlink" href="#c.agc_t::alloc_ud" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::cur_heap">
+<span class="target" id="any-vmstructagc__t_1a6246f65665c62e0ab13aadfaded55c00"></span>uint8_t* <code class="descname">cur_heap</code><a class="headerlink" href="#c.agc_t::cur_heap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::new_heap">
+<span class="target" id="any-vmstructagc__t_1a9d42ff392c400c39a6d72b91dc24dcf8"></span>uint8_t* <code class="descname">new_heap</code><a class="headerlink" href="#c.agc_t::new_heap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::heap_cap">
+<span class="target" id="any-vmstructagc__t_1a62ab10f9a1cb7ef4ba0b0a6f8248d41a"></span>int32_t <code class="descname">heap_cap</code><a class="headerlink" href="#c.agc_t::heap_cap" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::heap_sz">
+<span class="target" id="any-vmstructagc__t_1ac0ff4a44f7931b83ca37cf16c1b2334f"></span>int32_t <code class="descname">heap_sz</code><a class="headerlink" href="#c.agc_t::heap_sz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="variable">
+<dt id="c.agc_t::scan">
+<span class="target" id="any-vmstructagc__t_1a54d204529a3dd74ed9aeda3640601d30"></span>int32_t <code class="descname">scan</code><a class="headerlink" href="#c.agc_t::scan" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_init">
+<span class="target" id="any-vmgc_8h_1af6af46f9ce006f5816de6ba2dfb86305"></span>aerror_t <code class="descname">agc_init</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;heap_cap</em>, aalloc_t<em>&nbsp;alloc</em>, void *<em>&nbsp;alloc_ud</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_init" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize as a new garbage collector. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_cleanup">
+<span class="target" id="any-vmgc_8h_1a23304c6a2318bc3ae2146cf47b57130a"></span>void <code class="descname">agc_cleanup</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Release all dynamic allocated object. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_alloc">
+<span class="target" id="any-vmgc_8h_1aa3af9f9044457bb75f505c1dd9c1644f"></span>int32_t <code class="descname">agc_alloc</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="runtime.html#c.aabt_t" title="aabt_t">aabt_t</a><em>&nbsp;abt</em>, int32_t<em>&nbsp;sz</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_alloc" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate a new collectable object. </p>
+<p>Return the <code class="docutils literal"><span class="pre">heap_idx</span></code> of allocated object, negative value if failed. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_reserve">
+<span class="target" id="any-vmgc_8h_1aabff00bbb869aef61d1548c82193d8d3"></span>aerror_t <code class="descname">agc_reserve</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em>, int32_t<em>&nbsp;more</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_reserve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Ensures that there are <code class="docutils literal"><span class="pre">more</span></code> bytes in the heap. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_collect">
+<span class="target" id="any-vmgc_8h_1a4080d7067cc41d814ece4b4a15d4483c"></span>void <code class="descname">agc_collect</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em>, <a class="reference internal" href="runtime.html#c.avalue_t" title="avalue_t">avalue_t</a>  *<em>&nbsp;root</em>, int32_t<em>&nbsp;num_roots</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_collect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reclaim unreferenced objects. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="c.agc_heap_size">
+<span class="target" id="any-vmgc_8h_1a83b4b235378900666be18f70fb5d34a2"></span>static int32_t <code class="descname">agc_heap_size</code><span class="sig-paren">(</span><a class="reference internal" href="#c.agc_t" title="agc_t">agc_t</a>  *<em>&nbsp;self</em><span class="sig-paren">)</span><a class="headerlink" href="#c.agc_heap_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get current heap size. </p>
+</dd></dl>
+
 </div>
 <div class="section" id="memory-allocators">
 <h2>Memory Allocators<a class="headerlink" href="#memory-allocators" title="Permalink to this headline">¶</a></h2>
-<dl class="typedef">
-<dt id="c.arealloc_t">
-<span class="target" id="any-vmrt__types_8h_1a3a3e2fada06b77f154d5e433e60f572d"></span><em class="property">typedef </em>void*<code class="descname">(* arealloc_t)</code><span class="sig-paren">(</span>void<em>&nbsp;*userdata</em>, void<em>&nbsp;*old</em>, int32_t<em>&nbsp;sz</em><span class="sig-paren">)</span><a class="headerlink" href="#c.arealloc_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Allocator interface. </p>
-<p><code class="docutils literal"><span class="pre">old</span></code> = 0 to malloc, <code class="docutils literal"><span class="pre">sz</span></code> = 0 to free, otherwise realloc. </p>
-</dd></dl>
-
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">doxygentypedef: Cannot find typedef “arealloc_t” in doxygen xml output for project “any-vm” from directory: .doxyxml/</p>
+</div>
 </div>
 </div>
 
@@ -85,7 +160,6 @@
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">API Reference</a><ul>
-<li><a class="reference internal" href="#basic">Basic</a></li>
 <li><a class="reference internal" href="#garbage-collector">Garbage Collector</a></li>
 <li><a class="reference internal" href="#memory-allocators">Memory Allocators</a></li>
 </ul>
@@ -95,22 +169,23 @@
   <h4>Previous topic</h4>
   <p class="topless"><a href="runtime.html"
                         title="previous chapter">Runtime</a></p>
-<div class="sourcelink">
-  <a href="_sources/memory.rst.txt" rel="nofollow">
-    Show page source
-  </a>
-</div>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utilities.html"
+                        title="next chapter">Utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/memory.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form class="search" action="search.html" method="get">
+  <input type="text" name="q"
+   placeholder="type to search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
 <script type="text/javascript">$('#searchbox').show(0);</script>
-
         </div>
       </div>
       <div class="clearer"></div>
@@ -122,6 +197,10 @@
           &larr;
           <a href="runtime.html" title="Previous document">Runtime</a>
         </li>
+        <li>
+          <a href="utilities.html" title="Next document">Utilities</a>
+          &rarr;
+        </li>
     </ul>
   </nav>
   <nav id="breadcrumbs">
@@ -132,7 +211,7 @@
   </div>
   <footer id="pagefooter">&copy; 2017 Nguyễn Việt Giang. All rights reserved.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a>
-      1.5.5
+      1.6.3
         with the <a href="http://github.com/irskep/sphinx-better-theme">
           better</a> theme.
 
