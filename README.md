@@ -3,7 +3,7 @@
 
 # AVM - Embeddable concurrent oriented Virtual Machine
 
-Welcome. Since you are here with us, change you may already using and fall in 
+Welcome. Since you are here with us, chance you may already using and fall in 
 love with scripting language, such as **Lua**. We're on the same boat with you, 
 yes we love Lua too. However, there are things that I'm not happy with Lua, 
 that wasn't easy to just forking and make improvement. Therefore, `AVM` begin. 
