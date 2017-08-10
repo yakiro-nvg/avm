@@ -32,7 +32,8 @@ aerror_t avm_startup(
     self->alloc_ud = alloc_ud;
     self->idx_bits = idx_bits;
     self->gen_bits = gen_bits;
-    self->procs = aalloc(self, NULL, sizeof(avm_process_t)*(1 << idx_bits));
+    self->procs = aalloc(self, NULL,
+        ((int32_t)sizeof(avm_process_t)) * (1 << idx_bits));
     self->next_idx = 0;
     aloader_init(&self->loader, alloc, alloc_ud);
     init_processes(self->procs, 1 << idx_bits);

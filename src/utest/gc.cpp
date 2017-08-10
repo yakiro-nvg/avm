@@ -43,9 +43,9 @@ TEST_CASE("gc")
         REQUIRE(*AGC_CAST(int32_t, &gc, b->buff.v.heap_idx) == i);
     }
 
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
 
     for (int32_t i = 0; i < (int32_t)stack.size(); ++i) {
         agc_buffer_t* b = AGC_CAST(agc_buffer_t, &gc, stack[i].v.heap_idx);
@@ -56,9 +56,9 @@ TEST_CASE("gc")
         if (i % 2 != 0) stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE((i % 2 == 0) == search_for(&gc, i));
@@ -68,9 +68,9 @@ TEST_CASE("gc")
         if (i % 4 != 0) stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE((i % 4 == 0) == search_for(&gc, i));
@@ -80,9 +80,9 @@ TEST_CASE("gc")
         stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
-    agc_collect(&gc, stack.data(), stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    agc_collect(&gc, stack.data(), (int32_t)stack.size());
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE(!search_for(&gc, i));
