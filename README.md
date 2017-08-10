@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/097d1900291f4c19987d3b9847fc4330)](https://www.codacy.com/app/innostory/any-vm?utm_source=github.com&utm_medium=referral&utm_content=innostory/any-vm&utm_campaign=badger)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Coverage Status](https://coveralls.io/repos/github/innostory/any-vm/badge.svg)](https://coveralls.io/github/innostory/any-vm)
 
