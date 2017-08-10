@@ -114,7 +114,7 @@ typedef struct {
     int32_t val : 8;
 } ai_ldb_t;
 
-/** Push a value from local pool at `idx` onto the stack.
+/** Push a stack value at `idx` onto the stack.
 \rst
 =======  =======
 8 bits   24 bits
@@ -128,7 +128,7 @@ typedef struct {
     int32_t idx : 24;
 } ai_llv_t;
 
-/** Pop a value from the stack and set it into the local pool at `idx`.
+/** Pop a value from the stack and set it to `idx`.
 \rst
 =======  =======
 8 bits   24 bits
