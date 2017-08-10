@@ -74,3 +74,4 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/12663/badge.svg"/>
 </a>
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/097d1900291f4c19987d3b9847fc4330)](https://www.codacy.com/app/innostory/any-vm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=innostory/any-vm&amp;utm_campaign=Badge_Grade)
