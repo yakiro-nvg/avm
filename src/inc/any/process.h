@@ -21,7 +21,7 @@ ANY_API void aprocess_cleanup(aprocess_t* self);
 ANY_API void aprocess_reserve(aprocess_t* self, int32_t more);
 
 /// Throw an error, with description string pushed onto the stack.
-ANY_API void any_error(aprocess_t* p, const char* fmt, ...);
+ANY_API void any_error(aprocess_t* p, aerror_t ec, const char* fmt, ...);
 
 /// Push a value onto the stack, should be internal used.
 static AINLINE void aprocess_push(aprocess_t* self, avalue_t* v)
@@ -36,7 +36,7 @@ static AINLINE int32_t aprocess_absidx(aprocess_t* self, int32_t idx)
 {
     if (idx < -self->frame->nargs) return 0;
     if (idx >= self->sp - self->frame->bp) {
-        any_error(self, "bad index %d", idx);
+        any_error(self, AERR_RUNTIME, "bad index %d", idx);
     }
     return self->frame->bp + idx;
 }
@@ -150,14 +150,14 @@ static AINLINE void any_pop(aprocess_t* p, int32_t n)
 {
     p->sp -= n;
     if (p->sp < p->frame->bp) {
-        any_error(p, "stack underflow");
+        any_error(p, AERR_RUNTIME, "no more elements");
     }
 }
 
 static AINLINE void any_remove(aprocess_t* p, int32_t idx)
 {
     int32_t num_tails;
-    if (idx < 0) any_error(p, "bad index %d", idx);
+    if (idx < 0) any_error(p, AERR_RUNTIME, "bad index %d", idx);
     idx = aprocess_absidx(p, idx);
     num_tails = p->sp - idx - 1;
     --p->sp;

@@ -3,6 +3,7 @@
 
 #include <any/loader.h>
 #include <any/scheduler.h>
+#include <any/dispatcher.h>
 #include <any/gc.h>
 #include <any/gc_string.h>
 
@@ -44,11 +45,14 @@ static void ASTDCALL entry(void* ud)
     aframe_t frame;
     aprocess_t* p = (aprocess_t*)ud;
     int32_t nargs = (int32_t)p->stack[--p->sp].v.integer;
+    acatch_t c;
+    c.status = AERR_NONE;
     memset(&frame, 0, sizeof(aframe_t));
     frame.bp = 1; // start from stack[0] (nil)
     frame.nargs = 0;
     p->frame = &frame;
-    any_pcall(p, nargs);
+    p->error_jmp = &c;
+    if (setjmp(c.jbuff) == 0) any_pcall(p, nargs);
     p->flags |= APF_EXIT;
     while (TRUE) atask_yield(&p->task);
 }
@@ -67,9 +71,9 @@ aerror_t aprocess_init(
     self->stack_cap = INIT_STACK_SZ;
     self->sp = 0;
     any_push_nil(self); // stack[0] is nil
-    ec = agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
+    ec = adispatcher_init(&self->dispatcher, self);
     if (ec != AERR_NONE) aalloc(self, self->stack, 0);
-    return ec;
+    return agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
 }
 
 void aprocess_start(
@@ -107,18 +111,20 @@ void any_find(aprocess_t* p, const char* module, const char* name)
     avalue_t v;
     aerror_t ec = aloader_find(&p->owner->vm->loader, module, name, &v);
     if (ec != AERR_NONE) any_push_nil(p);
-    aprocess_push(p, &v);
+    else aprocess_push(p, &v);
 }
 
 void any_call(aprocess_t* p, int32_t nargs)
 {
     aframe_t frame;
-    avalue_t* f = p->stack + p->sp - nargs - 1;
+    int32_t fp = p->sp - nargs - 1;
+    avalue_t* f = p->stack + fp;
 
-    if (f->tag.b != ABT_FUNCTION) {
-        any_error(p, "attempt to call a non-function");
+    if (fp < p->frame->bp || f->tag.b != ABT_FUNCTION) {
+        any_error(p, AERR_RUNTIME, "attempt to call a non-function");
     }
 
+    memset(&frame, 0, sizeof(aframe_t));
     save_ctx(p, &frame, nargs);
 
     switch (f->tag.variant) {
@@ -126,7 +132,8 @@ void any_call(aprocess_t* p, int32_t nargs)
         f->v.func(p);
         break;
     case AVTF_AVM:
-        any_error(p, "TODO");
+        frame.pt = f->v.avm_func;
+        adispatcher_call(&p->dispatcher);
         break;
     default: assert(FALSE);
     }
@@ -136,7 +143,11 @@ void any_call(aprocess_t* p, int32_t nargs)
 
 void any_pcall(aprocess_t* p, int32_t nargs)
 {
-    any_try(p, &call, &nargs);
+    if (any_try(p, &call, &nargs) != AERR_NONE) {
+        avalue_t ev = p->stack[p->sp - 1];
+        any_pop(p, 1 + nargs + 1); //error value, args and function
+        aprocess_push(p, &ev);
+    }
 }
 
 void any_yield(aprocess_t* p)
@@ -149,15 +160,20 @@ aerror_t any_try(aprocess_t* p, void(*f)(aprocess_t*, void*), void* ud)
 {
     int32_t sp = p->sp;
     aframe_t* frame = p->frame;
+    avalue_t ev;
     acatch_t c;
     c.status = AERR_NONE;
     c.prev = p->error_jmp;
     p->error_jmp = &c;
     if (setjmp(c.jbuff) == 0) f(p, ud);
     if (c.status != AERR_NONE) {
+        ev = p->stack[p->sp - 1];
         p->sp = sp;
         p->frame = frame;
+    } else {
+        ev.tag.b = ABT_NIL;
     }
+    aprocess_push(p, &ev);
     p->error_jmp = c.prev;
     return c.status;
 }
@@ -169,7 +185,7 @@ void any_throw(aprocess_t* p, int32_t ec)
     longjmp(p->error_jmp->jbuff, 1);
 }
 
-void any_error(aprocess_t* p, const char* fmt, ...)
+void any_error(aprocess_t* p, aerror_t ec, const char* fmt, ...)
 {
     va_list args;
     char buf[128];
@@ -177,7 +193,7 @@ void any_error(aprocess_t* p, const char* fmt, ...)
     snprintf(buf, sizeof(buf), fmt, args);
     any_push_string(p, buf);
     va_end(args);
-    any_throw(p, AERR_RUNTIME);
+    any_throw(p, ec);
 }
 
 aerror_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)

@@ -5,6 +5,7 @@
 #include <any/process.h>
 #include <any/vm.h>
 #include <any/scheduler.h>
+#include <any/gc_string.h>
 
 enum { CSTACK_SZ = 16384 };
 
@@ -53,6 +54,12 @@ static void try_throw1(aprocess_t* p, void* ud)
 {
     REQUIRE((size_t)ud == 0xF1);
     try_throw2(p, (void*)0xF2);
+}
+
+static void try_throw(aprocess_t* p)
+{
+    REQUIRE(AERR_NONE == any_try(p, &try_throw1, (void*)0xF1));
+    any_push_nil(p);
 }
 
 static void stack_test(aprocess_t* p)
@@ -173,9 +180,21 @@ static void spawn_test(aprocess_t* p)
 
 TEST_CASE("process_try_throw")
 {
+    ascheduler_t s;
+    atask_shadow(&s.task);
+
     aprocess_t p;
     memset(&p, 0, sizeof(aprocess_t));
-    REQUIRE(AERR_NONE == any_try(&p, &try_throw1, (void*)0xF1));
+    aprocess_init(&p, &s, &myalloc, NULL);
+
+    avalue_t entry;
+    entry.tag.b = ABT_FUNCTION;
+    entry.tag.variant = AVTF_NATIVE;
+    entry.v.func = &try_throw;
+    aprocess_start(&p, CSTACK_SZ, 0);
+    atask_yield(&s.task);
+
+    aprocess_cleanup(&p);
 }
 
 TEST_CASE("process_stack")
@@ -198,10 +217,34 @@ TEST_CASE("process_stack")
     any_push_integer(&p, 0xA1);
     aprocess_start(&p, CSTACK_SZ, 3);
     atask_yield(&s.task);
-    REQUIRE(any_count(&p) == 1);
+    REQUIRE(any_count(&p) == 2);
+    REQUIRE(any_type(&p, 1).b == ABT_NIL);
     REQUIRE(any_type(&p, 0).b == ABT_NUMBER);
     REQUIRE(any_type(&p, 0).variant == AVTN_INTEGER);
     REQUIRE(any_to_integer(&p, 0) == 0xFFAA);
+
+    aprocess_cleanup(&p);
+}
+
+TEST_CASE("process_call_non_function")
+{
+    ascheduler_t s;
+    atask_shadow(&s.task);
+
+    aprocess_t p;
+    memset(&p, 0, sizeof(aprocess_t));
+
+    aprocess_init(&p, &s, &myalloc, NULL);
+
+    avalue_t entry;
+    entry.tag.b = ABT_NIL;
+    aprocess_push(&p, &entry);
+    aprocess_start(&p, CSTACK_SZ, 0);
+    atask_yield(&s.task);
+    REQUIRE(any_count(&p) == 1);
+    REQUIRE(any_type(&p, 0).b == ABT_STRING);
+    CHECK_THAT(any_to_string(&p, 0),
+        Catch::Equals("attempt to call a non-function"));
 
     aprocess_cleanup(&p);
 }

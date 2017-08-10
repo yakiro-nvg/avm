@@ -30,7 +30,7 @@ typedef enum {
     AOC_SND = 50,
     AOC_RCV = 51,
     AOC_RMV = 52
-} AOPCODE;
+} aopcode_t;
 
 /** Base type.
 \rst
@@ -836,6 +836,8 @@ typedef enum {
 /// Process stack frame.
 typedef struct aframe_t {
     struct aframe_t* prev;
+    aprototype_t* pt;
+    int32_t ip;
     int32_t bp;
     int32_t nargs;
 } aframe_t;
@@ -846,6 +848,11 @@ typedef struct acatch_t {
     volatile aerror_t status;
     jmp_buf jbuff;
 } acatch_t;
+
+/// \ref AVTF_AVM function byte code dispatcher.
+typedef struct {
+    struct aprocess_t* owner;
+} adispatcher_t;
 
 /** Light weight processes.
 \brief
@@ -897,6 +904,7 @@ typedef struct aprocess_t {
     int32_t stack_cap;
     int32_t sp;
     agc_t gc;
+    adispatcher_t dispatcher;
 } aprocess_t;
 
 /** Process scheduler interface.
