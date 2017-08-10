@@ -65,7 +65,7 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
 
 ## Contact
 
-- **Nguyễn Việt GIANG** - giangnv.is@gmail.com
+- **Giang Nv** - giangnv.is@gmail.com
 
 ## Nonsense Badgets
 [![Build Status](https://travis-ci.org/innostory/any-vm.svg?branch=master)](https://travis-ci.org/innostory/any-vm) 
