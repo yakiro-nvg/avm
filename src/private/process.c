@@ -152,7 +152,6 @@ void any_pcall(aprocess_t* p, int32_t nargs)
 
 void any_yield(aprocess_t* p)
 {
-    ascheduler_t* owner = (ascheduler_t*)p->owner;
     atask_yield(&p->task);
 }
 

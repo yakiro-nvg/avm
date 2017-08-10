@@ -360,7 +360,7 @@ static aerror_t load_chunk(
 {
     aerror_t ec = AERR_NONE;
     int32_t i;
-    aasm_prototype_t* ap = NULL;
+    aasm_prototype_t* ap;
     const aprototype_header_t* const p = (const aprototype_header_t*)(
         ((const uint8_t*)input) + *offset);
     const resolved_proto_t rp = rp_resolve(p, p->strings_sz);
@@ -575,7 +575,7 @@ int32_t aasm_add_import(aasm_t* self, const char* module, const char* name)
 
 int32_t aasm_module_push(aasm_t* self, const char* name)
 {
-    aasm_prototype_t* p = NULL;
+    aasm_prototype_t* p;
     int32_t idx;
     astring_ref_t symbol = aasm_string_to_ref(self, name);
     assert(self->_nested_level == 0);
