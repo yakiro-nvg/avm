@@ -197,10 +197,10 @@ static int32_t compute_strings_sz(
         (int32_t)strlen(astring_table_to_string(st, p->symbol));
 
     for (i = 0; i < p->num_constants; ++i) {
-        if (constants[i].b.type != ACT_STRING) continue;
+        if (constants[i].type != ACT_STRING) continue;
         sz += sizeof(uint32_t) + 1 +
             (int32_t)strlen(
-                astring_table_to_string(st, constants[i].string.ref));
+                astring_table_to_string(st, constants[i].string));
     }
 
     for (i = 0; i < p->num_imports; ++i) {
@@ -277,8 +277,8 @@ static AINLINE aconstant_t to_chunk(
     aconstant_t c, aasm_t* self, aprototype_header_t* header)
 {
     aconstant_t v = c;
-    if (c.b.type == ACT_STRING) {
-        v.string.ref = chunk_add_str(self, header, c.string.ref);
+    if (c.type == ACT_STRING) {
+        v.string = chunk_add_str(self, header, c.string);
     }
     return v;
 }
@@ -349,8 +349,8 @@ static aconstant_t from_chunk(
     aconstant_t v, aasm_t* self, const aprototype_header_t* p)
 {
     aconstant_t c = v;
-    if (v.b.type == ACT_STRING) {
-        c.string.ref = aasm_string_to_ref(self, rp_string(p, v.string.ref));
+    if (v.type == ACT_STRING) {
+        c.string = aasm_string_to_ref(self, rp_string(p, v.string));
     }
     return c;
 }

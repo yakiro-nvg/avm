@@ -69,6 +69,14 @@ static AINLINE avalue_tag_t any_type(aprocess_t* p, int32_t idx)
 }
 
 // Stack manipulations.
+static AINLINE void any_pop(aprocess_t* p, int32_t n)
+{
+    p->sp -= n;
+    if (p->sp < p->frame->bp) {
+        any_error(p, AERR_RUNTIME, "no more elements");
+    }
+}
+
 static AINLINE void any_push_nil(aprocess_t* p)
 {
     avalue_t v;
@@ -146,14 +154,6 @@ static AINLINE apid_t any_to_pid(aprocess_t* p, int32_t idx)
     return v->v.pid;
 }
 
-static AINLINE void any_pop(aprocess_t* p, int32_t n)
-{
-    p->sp -= n;
-    if (p->sp < p->frame->bp) {
-        any_error(p, AERR_RUNTIME, "no more elements");
-    }
-}
-
 static AINLINE void any_remove(aprocess_t* p, int32_t idx)
 {
     int32_t num_tails;
@@ -166,6 +166,12 @@ static AINLINE void any_remove(aprocess_t* p, int32_t idx)
         p->stack + idx,
         p->stack + idx + 1,
         sizeof(avalue_t)*num_tails);
+}
+
+static AINLINE void any_insert(aprocess_t* p, int32_t idx)
+{
+    any_pop(p, 1);
+    p->stack[aprocess_absidx(p, idx)] = p->stack[p->sp];
 }
 
 /// Returns the stack size.

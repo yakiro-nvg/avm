@@ -10,7 +10,7 @@ Function Prototype
 ==================
 .. doxygenstruct:: aprototype_header_t
 .. doxygenstruct:: aimport_t
-.. doxygenunion::  aconstant_t
+.. doxygenstruct:: aconstant_t
 
 Instruction Set
 ===============

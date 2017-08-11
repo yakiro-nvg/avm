@@ -17,16 +17,21 @@ typedef double  areal_t;
 typedef enum {
     AOC_NOP = 0,
     AOC_POP = 1,
+
     AOC_LDK = 10,
     AOC_NIL = 11,
     AOC_LDB = 12,
-    AOC_LLV = 13,
-    AOC_SLV = 14,
-    AOC_IMP = 15,
+    AOC_LSI = 13,
+    AOC_LLV = 14,
+    AOC_SLV = 15,
+    AOC_IMP = 16,
+
     AOC_JMP = 30,
     AOC_JIN = 31,
+
     AOC_IVK = 40,
     AOC_RET = 41,
+
     AOC_SND = 50,
     AOC_RCV = 51,
     AOC_RMV = 52
@@ -111,8 +116,22 @@ AOC_LDB  val
 */
 typedef struct {
     uint32_t _ : 8;
-    int32_t val : 8;
+    int32_t val : 24;
 } ai_ldb_t;
+
+/** Push a small integer value (24 bits) `val` onto the stack.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_LSI  val
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _ : 8;
+    int32_t val : 24;
+} ai_lsi_t;
 
 /** Push a stack value at `idx` onto the stack.
 \rst
@@ -270,6 +289,7 @@ typedef union {
     ai_ldk_t ldk;
     ai_nil_t nil;
     ai_ldb_t ldb;
+    ai_lsi_t lsi;
     ai_llv_t llv;
     ai_slv_t slv;
     ai_imp_t imp;
@@ -320,6 +340,14 @@ static AINLINE ainstruction_t ai_ldb(int32_t val)
     ainstruction_t i;
     i.b.opcode = AOC_LDB;
     i.ldb.val = val;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_lsi(int32_t val)
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_LSI;
+    i.lsi.val = val;
     return i;
 }
 
@@ -446,31 +474,19 @@ typedef enum {
     ACT_INTEGER,
     ACT_STRING,
     ACT_REAL
-} ACTYPE;
+} actype_t;
 
 #pragma pack(push, 1)
 
 /// Prototype constant.
-typedef union APACKED {
-    /// Base type.
-    struct ac_base_t {
-        uint32_t type;
-    } b;
+typedef struct APACKED {
+    uint32_t type;
     /// ACT_INTEGER.
-    struct ac_integer_t {
-        uint32_t _;
-        aint_t val;
-    } integer;
-    ///  ACT_STRING.
-    struct ac_string_t {
-        uint32_t _;
-        astring_ref_t ref;
-    } string;
+    aint_t integer;
+    /// ACT_STRING.
+    astring_ref_t string;
     /// ACT_REAL.
-    struct ac_real_t {
-        uint32_t _;
-        areal_t val;
-    } real;
+    areal_t real;
 } aconstant_t;
 
 #pragma pack(pop)
@@ -479,24 +495,24 @@ typedef union APACKED {
 static AINLINE aconstant_t ac_integer(aint_t val)
 {
     aconstant_t c;
-    c.b.type = ACT_INTEGER;
-    c.integer.val = val;
+    c.type = ACT_INTEGER;
+    c.integer = val;
     return c;
 }
 
 static AINLINE aconstant_t ac_string(astring_ref_t string)
 {
     aconstant_t c;
-    c.b.type = ACT_STRING;
-    c.string.ref = string;
+    c.type = ACT_STRING;
+    c.string = string;
     return c;
 }
 
 static AINLINE aconstant_t ac_real(areal_t val)
 {
     aconstant_t c;
-    c.b.type = ACT_REAL;
-    c.real.val = val;
+    c.type = ACT_REAL;
+    c.real = val;
     return c;
 }
 

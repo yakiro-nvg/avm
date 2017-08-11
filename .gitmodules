@@ -3,4 +3,4 @@
 	url = git://github.com/arsenm/sanitizers-cmake.git
 [submodule "docs/sphinx-better-theme"]
 	path = docs/sphinx-better-theme
-	url = https://github.com/irskep/sphinx-better-theme.git
+	url = git://github.com/irskep/sphinx-better-theme.git

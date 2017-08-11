@@ -34,7 +34,9 @@ static AINLINE void save_ctx(aprocess_t* p, aframe_t* frame, int32_t nargs)
 static AINLINE void load_ctx(aprocess_t* p)
 {
     int32_t nsp = p->frame->bp - p->frame->nargs;
-    assert(p->sp > p->frame->bp && "return value missing");
+    if (p->sp <= p->frame->bp) {
+        any_error(p, AERR_RUNTIME, "return value missing");
+    }
     p->stack[nsp - 1] = p->stack[p->sp - 1];
     p->sp = nsp;
     p->frame = p->frame->prev;
@@ -189,7 +191,7 @@ void any_error(aprocess_t* p, aerror_t ec, const char* fmt, ...)
     va_list args;
     char buf[128];
     va_start(args, fmt);
-    snprintf(buf, sizeof(buf), fmt, args);
+    vsnprintf(buf, sizeof(buf), fmt, args);
     any_push_string(p, buf);
     va_end(args);
     any_throw(p, ec);

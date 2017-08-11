@@ -152,7 +152,14 @@ static void stack_test(aprocess_t* p)
 
     REQUIRE(any_count(p) == 0);
 
+    any_push_integer(p, 1);
+    any_push_integer(p, 2);
+    any_push_integer(p, 3);
     any_push_integer(p, 0xFFAA);
+    any_insert(p, 1);
+    any_pop(p, 1);
+
+    REQUIRE(any_count(p) == 2);
 }
 
 static int32_t num_spawn_tests;
