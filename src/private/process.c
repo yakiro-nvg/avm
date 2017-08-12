@@ -103,7 +103,7 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
     new_cap = self->stack_cap;
     while (new_cap < self->sp + more) new_cap *= GROW_FACTOR;
     ns = (avalue_t*)aalloc(self, self->stack, sizeof(avalue_t)*new_cap);
-    if (!ns) any_throw(self, AERR_OVERFLOW);
+    if (!ns) any_error(self, AERR_OVERFLOW, "out of memory");
     self->stack = ns;
     self->stack_cap = new_cap;
 }

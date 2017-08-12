@@ -34,7 +34,7 @@ static AINLINE void any_push_string(aprocess_t* p, const char* s)
 {
     avalue_t v;
     int32_t ec = agc_string_new(p, s, &v);
-    if (ec != AERR_NONE) any_throw(p, ec);
+    if (ec != AERR_NONE) any_error(p, (aerror_t)ec, "out of memory");
     aprocess_push(p, &v);
 }
 

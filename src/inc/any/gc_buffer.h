@@ -41,7 +41,7 @@ static AINLINE void any_push_buffer(aprocess_t* p, int32_t cap)
 {
     avalue_t v;
     int32_t ec = agc_buffer_new(&p->gc, cap, &v);
-    if (ec != AERR_NONE) any_throw(p, ec);
+    if (ec != AERR_NONE) any_error(p, (aerror_t)ec, "not enough memory");
     aprocess_push(p, &v);
 }
 
