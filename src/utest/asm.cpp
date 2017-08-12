@@ -29,6 +29,7 @@ typedef struct {
     ainstruction_t llv;
     ainstruction_t slv;
     ainstruction_t imp;
+    ainstruction_t mkc;
     ainstruction_t jmp;
     ainstruction_t jin;
     ainstruction_t ivk;
@@ -45,6 +46,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.llv = ai_llv(rand());
     t.slv = ai_slv(rand());
     t.imp = ai_imp(rand());
+    t.mkc = ai_mkc(rand());
     t.jmp = ai_jmp(rand());
     t.jin = ai_jin(rand());
     t.ivk = ai_ivk(rand());
@@ -59,10 +61,11 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(7 == aasm_emit(a, t.llv));
     REQUIRE(8 == aasm_emit(a, t.slv));
     REQUIRE(9 == aasm_emit(a, t.imp));
-    REQUIRE(10 == aasm_emit(a, t.jmp));
-    REQUIRE(11 == aasm_emit(a, t.jin));
-    REQUIRE(12 == aasm_emit(a, t.ivk));
-    REQUIRE(13 == aasm_emit(a, ai_ret()));
+    REQUIRE(10 == aasm_emit(a, t.mkc));
+    REQUIRE(11 == aasm_emit(a, t.jmp));
+    REQUIRE(12 == aasm_emit(a, t.jin));
+    REQUIRE(13 == aasm_emit(a, t.ivk));
+    REQUIRE(14 == aasm_emit(a, ai_ret()));
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(aasm_string_to_ref(a, "test_const"));
@@ -84,7 +87,7 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
     num_vs_capacity_check(p);
 
-    REQUIRE(p->num_instructions == 14);
+    REQUIRE(p->num_instructions == 15);
     REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
     REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
@@ -103,13 +106,15 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[8].slv.idx == t.slv.slv.idx);
     REQUIRE(c.instructions[9].b.opcode == AOC_IMP);
     REQUIRE(c.instructions[9].imp.idx == t.imp.imp.idx);
-    REQUIRE(c.instructions[10].b.opcode == AOC_JMP);
-    REQUIRE(c.instructions[10].jmp.displacement == t.jmp.jmp.displacement);
-    REQUIRE(c.instructions[11].b.opcode == AOC_JIN);
-    REQUIRE(c.instructions[11].jin.displacement == t.jin.jin.displacement);
-    REQUIRE(c.instructions[12].b.opcode == AOC_IVK);
-    REQUIRE(c.instructions[12].ivk.nargs == t.ivk.ivk.nargs);
-    REQUIRE(c.instructions[13].b.opcode == AOC_RET);
+    REQUIRE(c.instructions[10].b.opcode == AOC_MKC);
+    REQUIRE(c.instructions[10].mkc.idx == t.mkc.mkc.idx);
+    REQUIRE(c.instructions[11].b.opcode == AOC_JMP);
+    REQUIRE(c.instructions[11].jmp.displacement == t.jmp.jmp.displacement);
+    REQUIRE(c.instructions[12].b.opcode == AOC_JIN);
+    REQUIRE(c.instructions[12].jin.displacement == t.jin.jin.displacement);
+    REQUIRE(c.instructions[13].b.opcode == AOC_IVK);
+    REQUIRE(c.instructions[13].ivk.nargs == t.ivk.ivk.nargs);
+    REQUIRE(c.instructions[14].b.opcode == AOC_RET);
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].type == ACT_INTEGER);

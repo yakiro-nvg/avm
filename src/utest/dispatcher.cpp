@@ -257,7 +257,7 @@ TEST_CASE("dispatcher_ldk")
         REQUIRE(any_type(p, 1).b == ABT_NIL);
         REQUIRE(any_type(p, 0).b == ABT_NUMBER);
         REQUIRE(any_type(p, 0).variant == AVTN_REAL);
-        REQUIRE(any_to_real(p, 0) == Approx(3.14));
+        REQUIRE(any_to_real(p, 0) == Approx(3.14f));
     }
 
     ascheduler_cleanup(&s);
@@ -761,6 +761,338 @@ TEST_CASE("dispatcher_imp")
         REQUIRE(any_type(p, 0).variant == AVTF_NATIVE);
         REQUIRE(p->stack[aprocess_absidx(p, 0)].v.func == (anative_func_t)0xF2);
     };
+
+    ascheduler_cleanup(&s);
+    avm_shutdown(&vm);
+    aasm_cleanup(&a);
+}
+
+TEST_CASE("dispatcher_jmp")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t a;
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
+    add_test_module(&a);
+
+    avm_t vm;
+    ascheduler_t s;
+    REQUIRE(AERR_NONE ==
+        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, &vm, &myalloc, NULL));
+
+    SECTION("normal")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_jmp(2));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_lsi(3));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 2);
+        REQUIRE(any_type(p, 1).b == ABT_NIL);
+        REQUIRE(any_type(p, 0).b == ABT_NUMBER);
+        REQUIRE(any_type(p, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, 0) == 1);
+    }
+
+    SECTION("bad negative index")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_jmp(-4));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_lsi(3));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 1);
+        REQUIRE(any_type(p, 0).b == ABT_STRING);
+        CHECK_THAT(any_to_string(p, 0), Catch::Equals("bad jump"));
+    }
+
+    SECTION("bad positive index")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_jmp(3));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_lsi(3));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 1);
+        REQUIRE(any_type(p, 0).b == ABT_STRING);
+        CHECK_THAT(any_to_string(p, 0), Catch::Equals("bad jump"));
+    }
+
+    ascheduler_cleanup(&s);
+    avm_shutdown(&vm);
+    aasm_cleanup(&a);
+}
+
+TEST_CASE("dispatcher_jin")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t a;
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
+    add_test_module(&a);
+
+    avm_t vm;
+    ascheduler_t s;
+    REQUIRE(AERR_NONE ==
+        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, &vm, &myalloc, NULL));
+
+    SECTION("true")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_ldb(TRUE));
+        aasm_emit(&a, ai_jin(1));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 2);
+        REQUIRE(any_type(p, 1).b == ABT_NIL);
+        REQUIRE(any_type(p, 0).b == ABT_NUMBER);
+        REQUIRE(any_type(p, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, 0) == 2);
+    }
+
+    SECTION("false")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_ldb(FALSE));
+        aasm_emit(&a, ai_jin(1));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 2);
+        REQUIRE(any_type(p, 1).b == ABT_NIL);
+        REQUIRE(any_type(p, 0).b == ABT_NUMBER);
+        REQUIRE(any_type(p, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, 0) == 1);
+    }
+
+    SECTION("bad negative index")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_ldb(FALSE));
+        aasm_emit(&a, ai_jin(-5));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 1);
+        REQUIRE(any_type(p, 0).b == ABT_STRING);
+        CHECK_THAT(any_to_string(p, 0), Catch::Equals("bad jump"));
+    }
+
+    SECTION("bad positive index")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_ldb(FALSE));
+        aasm_emit(&a, ai_jin(2));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 1);
+        REQUIRE(any_type(p, 0).b == ABT_STRING);
+        CHECK_THAT(any_to_string(p, 0), Catch::Equals("bad jump"));
+    }
+
+    SECTION("bad condition")
+    {
+        aasm_module_push(&a, "test_f");
+        aasm_emit(&a, ai_lsi(0));
+        aasm_emit(&a, ai_lsi(1));
+        aasm_emit(&a, ai_jin(2));
+        aasm_emit(&a, ai_lsi(2));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 1);
+        REQUIRE(any_type(p, 0).b == ABT_STRING);
+        CHECK_THAT(any_to_string(p, 0),
+            Catch::Equals("condition must be boolean"));
+    }
+
+    ascheduler_cleanup(&s);
+    avm_shutdown(&vm);
+    aasm_cleanup(&a);
+}
+
+TEST_CASE("dispatcher_mkc_ivk")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t a;
+    aasm_init(&a, &myalloc, NULL);
+    REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
+    add_test_module(&a);
+
+    avm_t vm;
+    ascheduler_t s;
+    REQUIRE(AERR_NONE ==
+        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, &vm, &myalloc, NULL));
+
+    SECTION("normal fefe")
+    {
+        aasm_module_push(&a, "test_f");
+        int32_t npt = aasm_push(&a);
+        {
+            aasm_emit(&a, ai_llv(-1));
+            aasm_emit(&a, ai_jin(2));
+            aasm_emit(&a, ai_lsi(0xFEFE));
+            aasm_emit(&a, ai_ret());
+            aasm_emit(&a, ai_lsi(0xFEFA));
+            aasm_emit(&a, ai_ret());
+            aasm_pop(&a);
+        }
+        aasm_emit(&a, ai_mkc(npt));
+        aasm_emit(&a, ai_ldb(TRUE));
+        aasm_emit(&a, ai_ivk(1));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 2);
+        REQUIRE(any_type(p, 1).b == ABT_NIL);
+        REQUIRE(any_type(p, 0).b == ABT_NUMBER);
+        REQUIRE(any_type(p, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, 0) == 0xFEFE);
+    }
+
+    SECTION("normal fefa")
+    {
+        aasm_module_push(&a, "test_f");
+        int32_t npt = aasm_push(&a);
+        {
+            aasm_emit(&a, ai_llv(-1));
+            aasm_emit(&a, ai_jin(2));
+            aasm_emit(&a, ai_lsi(0xFEFE));
+            aasm_emit(&a, ai_ret());
+            aasm_emit(&a, ai_lsi(0xFEFA));
+            aasm_emit(&a, ai_ret());
+            aasm_pop(&a);
+        }
+        aasm_emit(&a, ai_mkc(npt));
+        aasm_emit(&a, ai_ldb(FALSE));
+        aasm_emit(&a, ai_ivk(1));
+        aasm_emit(&a, ai_ret());
+        aasm_save(&a);
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&vm.loader, a.chunk, a.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&vm.loader, TRUE));
+
+        aprocess_t* p;
+        REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+        any_find(p, "mod_test", "test_f");
+        aprocess_start(p, CSTACK_SZ, 0);
+        atask_yield(&s.task);
+        REQUIRE(any_count(p) == 2);
+        REQUIRE(any_type(p, 1).b == ABT_NIL);
+        REQUIRE(any_type(p, 0).b == ABT_NUMBER);
+        REQUIRE(any_type(p, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_to_integer(p, 0) == 0xFEFA);
+    }
 
     ascheduler_cleanup(&s);
     avm_shutdown(&vm);

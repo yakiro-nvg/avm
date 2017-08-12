@@ -25,6 +25,7 @@ typedef enum {
     AOC_LLV = 14,
     AOC_SLV = 15,
     AOC_IMP = 16,
+    AOC_MKC = 17,
 
     AOC_JMP = 30,
     AOC_JIN = 31,
@@ -175,6 +176,20 @@ typedef struct  {
     int32_t idx : 24;
 } ai_imp_t;
 
+/** Make a closure of prototype at `idx` and push it onto the stack.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_MKC  idx
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _ : 8;
+    int32_t idx : 24;
+} ai_mkc_t;
+
 /** Unconditional jump, with signed `displacement`.
 \rst
 =======  ============
@@ -293,6 +308,7 @@ typedef union {
     ai_llv_t llv;
     ai_slv_t slv;
     ai_imp_t imp;
+    ai_mkc_t mkc;
     ai_jmp_t jmp;
     ai_jin_t jin;
     ai_ivk_t ivk;
@@ -372,6 +388,14 @@ static AINLINE ainstruction_t ai_imp(int32_t idx)
     ainstruction_t i;
     i.b.opcode = AOC_IMP;
     i.imp.idx = idx;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_mkc(int32_t idx)
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_MKC;
+    i.mkc.idx = idx;
     return i;
 }
 

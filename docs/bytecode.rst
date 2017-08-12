@@ -20,9 +20,11 @@ Instruction Set
 .. doxygenstruct:: ai_ldk_t
 .. doxygenstruct:: ai_nil_t
 .. doxygenstruct:: ai_ldb_t
+.. doxygenstruct:: ai_lsi_t
 .. doxygenstruct:: ai_llv_t
 .. doxygenstruct:: ai_slv_t
 .. doxygenstruct:: ai_imp_t
+.. doxygenstruct:: ai_mkc_t
 .. doxygenstruct:: ai_jmp_t
 .. doxygenstruct:: ai_jin_t
 .. doxygenstruct:: ai_ivk_t
