@@ -42,7 +42,7 @@ void atask_yield(struct atask_t* self)
 void atask_sleep(struct atask_t* self, int32_t nsecs)
 {
     AUNUSED(self);
-    Sleep(nsecs * 1000000);
+    Sleep(nsecs / 1000000);
 }
 
 #else // ANY_TASK_FIBER
