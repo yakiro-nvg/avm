@@ -13,14 +13,14 @@ extern "C" {
 ANY_API ahash_and_length_t ahash_and_length(const char* s);
 
 /// Create a new string.
-static AINLINE int32_t agc_string_new(agc_t* gc, const char* s, avalue_t* v)
+static AINLINE int32_t agc_string_new(aprocess_t* p, const char* s, avalue_t* v)
 {
     ahash_and_length_t hal = ahash_and_length(s);
-    int32_t oi = agc_alloc(
-        gc, ABT_STRING, sizeof(agc_string_t) + hal.length + 1);
+    int32_t oi = aprocess_alloc(
+        p, ABT_STRING, sizeof(agc_string_t) + hal.length + 1);
     if (oi < 0) return oi;
     else {
-        agc_string_t* o = AGC_CAST(agc_string_t, gc, oi);
+        agc_string_t* o = AGC_CAST(agc_string_t, &p->gc, oi);
         o->hal = hal;
         memcpy(o + 1, s, hal.length + 1);
         v->tag.b = ABT_STRING;
@@ -33,7 +33,7 @@ static AINLINE int32_t agc_string_new(agc_t* gc, const char* s, avalue_t* v)
 static AINLINE void any_push_string(aprocess_t* p, const char* s)
 {
     avalue_t v;
-    int32_t ec = agc_string_new(&p->gc, s, &v);
+    int32_t ec = agc_string_new(p, s, &v);
     if (ec != AERR_NONE) any_throw(p, ec);
     aprocess_push(p, &v);
 }

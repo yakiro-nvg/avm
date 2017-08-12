@@ -197,6 +197,22 @@ void any_error(aprocess_t* p, aerror_t ec, const char* fmt, ...)
     any_throw(p, ec);
 }
 
+int32_t aprocess_alloc(aprocess_t* self, aabt_t abt, int32_t sz)
+{
+    agc_t* gc = &self->gc;
+    int32_t i = agc_alloc(gc, abt, sz);
+    if (i >= 0) return i;
+    else {
+        avalue_t* roots[] = { self->stack, NULL };
+        int32_t num_roots[] = { self->sp };
+        agc_collect(gc, roots, num_roots);
+        i = agc_alloc(gc, abt, sz);
+        if (i >= 0) return i;
+        agc_reserve(gc, sz);
+        return agc_alloc(gc, abt, sz);
+    }
+}
+
 aerror_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)
 {
     aprocess_t* np;

@@ -1,9 +1,15 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <catch.hpp>
 
+#include <any/rt_types.h>
 #include <any/gc.h>
 #include <any/gc_string.h>
 #include <any/gc_buffer.h>
+#include <any/vm.h>
+#include <any/scheduler.h>
+#include <any/process.h>
+
+enum { CSTACK_SZ = 16384 };
 
 static void* myalloc(void*, void* old, int32_t sz)
 {
@@ -19,6 +25,38 @@ static bool search_for(agc_t* gc, int32_t i)
         off += h->sz;
     }
     return false;
+}
+
+static void string_test(aprocess_t* p)
+{
+    char buff[64];
+    for (int32_t i = 0; i < 1000; ++i) {
+        snprintf(buff, sizeof(buff), "string %d", i);
+        any_push_string(p, buff);
+    }
+    for (int32_t i = 0; i < 1000; ++i) {
+        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+    }
+    for (int32_t i = 1000; i < 5000; ++i) {
+        snprintf(buff, sizeof(buff), "string %d", i);
+        any_push_string(p, buff);
+    }
+    for (int32_t i = 1000; i < 5000; ++i) {
+        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+    }
+    for (int32_t i = 5000; i < 10000; ++i) {
+        snprintf(buff, sizeof(buff), "string %d", i);
+        any_push_string(p, buff);
+    }
+    for (int32_t i = 5000; i < 10000; ++i) {
+        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+    }
+    for (int32_t i = 0; i < 10000; ++i) {
+        if (i % 2 == 0) continue;
+        snprintf(buff, sizeof(buff), "string %d", i);
+        CHECK_THAT(any_to_string(p, i), Catch::Equals(buff));
+    }
+    any_push_string(p, "ok");
 }
 
 TEST_CASE("gc")
@@ -43,9 +81,13 @@ TEST_CASE("gc")
         REQUIRE(*AGC_CAST(int32_t, &gc, b->buff.v.heap_idx) == i);
     }
 
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    {
+        avalue_t* roots[] = { stack.data(), NULL };
+        int32_t num_roots[] = { (int32_t)stack.size() };
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+    }
 
     for (int32_t i = 0; i < (int32_t)stack.size(); ++i) {
         agc_buffer_t* b = AGC_CAST(agc_buffer_t, &gc, stack[i].v.heap_idx);
@@ -56,9 +98,13 @@ TEST_CASE("gc")
         if (i % 2 != 0) stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    {
+        avalue_t* roots[] = { stack.data(), NULL };
+        int32_t num_roots[] = { (int32_t)stack.size() };
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+    }
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE((i % 2 == 0) == search_for(&gc, i));
@@ -68,9 +114,13 @@ TEST_CASE("gc")
         if (i % 4 != 0) stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    {
+        avalue_t* roots[] = { stack.data(), NULL };
+        int32_t num_roots[] = { (int32_t)stack.size() };
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+    }
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE((i % 4 == 0) == search_for(&gc, i));
@@ -80,9 +130,13 @@ TEST_CASE("gc")
         stack[i].tag.b = ABT_NIL;
     }
 
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
-    agc_collect(&gc, stack.data(), (int32_t)stack.size());
+    {
+        avalue_t* roots[] = { stack.data(), NULL };
+        int32_t num_roots[] = { (int32_t)stack.size() };
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+        agc_collect(&gc, roots, num_roots);
+    }
 
     for (int32_t i = 0; i < 1000; ++i) {
         REQUIRE(!search_for(&gc, i));
@@ -91,4 +145,37 @@ TEST_CASE("gc")
     REQUIRE(agc_heap_size(&gc) == 0);
 
     agc_cleanup(&gc);
+}
+
+TEST_CASE("gc_string")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    avm_t vm;
+    ascheduler_t s;
+
+    avalue_t f;
+    f.tag.b = ABT_FUNCTION;
+    f.tag.variant = AVTF_NATIVE;
+    f.v.func = &string_test;
+
+    REQUIRE(AERR_NONE ==
+        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    REQUIRE(AERR_NONE == ascheduler_init(&s, &vm, &myalloc, NULL));;
+
+    aprocess_t* p;
+    REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
+    aprocess_push(p, &f);
+    aprocess_start(p, CSTACK_SZ, 0);
+    atask_yield(&s.task);
+
+    CHECK_THAT(any_to_string(p, 0), Catch::Equals("ok"));
+    REQUIRE(any_count(p) == 2);
+    REQUIRE(any_type(p, 1).b == ABT_NIL);
+    REQUIRE(any_type(p, 0).b == ABT_STRING);
+    CHECK_THAT(any_to_string(p, 0), Catch::Equals("ok"));
+
+    ascheduler_cleanup(&s);
+    avm_shutdown(&vm);
 }

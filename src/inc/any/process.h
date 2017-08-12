@@ -23,6 +23,12 @@ ANY_API void aprocess_reserve(aprocess_t* self, int32_t more);
 /// Throw an error, with description string pushed onto the stack.
 ANY_API void any_error(aprocess_t* p, aerror_t ec, const char* fmt, ...);
 
+/** Allocate a new collectable object.
+\brief Collect or grow if necessary.
+\note Please refer \ref agc_alloc.
+*/
+ANY_API int32_t aprocess_alloc(aprocess_t* self, aabt_t abt, int32_t sz);
+
 /// Push a value onto the stack, should be internal used.
 static AINLINE void aprocess_push(aprocess_t* self, avalue_t* v)
 {

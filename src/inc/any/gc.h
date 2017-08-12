@@ -22,8 +22,10 @@ ANY_API int32_t agc_alloc(agc_t* self, aabt_t abt, int32_t sz);
 /// Ensures that there are `more` bytes in the heap.
 ANY_API aerror_t agc_reserve(agc_t* self, int32_t more);
 
-/// Reclaim unreferenced objects.
-ANY_API void agc_collect(agc_t* self, avalue_t* root, int32_t num_roots);
+/** Reclaim unreferenced objects.
+\brief `root` must be NULL terminated.
+*/
+ANY_API void agc_collect(agc_t* self, avalue_t** roots, int32_t* num_roots);
 
 /// Get current heap size.
 static AINLINE int32_t agc_heap_size(agc_t* self)

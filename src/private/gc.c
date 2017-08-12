@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/gc.h>
 
-#include <any/process.h>
-
 #define GROW_FACTOR 2
 #define NOT_FORWARED -1
 
@@ -101,6 +99,7 @@ aerror_t agc_reserve(agc_t* self, int32_t more)
 {
     uint8_t* nh;
     int32_t new_cap = self->heap_cap;
+    more += sizeof(agc_header_t);
     while (new_cap < self->heap_sz + more) new_cap *= GROW_FACTOR;
     nh = (uint8_t*)aalloc(self, NULL, new_cap * 2);
     if (!nh) return AERR_FULL;
@@ -112,13 +111,15 @@ aerror_t agc_reserve(agc_t* self, int32_t more)
     return AERR_NONE;
 }
 
-void agc_collect(agc_t* self, avalue_t* root, int32_t num_roots)
+void agc_collect(agc_t* self, avalue_t** roots, int32_t* num_roots)
 {
     int32_t i;
     self->heap_sz = 0;
     self->scan = 0;
-    for (i = 0; i < num_roots; ++i) {
-        copy(self, root + i);
+    for (; *roots; ++roots, ++num_roots) {
+        for (i = 0; i < *num_roots; ++i) {
+            copy(self, *roots + i);
+        }
     }
     while (self->scan != self->heap_sz) {
         agc_header_t* header = (agc_header_t*)(self->new_heap + self->scan);
