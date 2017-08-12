@@ -48,15 +48,15 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
 
 ## What works currenty
 
-- Single, fair scheduler (no threading).
+- Cooperative scheduler (no parallel).
 - Lightweight real-time process.
 - Reloadable loader.
-- Assembler.
-- GC.
+- Byte code assembler.
+- Copying GC.
 
 ## Coming soon
 
-- Bytecode dispatcher;
+- Bytecode dispatcher.
 - Debug bridge.
 
 ## Contributing
