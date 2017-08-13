@@ -249,7 +249,7 @@ typedef struct {
     uint32_t _;
 } ai_ret_t;
 
-/** Pop a target pid and next a message from the stack and send it.
+/** Pop message and next a target pid from the stack and send it.
 \rst
 =======  =======
 8 bits   24 bits
@@ -264,10 +264,10 @@ typedef struct {
 
 /** Picks up next message in the queue and places it onto the stack.
 \brief If there is no more message, jump to signed `displacement`.
-A `timeout` value will be popped from the stack, that will be used by AVM to
-determine if it must wait for this period before it decided that there is no
-more message in the queue. This `timeout` is signed and in milliseconds, a
-negative value means infinite waiting.
+A `timeout` microseconds value will be popped from the stack, that will be used
+by AVM to determine if it must wait for this period before it decided that there
+is no more message in the queue. This `timeout` is microseconds, \ref AINFINITE
+can be used for infinite waiting.
 \note This instruction will not remove messages from the queue.
 \rst
 =======  ============
@@ -281,6 +281,8 @@ typedef struct {
     uint32_t _ : 8;
     int32_t displacement : 24;
 } ai_rcv_t;
+
+#define AINFINITE (-1)
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.
 \brief The peek pointer will be rewound to the front.
@@ -798,7 +800,6 @@ typedef struct {
     uint8_t num_constants;
     uint8_t num_local_vars;
     uint8_t num_imports;
-    uint8_t _;
 } aprototype_header_t;
 
 ASTATIC_ASSERT(sizeof(aprototype_header_t) == 24);
@@ -932,7 +933,6 @@ index  description
 */
 typedef struct aprocess_t {
     int32_t flags;
-    apid_t pid;
     aalloc_t alloc;
     void* alloc_ud;
     struct ascheduler_t* owner;
@@ -965,10 +965,8 @@ typedef struct ascheduler_t {
 
 /// VM managed process.
 typedef struct {
-#ifdef ANY_SMP
-    amutex_t mutex;
-#endif
-    volatile int32_t dead;
+    int32_t dead;
+    apid_t pid;
     aprocess_t p;
 } avm_process_t;
 
@@ -990,9 +988,6 @@ typedef struct {
                                        +---------------+
 */
 typedef struct avm_t {
-#ifdef ANY_SMP
-    amutex_t mutex;
-#endif
     aalloc_t alloc;
     void* alloc_ud;
     avm_process_t* procs;
