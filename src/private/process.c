@@ -63,19 +63,34 @@ aerror_t aprocess_init(
     aprocess_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
     aerror_t ec;
+    memset(self, 0, sizeof(aprocess_t));
     self->owner = owner;
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
-    self->flags = 0;
     self->stack = (avalue_t*)aalloc(
         self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
-    if (!self->stack) return AERR_FULL;
+    if (!self->stack) {
+        ec = AERR_FULL;
+        goto failed;
+    }
     self->stack_cap = INIT_STACK_SZ;
-    self->sp = 0;
     any_push_nil(self); // stack[0] is nil
+    self->mbox.msgs = (avalue_t*)aalloc(
+        self, NULL, sizeof(avalue_t)*INIT_MBOX_SZ);
+    if (!self->mbox.msgs) {
+        ec = AERR_FULL;
+        goto failed;
+    }
+    self->mbox.cap = INIT_MBOX_SZ;
     ec = adispatcher_init(&self->dispatcher, self);
-    if (ec != AERR_NONE) aalloc(self, self->stack, 0);
-    return agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
+    if (ec != AERR_NONE) goto failed;
+    ec = agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
+    if (ec != AERR_NONE) goto failed;
+    return ec;
+failed:
+    if (self->stack) aalloc(self, self->stack, 0);
+    if (self->mbox.msgs) aalloc(self, self->mbox.msgs, 0);
+    return ec;
 }
 
 void aprocess_start(
@@ -88,9 +103,7 @@ void aprocess_start(
 void aprocess_cleanup(aprocess_t* self)
 {
     aalloc(self, self->stack, 0);
-    self->stack = NULL;
-    self->stack_cap = 0;
-    self->sp = 0;
+    aalloc(self, self->mbox.msgs, 0);
     atask_delete(&self->task);
     agc_cleanup(&self->gc);
 }
@@ -103,7 +116,7 @@ void aprocess_reserve(aprocess_t* self, int32_t more)
     new_cap = self->stack_cap;
     while (new_cap < self->sp + more) new_cap *= GROW_FACTOR;
     ns = (avalue_t*)aalloc(self, self->stack, sizeof(avalue_t)*new_cap);
-    if (!ns) any_error(self, AERR_OVERFLOW, "out of memory");
+    if (!ns) any_error(self, AERR_RUNTIME, "out of memory");
     self->stack = ns;
     self->stack_cap = new_cap;
 }
@@ -203,8 +216,8 @@ int32_t aprocess_alloc(aprocess_t* self, aabt_t abt, int32_t sz)
     int32_t i = agc_alloc(gc, abt, sz);
     if (i >= 0) return i;
     else {
-        avalue_t* roots[] = { self->stack, NULL };
-        int32_t num_roots[] = { self->sp };
+        avalue_t* roots[] = { self->stack, self->mbox.msgs, NULL };
+        int32_t num_roots[] = { self->sp, self->mbox.sz };
         agc_collect(gc, roots, num_roots);
         i = agc_alloc(gc, abt, sz);
         if (i >= 0) return i;
@@ -224,6 +237,6 @@ aerror_t any_spawn(aprocess_t* p, int32_t cstack_sz, int32_t nargs, apid_t* pid)
     }
     any_pop(p, nargs + 1);
     aprocess_start(np, cstack_sz, nargs);
-    *pid = np->pid;
+    *pid = avm_pid(np);
     return AERR_NONE;
 }
