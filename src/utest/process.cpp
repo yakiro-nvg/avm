@@ -34,7 +34,7 @@ static void try_throw41(aprocess_t* p, void* ud)
 static void try_throw42(aprocess_t* p, void* ud)
 {
     REQUIRE((size_t)ud == 0xF42);
-    any_throw(p, AERR_OVERFLOW);
+    any_throw(p, AERR_RUNTIME);
 }
 
 static void try_throw3(aprocess_t* p, void* ud)
@@ -47,7 +47,7 @@ static void try_throw3(aprocess_t* p, void* ud)
 static void try_throw2(aprocess_t* p, void* ud)
 {
     REQUIRE((size_t)ud == 0xF2);
-    REQUIRE(AERR_OVERFLOW == any_try(p, &try_throw3, (void*)0xF3));
+    REQUIRE(AERR_RUNTIME == any_try(p, &try_throw3, (void*)0xF3));
 }
 
 static void try_throw1(aprocess_t* p, void* ud)

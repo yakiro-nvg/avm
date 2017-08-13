@@ -22,45 +22,33 @@ ANY_API aerror_t avm_startup(
 /// Gracefully cleanup the VM.
 ANY_API void avm_shutdown(avm_t* self);
 
-/** Lock for alive process by pid.
+/** Get alive process by pid.
 \return NULL if that is not found or died.
 */
-static AINLINE avm_process_t* avm_lock_pid(avm_t* self, apid_t pid)
+static AINLINE aprocess_t* avm_from_pid(avm_t* self, apid_t pid)
 {
     apid_idx_t idx = apid_idx(self->idx_bits, pid);
     avm_process_t* vp = self->procs + idx;
     if (idx >= (apid_idx_t)(1 << self->idx_bits)) return NULL;
-#ifdef ANY_SMP
-    amutex_lock(&vp->mutex);
-#endif
-    if (vp->p.pid == pid && !vp->dead) return vp;
-    else {
-#ifdef ANY_SMP
-        amutex_unlock(&vp->mutex);
-#endif
-        return NULL;
-    }
-}
-
-/// Unlock a process.
-static AINLINE void avm_unlock(avm_process_t* vp)
-{
-#ifdef ANY_SMP
-    amutex_unlock(&vp->mutex);
-#else
-    AUNUSED(vp);
-#endif
+    if (vp->pid == pid && !vp->dead) return &vp->p;
+    else return NULL;
 }
 
 /** Take an unused slot from the pool.
 \return NULL if no more space.
 */
-ANY_API avm_process_t* avm_alloc(avm_t* self);
+ANY_API aprocess_t* avm_alloc(avm_t* self);
 
 /// Return this process to the pool.
-static AINLINE void avm_free(avm_process_t* vp)
+static AINLINE void avm_free(aprocess_t* p)
 {
-    vp->dead = TRUE;
+    ACAST_FROM_FIELD(avm_process_t, p, p)->dead = TRUE;
+}
+
+/// Get pid of this process.
+static AINLINE apid_t avm_pid(aprocess_t* p)
+{
+    return ACAST_FROM_FIELD(avm_process_t, p, p)->pid;
 }
 
 #ifdef __cplusplus

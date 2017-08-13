@@ -23,7 +23,7 @@ TEST_CASE("vm_allocation")
     // empty
     for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
         for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
-            REQUIRE(!avm_lock_pid(
+            REQUIRE(!avm_from_pid(
                 &vm, apid_from(NUM_IDX_BITS, NUM_GEN_BITS, i, g)));
         }
     }
@@ -31,16 +31,15 @@ TEST_CASE("vm_allocation")
     // basic
     for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
         for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
-            avm_process_t* vp = avm_alloc(&vm);
-            REQUIRE(vp != NULL);
-            REQUIRE(vp == avm_lock_pid(&vm, vp->p.pid));
-            avm_unlock(vp);
-            avm_free(vp);
+            aprocess_t* p = avm_alloc(&vm);
+            REQUIRE(p != NULL);
+            REQUIRE(p == avm_from_pid(&vm, avm_pid(p)));
+            avm_free(p);
         }
     }
 
     // over-allocate
-    avm_process_t* procs[1 << NUM_IDX_BITS];
+    aprocess_t* procs[1 << NUM_IDX_BITS];
     for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
         procs[i] = avm_alloc(&vm);
         REQUIRE(procs[i]);
