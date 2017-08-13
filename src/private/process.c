@@ -1,6 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/process.h>
 
+#include <any/vm.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/dispatcher.h>
@@ -10,6 +11,7 @@
 #define GROW_FACTOR 2
 #define INIT_STACK_SZ 64
 #define INIT_HEAP_SZ 512
+#define INIT_MBOX_SZ 32
 
 static AINLINE void* aalloc(aprocess_t* self, void* old, const int32_t sz)
 {
