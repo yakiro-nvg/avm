@@ -267,7 +267,6 @@ static void set_headers(
     header->num_upvalues = p->num_upvalues;
     header->num_arguments = p->num_arguments;
     header->num_constants = p->num_constants;
-    header->num_local_vars = p->num_local_vars;
     header->num_imports = p->num_imports;
     header->source = chunk_add_str(self, header, p->source);
     header->symbol = chunk_add_str(self, header, p->symbol);
@@ -379,7 +378,6 @@ static aerror_t load_chunk(
 
     ap->num_upvalues = p->num_upvalues;
     ap->num_arguments = p->num_arguments;
-    ap->num_local_vars = p->num_local_vars;
 
     memcpy(
         instructions_of(ap),

@@ -19,18 +19,17 @@ typedef void(ASTDCALL*atask_entry_t)(void*);
 /// Turn caller into a task.
 ANY_API aerror_t atask_shadow(struct atask_t* self);
 
-/// TODO
+/// Create a new cooperative task.
 ANY_API aerror_t atask_create(
-    struct atask_t* self, struct atask_t* root,
-    atask_entry_t entry, void* ud, int32_t stack_sz);
+    struct atask_t* self, atask_entry_t entry, void* ud, int32_t stack_sz);
 
-/// TODO
+/// Delete a task.
 ANY_API void atask_delete(struct atask_t* self);
 
-/// TODO
-ANY_API void atask_yield(struct atask_t* self);
+/// Switch to `next` task.
+ANY_API void atask_yield(struct atask_t* self, struct atask_t* next);
 
-/// TODO
+/// Sleep at least `nsecs`.
 ANY_API void atask_sleep(struct atask_t* self, int32_t nsecs);
 
 #ifdef __cplusplus

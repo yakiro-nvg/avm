@@ -5,9 +5,8 @@
 #include <any/gc.h>
 #include <any/gc_string.h>
 #include <any/gc_buffer.h>
-#include <any/vm.h>
 #include <any/scheduler.h>
-#include <any/process.h>
+#include <any/actor.h>
 
 enum { CSTACK_SZ = 16384 };
 
@@ -27,36 +26,36 @@ static bool search_for(agc_t* gc, int32_t i)
     return false;
 }
 
-static void string_test(aprocess_t* p)
+static void string_test(aactor_t* a)
 {
     char buff[64];
     for (int32_t i = 0; i < 1000; ++i) {
         snprintf(buff, sizeof(buff), "string %d", i);
-        any_push_string(p, buff);
+        any_push_string(a, buff);
     }
     for (int32_t i = 0; i < 1000; ++i) {
-        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
     }
     for (int32_t i = 1000; i < 5000; ++i) {
         snprintf(buff, sizeof(buff), "string %d", i);
-        any_push_string(p, buff);
+        any_push_string(a, buff);
     }
     for (int32_t i = 1000; i < 5000; ++i) {
-        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
     }
     for (int32_t i = 5000; i < 10000; ++i) {
         snprintf(buff, sizeof(buff), "string %d", i);
-        any_push_string(p, buff);
+        any_push_string(a, buff);
     }
     for (int32_t i = 5000; i < 10000; ++i) {
-        if (i % 2 == 0) p->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
     }
     for (int32_t i = 0; i < 10000; ++i) {
         if (i % 2 == 0) continue;
         snprintf(buff, sizeof(buff), "string %d", i);
-        CHECK_THAT(any_to_string(p, i), Catch::Equals(buff));
+        CHECK_THAT(any_to_string(a, i), Catch::Equals(buff));
     }
-    any_push_string(p, "ok");
+    any_push_string(a, "ok");
 }
 
 TEST_CASE("gc")
@@ -152,7 +151,6 @@ TEST_CASE("gc_string")
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
 
-    avm_t vm;
     ascheduler_t s;
 
     avalue_t f;
@@ -161,21 +159,20 @@ TEST_CASE("gc_string")
     f.v.func = &string_test;
 
     REQUIRE(AERR_NONE ==
-        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    REQUIRE(AERR_NONE == ascheduler_init(&s, &vm, &myalloc, NULL));;
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    aprocess_t* p;
-    REQUIRE(AERR_NONE == ascheduler_new_process(&s, &p));
-    aprocess_push(p, &f);
-    aprocess_start(p, CSTACK_SZ, 0);
-    atask_yield(&s.task);
+    aactor_t* a;
+    REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+    aactor_push(a, &f);
+    ascheduler_start(&s, a, 0);
 
-    CHECK_THAT(any_to_string(p, 0), Catch::Equals("ok"));
-    REQUIRE(any_count(p) == 2);
-    REQUIRE(any_type(p, 1).b == ABT_NIL);
-    REQUIRE(any_type(p, 0).b == ABT_STRING);
-    CHECK_THAT(any_to_string(p, 0), Catch::Equals("ok"));
+    ascheduler_run_once(&s);
+
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
+    REQUIRE(any_count(a) == 2);
+    REQUIRE(any_type(a, 1).b == ABT_NIL);
+    REQUIRE(any_type(a, 0).b == ABT_STRING);
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
 
     ascheduler_cleanup(&s);
-    avm_shutdown(&vm);
 }

@@ -27,5 +27,4 @@ typedef struct atask_t {
 #ifdef ANY_USE_VALGRIND
     unsigned int vgid;
 #endif
-    alist_node_t node;
 } atask_t;

@@ -7,7 +7,7 @@
 #include <any/task.h>
 
 // Forward declarations.
-struct aprocess_t;
+struct aactor_t;
 
 // Primitive types.
 typedef int64_t aint_t;
@@ -25,7 +25,7 @@ typedef enum {
     AOC_LLV = 14,
     AOC_SLV = 15,
     AOC_IMP = 16,
-    AOC_MKC = 17,
+    AOC_CLS = 17,
 
     AOC_JMP = 30,
     AOC_JIN = 31,
@@ -181,14 +181,14 @@ typedef struct  {
 =======  =======
 8 bits   24 bits
 =======  =======
-AOC_MKC  idx
+AOC_cls  idx
 =======  =======
 \endrst
 */
 typedef struct {
     uint32_t _ : 8;
     int32_t idx : 24;
-} ai_mkc_t;
+} ai_cls_t;
 
 /** Unconditional jump, with signed `displacement`.
 \rst
@@ -220,7 +220,7 @@ typedef struct {
 } ai_jin_t;
 
 /** Function call.
-\brief Please refer \ref aprocess_t for the protocol.
+\brief Please refer \ref aactor_t for the protocol.
 \note Result will be placed on top of the stack.
 \rst
 =======  =======
@@ -310,7 +310,7 @@ typedef union {
     ai_llv_t llv;
     ai_slv_t slv;
     ai_imp_t imp;
-    ai_mkc_t mkc;
+    ai_cls_t cls;
     ai_jmp_t jmp;
     ai_jin_t jin;
     ai_ivk_t ivk;
@@ -393,11 +393,11 @@ static AINLINE ainstruction_t ai_imp(int32_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_mkc(int32_t idx)
+static AINLINE ainstruction_t ai_cls(int32_t idx)
 {
     ainstruction_t i;
-    i.b.opcode = AOC_MKC;
-    i.mkc.idx = idx;
+    i.b.opcode = AOC_CLS;
+    i.cls.idx = idx;
     return i;
 }
 
@@ -493,7 +493,7 @@ static AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
 typedef int32_t astring_ref_t;
 
 /// Native function.
-typedef void(*anative_func_t)(struct aprocess_t*);
+typedef void(*anative_func_t)(struct aactor_t*);
 
 // Constant types.
 typedef enum {
@@ -694,7 +694,7 @@ a module to be executed except the external value (called import). This chunk
 is portable in theory. However, there is no need to actually do that in real-
 life. AVM will not even try to make any effort to load an incompatible chunks.
 Of course, if we really **need** this as a feature, byte code rewriter could
-be implemented as an external tool.
+be implemented as another tool.
 \par Header format.
 \rst
 =====  ===================  ===================
@@ -778,9 +778,8 @@ bytes                                 description
 1 unsigned                            num of up-values
 1 unsigned                            num of arguments
 1 unsigned                            num of constants
-1 unsigned                            num of local variables
 1 unsigned                            num of imports
-1                                     _
+2                                     _
 num of string bytes                   strings
 n * sizeof(:c:type:`ainstruction_t`)  instructions
 n * sizeof(:c:type:`aconstant_t`)     constants
@@ -798,7 +797,6 @@ typedef struct {
     uint8_t num_upvalues;
     uint8_t num_arguments;
     uint8_t num_constants;
-    uint8_t num_local_vars;
     uint8_t num_imports;
 } aprototype_header_t;
 
@@ -890,53 +888,48 @@ typedef struct acatch_t {
     jmp_buf jbuff;
 } acatch_t;
 
-/// \ref AVTF_AVM function byte code dispatcher.
-typedef struct {
-    struct aprocess_t* owner;
-} adispatcher_t;
-
-/** Light weight processes.
+/** The actor.
 \brief
 AVM concurrency is rely on `actor model`, which is inspired by Erlang. In this
-model, each concurrent task will be represented as a `aprocess_t`. Which is, in
+model, each concurrent task will be represented as a `aactor_t`. Which is, in
 general have isolated state, that means such state can not be touched by other
 actor. The only way an actor can affect each others is through message, to tell
 the owner of that state to make the modification by itself. Therefore, we avoid
 the need for explicitly locking to the state and lot of consequence trouble like
 deadlock. Well, frankly speaking, deadlock still be possible if there are actors
 that is at the same time blocking wait for messages from each other, but mostly
-that remains easier to deal with. AVM process is also light weight in compared
+that remains easier to deal with. AVM actor is also light weight in compared
 to most of OS threads. The overhead in memory footprint, creation, termination
-and scheduling is low. Therefore, a massive amount of process could be spawned.
+and scheduling is low. Therefore, a massive amount of actor could be spawned.
 
 \par Virtual stack.
 Besides of the native C stack, AVM also using a dedicated, dynamic sized stack
-for `avalue_t`, which is subject of Garbage Collector. Indexing for this stack
-is relative to current function frame. Negative value of the index is used to
-point to the argument, that must be passed in reversed order. Underflow always
-result as a nil value.
+for `avalue_t`. Indexing for this stack is relative to current function frame.
+Negative value is used to point to the argument, that must be passed in reversed
+order. Underflow always result as a nil value.
 
-=====  ================
-index  description
-=====  ================
- 4     overflow   (sp)
- 3     local var3 (top)
+\rst
+=====  ===========  =======
+index  description  pointer
+=====  ===========  =======
+ 4     overflow     sp
+ 3     local var3   top
  2     local var2
  1     local var1
- 0     local var0 (bp)
+ 0     local var0   bp
 -1     argument 1
 -2     argument 2
 -3     argument 3
 -4     nil
 -5     nil
-=====  ================
+=====  ===========  =======
+\endrst
 */
-typedef struct aprocess_t {
+typedef struct aactor_t {
     int32_t flags;
     aalloc_t alloc;
     void* alloc_ud;
     struct ascheduler_t* owner;
-    atask_t task;
     ambox_t mbox;
     acatch_t* error_jmp;
     aframe_t* frame;
@@ -944,55 +937,39 @@ typedef struct aprocess_t {
     int32_t stack_cap;
     int32_t sp;
     agc_t gc;
-    adispatcher_t dispatcher;
+} aactor_t;
+
+/// Process task.
+typedef struct {
+    alist_node_t node;
+    atask_t task;
+} aprocess_task_t;
+
+/// Light-weight process.
+typedef struct {
+    int32_t dead;
+    apid_t pid;
+    aactor_t actor;
+    aprocess_task_t ptask;
 } aprocess_t;
 
-/** Process scheduler interface.
+/** Process scheduler.
 \brief
 AVM is designed to be resumable, that sounds tricky and non-portable at first.
 However, we believe that its worth. Generally, we don't want the users to worry
 about whether C stack is resumable or not, and if not then what happen. Yielding
 native function and across native function is just mandatory use cases in AVM.
-A new \ref atask_t is required for each new process. That allows AVM to save the
-context of a process and comeback later, in native side.
+A new \ref atask_t is required for each new actor. That allows AVM to save the
+context of a actor and comeback later, in native side.
 */
 typedef struct ascheduler_t {
     aalloc_t alloc;
     void* alloc_ud;
-    struct avm_t* vm;
-    atask_t task;
-} ascheduler_t;
-
-/// VM managed process.
-typedef struct {
-    int32_t dead;
-    apid_t pid;
-    aprocess_t p;
-} avm_process_t;
-
-/** VM Engine.
-\par System architecture.
-                                        +--------+           +----------+
-            +-------+                   | alib_t <-----+-----> achunk_t |
-            | avm_t +-------+           +--------+     |     +----------+
-            +-------+       |                          |
-                        `provides`               `load & link`
-                            |                          |
-+--------------+         +--v---------+          +-----+-----+
-| ascheduler_t +--`run`--> aprocess_t +-`import`-> aloader_t |
-+--------------+         +-------+----+          +-----------+
-                                 |
-                            `interpret`
-                                 |     +---------------+
-                                 +-----> adispatcher_t |
-                                       +---------------+
-*/
-typedef struct avm_t {
-    aalloc_t alloc;
-    void* alloc_ud;
-    avm_process_t* procs;
+    aprocess_t* procs;
     aloader_t loader;
     int8_t idx_bits;
     int8_t gen_bits;
     apid_idx_t next_idx;
-} avm_t;
+    aprocess_task_t root;
+    alist_t pendings;
+} ascheduler_t;

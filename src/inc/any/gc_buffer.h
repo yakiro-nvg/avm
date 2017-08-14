@@ -2,7 +2,7 @@
 #pragma once
 
 #include <any/rt_types.h>
-#include <any/process.h>
+#include <any/actor.h>
 #include <any/gc.h>
 
 #ifdef __cplusplus
@@ -37,22 +37,22 @@ static AINLINE int32_t agc_buffer_new(agc_t* gc, int32_t cap, avalue_t* v)
 }
 
 /// Push new buffer onto the stack.
-static AINLINE void any_push_buffer(aprocess_t* p, int32_t cap)
+static AINLINE void any_push_buffer(aactor_t* a, int32_t cap)
 {
     avalue_t v;
-    int32_t ec = agc_buffer_new(&p->gc, cap, &v);
-    if (ec != AERR_NONE) any_error(p, (aerror_t)ec, "not enough memory");
-    aprocess_push(p, &v);
+    int32_t ec = agc_buffer_new(&a->gc, cap, &v);
+    if (ec != AERR_NONE) any_error(a, (aerror_t)ec, "not enough memory");
+    aactor_push(a, &v);
 }
 
 /// Get buffer pointer, available until next gc.
-static AINLINE uint8_t* any_to_buffer(aprocess_t* p, int32_t idx)
+static AINLINE uint8_t* any_to_buffer(aactor_t* a, int32_t idx)
 {
     agc_buffer_t* b;
-    avalue_t* v = p->stack + aprocess_absidx(p, idx);
+    avalue_t* v = a->stack + aactor_absidx(a, idx);
     assert(v->tag.b == ABT_BUFFER);
-    b = AGC_CAST(agc_buffer_t, &p->gc, v->v.heap_idx);
-    return AGC_CAST(uint8_t, &p->gc, b->buff.v.heap_idx);
+    b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
+    return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);
 }
 
 #ifdef __cplusplus

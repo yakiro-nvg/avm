@@ -49,7 +49,7 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
 ## What works currenty
 
 - Cooperative scheduler (no parallel).
-- Lightweight real-time process.
+- Lightweight real-time actor.
 - Reloadable loader.
 - Byte code assembler.
 - Copying GC.

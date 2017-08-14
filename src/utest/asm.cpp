@@ -29,7 +29,7 @@ typedef struct {
     ainstruction_t llv;
     ainstruction_t slv;
     ainstruction_t imp;
-    ainstruction_t mkc;
+    ainstruction_t cls;
     ainstruction_t jmp;
     ainstruction_t jin;
     ainstruction_t ivk;
@@ -46,7 +46,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.llv = ai_llv(rand());
     t.slv = ai_slv(rand());
     t.imp = ai_imp(rand());
-    t.mkc = ai_mkc(rand());
+    t.cls = ai_cls(rand());
     t.jmp = ai_jmp(rand());
     t.jin = ai_jin(rand());
     t.ivk = ai_ivk(rand());
@@ -61,7 +61,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(7 == aasm_emit(a, t.llv));
     REQUIRE(8 == aasm_emit(a, t.slv));
     REQUIRE(9 == aasm_emit(a, t.imp));
-    REQUIRE(10 == aasm_emit(a, t.mkc));
+    REQUIRE(10 == aasm_emit(a, t.cls));
     REQUIRE(11 == aasm_emit(a, t.jmp));
     REQUIRE(12 == aasm_emit(a, t.jin));
     REQUIRE(13 == aasm_emit(a, t.ivk));
@@ -106,8 +106,8 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[8].slv.idx == t.slv.slv.idx);
     REQUIRE(c.instructions[9].b.opcode == AOC_IMP);
     REQUIRE(c.instructions[9].imp.idx == t.imp.imp.idx);
-    REQUIRE(c.instructions[10].b.opcode == AOC_MKC);
-    REQUIRE(c.instructions[10].mkc.idx == t.mkc.mkc.idx);
+    REQUIRE(c.instructions[10].b.opcode == AOC_CLS);
+    REQUIRE(c.instructions[10].cls.idx == t.cls.cls.idx);
     REQUIRE(c.instructions[11].b.opcode == AOC_JMP);
     REQUIRE(c.instructions[11].jmp.displacement == t.jmp.jmp.displacement);
     REQUIRE(c.instructions[12].b.opcode == AOC_JIN);

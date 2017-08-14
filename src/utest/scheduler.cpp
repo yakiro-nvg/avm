@@ -2,9 +2,8 @@
 #include <catch.hpp>
 
 #include <stdlib.h>
-#include <any/vm.h>
 #include <any/scheduler.h>
-#include <any/process.h>
+#include <any/actor.h>
 
 enum { CSTACK_SZ = 8192 };
 
@@ -13,17 +12,17 @@ static void* myalloc(void*, void* old, int32_t sz)
     return realloc(old, sz);
 }
 
-static void nop(aprocess_t* p)
+static void nop(aactor_t* a)
 {
-    any_push_nil(p);
+    any_push_nil(a);
 }
 
 static void spawn_new(ascheduler_t* s, avalue_t* entry)
 {
-    aprocess_t* p;
-    REQUIRE(AERR_NONE == ascheduler_new_process(s, &p));
-    aprocess_push(p, entry);
-    aprocess_start(p, CSTACK_SZ, 0);
+    aactor_t* a;
+    REQUIRE(AERR_NONE == ascheduler_new_actor(s, CSTACK_SZ, &a));
+    aactor_push(a, entry);
+    ascheduler_start(s, a, 0);
 }
 
 TEST_CASE("scheduler_new_process")
@@ -31,7 +30,6 @@ TEST_CASE("scheduler_new_process")
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
 
-    avm_t vm;
     ascheduler_t s;
 
     avalue_t entry;
@@ -40,20 +38,19 @@ TEST_CASE("scheduler_new_process")
     entry.v.func = &nop;
 
     REQUIRE(AERR_NONE ==
-        avm_startup(&vm, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    REQUIRE(AERR_NONE == ascheduler_init(&s, &vm, &myalloc, NULL));
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
     for (int32_t i = 0; i < 10; ++i) {
         spawn_new(&s, &entry);
     }
 
     ascheduler_run_once(&s);
-    REQUIRE(s.task.node.next == &s.task.node);
+    ascheduler_run_once(&s); // cleanup is deferred
+    REQUIRE(s.root.node.next == &s.root.node);
 
     for (int32_t i = 0; i < 10; ++i) {
         spawn_new(&s, &entry);
     }
 
     ascheduler_cleanup(&s);
-    avm_shutdown(&vm);
 }
