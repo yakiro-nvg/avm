@@ -1,5 +1,3 @@
-project(utest)
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${AVM_ROOT_DIRECTORY}/src/utest)
 include_directories(${AVM_ROOT_DIRECTORY}/src/inc)

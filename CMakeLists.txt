@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 
+project(Any-VM)
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 set(USE_FOLDERS TRUE)
 
