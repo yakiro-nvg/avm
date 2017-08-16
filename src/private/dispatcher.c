@@ -17,27 +17,27 @@ void actor_dispatch(aactor_t* a)
             any_pop(a, i->pop.n);
             break;
         case AOC_LDK: {
-                aconstant_t* c = pt->constants + i->ldk.idx;
-                if (i->ldk.idx < 0 || i->ldk.idx >= pth->num_constants) {
-                    any_error(a, AERR_RUNTIME,
-                        "bad constant index %d", i->ldk.idx);
-                }
-                switch (pt->constants[i->ldk.idx].type) {
-                case ACT_INTEGER:
-                    any_push_integer(a, c->integer);
-                    break;
-                case ACT_STRING:
-                    any_push_string(a, pt->strings + c->string);
-                    break;
-                case ACT_REAL:
-                    any_push_real(a, c->real);
-                    break;
-                default:
-                    any_error(a, AERR_RUNTIME, "bad constant type");
-                    break;
-                }
+            aconstant_t* c = pt->constants + i->ldk.idx;
+            if (i->ldk.idx < 0 || i->ldk.idx >= pth->num_constants) {
+                any_error(a, AERR_RUNTIME,
+                    "bad constant index %d", i->ldk.idx);
             }
-            break;
+            switch (pt->constants[i->ldk.idx].type) {
+            case ACT_INTEGER:
+                any_push_integer(a, c->integer);
+                break;
+            case ACT_STRING:
+                any_push_string(a, pt->strings + c->string);
+                break;
+            case ACT_REAL:
+                any_push_real(a, c->real);
+                break;
+            default:
+                any_error(a, AERR_RUNTIME, "bad constant type");
+                break;
+            }
+        }
+                      break;
         case AOC_NIL:
             any_push_nil(a);
             break;
@@ -72,38 +72,53 @@ void actor_dispatch(aactor_t* a)
             }
             break;
         case AOC_JMP: {
-                int32_t nip = frame->ip + i->jmp.displacement + 1;
-                if (nip < 0 || nip >= pth->num_instructions) {
-                    any_error(a, AERR_RUNTIME, "bad jump");
-                } else {
-                    frame->ip = nip - 1;
-                }
+            int32_t nip = frame->ip + i->jmp.displacement + 1;
+            if (nip < 0 || nip >= pth->num_instructions) {
+                any_error(a, AERR_RUNTIME, "bad jump");
+            } else {
+                frame->ip = nip - 1;
             }
-            break;
+        }
+                      break;
         case AOC_JIN: {
-                int32_t nip;
-                any_pop(a, 1);
-                if (a->stack[a->sp].tag.b != ABT_BOOL) {
-                    any_error(a, AERR_RUNTIME, "condition must be boolean");
-                }
-                if (a->stack[a->sp].v.boolean) continue;
-                nip = frame->ip + i->jin.displacement + 1;
-                if (nip < 0 || nip >= pth->num_instructions) {
-                    any_error(a, AERR_RUNTIME, "bad jump");
-                } else {
-                    frame->ip = nip - 1;
-                }
+            int32_t nip;
+            any_pop(a, 1);
+            if (a->stack.v[a->stack.sp].tag.b != ABT_BOOL) {
+                any_error(a, AERR_RUNTIME, "condition must be boolean");
             }
-            break;
+            if (a->stack.v[a->stack.sp].v.boolean) continue;
+            nip = frame->ip + i->jin.displacement + 1;
+            if (nip < 0 || nip >= pth->num_instructions) {
+                any_error(a, AERR_RUNTIME, "bad jump");
+            } else {
+                frame->ip = nip - 1;
+            }
+        }
+                      break;
         case AOC_IVK:
             any_call(a, i->ivk.nargs);
             break;
         case AOC_RET:
             return;
         case AOC_SND:
-        case AOC_RCV:
+            any_mbox_send(a);
+            break;
+        case AOC_RCV: {
+                avalue_t* timeout = a->stack.v + a->stack.sp - 1;
+                any_pop(a, 1);
+                if (timeout->tag.b != ABT_NUMBER ||
+                    timeout->tag.variant != AVTN_INTEGER) {
+                    any_error(a, AERR_RUNTIME, "timeout must be integer");
+                } else {
+                    any_mbox_recv(a, (int32_t)timeout->v.integer);
+                }
+            }
+            break;
         case AOC_RMV:
-            any_error(a, AERR_RUNTIME, "TODO");
+            any_mbox_remove(a);
+            break;
+        case AOC_RWD:
+            any_mbox_rewind(a);
             break;
         }
     }

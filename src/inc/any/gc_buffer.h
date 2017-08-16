@@ -49,7 +49,7 @@ static AINLINE void any_push_buffer(aactor_t* a, int32_t cap)
 static AINLINE uint8_t* any_to_buffer(aactor_t* a, int32_t idx)
 {
     agc_buffer_t* b;
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
     assert(v->tag.b == ABT_BUFFER);
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);

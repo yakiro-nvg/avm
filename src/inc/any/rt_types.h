@@ -35,7 +35,8 @@ typedef enum {
 
     AOC_SND = 50,
     AOC_RCV = 51,
-    AOC_RMV = 52
+    AOC_RMV = 52,
+    AOC_RWD = 53
 } aopcode_t;
 
 /** Base type.
@@ -263,7 +264,7 @@ typedef struct {
 } ai_snd_t;
 
 /** Picks up next message in the queue and places it onto the stack.
-\brief If there is no more message, jump to signed `displacement`.
+\brief If there is no message, jump to signed `displacement`.
 A `timeout` microseconds value will be popped from the stack, that will be used
 by AVM to determine if it must wait for this period before it decided that there
 is no more message in the queue. This `timeout` is microseconds, \ref AINFINITE
@@ -282,7 +283,8 @@ typedef struct {
     int32_t displacement : 24;
 } ai_rcv_t;
 
-#define AINFINITE (-1)
+#define AINFINITE  (-1)
+#define ADONT_WAIT (0)
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.
 \brief The peek pointer will be rewound to the front.
@@ -297,6 +299,19 @@ AOC_RMV  _
 typedef struct {
     uint32_t _;
 } ai_rmv_t;
+
+/** Rewind the peek pointer to the front.
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_RMV  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_rwd_t;
 
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
@@ -318,6 +333,7 @@ typedef union {
     ai_snd_t snd;
     ai_rcv_t rcv;
     ai_rmv_t rmv;
+    ai_rwd_t rwd;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -451,6 +467,13 @@ static AINLINE ainstruction_t ai_rmv()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RMV;
+    return i;
+}
+
+static AINLINE ainstruction_t ai_rwd()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_RWD;
     return i;
 }
 
@@ -860,12 +883,14 @@ typedef struct {
     alist_t libs;
 } aloader_t;
 
-/// Message box.
+/// Value stack.
 typedef struct {
-    avalue_t* msgs;
-    int32_t sz;
+    aalloc_t alloc;
+    void* alloc_ud;
+    avalue_t* v;
+    int32_t sp;
     int32_t cap;
-} ambox_t;
+} astack_t;
 
 /// Process flags.
 typedef enum {
@@ -930,12 +955,11 @@ typedef struct aactor_t {
     aalloc_t alloc;
     void* alloc_ud;
     struct ascheduler_t* owner;
-    ambox_t mbox;
     acatch_t* error_jmp;
     aframe_t* frame;
-    avalue_t* stack;
-    int32_t stack_cap;
-    int32_t sp;
+    astack_t stack;
+    astack_t msbox;
+    int32_t msg_pp;
     agc_t gc;
 } aactor_t;
 
@@ -972,4 +996,5 @@ typedef struct ascheduler_t {
     apid_idx_t next_idx;
     aprocess_task_t root;
     alist_t pendings;
+    alist_t runnings;
 } ascheduler_t;

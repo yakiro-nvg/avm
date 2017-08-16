@@ -34,21 +34,27 @@ static void string_test(aactor_t* a)
         any_push_string(a, buff);
     }
     for (int32_t i = 0; i < 1000; ++i) {
-        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) {
+            aactor_at(a, i)->tag.b = ABT_NIL;
+        }
     }
     for (int32_t i = 1000; i < 5000; ++i) {
         snprintf(buff, sizeof(buff), "string %d", i);
         any_push_string(a, buff);
     }
     for (int32_t i = 1000; i < 5000; ++i) {
-        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) {
+            aactor_at(a, i)->tag.b = ABT_NIL;
+        }
     }
     for (int32_t i = 5000; i < 10000; ++i) {
         snprintf(buff, sizeof(buff), "string %d", i);
         any_push_string(a, buff);
     }
     for (int32_t i = 5000; i < 10000; ++i) {
-        if (i % 2 == 0) a->stack[i].tag.b = ABT_NIL;
+        if (i % 2 == 0) {
+            aactor_at(a, i)->tag.b = ABT_NIL;
+        }
     }
     for (int32_t i = 0; i < 10000; ++i) {
         if (i % 2 == 0) continue;

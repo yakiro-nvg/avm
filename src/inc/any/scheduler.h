@@ -65,6 +65,16 @@ ANY_API void ascheduler_yield(ascheduler_t* self, aactor_t* a);
 */
 ANY_API void ascheduler_sleep(ascheduler_t* self, aactor_t* a, int32_t nsecs);
 
+/** Wait for incoming message in `nsecs`.
+\warning Suspends NOT running actor is undefined.
+\return Elapsed time.
+*/
+ANY_API int32_t ascheduler_wait_for(
+    ascheduler_t* self, aactor_t* a, int32_t nsecs);
+
+/// Wake-up this actor if its waiting for incoming message.
+ANY_API void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a);
+
 /** Create a new actor, and store its pointer to `a`.
 \note Must be started manually.
 */

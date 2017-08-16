@@ -742,7 +742,8 @@ TEST_CASE("dispatcher_imp")
         REQUIRE(any_type(a, 1).b == ABT_NIL);
         REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
         REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
-        REQUIRE(a->stack[aactor_absidx(a, 0)].v.func == (anative_func_t)0xF0);
+        REQUIRE((anative_func_t)0xF0 ==
+            aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
 
     SECTION("import 1")
@@ -770,7 +771,8 @@ TEST_CASE("dispatcher_imp")
         REQUIRE(any_type(a, 1).b == ABT_NIL);
         REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
         REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
-        REQUIRE(a->stack[aactor_absidx(a, 0)].v.func == (anative_func_t)0xF1);
+        REQUIRE((anative_func_t)0xF1 ==
+            aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
 
     SECTION("import 2")
@@ -798,7 +800,8 @@ TEST_CASE("dispatcher_imp")
         REQUIRE(any_type(a, 1).b == ABT_NIL);
         REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
         REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
-        REQUIRE(a->stack[aactor_absidx(a, 0)].v.func == (anative_func_t)0xF2);
+        REQUIRE((anative_func_t)0xF2 ==
+            aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
 
     ascheduler_cleanup(&s);

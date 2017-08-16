@@ -33,6 +33,10 @@ typedef struct {
     ainstruction_t jmp;
     ainstruction_t jin;
     ainstruction_t ivk;
+    ainstruction_t snd;
+    ainstruction_t rcv;
+    ainstruction_t rmv;
+    ainstruction_t rwd;
 
     aconstant_t cinteger;
     aconstant_t cstring;
@@ -50,6 +54,7 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.jmp = ai_jmp(rand());
     t.jin = ai_jin(rand());
     t.ivk = ai_ivk(rand());
+    t.rcv = ai_rcv(rand());
 
     REQUIRE(0 == aasm_emit(a, ai_nop()));
     REQUIRE(1 == aasm_emit(a, t.pop));
@@ -66,6 +71,10 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(12 == aasm_emit(a, t.jin));
     REQUIRE(13 == aasm_emit(a, t.ivk));
     REQUIRE(14 == aasm_emit(a, ai_ret()));
+    REQUIRE(15 == aasm_emit(a, ai_snd()));
+    REQUIRE(16 == aasm_emit(a, t.rcv));
+    REQUIRE(17 == aasm_emit(a, ai_rmv()));
+    REQUIRE(18 == aasm_emit(a, ai_rwd()));
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(aasm_string_to_ref(a, "test_const"));
@@ -87,7 +96,7 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
     num_vs_capacity_check(p);
 
-    REQUIRE(p->num_instructions == 15);
+    REQUIRE(p->num_instructions == 19);
     REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
     REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
@@ -115,6 +124,11 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[13].b.opcode == AOC_IVK);
     REQUIRE(c.instructions[13].ivk.nargs == t.ivk.ivk.nargs);
     REQUIRE(c.instructions[14].b.opcode == AOC_RET);
+    REQUIRE(c.instructions[15].b.opcode == AOC_SND);
+    REQUIRE(c.instructions[16].b.opcode == AOC_RCV);
+    REQUIRE(c.instructions[16].rcv.displacement == t.rcv.rcv.displacement);
+    REQUIRE(c.instructions[17].b.opcode == AOC_RMV);
+    REQUIRE(c.instructions[18].b.opcode == AOC_RWD);
 
     REQUIRE(p->num_constants == 3);
     REQUIRE(c.constants[0].type == ACT_INTEGER);

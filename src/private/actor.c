@@ -6,10 +6,9 @@
 #include <any/gc.h>
 #include <any/gc_string.h>
 
-#define GROW_FACTOR 2
 #define INIT_STACK_SZ 64
+#define INIT_MSBOX_SZ 32
 #define INIT_HEAP_SZ 512
-#define INIT_MBOX_SZ 32
 
 void actor_dispatch(aactor_t* a);
 
@@ -28,18 +27,18 @@ static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, int32_t nargs)
 {
     frame->prev = a->frame;
     a->frame = frame;
-    frame->bp = a->sp;
+    frame->bp = a->stack.sp;
     frame->nargs = nargs;
 }
 
 static AINLINE void load_ctx(aactor_t* a)
 {
     int32_t nsp = a->frame->bp - a->frame->nargs;
-    if (a->sp <= a->frame->bp) {
+    if (a->stack.sp <= a->frame->bp) {
         any_error(a, AERR_RUNTIME, "return value missing");
     }
-    a->stack[nsp - 1] = a->stack[a->sp - 1];
-    a->sp = nsp;
+    a->stack.v[nsp - 1] = a->stack.v[a->stack.sp - 1];
+    a->stack.sp = nsp;
     a->frame = a->frame->prev;
 }
 
@@ -47,7 +46,7 @@ void ASTDCALL actor_entry(void* ud)
 {
     aframe_t frame;
     aactor_t* a = (aactor_t*)ud;
-    int32_t nargs = (int32_t)a->stack[--a->sp].v.integer;
+    int32_t nargs = (int32_t)a->stack.v[--a->stack.sp].v.integer;
     acatch_t c;
     c.status = AERR_NONE;
     memset(&frame, 0, sizeof(aframe_t));
@@ -60,19 +59,6 @@ void ASTDCALL actor_entry(void* ud)
     while (TRUE) ascheduler_yield(a->owner, a);
 }
 
-static void mbox_reserve(aactor_t* self, int32_t more)
-{
-    avalue_t* nmbx;
-    int32_t new_cap;
-    if (self->mbox.sz + more <= self->mbox.cap) return;
-    new_cap = self->mbox.cap;
-    while (new_cap < self->mbox.sz + more) new_cap *= GROW_FACTOR;
-    nmbx = (avalue_t*)aalloc(self, self->mbox.msgs, sizeof(avalue_t)*new_cap);
-    if (!nmbx) any_error(self, AERR_RUNTIME, "out of memory");
-    self->mbox.msgs = nmbx;
-    self->mbox.cap = new_cap;
-}
-
 aerror_t aactor_init(
     aactor_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
@@ -81,48 +67,25 @@ aerror_t aactor_init(
     self->owner = owner;
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
-    self->stack = (avalue_t*)aalloc(
-        self, NULL, sizeof(avalue_t)*INIT_STACK_SZ);
-    if (!self->stack) {
-        ec = AERR_FULL;
-        goto failed;
-    }
-    self->stack_cap = INIT_STACK_SZ;
+    ec = astack_init(&self->stack, INIT_STACK_SZ, alloc, alloc_ud);
+    if (ec != AERR_NONE) goto failed;
     any_push_nil(self); // stack[0] is nil
-    self->mbox.msgs = (avalue_t*)aalloc(
-        self, NULL, sizeof(avalue_t)*INIT_MBOX_SZ);
-    if (!self->mbox.msgs) {
-        ec = AERR_FULL;
-        goto failed;
-    }
-    self->mbox.cap = INIT_MBOX_SZ;
+    ec = astack_init(&self->msbox, INIT_MSBOX_SZ, alloc, alloc_ud);
+    if (ec != AERR_NONE) goto failed;
     ec = agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);
     if (ec != AERR_NONE) goto failed;
     return ec;
 failed:
-    if (self->stack) aalloc(self, self->stack, 0);
-    if (self->mbox.msgs) aalloc(self, self->mbox.msgs, 0);
+    astack_cleanup(&self->stack);
+    astack_cleanup(&self->msbox);
     return ec;
 }
 
 void aactor_cleanup(aactor_t* self)
 {
-    aalloc(self, self->stack, 0);
-    aalloc(self, self->mbox.msgs, 0);
+    astack_cleanup(&self->stack);
+    astack_cleanup(&self->msbox);
     agc_cleanup(&self->gc);
-}
-
-void aactor_reserve(aactor_t* self, int32_t more)
-{
-    avalue_t* ns;
-    int32_t new_cap;
-    if (self->sp + more <= self->stack_cap) return;
-    new_cap = self->stack_cap;
-    while (new_cap < self->sp + more) new_cap *= GROW_FACTOR;
-    ns = (avalue_t*)aalloc(self, self->stack, sizeof(avalue_t)*new_cap);
-    if (!ns) any_error(self, AERR_RUNTIME, "out of memory");
-    self->stack = ns;
-    self->stack_cap = new_cap;
 }
 
 void any_find(aactor_t* a, const char* module, const char* name)
@@ -136,8 +99,8 @@ void any_find(aactor_t* a, const char* module, const char* name)
 void any_call(aactor_t* a, int32_t nargs)
 {
     aframe_t frame;
-    int32_t fp = a->sp - nargs - 1;
-    avalue_t* f = a->stack + fp;
+    int32_t fp = a->stack.sp - nargs - 1;
+    avalue_t* f = a->stack.v + fp;
 
     if (fp < a->frame->bp || f->tag.b != ABT_FUNCTION) {
         any_error(a, AERR_RUNTIME, "attempt to call a non-function");
@@ -164,7 +127,7 @@ void any_pcall(aactor_t* a, int32_t nargs)
 {
     avalue_t ev;
     if (any_try(a, &call, &nargs) == AERR_NONE) return;
-    ev = a->stack[a->sp - 1];
+    ev = a->stack.v[a->stack.sp - 1];
     any_pop(a, 1 + nargs + 1); //error value, args and function
     aactor_push(a, &ev);
 }
@@ -175,26 +138,28 @@ void any_mbox_send(aactor_t* a)
     avalue_t* msg;
     aactor_t* ta;
     any_pop(a, 2);
-    pid = a->stack + a->sp;
-    msg = a->stack + a->sp + 1;
+    pid = a->stack.v + a->stack.sp;
+    msg = a->stack.v + a->stack.sp + 1;
     if (pid->tag.b != ABT_PID) {
         any_error(a, AERR_RUNTIME, "target must be a pid");
     }
     ta = ascheduler_actor(a->owner, pid->v.pid);
     if (!ta) return;
-    if (ta->mbox.sz == ta->mbox.cap) mbox_reserve(ta, 1);
+    if (astack_reserve(&ta->msbox, 1) != AERR_NONE) {
+        any_error(a, AERR_RUNTIME, "out of memory");
+    }
     switch (msg->tag.b) {
     case ABT_NIL:
     case ABT_PID:
     case ABT_BOOL:
     case ABT_NUMBER:
-        *(ta->mbox.msgs + ta->mbox.sz) = *msg;
+        ta->msbox.v[ta->msbox.sp] = *msg;
         break;
     case ABT_STRING:
         if (AERR_NONE != agc_string_new(
             ta,
             agc_string_to_cstr(a, msg),
-            ta->mbox.msgs + ta->mbox.sz)) {
+            ta->msbox.v + ta->msbox.sp)) {
             return; // TODO: review it
         }
         break;
@@ -208,19 +173,46 @@ void any_mbox_send(aactor_t* a)
         any_error(a, AERR_RUNTIME, "not supported type");
         break;
     }
-    ++ta->mbox.sz;
+    ++ta->msbox.sp;
+    ascheduler_got_new_message(a->owner, ta);
 }
 
 aerror_t any_mbox_recv(aactor_t* a, int32_t timeout)
 {
-    AUNUSED(timeout);
-    any_error(a, AERR_RUNTIME, "TODO");
-    return AERR_TIMEOUT;
+    for (;;) {
+        if (a->msg_pp < a->msbox.sp) {
+            aactor_push(a, a->msbox.v + a->msg_pp++);
+            return AERR_NONE;
+        } else {
+            if (timeout == ADONT_WAIT) {
+                return AERR_TIMEOUT;
+            } else {
+                timeout = ascheduler_wait_for(a->owner, a, timeout);
+            }
+        }
+    }
 }
 
 void any_mbox_remove(aactor_t* a)
 {
-    any_error(a, AERR_RUNTIME, "TODO");
+    if (a->msg_pp <= 0) {
+        any_error(a, AERR_RUNTIME, "no message to remove");
+    } else {
+        int32_t num_tails = a->msbox.sp - a->msg_pp;
+        if (num_tails != 0) {
+            memmove(
+                a->msbox.v + a->msg_pp - 1,
+                a->msbox.v + a->msg_pp,
+                sizeof(avalue_t) * num_tails);
+        }
+        a->msg_pp = 0;
+        --a->msbox.sp;
+    }
+}
+
+void any_mbox_rewind(aactor_t* a)
+{
+    a->msg_pp = 0;
 }
 
 void any_yield(aactor_t* a)
@@ -235,7 +227,7 @@ void any_sleep(aactor_t* a, int32_t nsecs)
 
 aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
 {
-    int32_t sp = a->sp;
+    int32_t sp = a->stack.sp;
     aframe_t* frame = a->frame;
     avalue_t ev;
     acatch_t c;
@@ -244,8 +236,8 @@ aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
     a->error_jmp = &c;
     if (setjmp(c.jbuff) == 0) f(a, ud);
     if (c.status != AERR_NONE) {
-        ev = a->stack[a->sp - 1];
-        a->sp = sp;
+        ev = a->stack.v[a->stack.sp - 1];
+        a->stack.sp = sp;
         a->frame = frame;
     } else {
         ev.tag.b = ABT_NIL;
@@ -279,8 +271,8 @@ int32_t aactor_alloc(aactor_t* self, aabt_t abt, int32_t sz)
     int32_t i = agc_alloc(gc, abt, sz);
     if (i >= 0) return i;
     else {
-        avalue_t* roots[] = { self->stack, self->mbox.msgs, NULL };
-        int32_t num_roots[] = { self->sp, self->mbox.sz };
+        avalue_t* roots[] = { self->stack.v, self->msbox.v, NULL };
+        int32_t num_roots[] = { self->stack.sp, self->msbox.sp };
         agc_collect(gc, roots, num_roots);
         i = agc_alloc(gc, abt, sz);
         if (i >= 0) return i;
@@ -296,7 +288,7 @@ aerror_t any_spawn(aactor_t* a, int32_t cstack_sz, int32_t nargs, apid_t* pid)
     aerror_t ec = ascheduler_new_actor(a->owner, cstack_sz, &na);
     if (ec != AERR_NONE) return ec;
     for (i = 0; i < nargs + 1; ++i) {
-        avalue_t* v = a->stack + a->sp - nargs - 1 + i;
+        avalue_t* v = a->stack.v + a->stack.sp - nargs - 1 + i;
         switch (v->tag.b) {
         case ABT_NIL:
         case ABT_PID:

@@ -2,6 +2,7 @@
 #pragma once
 
 #include <any/rt_types.h>
+#include <any/stack.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,9 +14,6 @@ ANY_API aerror_t aactor_init(
 
 /// Release all internal allocated memory.
 ANY_API void aactor_cleanup(aactor_t* self);
-
-/// Ensures that there are `more` bytes in the stack.
-ANY_API void aactor_reserve(aactor_t* self, int32_t more);
 
 /// Throw an error, with description string pushed onto the stack.
 ANY_API void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...);
@@ -29,16 +27,24 @@ ANY_API int32_t aactor_alloc(aactor_t* self, aabt_t abt, int32_t sz);
 /// Push a value onto the stack, should be internal used.
 static AINLINE void aactor_push(aactor_t* self, avalue_t* v)
 {
-    if (self->sp == self->stack_cap) aactor_reserve(self, 1);
-    *(self->stack + self->sp) = *v;
-    ++self->sp;
+    if (astack_reserve(&self->stack, 1) != AERR_NONE) {
+        any_error(self, AERR_RUNTIME, "out of memory");
+    }
+    self->stack.v[self->stack.sp] = *v;
+    ++self->stack.sp;
+}
+
+/// Get value on the stack.
+static AINLINE avalue_t* aactor_at(aactor_t* self, int32_t idx)
+{
+    return self->stack.v + idx;
 }
 
 /// Get normalized index.
 static AINLINE int32_t aactor_absidx(aactor_t* self, int32_t idx)
 {
     if (idx < -self->frame->nargs) return 0;
-    if (idx >= self->sp - self->frame->bp) {
+    if (idx >= self->stack.sp - self->frame->bp) {
         any_error(self, AERR_RUNTIME, "bad index %d", idx);
     }
     return self->frame->bp + idx;
@@ -71,6 +77,11 @@ ANY_API aerror_t any_mbox_recv(aactor_t* a, int32_t timeout);
 */
 ANY_API void any_mbox_remove(aactor_t* a);
 
+/** Rewind the peek pointer
+\brief Please refer \ref AOC_RWD.
+*/
+ANY_API void any_mbox_rewind(aactor_t* a);
+
 /// Suspends the execution flow.
 ANY_API void any_yield(aactor_t* a);
 
@@ -86,14 +97,14 @@ ANY_API void any_throw(aactor_t* a, int32_t ec);
 /// Get the value tag of the value at `idx`.
 static AINLINE avalue_tag_t any_type(aactor_t* a, int32_t idx)
 {
-    return a->stack[aactor_absidx(a, idx)].tag;
+    return a->stack.v[aactor_absidx(a, idx)].tag;
 }
 
 // Stack manipulations.
 static AINLINE void any_pop(aactor_t* a, int32_t n)
 {
-    a->sp -= n;
-    if (a->sp < a->frame->bp) {
+    a->stack.sp -= n;
+    if (a->stack.sp < a->frame->bp) {
         any_error(a, AERR_RUNTIME, "no more elements");
     }
 }
@@ -141,30 +152,30 @@ static AINLINE void any_push_pid(aactor_t* a, apid_t pid)
 
 static AINLINE void any_push_idx(aactor_t* a, int32_t idx)
 {
-    aactor_push(a, a->stack + aactor_absidx(a, idx));
+    aactor_push(a, a->stack.v + aactor_absidx(a, idx));
 }
 
 static AINLINE int32_t any_to_bool(aactor_t* a, int32_t idx)
 {
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return v->v.boolean;
 }
 
 static AINLINE aint_t any_to_integer(aactor_t* a, int32_t idx)
 {
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return v->v.integer;
 }
 
 static AINLINE areal_t any_to_real(aactor_t* a, int32_t idx)
 {
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return v->v.real;
 }
 
 static AINLINE apid_t any_to_pid(aactor_t* a, int32_t idx)
 {
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return v->v.pid;
 }
 
@@ -173,25 +184,25 @@ static AINLINE void any_remove(aactor_t* a, int32_t idx)
     int32_t num_tails;
     if (idx < 0) any_error(a, AERR_RUNTIME, "bad index %d", idx);
     idx = aactor_absidx(a, idx);
-    num_tails = a->sp - idx - 1;
-    --a->sp;
+    num_tails = a->stack.sp - idx - 1;
+    --a->stack.sp;
     if (num_tails == 0) return;
     memmove(
-        a->stack + idx,
-        a->stack + idx + 1,
+        a->stack.v + idx,
+        a->stack.v + idx + 1,
         sizeof(avalue_t)*num_tails);
 }
 
 static AINLINE void any_insert(aactor_t* a, int32_t idx)
 {
     any_pop(a, 1);
-    a->stack[aactor_absidx(a, idx)] = a->stack[a->sp];
+    a->stack.v[aactor_absidx(a, idx)] = a->stack.v[a->stack.sp];
 }
 
 /// Returns the stack size.
 static AINLINE int32_t any_count(aactor_t* a)
 {
-    return a->sp - a->frame->bp;
+    return a->stack.sp - a->frame->bp;
 }
 
 /** Spawn a new actor.

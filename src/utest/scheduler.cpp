@@ -46,7 +46,7 @@ TEST_CASE("scheduler_new_process")
 
     ascheduler_run_once(&s);
     ascheduler_run_once(&s); // cleanup is deferred
-    REQUIRE(s.root.node.next == &s.root.node);
+    REQUIRE(alist_head(&s.runnings) == &s.root.node);
 
     for (int32_t i = 0; i < 10; ++i) {
         spawn_new(&s, &entry);

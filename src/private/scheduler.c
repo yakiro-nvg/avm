@@ -22,7 +22,7 @@ static void init_processes(aprocess_t* procs, int32_t num)
 
 static void cleanup(ascheduler_t* self, int32_t shutdown)
 {
-    alist_node_t* i = self->root.node.next;
+    alist_node_t* i = alist_head(&self->runnings);
     while (i != &self->root.node) {
         alist_node_t* const next = i->next;
         aprocess_task_t* const t = ALIST_NODE_CAST(aprocess_task_t, i);
@@ -62,9 +62,9 @@ aerror_t ascheduler_init(
     self->next_idx = 0;
     aloader_init(&self->loader, alloc, alloc_ud);
     init_processes(self->procs, 1 << idx_bits);
-    self->root.node.next = &self->root.node;
-    self->root.node.prev = &self->root.node;
     alist_init(&self->pendings);
+    alist_init(&self->runnings);
+    alist_push_back(&self->runnings, &self->root.node);
     ec = atask_shadow(&self->root.task);
     if (ec != AERR_NONE) goto failed;
     return ec;
@@ -76,20 +76,20 @@ failed:
 void ascheduler_run_once(ascheduler_t* self)
 {
     cleanup(self, FALSE);
-    if (self->root.node.next == &self->root.node) {
-        return; // no task to run
-    } else {
-        atask_yield(
-            &self->root.task,
-            &ALIST_NODE_CAST(aprocess_task_t, self->root.node.next)->task);
+    {
+        alist_node_t* head = alist_head(&self->runnings);
+        if (head != &self->root.node) {
+            aprocess_task_t* next = ALIST_NODE_CAST(aprocess_task_t, head);
+            atask_yield(&self->root.task, &next->task);
+        }
     }
 }
 
 void ascheduler_yield(ascheduler_t* self, aactor_t* a)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
-    aprocess_task_t* next = ALIST_NODE_CAST(
-        aprocess_task_t, p->ptask.node.next);
+    alist_node_t* next_node = p->ptask.node.next;
+    aprocess_task_t* next = ALIST_NODE_CAST(aprocess_task_t, next_node);
     atask_yield(&p->ptask.task, &next->task);
 }
 
@@ -97,6 +97,19 @@ void ascheduler_sleep(ascheduler_t* self, aactor_t* a, int32_t nsecs)
 {
     AUNUSED(self);
     AUNUSED(nsecs);
+    any_error(a, AERR_RUNTIME, "TODO");
+}
+
+int32_t ascheduler_wait_for(ascheduler_t* self, aactor_t* a, int32_t nsecs)
+{
+    AUNUSED(self);
+    any_error(a, AERR_RUNTIME, "TODO");
+    return nsecs;
+}
+
+void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a)
+{
+    AUNUSED(self); a;
     any_error(a, AERR_RUNTIME, "TODO");
 }
 
@@ -143,7 +156,9 @@ aerror_t ascheduler_new_actor(
 void ascheduler_start(ascheduler_t* self, aactor_t* a, int32_t nargs)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
+    alist_node_t* n = &p->ptask.node;
+    alist_node_t* r = &self->root.node;
     any_push_integer(a, nargs);
-    alist_node_erase(&p->ptask.node);
-    alist_node_insert(&p->ptask.node, self->root.node.prev, &self->root.node);
+    alist_node_erase(n);
+    alist_node_insert(n, r->prev, r);
 }

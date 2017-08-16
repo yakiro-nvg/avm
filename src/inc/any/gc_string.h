@@ -48,7 +48,7 @@ static AINLINE const char* agc_string_to_cstr(aactor_t* a, avalue_t* v)
 /// Get NULL terminated string pointer, available until next gc.
 static AINLINE const char* any_to_string(aactor_t* a, int32_t idx)
 {
-    avalue_t* v = a->stack + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return agc_string_to_cstr(a, v);
 }
 
