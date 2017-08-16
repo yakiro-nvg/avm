@@ -93,18 +93,18 @@ void ascheduler_yield(ascheduler_t* self, aactor_t* a)
     atask_yield(&p->ptask.task, &next->task);
 }
 
-void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t nsecs)
+void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
     AUNUSED(self);
-    AUNUSED(nsecs);
+    AUNUSED(usecs);
     any_error(a, AERR_RUNTIME, "TODO");
 }
 
-aint_t ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t nsecs)
+aint_t ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
     AUNUSED(self);
     any_error(a, AERR_RUNTIME, "TODO");
-    return nsecs;
+    return usecs;
 }
 
 void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a)

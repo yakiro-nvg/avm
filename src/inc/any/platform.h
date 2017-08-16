@@ -92,6 +92,11 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #include <string.h>
 #include <assert.h>
 
+#ifdef AWINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #if defined(AMSVC) && !defined(snprintf)
 #define snprintf sprintf_s
 #endif
