@@ -9,10 +9,6 @@
 // Forward declarations.
 struct aactor_t;
 
-// Primitive types.
-typedef int64_t aint_t;
-typedef double  areal_t;
-
 // Specify the operation to be performed by the instructions.
 typedef enum {
     AOC_NOP = 0,
@@ -263,12 +259,11 @@ typedef struct {
     uint32_t _;
 } ai_snd_t;
 
-/** Picks up next message in the queue and places it onto the stack.
+/** Picks up next message in the queue and replace top of the stack.
 \brief If there is no message, jump to signed `displacement`.
 A `timeout` microseconds value will be popped from the stack, that will be used
 by AVM to determine if it must wait for this period before it decided that there
-is no more message in the queue. This `timeout` is microseconds, \ref AINFINITE
-can be used for infinite waiting.
+is no more message in the queue. This `timeout` is in microseconds.
 \note This instruction will not remove messages from the queue.
 \rst
 =======  ============
@@ -285,6 +280,11 @@ typedef struct {
 
 #define AINFINITE  (-1)
 #define ADONT_WAIT (0)
+
+static AINLINE aint_t amsec(aint_t ns)
+{
+    return ns * 1000000;
+}
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.
 \brief The peek pointer will be rewound to the front.
@@ -346,19 +346,19 @@ static AINLINE ainstruction_t ai_nop()
     return i;
 }
 
-static AINLINE ainstruction_t ai_pop(int32_t n)
+static AINLINE ainstruction_t ai_pop(aint_t n)
 {
     ainstruction_t i;
     i.b.opcode = AOC_POP;
-    i.pop.n = n;
+    i.pop.n = (int32_t)n;
     return i;
 }
 
-static AINLINE ainstruction_t ai_ldk(int32_t idx)
+static AINLINE ainstruction_t ai_ldk(aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDK;
-    i.ldk.idx = idx;
+    i.ldk.idx = (int32_t)idx;
     return i;
 }
 
@@ -377,67 +377,67 @@ static AINLINE ainstruction_t ai_ldb(int32_t val)
     return i;
 }
 
-static AINLINE ainstruction_t ai_lsi(int32_t val)
+static AINLINE ainstruction_t ai_lsi(aint_t val)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LSI;
-    i.lsi.val = val;
+    i.lsi.val = (int32_t)val;
     return i;
 }
 
-static AINLINE ainstruction_t ai_llv(int32_t idx)
+static AINLINE ainstruction_t ai_llv(aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LLV;
-    i.llv.idx = idx;
+    i.llv.idx = (int32_t)idx;
     return i;
 }
 
-static AINLINE ainstruction_t ai_slv(int32_t idx)
+static AINLINE ainstruction_t ai_slv(aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_SLV;
-    i.slv.idx = idx;
+    i.slv.idx = (int32_t)idx;
     return i;
 }
 
-static AINLINE ainstruction_t ai_imp(int32_t idx)
+static AINLINE ainstruction_t ai_imp(aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IMP;
-    i.imp.idx = idx;
+    i.imp.idx = (int32_t)idx;
     return i;
 }
 
-static AINLINE ainstruction_t ai_cls(int32_t idx)
+static AINLINE ainstruction_t ai_cls(aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_CLS;
-    i.cls.idx = idx;
+    i.cls.idx = (int32_t)idx;
     return i;
 }
 
-static AINLINE ainstruction_t ai_jmp(int32_t displacement)
+static AINLINE ainstruction_t ai_jmp(aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JMP;
-    i.jmp.displacement = displacement;
+    i.jmp.displacement = (int32_t)displacement;
     return i;
 }
 
-static AINLINE ainstruction_t ai_jin(int32_t displacement)
+static AINLINE ainstruction_t ai_jin(aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JIN;
-    i.jin.displacement = displacement;
+    i.jin.displacement = (int32_t)displacement;
     return i;
 }
 
-static AINLINE ainstruction_t ai_ivk(int32_t nargs)
+static AINLINE ainstruction_t ai_ivk(aint_t nargs)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IVK;
-    i.ivk.nargs = nargs;
+    i.ivk.nargs = (int32_t)nargs;
     return i;
 }
 
@@ -455,11 +455,11 @@ static AINLINE ainstruction_t ai_snd()
     return i;
 }
 
-static AINLINE ainstruction_t ai_rcv(int32_t displacement)
+static AINLINE ainstruction_t ai_rcv(aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_RCV;
-    i.rcv.displacement = displacement;
+    i.rcv.displacement = (int32_t)displacement;
     return i;
 }
 
@@ -483,7 +483,7 @@ static AINLINE ainstruction_t ai_rwd()
 `sz`  = 0 to free,
 otherwise realloc.
 */
-typedef void* (*aalloc_t)(void* ud, void* old, int32_t sz);
+typedef void* (*aalloc_t)(void* ud, void* old, aint_t sz);
 
 /// Process identifier.
 typedef uint32_t apid_t;
@@ -512,9 +512,6 @@ static AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
     return (pid << idx_bits) >> (APID_BITS - gen_bits);
 }
 
-/// Reference to a string
-typedef int32_t astring_ref_t;
-
 /// Native function.
 typedef void(*anative_func_t)(struct aactor_t*);
 
@@ -533,7 +530,7 @@ typedef struct APACKED {
     /// ACT_INTEGER.
     aint_t integer;
     /// ACT_STRING.
-    astring_ref_t string;
+    aint_t string;
     /// ACT_REAL.
     areal_t real;
 } aconstant_t;
@@ -549,7 +546,7 @@ static AINLINE aconstant_t ac_integer(aint_t val)
     return c;
 }
 
-static AINLINE aconstant_t ac_string(astring_ref_t string)
+static AINLINE aconstant_t ac_string(aint_t string)
 {
     aconstant_t c;
     c.type = ACT_STRING;
@@ -637,7 +634,7 @@ typedef struct {
         /// \ref AVTF_AVM.
         struct aprototype_t* avm_func;
         /// \ref ABT_COLLECTABLE.
-        int32_t heap_idx;
+        aint_t heap_idx;
     } v;
 } avalue_t;
 
@@ -653,16 +650,16 @@ typedef struct {
     void* alloc_ud;
     uint8_t* cur_heap;
     uint8_t* new_heap;
-    int32_t heap_cap;
-    int32_t heap_sz;
-    int32_t scan;
+    aint_t heap_cap;
+    aint_t heap_sz;
+    aint_t scan;
 } agc_t;
 
 /// Collectable value header.
 typedef struct {
-    int32_t abt;
-    int32_t sz;
-    int32_t forwared;
+    aint_t abt;
+    aint_t sz;
+    aint_t forwared;
 } agc_header_t;
 
 #define AGC_CAST(T, gc, idx) \
@@ -671,14 +668,14 @@ typedef struct {
 /// Collectable buffer.
 typedef struct {
     avalue_t buff;
-    int32_t cap;
-    int32_t sz;
+    aint_t cap;
+    aint_t sz;
 } agc_buffer_t;
 
 /// Combination of hash and length.
 typedef struct {
     uint32_t hash;
-    int32_t length;
+    aint_t length;
 } ahash_and_length_t;
 
 /// Collectable string.
@@ -688,21 +685,21 @@ typedef struct {
 
 /// Collectable tuple.
 typedef struct {
-    int32_t sz;
+    aint_t sz;
 } agc_tuple_t;
 
 /// Collectable array.
 typedef struct {
     avalue_t buff;
-    int32_t cap;
-    int32_t sz;
+    aint_t cap;
+    aint_t sz;
 } agc_array_t;
 
 /// Collectable map.
 typedef struct {
     avalue_t buff;
-    int32_t cap;
-    int32_t sz;
+    aint_t cap;
+    aint_t sz;
 } agc_map_t;
 
 #pragma pack(push, 1)
@@ -751,13 +748,11 @@ ASTATIC_ASSERT(sizeof(achunk_header_t) == 12);
 
 /// Function import.
 typedef struct {
-    astring_ref_t module;
-    astring_ref_t name;
+    aint_t module;
+    aint_t name;
 } aimport_t;
 
-ASTATIC_ASSERT(sizeof(aimport_t) == 8);
-
-static AINLINE aimport_t aimport(astring_ref_t module, astring_ref_t name)
+static AINLINE aimport_t aimport(aint_t module, aint_t name)
 {
     aimport_t i;
     i.module = module;
@@ -793,16 +788,15 @@ storages, as well as traditional OS executable.
 ====================================  ======================
 bytes                                 description
 ====================================  ======================
-4 signed                              source file name
-4 signed                              to be exported
-4 signed                              num of string bytes
-4 signed                              num of instructions
-2 signed                              num of nesteds
-1 unsigned                            num of up-values
-1 unsigned                            num of arguments
-1 unsigned                            num of constants
-1 unsigned                            num of imports
-2                                     _
+sizeof(aint_t)                        source file name
+sizeof(aint_t)                        to be exported
+sizeof(aint_t)                        num of string bytes
+sizeof(aint_t)                        num of instructions
+sizeof(aint_t)                        num of nesteds
+sizeof(aint_t)                        num of up-values
+sizeof(aint_t)                        num of arguments
+sizeof(aint_t)                        num of constants
+sizeof(aint_t)                        num of imports
 num of string bytes                   strings
 n * sizeof(:c:type:`ainstruction_t`)  instructions
 n * sizeof(:c:type:`aconstant_t`)     constants
@@ -812,18 +806,16 @@ _                                     nested prototypes
 \endrst
 */
 typedef struct {
-    astring_ref_t source;
-    astring_ref_t symbol;
-    int32_t strings_sz;
-    int32_t num_instructions;
-    int16_t num_nesteds;
-    uint8_t num_upvalues;
-    uint8_t num_arguments;
-    uint8_t num_constants;
-    uint8_t num_imports;
+    aint_t source;
+    aint_t symbol;
+    aint_t strings_sz;
+    aint_t num_instructions;
+    aint_t num_nesteds;
+    aint_t num_upvalues;
+    aint_t num_arguments;
+    aint_t num_constants;
+    aint_t num_imports;
 } aprototype_header_t;
-
-ASTATIC_ASSERT(sizeof(aprototype_header_t) == 24);
 
 /// Lib function.
 typedef struct {
@@ -888,8 +880,8 @@ typedef struct {
     aalloc_t alloc;
     void* alloc_ud;
     avalue_t* v;
-    int32_t sp;
-    int32_t cap;
+    aint_t sp;
+    aint_t cap;
 } astack_t;
 
 /// Process flags.
@@ -901,9 +893,9 @@ typedef enum {
 typedef struct aframe_t {
     struct aframe_t* prev;
     aprototype_t* pt;
-    int32_t ip;
-    int32_t bp;
-    int32_t nargs;
+    aint_t ip;
+    aint_t bp;
+    aint_t nargs;
 } aframe_t;
 
 /// Error catching points.
@@ -959,7 +951,7 @@ typedef struct aactor_t {
     aframe_t* frame;
     astack_t stack;
     astack_t msbox;
-    int32_t msg_pp;
+    aint_t msg_pp;
     agc_t gc;
 } aactor_t;
 

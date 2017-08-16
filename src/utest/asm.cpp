@@ -10,7 +10,7 @@
 
 #define REQUIRE_STR_EQUALS(a, b) REQUIRE(strcmp(a, b) == 0)
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -174,7 +174,7 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
             p1->num_instructions*sizeof(ainstruction_t)) == 0);
 
     REQUIRE(p1->num_constants == p2->num_constants);
-    for (int32_t i = 0; i < p1->num_constants; ++i) {
+    for (aint_t i = 0; i < p1->num_constants; ++i) {
         REQUIRE(c1.constants[i].type == c2.constants[i].type);
         switch (c1.constants[i].type) {
         case ACT_INTEGER:
@@ -192,7 +192,7 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
     }
 
     REQUIRE(p1->num_imports == p2->num_imports);
-    for (int32_t i = 0; i < p2->num_imports; ++i) {
+    for (aint_t i = 0; i < p2->num_imports; ++i) {
         REQUIRE_STR_EQUALS(
             astring_table_to_string(a1->st, c1.imports[i].module),
             astring_table_to_string(a2->st, c2.imports[i].module));
@@ -243,10 +243,10 @@ TEST_CASE("asm_nested")
     aasm_init(&a, &myalloc, NULL);
     REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
 
-    static int32_t PUSH_COUNT = 25;
+    static aint_t PUSH_COUNT = 25;
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a));
             basic_test_ctx t;
             basic_add(&a, t);
@@ -265,7 +265,7 @@ TEST_CASE("asm_nested")
         }
     }
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
+    for (aint_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a));
     }
 
@@ -278,10 +278,10 @@ TEST_CASE("asm_save_load")
     aasm_init(&a1, &myalloc, NULL);
     REQUIRE(aasm_load(&a1, NULL) == AERR_NONE);
 
-    static int32_t PUSH_COUNT = 5;
+    static aint_t PUSH_COUNT = 5;
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a1));
             basic_test_ctx t;
             basic_add(&a1, t);
@@ -293,7 +293,7 @@ TEST_CASE("asm_save_load")
 
     aasm_save(&a1);
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
+    for (aint_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a1));
     }
 
@@ -301,8 +301,8 @@ TEST_CASE("asm_save_load")
     aasm_init(&a2, &myalloc, NULL);
     REQUIRE(aasm_load(&a2, a1.chunk) == AERR_NONE);
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             aasm_open(&a1, j);
             aasm_open(&a2, j);
             require_equals(&a1, &a2);

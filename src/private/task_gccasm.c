@@ -27,7 +27,7 @@ aerror_t atask_shadow(struct atask_t* self)
 }
 
 aerror_t atask_create(
-    struct atask_t* self, atask_entry_t entry, void* ud, int32_t stack_sz)
+    struct atask_t* self, atask_entry_t entry, void* ud, aint_t stack_sz)
 {
     self->stack = (uint8_t*)malloc(stack_sz);
     if (!self->stack) return AERR_FULL;
@@ -60,13 +60,6 @@ void atask_yield(struct atask_t* self, struct atask_t* next)
 {
     assert(self != next);
     atask_ctx_switch(&self->ctx, &next->ctx);
-}
-
-void atask_sleep(struct atask_t* self, int32_t nsecs)
-{
-    AUNUSED(self);
-    AUNUSED(nsecs);
-    assert(!"TODO");
 }
 
 #else // ANY_TASK_GCCASM

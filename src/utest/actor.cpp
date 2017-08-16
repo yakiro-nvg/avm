@@ -8,7 +8,7 @@
 
 enum { CSTACK_SZ = 16384 };
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -82,7 +82,7 @@ static void stack_test(aactor_t* a)
 
     enum { NUM_INTS = 10000 };
 
-    for (int32_t i = 0; i < NUM_INTS; ++i) {
+    for (aint_t i = 0; i < NUM_INTS; ++i) {
         any_push_integer(a, i);
     }
 
@@ -142,7 +142,7 @@ static void stack_test(aactor_t* a)
 
     any_remove(a, 0);
 
-    for (int32_t i = NUM_INTS - 2; i >= 0; --i) {
+    for (aint_t i = NUM_INTS - 2; i >= 0; --i) {
         REQUIRE(any_type(a, i).b == ABT_NUMBER);
         REQUIRE(any_type(a, i).variant == AVTN_INTEGER);
         REQUIRE(any_to_integer(a, i) == i + 1);
@@ -161,7 +161,7 @@ static void stack_test(aactor_t* a)
     REQUIRE(any_count(a) == 2);
 }
 
-static int32_t num_spawn_tests;
+static aint_t num_spawn_tests;
 
 static void spawn_test(aactor_t* a)
 {
@@ -171,7 +171,7 @@ static void spawn_test(aactor_t* a)
     REQUIRE(any_type(a, -2).b == ABT_FUNCTION);
     REQUIRE(any_type(a, -2).variant == AVTF_NATIVE);
 
-    int32_t i = (int32_t)any_to_integer(a, -1);
+    aint_t i = any_to_integer(a, -1);
     if (i < 10) {
         any_push_idx(a, -2);
         any_push_idx(a, -2);

@@ -12,7 +12,7 @@
 
 void actor_dispatch(aactor_t* a);
 
-static AINLINE void* aalloc(aactor_t* self, void* old, const int32_t sz)
+static AINLINE void* aalloc(aactor_t* self, void* old, const aint_t sz)
 {
     assert(self->alloc);
     return self->alloc(self->alloc_ud, old, sz);
@@ -20,10 +20,10 @@ static AINLINE void* aalloc(aactor_t* self, void* old, const int32_t sz)
 
 static void call(aactor_t* self, void* ud)
 {
-    any_call(self, *(int32_t*)ud);
+    any_call(self, *(aint_t*)ud);
 }
 
-static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, int32_t nargs)
+static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, aint_t nargs)
 {
     frame->prev = a->frame;
     a->frame = frame;
@@ -33,7 +33,7 @@ static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, int32_t nargs)
 
 static AINLINE void load_ctx(aactor_t* a)
 {
-    int32_t nsp = a->frame->bp - a->frame->nargs;
+    aint_t nsp = a->frame->bp - a->frame->nargs;
     if (a->stack.sp <= a->frame->bp) {
         any_error(a, AERR_RUNTIME, "return value missing");
     }
@@ -46,7 +46,7 @@ void ASTDCALL actor_entry(void* ud)
 {
     aframe_t frame;
     aactor_t* a = (aactor_t*)ud;
-    int32_t nargs = (int32_t)a->stack.v[--a->stack.sp].v.integer;
+    aint_t nargs = a->stack.v[--a->stack.sp].v.integer;
     acatch_t c;
     c.status = AERR_NONE;
     memset(&frame, 0, sizeof(aframe_t));
@@ -54,7 +54,7 @@ void ASTDCALL actor_entry(void* ud)
     frame.nargs = 0;
     a->frame = &frame;
     a->error_jmp = &c;
-    if (setjmp(c.jbuff) == 0) any_pcall(a, nargs);
+    if (setjmp(c.jbuff) == 0) any_protected_call(a, nargs);
     a->flags |= APF_EXIT;
     while (TRUE) ascheduler_yield(a->owner, a);
 }
@@ -96,10 +96,10 @@ void any_find(aactor_t* a, const char* module, const char* name)
     else aactor_push(a, &v);
 }
 
-void any_call(aactor_t* a, int32_t nargs)
+void any_call(aactor_t* a, aint_t nargs)
 {
     aframe_t frame;
-    int32_t fp = a->stack.sp - nargs - 1;
+    aint_t fp = a->stack.sp - nargs - 1;
     avalue_t* f = a->stack.v + fp;
 
     if (fp < a->frame->bp || f->tag.b != ABT_FUNCTION) {
@@ -123,7 +123,7 @@ void any_call(aactor_t* a, int32_t nargs)
     load_ctx(a);
 }
 
-void any_pcall(aactor_t* a, int32_t nargs)
+void any_protected_call(aactor_t* a, aint_t nargs)
 {
     avalue_t ev;
     if (any_try(a, &call, &nargs) == AERR_NONE) return;
@@ -177,17 +177,20 @@ void any_mbox_send(aactor_t* a)
     ascheduler_got_new_message(a->owner, ta);
 }
 
-aerror_t any_mbox_recv(aactor_t* a, int32_t timeout)
+aerror_t any_mbox_recv(aactor_t* a, aint_t timeout)
 {
     for (;;) {
         if (a->msg_pp < a->msbox.sp) {
-            aactor_push(a, a->msbox.v + a->msg_pp++);
+            if (a->stack.sp <= a->frame->bp) {
+                any_error(a, AERR_RUNTIME, "receive to empty stack");
+            }
+            a->stack.v[a->stack.sp - 1] = a->msbox.v[a->msg_pp++];
             return AERR_NONE;
         } else {
             if (timeout == ADONT_WAIT) {
                 return AERR_TIMEOUT;
             } else {
-                timeout = ascheduler_wait_for(a->owner, a, timeout);
+                timeout = ascheduler_wait(a->owner, a, timeout);
             }
         }
     }
@@ -198,7 +201,7 @@ void any_mbox_remove(aactor_t* a)
     if (a->msg_pp <= 0) {
         any_error(a, AERR_RUNTIME, "no message to remove");
     } else {
-        int32_t num_tails = a->msbox.sp - a->msg_pp;
+        aint_t num_tails = a->msbox.sp - a->msg_pp;
         if (num_tails != 0) {
             memmove(
                 a->msbox.v + a->msg_pp - 1,
@@ -220,14 +223,14 @@ void any_yield(aactor_t* a)
     ascheduler_yield(a->owner, a);
 }
 
-void any_sleep(aactor_t* a, int32_t nsecs)
+void any_sleep(aactor_t* a, aint_t nsecs)
 {
     ascheduler_sleep(a->owner, a, nsecs);
 }
 
 aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
 {
-    int32_t sp = a->stack.sp;
+    aint_t sp = a->stack.sp;
     aframe_t* frame = a->frame;
     avalue_t ev;
     acatch_t c;
@@ -247,7 +250,7 @@ aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
     return c.status;
 }
 
-void any_throw(aactor_t* a, int32_t ec)
+void any_throw(aactor_t* a, aerror_t ec)
 {
     assert(a->error_jmp);
     a->error_jmp->status = ec;
@@ -265,14 +268,21 @@ void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
     any_throw(a, ec);
 }
 
-int32_t aactor_alloc(aactor_t* self, aabt_t abt, int32_t sz)
+aint_t aactor_alloc(aactor_t* self, aabt_t abt, aint_t sz)
 {
     agc_t* gc = &self->gc;
-    int32_t i = agc_alloc(gc, abt, sz);
+    aint_t i = agc_alloc(gc, abt, sz);
     if (i >= 0) return i;
     else {
-        avalue_t* roots[] = { self->stack.v, self->msbox.v, NULL };
-        int32_t num_roots[] = { self->stack.sp, self->msbox.sp };
+        avalue_t* roots[] = {
+            self->stack.v,
+            self->msbox.v,
+            NULL
+        };
+        aint_t num_roots[] = {
+            self->stack.sp,
+            self->msbox.sp
+        };
         agc_collect(gc, roots, num_roots);
         i = agc_alloc(gc, abt, sz);
         if (i >= 0) return i;
@@ -281,10 +291,10 @@ int32_t aactor_alloc(aactor_t* self, aabt_t abt, int32_t sz)
     }
 }
 
-aerror_t any_spawn(aactor_t* a, int32_t cstack_sz, int32_t nargs, apid_t* pid)
+aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
 {
     aactor_t* na;
-    int32_t i;
+    aint_t i;
     aerror_t ec = ascheduler_new_actor(a->owner, cstack_sz, &na);
     if (ec != AERR_NONE) return ec;
     for (i = 0; i < nargs + 1; ++i) {

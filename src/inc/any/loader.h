@@ -17,7 +17,7 @@ ANY_API void aloader_cleanup(aloader_t* self);
 \note `chunk_alloc` is optional, used to free `chunk` if necessary.
 */
 ANY_API aerror_t aloader_add_chunk(
-    aloader_t* self, achunk_header_t* chunk, int32_t chunk_sz,
+    aloader_t* self, achunk_header_t* chunk, aint_t chunk_sz,
     aalloc_t chunk_alloc, void* chunk_alloc_ud);
 
 /// Add new native lib module.

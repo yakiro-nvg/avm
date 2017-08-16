@@ -4,7 +4,7 @@
 #define GROW_FACTOR 2
 #define NOT_FORWARED -1
 
-static AINLINE void* aalloc(agc_t* self, void* old, const int32_t sz)
+static AINLINE void* aalloc(agc_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
@@ -59,7 +59,7 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
     }
 }
 
-aerror_t agc_init(agc_t* self, int32_t heap_cap, aalloc_t alloc, void* alloc_ud)
+aerror_t agc_init(agc_t* self, aint_t heap_cap, aalloc_t alloc, void* alloc_ud)
 {
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
@@ -80,12 +80,12 @@ void agc_cleanup(agc_t* self)
     self->heap_sz = 0;
 }
 
-int32_t agc_alloc(agc_t* self, aabt_t abt, int32_t sz)
+aint_t agc_alloc(agc_t* self, aabt_t abt, aint_t sz)
 {
     agc_header_t* gch;
-    int32_t more = sz + sizeof(agc_header_t);
-    int32_t new_heap_sz = self->heap_sz + more;
-    int32_t heap_idx = self->heap_sz;
+    aint_t more = sz + sizeof(agc_header_t);
+    aint_t new_heap_sz = self->heap_sz + more;
+    aint_t heap_idx = self->heap_sz;
     if (new_heap_sz > self->heap_cap) return AERR_FULL;
     self->heap_sz = new_heap_sz;
     gch = ((agc_header_t*)(self->cur_heap + heap_idx));
@@ -95,10 +95,10 @@ int32_t agc_alloc(agc_t* self, aabt_t abt, int32_t sz)
     return heap_idx;
 }
 
-aerror_t agc_reserve(agc_t* self, int32_t more)
+aerror_t agc_reserve(agc_t* self, aint_t more)
 {
     uint8_t* nh;
-    int32_t new_cap = self->heap_cap;
+    aint_t new_cap = self->heap_cap;
     more += sizeof(agc_header_t);
     while (new_cap < self->heap_sz + more) new_cap *= GROW_FACTOR;
     nh = (uint8_t*)aalloc(self, NULL, new_cap * 2);
@@ -111,9 +111,9 @@ aerror_t agc_reserve(agc_t* self, int32_t more)
     return AERR_NONE;
 }
 
-void agc_collect(agc_t* self, avalue_t** roots, int32_t* num_roots)
+void agc_collect(agc_t* self, avalue_t** roots, aint_t* num_roots)
 {
-    int32_t i;
+    aint_t i;
     self->heap_sz = 0;
     self->scan = 0;
     for (; *roots; ++roots, ++num_roots) {

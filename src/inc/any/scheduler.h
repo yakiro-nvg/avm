@@ -63,14 +63,13 @@ ANY_API void ascheduler_yield(ascheduler_t* self, aactor_t* a);
 /** Suspends this actor for `nsecs`.
 \warning Suspends NOT running actor is undefined.
 */
-ANY_API void ascheduler_sleep(ascheduler_t* self, aactor_t* a, int32_t nsecs);
+ANY_API void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t nsecs);
 
 /** Wait for incoming message in `nsecs`.
 \warning Suspends NOT running actor is undefined.
 \return Elapsed time.
 */
-ANY_API int32_t ascheduler_wait_for(
-    ascheduler_t* self, aactor_t* a, int32_t nsecs);
+ANY_API aint_t ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t nsecs);
 
 /// Wake-up this actor if its waiting for incoming message.
 ANY_API void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a);
@@ -79,10 +78,10 @@ ANY_API void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a);
 \note Must be started manually.
 */
 ANY_API aerror_t ascheduler_new_actor(
-    ascheduler_t* self, int32_t cstack_sz, aactor_t** a);
+    ascheduler_t* self, aint_t cstack_sz, aactor_t** a);
 
 /// Start actor and invoke the entry point.
-ANY_API void ascheduler_start(ascheduler_t* self, aactor_t* a, int32_t nargs);
+ANY_API void ascheduler_start(ascheduler_t* self, aactor_t* a, aint_t nargs);
 
 #ifdef __cplusplus
 } // extern "C"

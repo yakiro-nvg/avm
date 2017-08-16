@@ -9,7 +9,7 @@
 
 enum { CSTACK_SZ = 8192 };
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -602,7 +602,7 @@ TEST_CASE("dispatcher_llv_slv")
     ascheduler_run_once(&s);
 
     if (pop_num < 4) {
-        static const int32_t cmp_table[] = { 1969, 1972, 1970, 0xBABE };
+        static const aint_t cmp_table[] = { 1969, 1972, 1970, 0xBABE };
         REQUIRE(any_count(a) == 2);
         REQUIRE(any_type(a, 1).b == ABT_NIL);
         REQUIRE(any_type(a, 0).b == ABT_NUMBER);
@@ -1083,7 +1083,7 @@ TEST_CASE("dispatcher_mkc_ivk")
     SECTION("normal fefe")
     {
         aasm_module_push(&as, "test_f");
-        int32_t npt = aasm_push(&as);
+        aint_t npt = aasm_push(&as);
         {
             aasm_emit(&as, ai_llv(-1));
             aasm_emit(&as, ai_jin(2));
@@ -1120,7 +1120,7 @@ TEST_CASE("dispatcher_mkc_ivk")
     SECTION("normal fefa")
     {
         aasm_module_push(&as, "test_f");
-        int32_t npt = aasm_push(&as);
+        aint_t npt = aasm_push(&as);
         {
             aasm_emit(&as, ai_llv(-1));
             aasm_emit(&as, ai_jin(2));

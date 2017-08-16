@@ -7,7 +7,7 @@
 
 enum { CSTACK_SZ = 8192 };
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -40,7 +40,7 @@ TEST_CASE("scheduler_new_process")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    for (int32_t i = 0; i < 10; ++i) {
+    for (aint_t i = 0; i < 10; ++i) {
         spawn_new(&s, &entry);
     }
 
@@ -48,7 +48,7 @@ TEST_CASE("scheduler_new_process")
     ascheduler_run_once(&s); // cleanup is deferred
     REQUIRE(alist_head(&s.runnings) == &s.root.node);
 
-    for (int32_t i = 0; i < 10; ++i) {
+    for (aint_t i = 0; i < 10; ++i) {
         spawn_new(&s, &entry);
     }
 

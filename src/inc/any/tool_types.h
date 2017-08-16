@@ -34,19 +34,19 @@ followed by a string data block.
 */
 typedef struct {
     /// The total size of the allocated data, including this header.
-    int32_t allocated_bytes;
+    aint_t allocated_bytes;
     /// The number of strings in the table.
-    int32_t count;
+    aint_t count;
     /// Total number of slots in the hash table.
-    int32_t num_hash_slots;
+    aint_t num_hash_slots;
     /// The current number of bytes used for string data.
-    int32_t string_bytes;
+    aint_t string_bytes;
 } astring_table_t;
 
 // We must have room for at least one hash slot and one string.
 enum {
     ANY_ST_MIN_SIZE =
-    sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
+    sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(aint_t) + 1
 };
 
 /** Byte code assembler prototype.
@@ -54,33 +54,33 @@ enum {
 \ref aasm_reserve are required to extends these values.
 */
 typedef struct {
-    astring_ref_t source;
-    astring_ref_t symbol;
-    int32_t num_instructions;
-    int32_t max_instructions;
-    int16_t num_nesteds;
-    int16_t max_nesteds;
-    uint8_t num_upvalues;
-    uint8_t num_arguments;
-    uint8_t num_local_vars;
-    uint8_t num_constants;
-    uint8_t max_constants;
-    uint8_t num_imports;
-    uint8_t max_imports;
+    aint_t source;
+    aint_t symbol;
+    aint_t num_instructions;
+    aint_t max_instructions;
+    aint_t num_nesteds;
+    aint_t max_nesteds;
+    aint_t num_upvalues;
+    aint_t num_arguments;
+    aint_t num_local_vars;
+    aint_t num_constants;
+    aint_t max_constants;
+    aint_t num_imports;
+    aint_t max_imports;
 } aasm_prototype_t;
 
 /// Byte code assembler context.
 typedef struct {
-    int32_t slot;
-    int32_t idx;
+    aint_t slot;
+    aint_t idx;
 } aasm_ctx_t;
 
 /// Byte code assembler reserve sizes.
 typedef struct {
-    int32_t max_instructions;
-    uint8_t max_constants;
-    uint8_t max_imports;
-    int16_t max_nesteds;
+    aint_t max_instructions;
+    aint_t max_constants;
+    aint_t max_imports;
+    aint_t max_nesteds;
 } aasm_reserve_t;
 
 /// Byte code assembler resolved prototype pointers.
@@ -88,7 +88,7 @@ typedef struct {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
-    int32_t* nesteds;
+    aint_t* nesteds;
 } aasm_current_t;
 
 /** Byte code assembler.
@@ -116,25 +116,25 @@ portable format for exchanges. That format enable assembler as a **framework**
 to working with byte code between optimization passes.
 */
 typedef struct {
-    // Allocator.
+    // allocator.
     aalloc_t alloc;
     void* alloc_ud;
-    // Common string table.
+    // common string table.
     astring_table_t* st;
-    // Prototype buffers.
-    int32_t* _slots;
-    int32_t _num_slots;
-    int32_t _max_slots;
+    // prototype buffers.
+    aint_t* _slots;
+    aint_t _num_slots;
+    aint_t _max_slots;
     uint8_t* _buff;
-    int32_t _buff_size;
-    int32_t _buff_capacity;
-    // Contexts, limited nested level.
+    aint_t _buff_size;
+    aint_t _buff_capacity;
+    // contexts, limited nested level.
     aasm_ctx_t _context[24];
-    int32_t _nested_level;
-    // Output binary chunk.
+    aint_t _nested_level;
+    // output binary chunk.
     achunk_header_t* chunk;
-    int32_t chunk_size;
-    int32_t _chunk_capacity;
+    aint_t chunk_size;
+    aint_t _chunk_capacity;
 } aasm_t;
 
 // Number of nested level allowed for assembler.

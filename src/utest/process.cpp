@@ -4,7 +4,7 @@
 #include <any/rt_types.h>
 #include <any/scheduler.h>
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -19,16 +19,16 @@ TEST_CASE("process_allocation")
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
     // empty
-    for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
-        for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+    for (apid_gen_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
+        for (apid_idx_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
             REQUIRE(NULL == ascheduler_actor(
                 &s, apid_from(NUM_IDX_BITS, NUM_GEN_BITS, i, g)));
         }
     }
 
     // basic
-    for (int32_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
-        for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+    for (apid_gen_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {
+        for (apid_idx_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
             aprocess_t* p = ascheduler_alloc(&s);
             REQUIRE(p != NULL);
             REQUIRE(&p->actor == ascheduler_actor(&s, p->pid));
@@ -38,12 +38,12 @@ TEST_CASE("process_allocation")
 
     // over-allocate
     aprocess_t* procs[1 << NUM_IDX_BITS];
-    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+    for (apid_idx_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
         procs[i] = ascheduler_alloc(&s);
         REQUIRE(procs[i]);
     }
     REQUIRE(ascheduler_alloc(&s) == NULL);
-    for (int32_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
+    for (apid_idx_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
         ascheduler_free(procs[i]);
     }
 

@@ -3,10 +3,10 @@
 
 #define GROW_FACTOR 2
 
-aerror_t astack_reserve(astack_t* self, int32_t more)
+aerror_t astack_reserve(astack_t* self, aint_t more)
 {
     avalue_t* nv;
-    int32_t new_cap;
+    aint_t new_cap;
     if (self->sp + more <= self->cap) {
         return AERR_NONE;
     } else {

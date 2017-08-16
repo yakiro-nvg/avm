@@ -97,3 +97,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
 #define ACAST_FROM_FIELD(T, n, field) ((T*)(((uint8_t*)n) - offsetof(T, field)))
+
+// Primitive types.
+typedef int64_t aint_t;
+typedef double areal_t;

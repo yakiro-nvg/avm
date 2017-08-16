@@ -6,14 +6,14 @@
 
 void ASTDCALL actor_entry(void* ud);
 
-static AINLINE void* aalloc(ascheduler_t* self, void* old, const int32_t sz)
+static AINLINE void* aalloc(ascheduler_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static void init_processes(aprocess_t* procs, int32_t num)
+static void init_processes(aprocess_t* procs, aint_t num)
 {
-    int32_t i;
+    aint_t i;
     for (i = 0; i < num; ++i) {
         procs[i].dead = TRUE;
         procs[i].pid = 0;
@@ -58,10 +58,10 @@ aerror_t ascheduler_init(
     self->idx_bits = idx_bits;
     self->gen_bits = gen_bits;
     self->procs = aalloc(self, NULL,
-        ((int32_t)sizeof(aprocess_t)) * (1 << idx_bits));
+        ((aint_t)sizeof(aprocess_t)) * (aint_t)(1 << idx_bits));
     self->next_idx = 0;
     aloader_init(&self->loader, alloc, alloc_ud);
-    init_processes(self->procs, 1 << idx_bits);
+    init_processes(self->procs, (aint_t)(1 << idx_bits));
     alist_init(&self->pendings);
     alist_init(&self->runnings);
     alist_push_back(&self->runnings, &self->root.node);
@@ -93,14 +93,14 @@ void ascheduler_yield(ascheduler_t* self, aactor_t* a)
     atask_yield(&p->ptask.task, &next->task);
 }
 
-void ascheduler_sleep(ascheduler_t* self, aactor_t* a, int32_t nsecs)
+void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t nsecs)
 {
     AUNUSED(self);
     AUNUSED(nsecs);
     any_error(a, AERR_RUNTIME, "TODO");
 }
 
-int32_t ascheduler_wait_for(ascheduler_t* self, aactor_t* a, int32_t nsecs)
+aint_t ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t nsecs)
 {
     AUNUSED(self);
     any_error(a, AERR_RUNTIME, "TODO");
@@ -110,7 +110,7 @@ int32_t ascheduler_wait_for(ascheduler_t* self, aactor_t* a, int32_t nsecs)
 void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a)
 {
     AUNUSED(self); a;
-    any_error(a, AERR_RUNTIME, "TODO");
+    //any_error(a, AERR_RUNTIME, "TODO");
 }
 
 void ascheduler_cleanup(ascheduler_t* self)
@@ -122,13 +122,13 @@ void ascheduler_cleanup(ascheduler_t* self)
 
 aprocess_t* ascheduler_alloc(ascheduler_t* self)
 {
-    int32_t loop = 1 << self->idx_bits;
+    aint_t loop = (aint_t)(1 << self->idx_bits);
     do {
         aprocess_t* p = self->procs + self->next_idx;
         self->next_idx = (self->next_idx + 1) & ((1 << self->idx_bits) - 1);
         if (p->dead) {
-            int32_t idx = (int32_t)(p - self->procs);
-            int32_t gen = apid_gen(self->idx_bits, self->gen_bits, p->pid);
+            apid_idx_t idx = (apid_idx_t)(p - self->procs);
+            apid_gen_t gen = apid_gen(self->idx_bits, self->gen_bits, p->pid);
             gen = (gen + 1) & ((1 << self->gen_bits) - 1);
             p->pid = apid_from(self->idx_bits, self->gen_bits, idx, gen);
             p->dead = FALSE;
@@ -139,7 +139,7 @@ aprocess_t* ascheduler_alloc(ascheduler_t* self)
 }
 
 aerror_t ascheduler_new_actor(
-    ascheduler_t* self, int32_t cstack_sz, aactor_t** a)
+    ascheduler_t* self, aint_t cstack_sz, aactor_t** a)
 {
     aerror_t ec;
     aprocess_t* p = ascheduler_alloc(self);
@@ -153,7 +153,7 @@ aerror_t ascheduler_new_actor(
     return ec;
 }
 
-void ascheduler_start(ascheduler_t* self, aactor_t* a, int32_t nargs)
+void ascheduler_start(ascheduler_t* self, aactor_t* a, aint_t nargs)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
     alist_node_t* n = &p->ptask.node;

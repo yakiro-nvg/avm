@@ -14,7 +14,7 @@ aerror_t atask_shadow(struct atask_t* self)
 }
 
 aerror_t atask_create(
-    struct atask_t* self, atask_entry_t entry, void* ud, int32_t stack_sz)
+    struct atask_t* self, atask_entry_t entry, void* ud, aint_t stack_sz)
 {
     self->fiber = CreateFiber((SIZE_T)stack_sz, entry, ud);
     if (!self->fiber) return AERR_FULL;
@@ -30,12 +30,6 @@ void atask_yield(struct atask_t* self, struct atask_t* next)
 {
     assert(self != next);
     SwitchToFiber(next->fiber);
-}
-
-void atask_sleep(struct atask_t* self, int32_t nsecs)
-{
-    AUNUSED(self);
-    Sleep(nsecs / 1000000);
 }
 
 #else // ANY_TASK_FIBER

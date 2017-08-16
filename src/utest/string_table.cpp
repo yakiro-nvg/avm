@@ -29,8 +29,8 @@ TEST_CASE("string_table_basic")
     REQUIRE(astring_table_to_ref(st, "") == 0);
     REQUIRE_STR_EQUALS("", astring_table_to_string(st, 0));
 
-    astring_ref_t niklas = astring_table_to_ref(st, "niklas");
-    astring_ref_t frykholm = astring_table_to_ref(st, "frykholm");
+    aint_t niklas = astring_table_to_ref(st, "niklas");
+    aint_t frykholm = astring_table_to_ref(st, "frykholm");
 
     REQUIRE(niklas == astring_table_to_ref(st, "niklas"));
     REQUIRE(frykholm == astring_table_to_ref(st, "frykholm"));
@@ -53,10 +53,10 @@ TEST_CASE("string_table_grow")
 
     REQUIRE(astring_table_to_ref(st, "01234567890123456789") == AERR_FULL);
 
-    for (int32_t i = 0; i < 10000; ++i) {
+    for (aint_t i = 0; i < 10000; ++i) {
         char string[10];
         snprintf(string, sizeof(string), "%i", i);
-        astring_ref_t ref = astring_table_to_ref(st, string);
+        aint_t ref = astring_table_to_ref(st, string);
         while (ref == AERR_FULL) {
             st = grow(st);
             ref = astring_table_to_ref(st, string);
@@ -68,10 +68,10 @@ TEST_CASE("string_table_grow")
     astring_table_pack(st);
     st = (astring_table_t*)realloc(st, st->allocated_bytes);
 
-    for (int32_t i = 0; i < 10000; ++i) {
+    for (aint_t i = 0; i < 10000; ++i) {
         char string[10];
         snprintf(string, sizeof(string), "%i", i);
-        astring_ref_t ref = astring_table_to_ref(st, string);
+        aint_t ref = astring_table_to_ref(st, string);
         REQUIRE(ref > 0);
         REQUIRE_STR_EQUALS(string, astring_table_to_string(st, ref));
         REQUIRE(ahash_and_length(string).hash == astring_table_to_hash(st, ref));

@@ -36,8 +36,8 @@ void actor_dispatch(aactor_t* a)
                 any_error(a, AERR_RUNTIME, "bad constant type");
                 break;
             }
+            break;
         }
-                      break;
         case AOC_NIL:
             any_push_nil(a);
             break;
@@ -72,16 +72,16 @@ void actor_dispatch(aactor_t* a)
             }
             break;
         case AOC_JMP: {
-            int32_t nip = frame->ip + i->jmp.displacement + 1;
+            aint_t nip = frame->ip + i->jmp.displacement + 1;
             if (nip < 0 || nip >= pth->num_instructions) {
                 any_error(a, AERR_RUNTIME, "bad jump");
             } else {
                 frame->ip = nip - 1;
             }
+            break;
         }
-                      break;
         case AOC_JIN: {
-            int32_t nip;
+            aint_t nip;
             any_pop(a, 1);
             if (a->stack.v[a->stack.sp].tag.b != ABT_BOOL) {
                 any_error(a, AERR_RUNTIME, "condition must be boolean");
@@ -93,8 +93,8 @@ void actor_dispatch(aactor_t* a)
             } else {
                 frame->ip = nip - 1;
             }
+            break;
         }
-                      break;
         case AOC_IVK:
             any_call(a, i->ivk.nargs);
             break;
@@ -104,21 +104,24 @@ void actor_dispatch(aactor_t* a)
             any_mbox_send(a);
             break;
         case AOC_RCV: {
-                avalue_t* timeout = a->stack.v + a->stack.sp - 1;
-                any_pop(a, 1);
-                if (timeout->tag.b != ABT_NUMBER ||
-                    timeout->tag.variant != AVTN_INTEGER) {
-                    any_error(a, AERR_RUNTIME, "timeout must be integer");
-                } else {
-                    any_mbox_recv(a, (int32_t)timeout->v.integer);
-                }
+            avalue_t* timeout = a->stack.v + a->stack.sp - 1;
+            any_pop(a, 1);
+            if (timeout->tag.b != ABT_NUMBER ||
+                timeout->tag.variant != AVTN_INTEGER) {
+                any_error(a, AERR_RUNTIME, "timeout must be integer");
+            } else {
+                any_mbox_recv(a, timeout->v.integer);
             }
             break;
+        }
         case AOC_RMV:
             any_mbox_remove(a);
             break;
         case AOC_RWD:
             any_mbox_rewind(a);
+            break;
+        default:
+            any_error(a, AERR_RUNTIME, "bad instruction %u", i->b.opcode);
             break;
         }
     }

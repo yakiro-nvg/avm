@@ -7,7 +7,7 @@
 #include <any/loader.h>
 #include <any/list.h>
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, sz);
 }
@@ -246,7 +246,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_native_1")
     {
         achunk_header_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
+        aint_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         static alib_func_t nfuncs[] = {
             { NULL, NULL }
         };
