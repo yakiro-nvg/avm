@@ -52,7 +52,7 @@ TEST_CASE("dispatcher_loop")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("return missing"));
     }
 
@@ -75,7 +75,7 @@ TEST_CASE("dispatcher_loop")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("return missing"));
     }
 
@@ -99,7 +99,7 @@ TEST_CASE("dispatcher_loop")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("return value missing"));
     }
 
@@ -139,7 +139,7 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index 0"));
     }
 
@@ -162,7 +162,7 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index 1"));
     }
 
@@ -185,7 +185,7 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index -1"));
     }
 
@@ -213,8 +213,8 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("0xC1"));
     }
 
@@ -242,9 +242,8 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 0xC0);
     }
 
@@ -272,9 +271,8 @@ TEST_CASE("dispatcher_ldk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_REAL);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_REAL);
         REQUIRE(any_to_real(a, 0) == Approx(3.14f));
     }
 
@@ -313,8 +311,8 @@ TEST_CASE("dispatcher_nil")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).b == ABT_NIL);
-    REQUIRE(any_type(a, 0).b == ABT_NIL);
+    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, 0).type == AVT_NIL);
 
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);
@@ -353,8 +351,8 @@ TEST_CASE("dispatcher_ldb")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_BOOL);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_BOOLEAN);
         REQUIRE(any_to_bool(a, 0) == FALSE);
     }
 
@@ -377,8 +375,8 @@ TEST_CASE("dispatcher_ldb")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_BOOL);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_BOOLEAN);
         REQUIRE(any_to_bool(a, 0) == TRUE);
     }
 
@@ -401,8 +399,8 @@ TEST_CASE("dispatcher_ldb")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_BOOL);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_BOOLEAN);
         REQUIRE(any_to_bool(a, 0) == TRUE);
     }
 
@@ -443,9 +441,8 @@ TEST_CASE("dispatcher_lsi")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 0);
     }
 
@@ -468,9 +465,8 @@ TEST_CASE("dispatcher_lsi")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 2017);
     }
 
@@ -493,9 +489,8 @@ TEST_CASE("dispatcher_lsi")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == -2020);
     }
 
@@ -540,9 +535,8 @@ TEST_CASE("dispatcher_pop")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).b == ABT_NIL);
-    REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-    REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, 0).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, 0) == 1970);
 
     ascheduler_cleanup(&s);
@@ -604,13 +598,12 @@ TEST_CASE("dispatcher_llv_slv")
     if (pop_num < 4) {
         static const aint_t cmp_table[] = { 1969, 1972, 1970, 0xBABE };
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == cmp_table[pop_num]);
     } else {
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("return value missing"));
     }
 
@@ -661,7 +654,7 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index 0"));
     }
 
@@ -687,7 +680,7 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index 3"));
     }
 
@@ -713,7 +706,7 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index -1"));
     };
 
@@ -739,9 +732,8 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
-        REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_NATIVE_FUNC);
         REQUIRE((anative_func_t)0xF0 ==
             aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
@@ -768,9 +760,8 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
-        REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_NATIVE_FUNC);
         REQUIRE((anative_func_t)0xF1 ==
             aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
@@ -797,9 +788,8 @@ TEST_CASE("dispatcher_imp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_FUNCTION);
-        REQUIRE(any_type(a, 0).variant == AVTF_NATIVE);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_NATIVE_FUNC);
         REQUIRE((anative_func_t)0xF2 ==
             aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
@@ -845,9 +835,8 @@ TEST_CASE("dispatcher_jmp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 1);
     }
 
@@ -874,7 +863,7 @@ TEST_CASE("dispatcher_jmp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
@@ -901,7 +890,7 @@ TEST_CASE("dispatcher_jmp")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
@@ -946,9 +935,8 @@ TEST_CASE("dispatcher_jin")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 2);
     }
 
@@ -975,9 +963,36 @@ TEST_CASE("dispatcher_jin")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
+        REQUIRE(any_to_integer(a, 0) == 1);
+    }
+
+    SECTION("nil")
+    {
+        aasm_module_push(&as, "test_f");
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_nil());
+        aasm_emit(&as, ai_jin(1));
+        aasm_emit(&as, ai_lsi(2));
+        aasm_emit(&as, ai_ret());
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 2);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 1);
     }
 
@@ -1004,7 +1019,7 @@ TEST_CASE("dispatcher_jin")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
@@ -1031,7 +1046,7 @@ TEST_CASE("dispatcher_jin")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
@@ -1057,9 +1072,9 @@ TEST_CASE("dispatcher_jin")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).b == ABT_STRING);
+        REQUIRE(any_type(a, 0).type == AVT_STRING);
         CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("condition must be boolean"));
+            Catch::Equals("condition must be boolean or nil"));
     }
 
     ascheduler_cleanup(&s);
@@ -1111,9 +1126,8 @@ TEST_CASE("dispatcher_mkc_ivk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 0xFEFE);
     }
 
@@ -1148,9 +1162,8 @@ TEST_CASE("dispatcher_mkc_ivk")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).b == ABT_NIL);
-        REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-        REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, 0) == 0xFEFA);
     }
 

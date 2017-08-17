@@ -65,9 +65,7 @@ void actor_dispatch(aactor_t* a)
                 any_error(a, AERR_RUNTIME, "bad nested index %d", i->cls.idx);
             } else {
                 avalue_t v;
-                v.tag.b = ABT_FUNCTION;
-                v.tag.variant = AVTF_AVM;
-                v.v.avm_func = pt->nesteds + i->cls.idx;
+                av_byte_code_func(&v, pt->nesteds + i->cls.idx);
                 aactor_push(a, &v);
             }
             break;
@@ -82,11 +80,13 @@ void actor_dispatch(aactor_t* a)
         }
         case AOC_JIN: {
             aint_t nip;
+            avalue_t v;
             any_pop(a, 1);
-            if (a->stack.v[a->stack.sp].tag.b != ABT_BOOL) {
-                any_error(a, AERR_RUNTIME, "condition must be boolean");
+            v = a->stack.v[a->stack.sp];
+            if (v.tag.type != AVT_BOOLEAN && v.tag.type != AVT_NIL) {
+                any_error(a, AERR_RUNTIME, "condition must be boolean or nil");
             }
-            if (a->stack.v[a->stack.sp].v.boolean) continue;
+            if (v.tag.type != AVT_NIL && v.v.boolean) continue;
             nip = frame->ip + i->jin.displacement + 1;
             if (nip < 0 || nip >= pth->num_instructions) {
                 any_error(a, AERR_RUNTIME, "bad jump");
@@ -104,13 +104,12 @@ void actor_dispatch(aactor_t* a)
             any_mbox_send(a);
             break;
         case AOC_RCV: {
-            avalue_t* timeout = a->stack.v + a->stack.sp - 1;
+            avalue_t timeout = a->stack.v[a->stack.sp - 1];
             any_pop(a, 1);
-            if (timeout->tag.b != ABT_NUMBER ||
-                timeout->tag.variant != AVTN_INTEGER) {
+            if (timeout.tag.type != AVT_INTEGER) {
                 any_error(a, AERR_RUNTIME, "timeout must be integer");
             } else {
-                any_mbox_recv(a, timeout->v.integer);
+                any_mbox_recv(a, timeout.v.integer);
             }
             break;
         }

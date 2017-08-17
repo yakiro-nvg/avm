@@ -20,7 +20,9 @@ static bool search_for(agc_t* gc, aint_t i)
     aint_t off = 0;
     while (off < gc->heap_sz) {
         agc_header_t* h = (agc_header_t*)(gc->cur_heap + off);
-        if (h->abt == ABT_FIXED_BUFFER && *(aint_t*)(h + 1) == i) return true;
+        if (h->type == AVT_FIXED_BUFFER && *(aint_t*)(h + 1) == i) {
+            return true;
+        }
         off += h->sz;
     }
     return false;
@@ -35,7 +37,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 0; i < 1000; ++i) {
         if (i % 2 == 0) {
-            aactor_at(a, i)->tag.b = ABT_NIL;
+            av_nil(aactor_at(a, i));
         }
     }
     for (aint_t i = 1000; i < 5000; ++i) {
@@ -44,7 +46,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 1000; i < 5000; ++i) {
         if (i % 2 == 0) {
-            aactor_at(a, i)->tag.b = ABT_NIL;
+            av_nil(aactor_at(a, i));
         }
     }
     for (aint_t i = 5000; i < 10000; ++i) {
@@ -53,7 +55,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 5000; i < 10000; ++i) {
         if (i % 2 == 0) {
-            aactor_at(a, i)->tag.b = ABT_NIL;
+            av_nil(aactor_at(a, i));
         }
     }
     for (aint_t i = 0; i < 10000; ++i) {
@@ -81,9 +83,8 @@ TEST_CASE("gc")
         stack.push_back(v);
     }
 
-    for (aint_t i = 0; i < (aint_t)stack.size(); ++i) {
-        agc_buffer_t* b = AGC_CAST(agc_buffer_t, &gc, stack[i].v.heap_idx);
-        REQUIRE(*AGC_CAST(aint_t, &gc, b->buff.v.heap_idx) == i);
+    for (aint_t i = 0; i < 1000; ++i) {
+        REQUIRE(search_for(&gc, i));
     }
 
     {
@@ -94,13 +95,12 @@ TEST_CASE("gc")
         agc_collect(&gc, roots, num_roots);
     }
 
-    for (aint_t i = 0; i < (aint_t)stack.size(); ++i) {
-        agc_buffer_t* b = AGC_CAST(agc_buffer_t, &gc, stack[i].v.heap_idx);
-        REQUIRE(*AGC_CAST(aint_t, &gc, b->buff.v.heap_idx) == i);
+    for (aint_t i = 0; i < 1000; ++i) {
+        REQUIRE(search_for(&gc, i));
     }
 
     for (aint_t i = 0; i < (aint_t)stack.size(); ++i) {
-        if (i % 2 != 0) stack[i].tag.b = ABT_NIL;
+        if (i % 2 != 0) av_nil(stack.data() + i);
     }
 
     {
@@ -116,7 +116,7 @@ TEST_CASE("gc")
     }
 
     for (aint_t i = 0; i < (aint_t)stack.size(); ++i) {
-        if (i % 4 != 0) stack[i].tag.b = ABT_NIL;
+        if (i % 4 != 0) av_nil(stack.data() + i);
     }
 
     {
@@ -132,7 +132,7 @@ TEST_CASE("gc")
     }
 
     for (aint_t i = 0; i < (aint_t)stack.size(); ++i) {
-        stack[i].tag.b = ABT_NIL;
+        av_nil(stack.data() + i);
     }
 
     {
@@ -159,25 +159,20 @@ TEST_CASE("gc_string")
 
     ascheduler_t s;
 
-    avalue_t f;
-    f.tag.b = ABT_FUNCTION;
-    f.tag.variant = AVTF_NATIVE;
-    f.v.func = &string_test;
-
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    aactor_push(a, &f);
+    any_push_native_func(a, &string_test);
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
 
     CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).b == ABT_NIL);
-    REQUIRE(any_type(a, 0).b == ABT_STRING);
+    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, 0).type == AVT_STRING);
     CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
 
     ascheduler_cleanup(&s);

@@ -12,17 +12,16 @@ extern "C" {
 /// Create a new fixed size buffer.
 static AINLINE aint_t agc_fixed_buffer_new(agc_t* gc, aint_t sz, avalue_t* v)
 {
-    aint_t oi = agc_alloc(gc, ABT_FIXED_BUFFER, sz);
+    aint_t oi = agc_alloc(gc, AVT_FIXED_BUFFER, sz);
     if (oi < 0) return oi;
-    v->tag.b = ABT_FIXED_BUFFER;
-    v->v.heap_idx = oi;
+    av_collectable(v, AVT_FIXED_BUFFER, oi);
     return AERR_NONE;
 }
 
 /// Create a new buffer.
 static AINLINE aint_t agc_buffer_new(agc_t* gc, aint_t cap, avalue_t* v)
 {
-    aint_t oi = agc_alloc(gc, ABT_BUFFER, sizeof(agc_buffer_t));
+    aint_t oi = agc_alloc(gc, AVT_BUFFER, sizeof(agc_buffer_t));
     if (oi < 0) return oi;
     else {
         agc_buffer_t* o = AGC_CAST(agc_buffer_t, gc, oi);
@@ -30,8 +29,7 @@ static AINLINE aint_t agc_buffer_new(agc_t* gc, aint_t cap, avalue_t* v)
         if (bi < 0) return bi;
         o->cap = cap;
         o->sz = 0;
-        v->tag.b = ABT_BUFFER;
-        v->v.heap_idx = oi;
+        av_collectable(v, AVT_BUFFER, oi);
         return AERR_NONE;
     }
 }
@@ -50,7 +48,6 @@ static AINLINE uint8_t* any_to_buffer(aactor_t* a, aint_t idx)
 {
     agc_buffer_t* b;
     avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
-    assert(v->tag.b == ABT_BUFFER);
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);
 }

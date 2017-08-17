@@ -563,56 +563,42 @@ static AINLINE aconstant_t ac_real(areal_t val)
     return c;
 }
 
-/// Basic value tags.
+/// Value tags.
 typedef enum {
     /// No value.
-    ABT_NIL,
+    AVT_NIL,
     /// Process identifier.
-    ABT_PID,
+    AVT_PID,
     /// Either `true`: 1 or `false`: 0.
-    ABT_BOOL,
+    AVT_BOOLEAN,
     /// Raw pointer.
-    ABT_POINTER,
-    /// Variant of number.
-    ABT_NUMBER,
-    /// Variant of function.
-    ABT_FUNCTION,
-    /// Start of collectable.
-    ABT_COLLECTABLE,
-    /// Collectable fixed size buffer.
-    ABT_FIXED_BUFFER = ABT_COLLECTABLE,
-    /// Collectable buffer.
-    ABT_BUFFER,
-    /// Collectable string.
-    ABT_STRING,
-    /// Collectable tuple.
-    ABT_TUPLE,
-    /// Collectable array.
-    ABT_ARRAY,
-    /// Collectable map.
-    ABT_MAP
-} aabt_t;
-
-/// Variant tags for \ref ABT_NUMBER.
-typedef enum {
+    AVT_POINTER,
     /// No fractional.
-    AVTN_INTEGER,
+    AVT_INTEGER,
     /// Floating-point number.
-    AVTN_REAL
-} avt_number_t;
-
-/// Variant tags for \ref ABT_FUNCTION.
-typedef enum {
+    AVT_REAL,
     /// C lib function.
-    AVTF_NATIVE,
+    AVT_NATIVE_FUNC,
     /// Byte code function.
-    AVTF_AVM
-} avt_function_t;
+    AVT_BYTE_CODE_FUNC,
+    /// Collectable fixed size buffer.
+    AVT_FIXED_BUFFER,
+    /// Collectable buffer.
+    AVT_BUFFER,
+    /// Collectable string.
+    AVT_STRING,
+    /// Collectable tuple.
+    AVT_TUPLE,
+    /// Collectable array.
+    AVT_ARRAY,
+    /// Collectable map.
+    AVT_MAP
+} atype_t;
 
 /// Value tag.
 typedef struct {
-    int8_t b;
-    int8_t variant;
+    int8_t type;
+    int8_t collectable;
     int8_t _[2];
 } avalue_tag_t;
 
@@ -620,29 +606,86 @@ typedef struct {
 typedef struct {
     avalue_tag_t tag;
     union {
-        /// \ref ABT_PID.
+        /// \ref AVT_PID.
         apid_t pid;
-        /// \ref ABT_BOOL.
+        /// \ref AVT_BOOLEAN.
         int32_t boolean;
-        /// \ref ABT_POINTER.
+        /// \ref AVT_POINTER.
         void* ptr;
-        /// \ref AVTN_INTEGER.
+        /// \ref AVT_INTEGER.
         aint_t integer;
-        /// \ref AVTN_REAL.
+        /// \ref AVT_REAL.
         areal_t real;
-        /// \ref AVTF_NATIVE.
+        /// \ref AVT_NATIVE.
         anative_func_t func;
-        /// \ref AVTF_AVM.
+        /// \ref AVT_AVM.
         struct aprototype_t* avm_func;
-        /// \ref ABT_COLLECTABLE.
+        /// collectable value.
         aint_t heap_idx;
     } v;
 } avalue_t;
 
-/// Is subject of GC?
-static AINLINE int32_t avalue_collectable(avalue_t* v)
+// Value constructors.
+static AINLINE void av_nil(avalue_t* v)
 {
-    return v->tag.b >= ABT_COLLECTABLE;
+    v->tag.type = AVT_NIL;
+    v->tag.collectable = FALSE;
+}
+
+static AINLINE void av_pid(avalue_t* v, apid_t pid)
+{
+    v->tag.type = AVT_PID;
+    v->tag.collectable = FALSE;
+    v->v.pid = pid;
+}
+
+static AINLINE void av_boolean(avalue_t* v, int32_t b)
+{
+    v->tag.type = AVT_BOOLEAN;
+    v->tag.collectable = FALSE;
+    v->v.boolean = b;
+}
+
+static AINLINE void av_pointer(avalue_t* v, void* p)
+{
+    v->tag.type = AVT_POINTER;
+    v->tag.collectable = FALSE;
+    v->v.ptr = p;
+}
+
+static AINLINE void av_integer(avalue_t* v, aint_t i)
+{
+    v->tag.type = AVT_INTEGER;
+    v->tag.collectable = FALSE;
+    v->v.integer = i;
+}
+
+static AINLINE void av_real(avalue_t* v, areal_t r)
+{
+    v->tag.type = AVT_REAL;
+    v->tag.collectable = FALSE;
+    v->v.real = r;
+}
+
+static AINLINE void av_native_func(avalue_t* v, anative_func_t f)
+{
+    v->tag.type = AVT_NATIVE_FUNC;
+    v->tag.collectable = FALSE;
+    v->v.func = f;
+}
+
+static AINLINE void av_byte_code_func(avalue_t* v, struct aprototype_t* f)
+{
+    v->tag.type = AVT_BYTE_CODE_FUNC;
+    v->tag.collectable = FALSE;
+    v->v.avm_func = f;
+}
+
+static AINLINE void av_collectable(avalue_t* v, atype_t type, aint_t heap_idx)
+{
+    v->tag.type = type;
+    v->tag.collectable = TRUE;
+    v->v.heap_idx = heap_idx;
 }
 
 /// Garbage collector.
@@ -658,7 +701,7 @@ typedef struct {
 
 /// Collectable value header.
 typedef struct {
-    aint_t abt;
+    atype_t type;
     aint_t sz;
     aint_t forwared;
 } agc_header_t;

@@ -63,20 +63,17 @@ static void try_throw(aactor_t* a)
 
 static void stack_test(aactor_t* a)
 {
-    REQUIRE(any_type(a, -1).b == ABT_NUMBER);
-    REQUIRE(any_type(a, -1).variant == AVTN_INTEGER);
+    REQUIRE(any_type(a, -1).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, -1) == 0xA1);
 
-    REQUIRE(any_type(a, -2).b == ABT_NUMBER);
-    REQUIRE(any_type(a, -2).variant == AVTN_INTEGER);
+    REQUIRE(any_type(a, -2).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, -2) == 0xA2);
 
-    REQUIRE(any_type(a, -3).b == ABT_NUMBER);
-    REQUIRE(any_type(a, -3).variant == AVTN_INTEGER);
+    REQUIRE(any_type(a, -3).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, -3) == 0xA3);
 
-    REQUIRE(any_type(a, -4).b == ABT_NIL);
-    REQUIRE(any_type(a, -5).b == ABT_NIL);
+    REQUIRE(any_type(a, -4).type == AVT_NIL);
+    REQUIRE(any_type(a, -5).type == AVT_NIL);
 
     REQUIRE(any_count(a) == 0);
 
@@ -91,60 +88,66 @@ static void stack_test(aactor_t* a)
     any_push_integer(a, 1991);
     any_push_real(a, 18.12f);
     any_push_pid(a, 0xBEEF);
+    any_push_native_func(a, (anative_func_t)0xF0);
 
-    REQUIRE(any_count(a) == NUM_INTS + 5);
+    REQUIRE(any_count(a) == NUM_INTS + 6);
 
-    REQUIRE(any_type(a, any_count(a) - 1).b == ABT_PID);
-    REQUIRE(any_to_pid(a, any_count(a) - 1) == 0xBEEF);
+    REQUIRE(any_type(a, any_count(a) - 1).type == AVT_NATIVE_FUNC);
+    REQUIRE(any_to_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
 
-    REQUIRE(any_type(a, any_count(a) - 2).b == ABT_NUMBER);
-    REQUIRE(any_type(a, any_count(a) - 2).variant == AVTN_REAL);
-    REQUIRE(any_to_real(a, any_count(a) - 2) == 18.12f);
+    REQUIRE(any_type(a, any_count(a) - 2).type == AVT_PID);
+    REQUIRE(any_to_pid(a, any_count(a) - 2) == 0xBEEF);
 
-    REQUIRE(any_type(a, any_count(a) - 3).b == ABT_NUMBER);
-    REQUIRE(any_type(a, any_count(a) - 3).variant == AVTN_INTEGER);
-    REQUIRE(any_to_integer(a, any_count(a) - 3) == 1991);
 
-    REQUIRE(any_type(a, any_count(a) - 4).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 4) == FALSE);
+    REQUIRE(any_type(a, any_count(a) - 3).type == AVT_REAL);
+    REQUIRE(any_to_real(a, any_count(a) - 3) == 18.12f);
 
-    REQUIRE(any_type(a, any_count(a) - 5).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 5) == TRUE);
+    REQUIRE(any_type(a, any_count(a) - 4).type == AVT_INTEGER);
+    REQUIRE(any_to_integer(a, any_count(a) - 4) == 1991);
+
+    REQUIRE(any_type(a, any_count(a) - 5).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 5) == FALSE);
+
+    REQUIRE(any_type(a, any_count(a) - 6).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 6) == TRUE);
 
     any_remove(a, any_count(a) - 3);
 
-    REQUIRE(any_type(a, any_count(a) - 1).b == ABT_PID);
-    REQUIRE(any_to_pid(a, any_count(a) - 1) == 0xBEEF);
+    REQUIRE(any_type(a, any_count(a) - 1).type == AVT_NATIVE_FUNC);
+    REQUIRE(any_to_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
 
-    REQUIRE(any_type(a, any_count(a) - 2).b == ABT_NUMBER);
-    REQUIRE(any_type(a, any_count(a) - 2).variant == AVTN_REAL);
-    REQUIRE(any_to_real(a, any_count(a) - 2) == 18.12f);
+    REQUIRE(any_type(a, any_count(a) - 2).type == AVT_PID);
+    REQUIRE(any_to_pid(a, any_count(a) - 2) == 0xBEEF);
 
-    REQUIRE(any_type(a, any_count(a) - 3).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 3) == FALSE);
+    REQUIRE(any_type(a, any_count(a) - 3).type == AVT_INTEGER);
+    REQUIRE(any_to_integer(a, any_count(a) - 3) == 1991);
 
-    REQUIRE(any_type(a, any_count(a) - 4).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 4) == TRUE);
+    REQUIRE(any_type(a, any_count(a) - 4).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 4) == FALSE);
+
+    REQUIRE(any_type(a, any_count(a) - 5).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 5) == TRUE);
 
     any_remove(a, any_count(a) - 1);
 
-    REQUIRE(any_type(a, any_count(a) - 1).b == ABT_NUMBER);
-    REQUIRE(any_type(a, any_count(a) - 1).variant == AVTN_REAL);
-    REQUIRE(any_to_real(a, any_count(a) - 1) == 18.12f);
+    REQUIRE(any_type(a, any_count(a) - 1).type == AVT_PID);
+    REQUIRE(any_to_pid(a, any_count(a) - 1) == 0xBEEF);
 
-    REQUIRE(any_type(a, any_count(a) - 2).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 2) == FALSE);
+    REQUIRE(any_type(a, any_count(a) - 2).type == AVT_INTEGER);
+    REQUIRE(any_to_integer(a, any_count(a) - 2) == 1991);
 
-    REQUIRE(any_type(a, any_count(a) - 3).b == ABT_BOOL);
-    REQUIRE(any_to_bool(a, any_count(a) - 3) == TRUE);
+    REQUIRE(any_type(a, any_count(a) - 3).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 3) == FALSE);
 
-    any_pop(a, 3);
+    REQUIRE(any_type(a, any_count(a) - 4).type == AVT_BOOLEAN);
+    REQUIRE(any_to_bool(a, any_count(a) - 4) == TRUE);
+
+    any_pop(a, 4);
 
     any_remove(a, 0);
 
     for (aint_t i = NUM_INTS - 2; i >= 0; --i) {
-        REQUIRE(any_type(a, i).b == ABT_NUMBER);
-        REQUIRE(any_type(a, i).variant == AVTN_INTEGER);
+        REQUIRE(any_type(a, i).type == AVT_INTEGER);
         REQUIRE(any_to_integer(a, i) == i + 1);
         any_pop(a, 1);
     }
@@ -165,11 +168,8 @@ static aint_t num_spawn_tests;
 
 static void spawn_test(aactor_t* a)
 {
-    REQUIRE(any_type(a, -1).b == ABT_NUMBER);
-    REQUIRE(any_type(a, -1).variant == AVTN_INTEGER);
-
-    REQUIRE(any_type(a, -2).b == ABT_FUNCTION);
-    REQUIRE(any_type(a, -2).variant == AVTF_NATIVE);
+    REQUIRE(any_type(a, -1).type == AVT_INTEGER);
+    REQUIRE(any_type(a, -2).type == AVT_NATIVE_FUNC);
 
     aint_t i = any_to_integer(a, -1);
     if (i < 10) {
@@ -195,11 +195,7 @@ TEST_CASE("process_try_throw")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    avalue_t entry;
-    entry.tag.b = ABT_FUNCTION;
-    entry.tag.variant = AVTF_NATIVE;
-    entry.v.func = &try_throw;
-    aactor_push(a, &entry);
+    any_push_native_func(a, &try_throw);
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -218,11 +214,7 @@ TEST_CASE("process_stack")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    avalue_t entry;
-    entry.tag.b = ABT_FUNCTION;
-    entry.tag.variant = AVTF_NATIVE;
-    entry.v.func = &stack_test;
-    aactor_push(a, &entry);
+    any_push_native_func(a, &stack_test);
     any_push_integer(a, 0xA3);
     any_push_integer(a, 0xA2);
     any_push_integer(a, 0xA1);
@@ -231,9 +223,8 @@ TEST_CASE("process_stack")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).b == ABT_NIL);
-    REQUIRE(any_type(a, 0).b == ABT_NUMBER);
-    REQUIRE(any_type(a, 0).variant == AVTN_INTEGER);
+    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, 0).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, 0) == 0xFFAA);
 
     ascheduler_cleanup(&s);
@@ -251,15 +242,13 @@ TEST_CASE("process_call_non_function")
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
 
-    avalue_t entry;
-    entry.tag.b = ABT_NIL;
-    aactor_push(a, &entry);
+    any_push_nil(a);
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 1);
-    REQUIRE(any_type(a, 0).b == ABT_STRING);
+    REQUIRE(any_type(a, 0).type == AVT_STRING);
     CHECK_THAT(any_to_string(a, 0),
         Catch::Equals("attempt to call a non-function"));
 
@@ -275,17 +264,12 @@ TEST_CASE("process_spawn")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    avalue_t entry;
-    entry.tag.b = ABT_FUNCTION;
-    entry.tag.variant = AVTF_NATIVE;
-    entry.v.func = &spawn_test;
-
     num_spawn_tests = 0;
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    aactor_push(a, &entry);
-    aactor_push(a, &entry);
+    any_push_native_func(a, &spawn_test);
+    any_push_native_func(a, &spawn_test);
     any_push_integer(a, 0);
     ascheduler_start(&s, a, 2);
 

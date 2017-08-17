@@ -17,14 +17,13 @@ static AINLINE aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v)
 {
     ahash_and_length_t hal = ahash_and_length(s);
     aint_t oi = aactor_alloc(
-        a, ABT_STRING, sizeof(agc_string_t) + hal.length + 1);
+        a, AVT_STRING, sizeof(agc_string_t) + hal.length + 1);
     if (oi < 0) return oi;
     else {
         agc_string_t* o = AGC_CAST(agc_string_t, &a->gc, oi);
         o->hal = hal;
         memcpy(o + 1, s, hal.length + 1);
-        v->tag.b = ABT_STRING;
-        v->v.heap_idx = oi;
+        av_collectable(v, AVT_STRING, oi);
         return AERR_NONE;
     }
 }

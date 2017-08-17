@@ -85,9 +85,7 @@ static aint_t find_in_libs(
         // for each native module function
         for (nf = lib->funcs; nf->name != NULL; ++nf) {
             if (strcmp(nf->name, name) == 0) {
-                value->tag.b = ABT_FUNCTION;
-                value->tag.variant = AVTF_NATIVE;
-                value->v.func = nf->func;
+                av_native_func(value, nf->func);
                 return AERR_NONE;
             }
         }
@@ -110,9 +108,7 @@ static aint_t find_in_list(
         for (i = 0; i < m->header->num_nesteds; ++i) {
             aprototype_t* const f = m->nesteds + i;
             if (strcmp(f->strings + f->header->symbol, name) == 0) {
-                value->tag.b = ABT_FUNCTION;
-                value->tag.variant = AVTF_AVM;
-                value->v.avm_func = f;
+                av_byte_code_func(value, f);
                 return AERR_NONE;
             }
         }

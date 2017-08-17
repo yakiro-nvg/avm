@@ -17,7 +17,7 @@ ANY_API void agc_cleanup(agc_t* self);
 /** Allocate a new collectable object.
 \brief Return the `heap_idx` of allocated object, negative value if failed.
 */
-ANY_API aint_t agc_alloc(agc_t* self, aabt_t abt, aint_t sz);
+ANY_API aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz);
 
 /// Ensures that there are `more` bytes in the heap.
 ANY_API aerror_t agc_reserve(agc_t* self, aint_t more);

@@ -22,7 +22,7 @@ ANY_API void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...);
 \brief Collect or grow if necessary.
 \note Please refer \ref agc_alloc.
 */
-ANY_API aint_t aactor_alloc(aactor_t* self, aabt_t abt, aint_t sz);
+ANY_API aint_t aactor_alloc(aactor_t* self, atype_t type, aint_t sz);
 
 /// Push a value onto the stack, should be internal used.
 static AINLINE void aactor_push(aactor_t* self, avalue_t* v)
@@ -112,41 +112,42 @@ static AINLINE void any_pop(aactor_t* a, aint_t n)
 static AINLINE void any_push_nil(aactor_t* a)
 {
     avalue_t v;
-    v.tag.b = ABT_NIL;
+    av_nil(&v);
     aactor_push(a, &v);
 }
 
 static AINLINE void any_push_bool(aactor_t* a, int32_t b)
 {
     avalue_t v;
-    v.tag.b = ABT_BOOL;
-    v.v.boolean = b;
+    av_boolean(&v, b);
     aactor_push(a, &v);
 }
 
 static AINLINE void any_push_integer(aactor_t* a, aint_t i)
 {
     avalue_t v;
-    v.tag.b = ABT_NUMBER;
-    v.tag.variant = AVTN_INTEGER;
-    v.v.integer = i;
+    av_integer(&v, i);
     aactor_push(a, &v);
 }
 
 static AINLINE void any_push_real(aactor_t* a, areal_t r)
 {
     avalue_t v;
-    v.tag.b = ABT_NUMBER;
-    v.tag.variant = AVTN_REAL;
-    v.v.real = r;
+    av_real(&v, r);
     aactor_push(a, &v);
 }
 
 static AINLINE void any_push_pid(aactor_t* a, apid_t pid)
 {
     avalue_t v;
-    v.tag.b = ABT_PID;
-    v.v.pid = pid;
+    av_pid(&v, pid);
+    aactor_push(a, &v);
+}
+
+static AINLINE void any_push_native_func(aactor_t* a, anative_func_t f)
+{
+    avalue_t v;
+    av_native_func(&v, f);
     aactor_push(a, &v);
 }
 
@@ -157,26 +158,27 @@ static AINLINE void any_push_idx(aactor_t* a, aint_t idx)
 
 static AINLINE int32_t any_to_bool(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
-    return v->v.boolean;
+    return a->stack.v[aactor_absidx(a, idx)].v.boolean;
 }
 
 static AINLINE aint_t any_to_integer(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
-    return v->v.integer;
+    return a->stack.v[aactor_absidx(a, idx)].v.integer;
 }
 
 static AINLINE areal_t any_to_real(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
-    return v->v.real;
+    return a->stack.v[aactor_absidx(a, idx)].v.real;
 }
 
 static AINLINE apid_t any_to_pid(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
-    return v->v.pid;
+    return a->stack.v[aactor_absidx(a, idx)].v.pid;
+}
+
+static AINLINE anative_func_t any_to_native_func(aactor_t* a, aint_t idx)
+{
+    return a->stack.v[aactor_absidx(a, idx)].v.func;
 }
 
 static AINLINE void any_remove(aactor_t* a, aint_t idx)

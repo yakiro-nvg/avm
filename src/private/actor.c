@@ -102,22 +102,25 @@ void any_call(aactor_t* a, aint_t nargs)
     aint_t fp = a->stack.sp - nargs - 1;
     avalue_t* f = a->stack.v + fp;
 
-    if (fp < a->frame->bp || f->tag.b != ABT_FUNCTION) {
+    if (fp < a->frame->bp) {
+        any_error(a, AERR_RUNTIME, "no function to call");
+    }
+
+    if (f->tag.type != AVT_NATIVE_FUNC && f->tag.type != AVT_BYTE_CODE_FUNC) {
         any_error(a, AERR_RUNTIME, "attempt to call a non-function");
     }
 
     memset(&frame, 0, sizeof(aframe_t));
     save_ctx(a, &frame, nargs);
 
-    switch (f->tag.variant) {
-    case AVTF_NATIVE:
+    switch (f->tag.type) {
+    case AVT_NATIVE_FUNC:
         f->v.func(a);
         break;
-    case AVTF_AVM:
+    case AVT_BYTE_CODE_FUNC:
         frame.pt = f->v.avm_func;
         actor_dispatch(a);
         break;
-    default: assert(FALSE);
     }
 
     load_ctx(a);
@@ -140,7 +143,7 @@ void any_mbox_send(aactor_t* a)
     any_pop(a, 2);
     pid = a->stack.v + a->stack.sp;
     msg = a->stack.v + a->stack.sp + 1;
-    if (pid->tag.b != ABT_PID) {
+    if (pid->tag.type != AVT_PID) {
         any_error(a, AERR_RUNTIME, "target must be a pid");
     }
     ta = ascheduler_actor(a->owner, pid->v.pid);
@@ -148,14 +151,15 @@ void any_mbox_send(aactor_t* a)
     if (astack_reserve(&ta->msbox, 1) != AERR_NONE) {
         any_error(a, AERR_RUNTIME, "out of memory");
     }
-    switch (msg->tag.b) {
-    case ABT_NIL:
-    case ABT_PID:
-    case ABT_BOOL:
-    case ABT_NUMBER:
+    switch (msg->tag.type) {
+    case AVT_NIL:
+    case AVT_PID:
+    case AVT_BOOLEAN:
+    case AVT_INTEGER:
+    case AVT_REAL:
         ta->msbox.v[ta->msbox.sp] = *msg;
         break;
-    case ABT_STRING:
+    case AVT_STRING:
         if (AERR_NONE != agc_string_new(
             ta,
             agc_string_to_cstr(a, msg),
@@ -163,13 +167,14 @@ void any_mbox_send(aactor_t* a)
             return; // TODO: review it
         }
         break;
-    case ABT_POINTER:
-    case ABT_FUNCTION:
-    case ABT_FIXED_BUFFER:
-    case ABT_BUFFER:
-    case ABT_TUPLE:
-    case ABT_ARRAY:
-    case ABT_MAP:
+    case AVT_POINTER:
+    case AVT_NATIVE_FUNC:
+    case AVT_BYTE_CODE_FUNC:
+    case AVT_FIXED_BUFFER:
+    case AVT_BUFFER:
+    case AVT_TUPLE:
+    case AVT_ARRAY:
+    case AVT_MAP:
         any_error(a, AERR_RUNTIME, "not supported type");
         break;
     }
@@ -243,7 +248,7 @@ aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
         a->stack.sp = sp;
         a->frame = frame;
     } else {
-        ev.tag.b = ABT_NIL;
+        ev.tag.type = AVT_NIL;
     }
     aactor_push(a, &ev);
     a->error_jmp = c.prev;
@@ -268,10 +273,10 @@ void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
     any_throw(a, ec);
 }
 
-aint_t aactor_alloc(aactor_t* self, aabt_t abt, aint_t sz)
+aint_t aactor_alloc(aactor_t* self, atype_t type, aint_t sz)
 {
     agc_t* gc = &self->gc;
-    aint_t i = agc_alloc(gc, abt, sz);
+    aint_t i = agc_alloc(gc, type, sz);
     if (i >= 0) return i;
     else {
         avalue_t* roots[] = {
@@ -284,10 +289,10 @@ aint_t aactor_alloc(aactor_t* self, aabt_t abt, aint_t sz)
             self->msbox.sp
         };
         agc_collect(gc, roots, num_roots);
-        i = agc_alloc(gc, abt, sz);
+        i = agc_alloc(gc, type, sz);
         if (i >= 0) return i;
         agc_reserve(gc, sz);
-        return agc_alloc(gc, abt, sz);
+        return agc_alloc(gc, type, sz);
     }
 }
 
@@ -299,12 +304,14 @@ aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
     if (ec != AERR_NONE) return ec;
     for (i = 0; i < nargs + 1; ++i) {
         avalue_t* v = a->stack.v + a->stack.sp - nargs - 1 + i;
-        switch (v->tag.b) {
-        case ABT_NIL:
-        case ABT_PID:
-        case ABT_BOOL:
-        case ABT_NUMBER:
-        case ABT_FUNCTION:
+        switch (v->tag.type) {
+        case AVT_NIL:
+        case AVT_PID:
+        case AVT_BOOLEAN:
+        case AVT_INTEGER:
+        case AVT_REAL:
+        case AVT_NATIVE_FUNC:
+        case AVT_BYTE_CODE_FUNC:
             aactor_push(na, v);
             break;
         default:

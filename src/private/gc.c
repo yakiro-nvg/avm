@@ -23,9 +23,11 @@ static AINLINE void swap(agc_t* self)
 
 static AINLINE void copy(agc_t* self, avalue_t* v)
 {
-    agc_header_t* ogch = (agc_header_t*)(self->cur_heap + v->v.heap_idx);
-    agc_header_t* ngch = (agc_header_t*)(self->new_heap + self->heap_sz);
-    if (!avalue_collectable(v)) return;
+    agc_header_t* ogch;
+    agc_header_t* ngch;
+    if (v->tag.collectable == FALSE) return;
+    ogch = (agc_header_t*)(self->cur_heap + v->v.heap_idx);
+    ngch = (agc_header_t*)(self->new_heap + self->heap_sz);
     if (ogch->forwared == NOT_FORWARED) {
         memcpy(ngch, ogch, ogch->sz);
         ogch->forwared = self->heap_sz;
@@ -36,23 +38,25 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
 
 static AINLINE void scan(agc_t* self, agc_header_t* gch)
 {
-    switch (gch->abt) {
-    case ABT_NIL:
-    case ABT_PID:
-    case ABT_BOOL:
-    case ABT_POINTER:
-    case ABT_NUMBER:
-    case ABT_FUNCTION:
-    case ABT_FIXED_BUFFER:
-    case ABT_STRING:
+    switch (gch->type) {
+    case AVT_NIL:
+    case AVT_PID:
+    case AVT_BOOLEAN:
+    case AVT_POINTER:
+    case AVT_INTEGER:
+    case AVT_REAL:
+    case AVT_NATIVE_FUNC:
+    case AVT_BYTE_CODE_FUNC:
+    case AVT_FIXED_BUFFER:
+    case AVT_STRING:
         // nop
         break;
-    case ABT_BUFFER:
+    case AVT_BUFFER:
         copy(self, &((agc_buffer_t*)(gch + 1))->buff);
         break;
-    case ABT_TUPLE:
-    case ABT_ARRAY:
-    case ABT_MAP:
+    case AVT_TUPLE:
+    case AVT_ARRAY:
+    case AVT_MAP:
         assert(!"TODO");
         break;
     default: assert(!"bad value type");
@@ -80,7 +84,7 @@ void agc_cleanup(agc_t* self)
     self->heap_sz = 0;
 }
 
-aint_t agc_alloc(agc_t* self, aabt_t abt, aint_t sz)
+aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
 {
     agc_header_t* gch;
     aint_t more = sz + sizeof(agc_header_t);
@@ -89,7 +93,7 @@ aint_t agc_alloc(agc_t* self, aabt_t abt, aint_t sz)
     if (new_heap_sz > self->heap_cap) return AERR_FULL;
     self->heap_sz = new_heap_sz;
     gch = ((agc_header_t*)(self->cur_heap + heap_idx));
-    gch->abt = abt;
+    gch->type = type;
     gch->forwared = NOT_FORWARED;
     gch->sz = more;
     return heap_idx;
