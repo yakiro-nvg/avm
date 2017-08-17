@@ -30,22 +30,25 @@ static AINLINE aint_t atimer_delta_usecs(atimer_t* self)
 
 #elif defined(ALINUX)
 
-#include <sys/time.h>
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 199309L
+#endif
+#include <time.h>
 
-typedef timespec atimer_t;
+typedef struct timespec atimer_t;
 
 static AINLINE void atimer_start(atimer_t* self)
 {
     clock_gettime(CLOCK_MONOTONIC, self);
 }
 
-static AINLINE aint_t atimer_elapsed_usecs(atimer_t* self)
+static AINLINE aint_t atimer_delta_usecs(atimer_t* self)
 {
-    timespec end, delta;
+    struct timespec end, delta;
     clock_gettime(CLOCK_MONOTONIC, &end);
-    delta = (end.tv_nsec - self->tv_nsec) / 1000;
+    delta.tv_nsec = (end.tv_nsec - self->tv_nsec) / 1000;
     *self = end;
-    return (aint_t)delta;
+    return (aint_t)delta.tv_nsec;
 }
 
 #elif defined(AAPPLE)
@@ -59,7 +62,7 @@ static AINLINE void atimer_start(atimer_t* self)
     *self = mach_absolute_time();
 }
 
-static AINLINE aint_t atimer_elapsed_usecs(atimer_t* self)
+static AINLINE aint_t atimer_delta_usecs(atimer_t* self)
 {
     uint64_t end = mach_absolute_time(), delta;
     mach_timebase_info_data_t time_base_info;

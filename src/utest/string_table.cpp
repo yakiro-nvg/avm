@@ -55,7 +55,7 @@ TEST_CASE("string_table_grow")
 
     for (aint_t i = 0; i < 10000; ++i) {
         char string[10];
-        snprintf(string, sizeof(string), "%i", i);
+        snprintf(string, sizeof(string), "%i", (int)i);
         aint_t ref = astring_table_to_ref(st, string);
         while (ref == AERR_FULL) {
             st = grow(st);
@@ -70,7 +70,7 @@ TEST_CASE("string_table_grow")
 
     for (aint_t i = 0; i < 10000; ++i) {
         char string[10];
-        snprintf(string, sizeof(string), "%i", i);
+        snprintf(string, sizeof(string), "%i", (int)i);
         aint_t ref = astring_table_to_ref(st, string);
         REQUIRE(ref > 0);
         REQUIRE_STR_EQUALS(string, astring_table_to_string(st, ref));
