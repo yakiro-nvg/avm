@@ -93,6 +93,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #include <assert.h>
 
 #ifdef AWINDOWS
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
