@@ -83,60 +83,6 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #define NULL 0
 #endif
 
-#ifdef ANY_SMP
-
-#ifdef AWINDOWS
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-typedef CRITICAL_SECTION amutex_t;
-
-static AINLINE void amutex_init(amutex_t* m)
-{
-    InitializeCriticalSection(m);
-}
-
-static AINLINE void amutex_destroy(amutex_t* m)
-{
-    DeleteCriticalSection(m);
-}
-
-static AINLINE void amutex_lock(amutex_t* m)
-{
-    EnterCriticalSection(m);
-}
-
-static AINLINE void amutex_unlock(amutex_t* m)
-{
-    LeaveCriticalSection(m);
-}
-#elif defined(AAPPLE) || defined(ALINUX)
-#include <pthread.h>
-typedef pthread_mutex_t amutex_t;
-
-static AINLINE void amutex_init(amutex_t* m)
-{
-    pthread_mutex_init(m, NULL);
-}
-
-static AINLINE void amutex_destroy(amutex_t* m)
-{
-    pthread_mutex_destroy(m);
-}
-
-static AINLINE void amutex_lock(amutex_t* m)
-{
-    pthread_mutex_lock(m);
-}
-
-static AINLINE void amutex_unlock(amutex_t* m)
-{
-    pthread_mutex_unlock(m);
-}
-#endif
-
-#endif // ANY_SMP
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -146,8 +92,18 @@ static AINLINE void amutex_unlock(amutex_t* m)
 #include <string.h>
 #include <assert.h>
 
+#ifdef AWINDOWS
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+
 #if defined(AMSVC) && !defined(snprintf)
 #define snprintf sprintf_s
 #endif
 
 #define ACAST_FROM_FIELD(T, n, field) ((T*)(((uint8_t*)n) - offsetof(T, field)))
+
+// Primitive types.
+typedef int64_t aint_t;
+typedef double areal_t;

@@ -5,34 +5,32 @@ API Reference
 String Table
 ============
 .. doxygenstruct::   astring_table_t
-.. doxygenfunction:: any_st_init
-.. doxygenfunction:: any_st_grow
-.. doxygenfunction:: any_st_pack
-.. doxygenfunction:: any_st_to_ref
-.. doxygenfunction:: any_st_to_ref_const
-.. doxygenfunction:: any_st_to_string
-.. doxygenfunction:: any_st_to_hash
-.. doxygenfunction:: ahash_and_length
+.. doxygenfunction:: astring_table_init
+.. doxygenfunction:: astring_table_grow
+.. doxygenfunction:: astring_table_pack
+.. doxygenfunction:: astring_table_to_ref
+.. doxygenfunction:: astring_table_to_ref_const
+.. doxygenfunction:: astring_table_to_string
+.. doxygenfunction:: astring_table_to_hash
 
 Bytecode Assembler
 ==================
 .. doxygenstruct::   aasm_t
 .. doxygenstruct::   aasm_prototype_t
 .. doxygenstruct::   aasm_reserve_t
-.. doxygenunion::    aasm_constant_t
-.. doxygenfunction:: any_asm_init
-.. doxygenfunction:: any_asm_load
-.. doxygenfunction:: any_asm_save
-.. doxygenfunction:: any_asm_cleanup
-.. doxygenfunction:: any_asm_emit
-.. doxygenfunction:: any_asm_add_constant
-.. doxygenfunction:: any_asm_add_import
-.. doxygenfunction:: any_asm_module_push
-.. doxygenfunction:: any_asm_push
-.. doxygenfunction:: any_asm_open
-.. doxygenfunction:: any_asm_pop
-.. doxygenfunction:: any_asm_string_to_ref
-.. doxygenfunction:: any_asm_reserve
-.. doxygenfunction:: any_asm_prototype
-.. doxygenfunction:: any_asm_resolve
-.. doxygenfunction:: any_asm_prototype_at
+.. doxygenfunction:: aasm_init
+.. doxygenfunction:: aasm_load
+.. doxygenfunction:: aasm_save
+.. doxygenfunction:: aasm_cleanup
+.. doxygenfunction:: aasm_emit
+.. doxygenfunction:: aasm_add_constant
+.. doxygenfunction:: aasm_add_import
+.. doxygenfunction:: aasm_module_push
+.. doxygenfunction:: aasm_push
+.. doxygenfunction:: aasm_open
+.. doxygenfunction:: aasm_pop
+.. doxygenfunction:: aasm_string_to_ref
+.. doxygenfunction:: aasm_reserve
+.. doxygenfunction:: aasm_prototype
+.. doxygenfunction:: aasm_resolve
+.. doxygenfunction:: aasm_prototype_at

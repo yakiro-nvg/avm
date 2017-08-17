@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 
+project(Any-VM)
+
 set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS TRUE)
 set(USE_FOLDERS TRUE)
 
@@ -43,7 +45,7 @@ if(CHECK_COVERAGE)
     APPEND_COVERAGE_COMPILER_FLAGS()
 endif()
 
-add_definitions(-DANY_SMP -DANY_TOOL)
+add_definitions(-DANY_TOOL)
 
 add_subdirectory(cmake)
 add_subdirectory(src)

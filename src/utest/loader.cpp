@@ -1,15 +1,16 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #ifdef ANY_TOOL
 
+#include <any/platform.h>
 #include <catch.hpp>
 
 #include <any/asm.h>
 #include <any/loader.h>
 #include <any/list.h>
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
-    return realloc(old, sz);
+    return realloc(old, (size_t)sz);
 }
 
 static void push_module_a(aasm_t* a)
@@ -73,11 +74,6 @@ static void push_module_c(aasm_t* c)
     aasm_pop(c);
 }
 
-static bool compare_vtag(avalue_t* a, avalue_t* b)
-{
-    return a->tag.b == b->tag.b && a->tag.variant == b->tag.variant;
-}
-
 TEST_CASE("loader_link")
 {
     aasm_t a;
@@ -113,8 +109,7 @@ TEST_CASE("loader_link")
 
     avalue_t af1;
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_a", "f1", &af1));
-    REQUIRE(af1.tag.b == ABT_FUNCTION);
-    REQUIRE(af1.tag.variant == AVTF_AVM);
+    REQUIRE(af1.tag.type == AVT_BYTE_CODE_FUNC);
     REQUIRE(af1.v.avm_func->header->num_instructions == 4);
     REQUIRE(af1.v.avm_func->instructions[0].b.opcode == AOC_NOP);
     REQUIRE(af1.v.avm_func->instructions[1].b.opcode == AOC_IMP);
@@ -123,11 +118,10 @@ TEST_CASE("loader_link")
     REQUIRE(af1.v.avm_func->instructions[2].ldk.idx == 0);
     REQUIRE(af1.v.avm_func->instructions[3].b.opcode == AOC_RET);
     REQUIRE(af1.v.avm_func->header->num_constants == 1);
-    REQUIRE(af1.v.avm_func->constants[0].b.type == ACT_INTEGER);
-    REQUIRE(af1.v.avm_func->constants[0].integer.val == 0xAF1);
+    REQUIRE(af1.v.avm_func->constants[0].type == ACT_INTEGER);
+    REQUIRE(af1.v.avm_func->constants[0].integer == 0xAF1);
     REQUIRE(af1.v.avm_func->header->num_imports == 1);
-    REQUIRE(af1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
-    REQUIRE(af1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
+    REQUIRE(af1.v.avm_func->import_values[0].tag.type == AVT_BYTE_CODE_FUNC);
     avalue_t af1i = af1.v.avm_func->import_values[0];
 
     avalue_t af2;
@@ -140,11 +134,10 @@ TEST_CASE("loader_link")
     REQUIRE(af2.v.avm_func->instructions[2].imp.idx == 0);
     REQUIRE(af2.v.avm_func->instructions[3].b.opcode == AOC_RET);
     REQUIRE(af2.v.avm_func->header->num_constants == 1);
-    REQUIRE(af2.v.avm_func->constants[0].b.type == ACT_INTEGER);
-    REQUIRE(af2.v.avm_func->constants[0].integer.val == 0xAF2);
+    REQUIRE(af2.v.avm_func->constants[0].type == ACT_INTEGER);
+    REQUIRE(af2.v.avm_func->constants[0].integer == 0xAF2);
     REQUIRE(af2.v.avm_func->header->num_imports == 1);
-    REQUIRE(af2.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
-    REQUIRE(af2.v.avm_func->import_values[0].tag.variant == AVTF_NATIVE);
+    REQUIRE(af2.v.avm_func->import_values[0].tag.type == AVT_NATIVE_FUNC);
     REQUIRE(af2.v.avm_func->import_values[0].v.func == (anative_func_t)0xF1);
 
     avalue_t bf2;
@@ -157,11 +150,10 @@ TEST_CASE("loader_link")
     REQUIRE(bf2.v.avm_func->instructions[2].b.opcode == AOC_NOP);
     REQUIRE(bf2.v.avm_func->instructions[3].b.opcode == AOC_RET);
     REQUIRE(bf2.v.avm_func->header->num_constants == 1);
-    REQUIRE(bf2.v.avm_func->constants[0].b.type == ACT_INTEGER);
-    REQUIRE(bf2.v.avm_func->constants[0].integer.val == 0xBF2);
+    REQUIRE(bf2.v.avm_func->constants[0].type == ACT_INTEGER);
+    REQUIRE(bf2.v.avm_func->constants[0].integer == 0xBF2);
     REQUIRE(bf2.v.avm_func->header->num_imports == 1);
-    REQUIRE(bf2.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
-    REQUIRE(bf2.v.avm_func->import_values[0].tag.variant == AVTF_NATIVE);
+    REQUIRE(bf2.v.avm_func->import_values[0].tag.type == AVT_NATIVE_FUNC);
     REQUIRE(bf2.v.avm_func->import_values[0].v.func == (anative_func_t)0xF2);
 
     avalue_t bf1;
@@ -174,16 +166,15 @@ TEST_CASE("loader_link")
     REQUIRE(bf1.v.avm_func->instructions[2].ldk.idx == 0);
     REQUIRE(bf1.v.avm_func->instructions[3].b.opcode == AOC_RET);
     REQUIRE(bf1.v.avm_func->header->num_constants == 1);
-    REQUIRE(bf1.v.avm_func->constants[0].b.type == ACT_INTEGER);
-    REQUIRE(bf1.v.avm_func->constants[0].integer.val == 0xBF1);
+    REQUIRE(bf1.v.avm_func->constants[0].type == ACT_INTEGER);
+    REQUIRE(bf1.v.avm_func->constants[0].integer == 0xBF1);
     REQUIRE(bf1.v.avm_func->header->num_imports == 1);
-    REQUIRE(bf1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
-    REQUIRE(bf1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
+    REQUIRE(bf1.v.avm_func->import_values[0].tag.type == AVT_BYTE_CODE_FUNC);
     avalue_t bf1i = bf1.v.avm_func->import_values[0];
 
-    REQUIRE(compare_vtag(&af1i, &bf2));
+    REQUIRE(af1i.tag.type == bf2.tag.type);
     REQUIRE(af1i.v.avm_func == bf2.v.avm_func);
-    REQUIRE(compare_vtag(&bf1i, &af1));
+    REQUIRE(bf1i.tag.type == af1.tag.type);
     REQUIRE(bf1i.v.avm_func == af1.v.avm_func);
 
     aloader_cleanup(&l);
@@ -246,7 +237,7 @@ TEST_CASE("loader_link_unresolved")
     SECTION("missing_native_1")
     {
         achunk_header_t* chunks[] = { a.chunk, b.chunk, NULL };
-        int32_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
+        aint_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
         static alib_func_t nfuncs[] = {
             { NULL, NULL }
         };
@@ -340,17 +331,17 @@ TEST_CASE("loader_link_safe_and_sweep")
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f1", &nnf1));
     REQUIRE(AERR_NONE == aloader_find(&l, "mod_n", "f2", &nnf2));
 
-    REQUIRE(compare_vtag(&oaf1, &naf1));
+    REQUIRE(oaf1.tag.type == naf1.tag.type);
     REQUIRE(oaf1.v.avm_func == naf1.v.avm_func);
-    REQUIRE(compare_vtag(&oaf2, &naf2));
+    REQUIRE(oaf2.tag.type == naf2.tag.type);
     REQUIRE(oaf2.v.avm_func == naf2.v.avm_func);
-    REQUIRE(compare_vtag(&obf1, &nbf1));
+    REQUIRE(obf1.tag.type == nbf1.tag.type);
     REQUIRE(obf1.v.avm_func == nbf1.v.avm_func);
-    REQUIRE(compare_vtag(&obf2, &nbf2));
+    REQUIRE(obf2.tag.type == nbf2.tag.type);
     REQUIRE(obf2.v.avm_func == nbf2.v.avm_func);
-    REQUIRE(compare_vtag(&onf1, &nnf1));
+    REQUIRE(onf1.tag.type == nnf1.tag.type);
     REQUIRE(onf1.v.func == nnf1.v.func);
-    REQUIRE(compare_vtag(&onf2, &nnf2));
+    REQUIRE(onf2.tag.type == nnf2.tag.type);
     REQUIRE(onf2.v.func == nnf2.v.func);
 
     // link with mod_a.f3 (reload)
@@ -378,14 +369,12 @@ TEST_CASE("loader_link_safe_and_sweep")
     REQUIRE(cf1.v.avm_func->instructions[0].b.opcode == AOC_NOP);
     REQUIRE(cf1.v.avm_func->instructions[1].b.opcode == AOC_RET);
     REQUIRE(cf1.v.avm_func->header->num_constants == 1);
-    REQUIRE(cf1.v.avm_func->constants[0].b.type == ACT_INTEGER);
-    REQUIRE(cf1.v.avm_func->constants[0].integer.val == 0xCF1);
+    REQUIRE(cf1.v.avm_func->constants[0].type == ACT_INTEGER);
+    REQUIRE(cf1.v.avm_func->constants[0].integer == 0xCF1);
     REQUIRE(cf1.v.avm_func->header->num_imports == 1);
-    REQUIRE(cf1.v.avm_func->import_values[0].tag.b == ABT_FUNCTION);
-    REQUIRE(cf1.v.avm_func->import_values[0].tag.variant == AVTF_AVM);
+    REQUIRE(cf1.v.avm_func->import_values[0].tag.type == AVT_BYTE_CODE_FUNC);
     avalue_t cf1i = cf1.v.avm_func->import_values[0];
-    REQUIRE(cf1i.tag.b == ABT_FUNCTION);
-    REQUIRE(cf1i.tag.variant == AVTF_AVM);
+    REQUIRE(cf1i.tag.type == AVT_BYTE_CODE_FUNC);
     aprototype_t* cf1ip = cf1i.v.avm_func;
     aprototype_t* cf1icp = cf1ip->chunk->prototypes;
     REQUIRE(strcmp(cf1icp->strings + cf1icp->header->symbol, "mod_a") == 0);

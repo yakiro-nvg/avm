@@ -9,3 +9,4 @@ Welcome to Any-VM project
    bytecode
    runtime
    memory
+   utilities

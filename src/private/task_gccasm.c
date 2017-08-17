@@ -23,18 +23,14 @@ void atask_ctx_entryp();
 aerror_t atask_shadow(struct atask_t* self)
 {
     self->stack = NULL;
-    self->node.prev = &self->node;
-    self->node.next = &self->node;
     return AERR_NONE;
 }
 
 aerror_t atask_create(
-    struct atask_t* self, struct atask_t* root,
-    atask_entry_t entry, void* ud, int32_t stack_sz)
+    struct atask_t* self, atask_entry_t entry, void* ud, aint_t stack_sz)
 {
     self->stack = (uint8_t*)malloc(stack_sz);
     if (!self->stack) return AERR_FULL;
-    alist_node_insert(&self->node, root->node.prev, &root->node);
     STACK_REG(self, self->stack, stack_sz);
 #if defined(AARCH_I386)
 #error "TODO"
@@ -56,25 +52,14 @@ aerror_t atask_create(
 
 void atask_delete(struct atask_t* self)
 {
-    alist_node_erase(&self->node);
-    if (!self->stack) return;
     STACK_DEREG(self);
     free(self->stack);
-    self->stack = NULL;
 }
 
-void atask_yield(struct atask_t* self)
+void atask_yield(struct atask_t* self, struct atask_t* next)
 {
-    atask_t* next = ALIST_NODE_CAST(atask_t, self->node.next);
-    if (next == self) return;
+    assert(self != next);
     atask_ctx_switch(&self->ctx, &next->ctx);
-}
-
-void atask_sleep(struct atask_t* self, int32_t nsecs)
-{
-    AUNUSED(self);
-    AUNUSED(nsecs);
-    assert(!"TODO");
 }
 
 #else // ANY_TASK_GCCASM

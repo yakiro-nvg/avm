@@ -1,6 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #ifdef ANY_TOOL
 
+#include <any/platform.h>
 #include <catch.hpp>
 
 #include <stdlib.h>
@@ -10,9 +11,9 @@
 
 #define REQUIRE_STR_EQUALS(a, b) REQUIRE(strcmp(a, b) == 0)
 
-static void* myalloc(void*, void* old, int32_t sz)
+static void* myalloc(void*, void* old, aint_t sz)
 {
-    return realloc(old, sz);
+    return realloc(old, (size_t)sz);
 }
 
 static void num_vs_capacity_check(aasm_prototype_t* p)
@@ -29,9 +30,14 @@ typedef struct {
     ainstruction_t llv;
     ainstruction_t slv;
     ainstruction_t imp;
+    ainstruction_t cls;
     ainstruction_t jmp;
     ainstruction_t jin;
     ainstruction_t ivk;
+    ainstruction_t snd;
+    ainstruction_t rcv;
+    ainstruction_t rmv;
+    ainstruction_t rwd;
 
     aconstant_t cinteger;
     aconstant_t cstring;
@@ -45,9 +51,11 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     t.llv = ai_llv(rand());
     t.slv = ai_slv(rand());
     t.imp = ai_imp(rand());
+    t.cls = ai_cls(rand());
     t.jmp = ai_jmp(rand());
     t.jin = ai_jin(rand());
     t.ivk = ai_ivk(rand());
+    t.rcv = ai_rcv(rand());
 
     REQUIRE(0 == aasm_emit(a, ai_nop()));
     REQUIRE(1 == aasm_emit(a, t.pop));
@@ -55,13 +63,19 @@ static void basic_add(aasm_t* a, basic_test_ctx& t)
     REQUIRE(3 == aasm_emit(a, ai_nil()));
     REQUIRE(4 == aasm_emit(a, ai_ldb(TRUE)));
     REQUIRE(5 == aasm_emit(a, ai_ldb(FALSE)));
-    REQUIRE(6 == aasm_emit(a, t.llv));
-    REQUIRE(7 == aasm_emit(a, t.slv));
-    REQUIRE(8 == aasm_emit(a, t.imp));
-    REQUIRE(9 == aasm_emit(a, t.jmp));
-    REQUIRE(10 == aasm_emit(a, t.jin));
-    REQUIRE(11 == aasm_emit(a, t.ivk));
-    REQUIRE(12 == aasm_emit(a, ai_ret()));
+    REQUIRE(6 == aasm_emit(a, ai_lsi(0xFEFA)));
+    REQUIRE(7 == aasm_emit(a, t.llv));
+    REQUIRE(8 == aasm_emit(a, t.slv));
+    REQUIRE(9 == aasm_emit(a, t.imp));
+    REQUIRE(10 == aasm_emit(a, t.cls));
+    REQUIRE(11 == aasm_emit(a, t.jmp));
+    REQUIRE(12 == aasm_emit(a, t.jin));
+    REQUIRE(13 == aasm_emit(a, t.ivk));
+    REQUIRE(14 == aasm_emit(a, ai_ret()));
+    REQUIRE(15 == aasm_emit(a, ai_snd()));
+    REQUIRE(16 == aasm_emit(a, t.rcv));
+    REQUIRE(17 == aasm_emit(a, ai_rmv()));
+    REQUIRE(18 == aasm_emit(a, ai_rwd()));
 
     t.cinteger = ac_integer(rand());
     t.cstring = ac_string(aasm_string_to_ref(a, "test_const"));
@@ -83,7 +97,7 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
 
     num_vs_capacity_check(p);
 
-    REQUIRE(p->num_instructions == 13);
+    REQUIRE(p->num_instructions == 19);
     REQUIRE(c.instructions[0].b.opcode == AOC_NOP);
     REQUIRE(c.instructions[1].b.opcode == AOC_POP);
     REQUIRE(c.instructions[1].pop.n == t.pop.pop.n);
@@ -94,27 +108,36 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.instructions[4].ldb.val == TRUE);
     REQUIRE(c.instructions[5].b.opcode == AOC_LDB);
     REQUIRE(c.instructions[5].ldb.val == FALSE);
-    REQUIRE(c.instructions[6].b.opcode == AOC_LLV);
-    REQUIRE(c.instructions[6].llv.idx == t.llv.llv.idx);
-    REQUIRE(c.instructions[7].b.opcode == AOC_SLV);
-    REQUIRE(c.instructions[7].slv.idx == t.slv.slv.idx);
-    REQUIRE(c.instructions[8].b.opcode == AOC_IMP);
-    REQUIRE(c.instructions[8].imp.idx == t.imp.imp.idx);
-    REQUIRE(c.instructions[9].b.opcode == AOC_JMP);
-    REQUIRE(c.instructions[9].jmp.displacement == t.jmp.jmp.displacement);
-    REQUIRE(c.instructions[10].b.opcode == AOC_JIN);
-    REQUIRE(c.instructions[10].jin.displacement == t.jin.jin.displacement);
-    REQUIRE(c.instructions[11].b.opcode == AOC_IVK);
-    REQUIRE(c.instructions[11].ivk.nargs == t.ivk.ivk.nargs);
-    REQUIRE(c.instructions[12].b.opcode == AOC_RET);
+    REQUIRE(c.instructions[6].b.opcode == AOC_LSI);
+    REQUIRE(c.instructions[6].lsi.val == 0xFEFA);
+    REQUIRE(c.instructions[7].b.opcode == AOC_LLV);
+    REQUIRE(c.instructions[7].llv.idx == t.llv.llv.idx);
+    REQUIRE(c.instructions[8].b.opcode == AOC_SLV);
+    REQUIRE(c.instructions[8].slv.idx == t.slv.slv.idx);
+    REQUIRE(c.instructions[9].b.opcode == AOC_IMP);
+    REQUIRE(c.instructions[9].imp.idx == t.imp.imp.idx);
+    REQUIRE(c.instructions[10].b.opcode == AOC_CLS);
+    REQUIRE(c.instructions[10].cls.idx == t.cls.cls.idx);
+    REQUIRE(c.instructions[11].b.opcode == AOC_JMP);
+    REQUIRE(c.instructions[11].jmp.displacement == t.jmp.jmp.displacement);
+    REQUIRE(c.instructions[12].b.opcode == AOC_JIN);
+    REQUIRE(c.instructions[12].jin.displacement == t.jin.jin.displacement);
+    REQUIRE(c.instructions[13].b.opcode == AOC_IVK);
+    REQUIRE(c.instructions[13].ivk.nargs == t.ivk.ivk.nargs);
+    REQUIRE(c.instructions[14].b.opcode == AOC_RET);
+    REQUIRE(c.instructions[15].b.opcode == AOC_SND);
+    REQUIRE(c.instructions[16].b.opcode == AOC_RCV);
+    REQUIRE(c.instructions[16].rcv.displacement == t.rcv.rcv.displacement);
+    REQUIRE(c.instructions[17].b.opcode == AOC_RMV);
+    REQUIRE(c.instructions[18].b.opcode == AOC_RWD);
 
     REQUIRE(p->num_constants == 3);
-    REQUIRE(c.constants[0].b.type == ACT_INTEGER);
-    REQUIRE(c.constants[0].integer.val == t.cinteger.integer.val);
-    REQUIRE(c.constants[1].b.type == ACT_STRING);
-    REQUIRE(c.constants[1].string.ref == t.cstring.string.ref);
-    REQUIRE(c.constants[2].b.type == ACT_REAL);
-    REQUIRE(c.constants[2].real.val == t.creal.real.val);
+    REQUIRE(c.constants[0].type == ACT_INTEGER);
+    REQUIRE(c.constants[0].integer == t.cinteger.integer);
+    REQUIRE(c.constants[1].type == ACT_STRING);
+    REQUIRE(c.constants[1].string == t.cstring.string);
+    REQUIRE(c.constants[2].type == ACT_REAL);
+    REQUIRE(c.constants[2].real == t.creal.real);
 
     REQUIRE(p->num_imports == 3);
     REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[0].module), "tim0");
@@ -149,28 +172,28 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
         memcmp(
             c1.instructions,
             c2.instructions,
-            p1->num_instructions*sizeof(ainstruction_t)) == 0);
+            (size_t)p1->num_instructions * sizeof(ainstruction_t)) == 0);
 
     REQUIRE(p1->num_constants == p2->num_constants);
-    for (int32_t i = 0; i < p1->num_constants; ++i) {
-        REQUIRE(c1.constants[i].b.type == c2.constants[i].b.type);
-        switch (c1.constants[i].b.type) {
+    for (aint_t i = 0; i < p1->num_constants; ++i) {
+        REQUIRE(c1.constants[i].type == c2.constants[i].type);
+        switch (c1.constants[i].type) {
         case ACT_INTEGER:
-            REQUIRE(c1.constants[i].integer.val == c2.constants[i].integer.val);
+            REQUIRE(c1.constants[i].integer == c2.constants[i].integer);
             break;
         case ACT_STRING:
             REQUIRE_STR_EQUALS(
-                astring_table_to_string(a1->st, c1.constants[i].string.ref),
-                astring_table_to_string(a2->st, c2.constants[i].string.ref));
+                astring_table_to_string(a1->st, c1.constants[i].string),
+                astring_table_to_string(a2->st, c2.constants[i].string));
             break;
         case ACT_REAL:
-            REQUIRE(c1.constants[i].real.val == c2.constants[i].real.val);
+            REQUIRE(c1.constants[i].real == c2.constants[i].real);
             break;
         }
     }
 
     REQUIRE(p1->num_imports == p2->num_imports);
-    for (int32_t i = 0; i < p2->num_imports; ++i) {
+    for (aint_t i = 0; i < p2->num_imports; ++i) {
         REQUIRE_STR_EQUALS(
             astring_table_to_string(a1->st, c1.imports[i].module),
             astring_table_to_string(a2->st, c2.imports[i].module));
@@ -221,10 +244,10 @@ TEST_CASE("asm_nested")
     aasm_init(&a, &myalloc, NULL);
     REQUIRE(aasm_load(&a, NULL) == AERR_NONE);
 
-    static int32_t PUSH_COUNT = 25;
+    static aint_t PUSH_COUNT = 25;
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a));
             basic_test_ctx t;
             basic_add(&a, t);
@@ -243,7 +266,7 @@ TEST_CASE("asm_nested")
         }
     }
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
+    for (aint_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a));
     }
 
@@ -256,10 +279,10 @@ TEST_CASE("asm_save_load")
     aasm_init(&a1, &myalloc, NULL);
     REQUIRE(aasm_load(&a1, NULL) == AERR_NONE);
 
-    static int32_t PUSH_COUNT = 5;
+    static aint_t PUSH_COUNT = 5;
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             REQUIRE(j == aasm_push(&a1));
             basic_test_ctx t;
             basic_add(&a1, t);
@@ -271,7 +294,7 @@ TEST_CASE("asm_save_load")
 
     aasm_save(&a1);
 
-    for (int32_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
+    for (aint_t i = ANY_ASM_MAX_NESTED_LEVEL - 1; i >= 0; --i) {
         REQUIRE(PUSH_COUNT == aasm_pop(&a1));
     }
 
@@ -279,8 +302,8 @@ TEST_CASE("asm_save_load")
     aasm_init(&a2, &myalloc, NULL);
     REQUIRE(aasm_load(&a2, a1.chunk) == AERR_NONE);
 
-    for (int32_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
-        for (int32_t j = 0; j < PUSH_COUNT; ++j) {
+    for (aint_t i = 0; i < ANY_ASM_MAX_NESTED_LEVEL; ++i) {
+        for (aint_t j = 0; j < PUSH_COUNT; ++j) {
             aasm_open(&a1, j);
             aasm_open(&a2, j);
             require_equals(&a1, &a2);

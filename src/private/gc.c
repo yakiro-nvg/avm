@@ -1,12 +1,10 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/gc.h>
 
-#include <any/process.h>
-
 #define GROW_FACTOR 2
 #define NOT_FORWARED -1
 
-static AINLINE void* aalloc(agc_t* self, void* old, const int32_t sz)
+static AINLINE void* aalloc(agc_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
@@ -25,11 +23,13 @@ static AINLINE void swap(agc_t* self)
 
 static AINLINE void copy(agc_t* self, avalue_t* v)
 {
-    agc_header_t* ogch = (agc_header_t*)(self->cur_heap + v->v.heap_idx);
-    agc_header_t* ngch = (agc_header_t*)(self->new_heap + self->heap_sz);
-    if (!avalue_collectable(v)) return;
+    agc_header_t* ogch;
+    agc_header_t* ngch;
+    if (v->tag.collectable == FALSE) return;
+    ogch = (agc_header_t*)(self->cur_heap + v->v.heap_idx);
+    ngch = (agc_header_t*)(self->new_heap + self->heap_sz);
     if (ogch->forwared == NOT_FORWARED) {
-        memcpy(ngch, ogch, ogch->sz);
+        memcpy(ngch, ogch, (size_t)ogch->sz);
         ogch->forwared = self->heap_sz;
         self->heap_sz += ogch->sz;
     }
@@ -38,30 +38,32 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
 
 static AINLINE void scan(agc_t* self, agc_header_t* gch)
 {
-    switch (gch->abt) {
-    case ABT_NIL:
-    case ABT_PID:
-    case ABT_BOOL:
-    case ABT_POINTER:
-    case ABT_NUMBER:
-    case ABT_FUNCTION:
-    case ABT_FIXED_BUFFER:
-    case ABT_STRING:
+    switch (gch->type) {
+    case AVT_NIL:
+    case AVT_PID:
+    case AVT_BOOLEAN:
+    case AVT_POINTER:
+    case AVT_INTEGER:
+    case AVT_REAL:
+    case AVT_NATIVE_FUNC:
+    case AVT_BYTE_CODE_FUNC:
+    case AVT_FIXED_BUFFER:
+    case AVT_STRING:
         // nop
         break;
-    case ABT_BUFFER:
+    case AVT_BUFFER:
         copy(self, &((agc_buffer_t*)(gch + 1))->buff);
         break;
-    case ABT_TUPLE:
-    case ABT_ARRAY:
-    case ABT_MAP:
+    case AVT_TUPLE:
+    case AVT_ARRAY:
+    case AVT_MAP:
         assert(!"TODO");
         break;
     default: assert(!"bad value type");
     }
 }
 
-aerror_t agc_init(agc_t* self, int32_t heap_cap, aalloc_t alloc, void* alloc_ud)
+aerror_t agc_init(agc_t* self, aint_t heap_cap, aalloc_t alloc, void* alloc_ud)
 {
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
@@ -82,29 +84,30 @@ void agc_cleanup(agc_t* self)
     self->heap_sz = 0;
 }
 
-int32_t agc_alloc(agc_t* self, aabt_t abt, int32_t sz)
+aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
 {
     agc_header_t* gch;
-    int32_t more = sz + sizeof(agc_header_t);
-    int32_t new_heap_sz = self->heap_sz + more;
-    int32_t heap_idx = self->heap_sz;
+    aint_t more = sz + sizeof(agc_header_t);
+    aint_t new_heap_sz = self->heap_sz + more;
+    aint_t heap_idx = self->heap_sz;
     if (new_heap_sz > self->heap_cap) return AERR_FULL;
     self->heap_sz = new_heap_sz;
     gch = ((agc_header_t*)(self->cur_heap + heap_idx));
-    gch->abt = abt;
+    gch->type = type;
     gch->forwared = NOT_FORWARED;
     gch->sz = more;
     return heap_idx;
 }
 
-aerror_t agc_reserve(agc_t* self, int32_t more)
+aerror_t agc_reserve(agc_t* self, aint_t more)
 {
     uint8_t* nh;
-    int32_t new_cap = self->heap_cap;
+    aint_t new_cap = self->heap_cap;
+    more += sizeof(agc_header_t);
     while (new_cap < self->heap_sz + more) new_cap *= GROW_FACTOR;
     nh = (uint8_t*)aalloc(self, NULL, new_cap * 2);
     if (!nh) return AERR_FULL;
-    memcpy(nh, self->cur_heap, self->heap_sz);
+    memcpy(nh, self->cur_heap, (size_t)self->heap_sz);
     aalloc(self, low_heap(self), 0);
     self->cur_heap = nh;
     self->new_heap = nh + new_cap;
@@ -112,13 +115,15 @@ aerror_t agc_reserve(agc_t* self, int32_t more)
     return AERR_NONE;
 }
 
-void agc_collect(agc_t* self, avalue_t* root, int32_t num_roots)
+void agc_collect(agc_t* self, avalue_t** roots, aint_t* num_roots)
 {
-    int32_t i;
+    aint_t i;
     self->heap_sz = 0;
     self->scan = 0;
-    for (i = 0; i < num_roots; ++i) {
-        copy(self, root + i);
+    for (; *roots; ++roots, ++num_roots) {
+        for (i = 0; i < *num_roots; ++i) {
+            copy(self, *roots + i);
+        }
     }
     while (self->scan != self->heap_sz) {
         agc_header_t* header = (agc_header_t*)(self->new_heap + self->scan);

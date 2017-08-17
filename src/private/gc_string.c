@@ -11,6 +11,6 @@ ahash_and_length_t ahash_and_length(const char* s)
     const char* i = s;
     for (; *i; ++i) h = h ^ ((h << 5) + (h >> 2) + (unsigned char)*i);
     result.hash = h;
-    result.length = (int32_t)(i - s);
+    result.length = i - s;
     return result;
 }

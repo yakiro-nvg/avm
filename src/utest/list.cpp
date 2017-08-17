@@ -1,4 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+#include <any/platform.h>
 #include <catch.hpp>
 
 #include <any/rt_types.h>
@@ -6,7 +7,7 @@
 
 struct test_node
 {
-    int32_t val;
+    aint_t val;
     alist_node_t node;
 };
 
@@ -18,26 +19,26 @@ TEST_CASE("list")
     REQUIRE(alist_is_end(&l, alist_back(&l)));
     enum { NUM_TEST_NODES = 5 };
     test_node nodes[NUM_TEST_NODES];
-    for (int32_t i = 0; i < NUM_TEST_NODES; ++i) {
+    for (aint_t i = 0; i < NUM_TEST_NODES; ++i) {
         nodes[i].val = i;
     }
 
     SECTION("push head")
     {
-        for (int32_t i = NUM_TEST_NODES - 1; i >= 0; --i) {
+        for (aint_t i = NUM_TEST_NODES - 1; i >= 0; --i) {
             alist_push_head(&l, &nodes[i].node);
         }
     }
 
     SECTION("push back")
     {
-        for (int32_t i = 0; i < NUM_TEST_NODES; ++i) {
+        for (aint_t i = 0; i < NUM_TEST_NODES; ++i) {
             alist_push_back(&l, &nodes[i].node);
         }
     }
 
     {
-        int32_t i;
+        aint_t i;
         alist_node_t* itr;
 
         i = 0;

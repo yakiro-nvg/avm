@@ -1,5 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/platform.h>
+
 #define CATCH_CONFIG_RUNNER
 #ifdef AMSVC
 #pragma warning(push)

@@ -15,10 +15,10 @@ const achunk_header_t CHUNK_HEADER = {
     { 0, 0 }
 };
 
-static int32_t calc_sizes(
-    int8_t* b, int32_t sz, int32_t* off, int32_t* num_imps, int32_t* num_protos)
+static aint_t calc_sizes(
+    int8_t* b, aint_t sz, aint_t* off, aint_t* num_imps, aint_t* num_protos)
 {
-    int32_t i;
+    aint_t i;
     aprototype_header_t* const p = (aprototype_header_t*)(b + *off);
 
     *num_imps += p->num_imports; *num_protos += p->num_nesteds;
@@ -51,10 +51,10 @@ static void free_chunk_list(
 }
 
 static void create_proto(
-    achunk_t* chunk, int32_t* off,
+    achunk_t* chunk, aint_t* off,
     aprototype_t* pt, avalue_t** next_imp, aprototype_t** next_pt)
 {
-    int32_t i;
+    aint_t i;
     int8_t* const b = (int8_t*)chunk->header;
     aprototype_header_t* const p = (aprototype_header_t*)(b + *off);
 
@@ -66,14 +66,14 @@ static void create_proto(
     pt->imports = (aimport_t*)(pt->constants + p->num_constants);
     pt->nesteds = *next_pt; *next_pt += p->num_nesteds;
     pt->import_values = *next_imp; *next_imp += p->num_imports;
-    *off += (int32_t)((uint8_t*)(pt->imports + p->num_imports) - (uint8_t*)p);
+    *off += (uint8_t*)(pt->imports + p->num_imports) - (uint8_t*)p;
 
     for (i = 0; i < p->num_nesteds; ++i) {
         create_proto(chunk, off, pt->nesteds + i, next_imp, next_pt);
     }
 }
 
-static int32_t find_in_libs(
+static aint_t find_in_libs(
     alist_t* libs, const char* module, const char* name, avalue_t* value)
 {
     alist_node_t* n;
@@ -85,9 +85,7 @@ static int32_t find_in_libs(
         // for each native module function
         for (nf = lib->funcs; nf->name != NULL; ++nf) {
             if (strcmp(nf->name, name) == 0) {
-                value->tag.b = ABT_FUNCTION;
-                value->tag.variant = AVTF_NATIVE;
-                value->v.func = nf->func;
+                av_native_func(value, nf->func);
                 return AERR_NONE;
             }
         }
@@ -96,10 +94,10 @@ static int32_t find_in_libs(
     return AERR_UNRESOLVED;
 }
 
-static int32_t find_in_list(
+static aint_t find_in_list(
     alist_t* list, const char* module, const char* name, avalue_t* value)
 {
-    int32_t i;
+    aint_t i;
     alist_node_t* n;
 
     for (n = alist_head(list); !alist_is_end(list, n); n = n->next) {
@@ -110,9 +108,7 @@ static int32_t find_in_list(
         for (i = 0; i < m->header->num_nesteds; ++i) {
             aprototype_t* const f = m->nesteds + i;
             if (strcmp(f->strings + f->header->symbol, name) == 0) {
-                value->tag.b = ABT_FUNCTION;
-                value->tag.variant = AVTF_AVM;
-                value->v.avm_func = f;
+                av_byte_code_func(value, f);
                 return AERR_NONE;
             }
         }
@@ -135,9 +131,9 @@ static int32_t has_chunk(alist_t* list, alist_node_t* node)
     return FALSE;
 }
 
-static int32_t resolve(aloader_t* self, aprototype_t* p)
+static aint_t resolve(aloader_t* self, aprototype_t* p)
 {
-    int32_t i;
+    aint_t i;
     aerror_t ec;
 
     // for each import
@@ -164,19 +160,19 @@ static int32_t resolve(aloader_t* self, aprototype_t* p)
     return AERR_NONE;
 }
 
-static int32_t cacl_chunk_imports(aprototype_t* pt)
+static aint_t cacl_chunk_imports(aprototype_t* pt)
 {
-    int32_t i;
-    int32_t acc = pt->header->num_imports;
+    aint_t i;
+    aint_t acc = pt->header->num_imports;
     for (i = 0; i < pt->header->num_nesteds; ++i) {
         acc += cacl_chunk_imports(pt->nesteds + i);
     }
     return acc;
 }
 
-static int32_t calc_imports(alist_t* list)
+static aint_t calc_imports(alist_t* list)
 {
-    int32_t acc = 0;
+    aint_t acc = 0;
     alist_node_t* i = alist_head(list);
     while (!alist_is_end(list, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
@@ -186,26 +182,26 @@ static int32_t calc_imports(alist_t* list)
     return acc;
 }
 
-static void backup_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
+static void backup_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
 {
-    int32_t i;
+    aint_t i;
     memcpy(
         imp + *off,
         pt->import_values,
-        sizeof(avalue_t) * pt->header->num_imports);
+        sizeof(avalue_t) * (size_t)pt->header->num_imports);
     *off += pt->header->num_imports;
     for (i = 0; i < pt->header->num_nesteds; ++i) {
         backup_imports(pt->nesteds + i, off, imp);
     }
 }
 
-static void rollback_imports(aprototype_t* pt, int32_t* off, avalue_t* imp)
+static void rollback_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
 {
-    int32_t i;
+    aint_t i;
     memcpy(
         pt->import_values,
         imp + *off,
-        sizeof(avalue_t) * pt->header->num_imports);
+        sizeof(avalue_t) * (size_t)pt->header->num_imports);
     *off += pt->header->num_imports;
     for (i = 0; i < pt->header->num_nesteds; ++i) {
         rollback_imports(pt->nesteds + i, off, imp);
@@ -230,12 +226,12 @@ void aloader_cleanup(aloader_t* self)
     alist_init(&self->libs);
 }
 
-int32_t aloader_add_chunk(
-    aloader_t* self, achunk_header_t* chunk, int32_t chunk_sz,
+aerror_t aloader_add_chunk(
+    aloader_t* self, achunk_header_t* chunk, aint_t chunk_sz,
     aalloc_t chunk_alloc, void* chunk_alloc_ud)
 {
     achunk_t* c;
-    int32_t off, num_imps, num_protos;
+    aint_t off, num_imps, num_protos;
     aerror_t ec;
 
     if (chunk_sz < sizeof(achunk_header_t) ||
@@ -277,7 +273,7 @@ aerror_t aloader_link(aloader_t* self, int32_t safe)
     // create prototypes
     i = alist_head(&self->pendings);
     while (!alist_is_end(&self->pendings, i)) {
-        int32_t off = sizeof(achunk_header_t);
+        aint_t off = sizeof(achunk_header_t);
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
         avalue_t* next_imp = chunk->imports;
         aprototype_t* next_pt = chunk->prototypes;
@@ -321,8 +317,8 @@ aerror_t aloader_link(aloader_t* self, int32_t safe)
 
     // resolve running imports
     if (safe) {
-        int32_t imp_sz = calc_imports(&self->runnings) * sizeof(avalue_t);
-        int32_t imp_off = 0;
+        aint_t imp_off = 0;
+        aint_t imp_sz = calc_imports(&self->runnings) * sizeof(avalue_t);
         old_imps = (avalue_t*)self->alloc(self->alloc_ud, NULL, imp_sz);
         i = alist_head(&self->runnings);
         while (!alist_is_end(&self->runnings, i)) {
@@ -340,8 +336,8 @@ aerror_t aloader_link(aloader_t* self, int32_t safe)
             // rollback running imports
             i = alist_head(&self->runnings);
             while (!alist_is_end(&self->runnings, i)) {
+                aint_t imp_off = 0;
                 achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-                int32_t imp_off = 0;
                 rollback_imports(chunk->prototypes, &imp_off, old_imps);
                 i = i->next;
             }

@@ -1,3 +1,6 @@
 [submodule "externals/sanitizers-cmake"]
 	path = externals/sanitizers-cmake
 	url = git://github.com/arsenm/sanitizers-cmake.git
+[submodule "docs/sphinx-better-theme"]
+	path = docs/sphinx-better-theme
+	url = git://github.com/irskep/sphinx-better-theme.git

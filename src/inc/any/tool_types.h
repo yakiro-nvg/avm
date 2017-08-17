@@ -25,8 +25,8 @@ allocating the buffer. If the buffer runs out of memory you are responsible
 for resizing it before you can add more strings.
 
 String table is POD, that can be saved to and loaded from disk without any
-need for pointer patching. Just make sure to call \ref any_st_pack before
-saving so that it uses as little memory as possible.
+need for pointer patching. Just make sure to call \ref astring_table_pack
+before saving so that it uses as little memory as possible.
 
 This structure representing a string table. The data for string table is
 stored directly after this header in memory and consists of a hash table
@@ -34,53 +34,53 @@ followed by a string data block.
 */
 typedef struct {
     /// The total size of the allocated data, including this header.
-    int32_t allocated_bytes;
+    aint_t allocated_bytes;
     /// The number of strings in the table.
-    int32_t count;
+    aint_t count;
     /// Total number of slots in the hash table.
-    int32_t num_hash_slots;
+    aint_t num_hash_slots;
     /// The current number of bytes used for string data.
-    int32_t string_bytes;
+    aint_t string_bytes;
 } astring_table_t;
 
 // We must have room for at least one hash slot and one string.
 enum {
     ANY_ST_MIN_SIZE =
-    sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(uint32_t) + 1
+    sizeof(astring_table_t) + sizeof(uint32_t) + sizeof(aint_t) + 1
 };
 
 /** Byte code assembler prototype.
 \warning `max_*` is **readonly**.
-\ref any_asm_reserve are required to extends these values.
+\ref aasm_reserve are required to extends these values.
 */
 typedef struct {
-    astring_ref_t source;
-    astring_ref_t symbol;
-    int32_t num_instructions;
-    int32_t max_instructions;
-    int16_t num_nesteds;
-    int16_t max_nesteds;
-    uint8_t num_upvalues;
-    uint8_t num_arguments;
-    uint8_t num_local_vars;
-    uint8_t num_constants;
-    uint8_t max_constants;
-    uint8_t num_imports;
-    uint8_t max_imports;
+    aint_t source;
+    aint_t symbol;
+    aint_t num_instructions;
+    aint_t max_instructions;
+    aint_t num_nesteds;
+    aint_t max_nesteds;
+    aint_t num_upvalues;
+    aint_t num_arguments;
+    aint_t num_local_vars;
+    aint_t num_constants;
+    aint_t max_constants;
+    aint_t num_imports;
+    aint_t max_imports;
 } aasm_prototype_t;
 
 /// Byte code assembler context.
 typedef struct {
-    int32_t slot;
-    int32_t idx;
+    aint_t slot;
+    aint_t idx;
 } aasm_ctx_t;
 
 /// Byte code assembler reserve sizes.
 typedef struct {
-    int32_t max_instructions;
-    uint8_t max_constants;
-    uint8_t max_imports;
-    int16_t max_nesteds;
+    aint_t max_instructions;
+    aint_t max_constants;
+    aint_t max_imports;
+    aint_t max_nesteds;
 } aasm_reserve_t;
 
 /// Byte code assembler resolved prototype pointers.
@@ -88,7 +88,7 @@ typedef struct {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
-    int32_t* nesteds;
+    aint_t* nesteds;
 } aasm_current_t;
 
 /** Byte code assembler.
@@ -98,43 +98,43 @@ typedef struct {
 like optimization, which provides direct access to the assembler internal. The
 content of these structure may be relocated after a call to these following
 functions, use it at your own risk:
-- \ref any_asm_emit
-- \ref any_asm_add_constant
-- \ref any_asm_add_import
-- \ref any_asm_reserve
-- \ref any_asm_push
+- \ref aasm_emit
+- \ref aasm_add_constant
+- \ref aasm_add_import
+- \ref aasm_reserve
+- \ref aasm_push
 
 \brief
 The assembler is context sensitive, which can be used to authoring multiple
 prototypes with just only single instance, in nested manner. Generally, for
-each \ref any_asm_push or \ref any_asm_open a new context will be created for
+each \ref aasm_push or \ref aasm_open a new context will be created for
 nested prototype, and that also saves the current context onto an internal
-stack, which can be restored later by a corresponding \ref any_asm_pop.
+stack, which can be restored later by a corresponding \ref aasm_pop.
 
 This struct itself is not POD, then must rely on \ref achunk_header_t as the
 portable format for exchanges. That format enable assembler as a **framework**
 to working with byte code between optimization passes.
 */
 typedef struct {
-    // Allocator.
+    // allocator.
     aalloc_t alloc;
     void* alloc_ud;
-    // Common string table.
+    // common string table.
     astring_table_t* st;
-    // Prototype buffers.
-    int32_t* _slots;
-    int32_t _num_slots;
-    int32_t _max_slots;
+    // prototype buffers.
+    aint_t* _slots;
+    aint_t _num_slots;
+    aint_t _max_slots;
     uint8_t* _buff;
-    int32_t _buff_size;
-    int32_t _buff_capacity;
-    // Contexts, limited nested level.
+    aint_t _buff_size;
+    aint_t _buff_capacity;
+    // contexts, limited nested level.
     aasm_ctx_t _context[24];
-    int32_t _nested_level;
-    // Output binary chunk.
+    aint_t _nested_level;
+    // output binary chunk.
     achunk_header_t* chunk;
-    int32_t chunk_size;
-    int32_t _chunk_capacity;
+    aint_t chunk_size;
+    aint_t _chunk_capacity;
 } aasm_t;
 
 // Number of nested level allowed for assembler.

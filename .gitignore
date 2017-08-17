@@ -1,3 +1,4 @@
 .build/
 /docs/.doxyxml/
 /docs/.build_docs/
+x64/

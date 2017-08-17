@@ -5,6 +5,7 @@ import os
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
+sys.path.append(os.path.abspath('./sphinx-better-theme'))
 
 # hack for readthedocs to cause it to run doxygen first
 # https://github.com/rtfd/readthedocs.org/issues/388
@@ -83,8 +84,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-from better import better_theme_path
-html_theme_path = [better_theme_path]
+html_theme_path = ['sphinx-better-theme']
 html_theme = 'better'
 
 # Theme options are theme-specific and customize the look and feel of a theme
@@ -151,6 +151,6 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'Any-VM', u'Any-VM',
-     author, 'Any-VM', 'Concurrent oriented virtual machine.',
+     author, 'Any-VM', 'Any Virtual Machine.',
      'VM'),
 ]
