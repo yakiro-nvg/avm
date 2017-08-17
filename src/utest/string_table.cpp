@@ -12,7 +12,7 @@
 
 static astring_table_t* grow(astring_table_t* st)
 {
-    st = (astring_table_t*)realloc(st, st->allocated_bytes * 2);
+    st = (astring_table_t*)realloc(st, (size_t)st->allocated_bytes * 2);
     astring_table_grow(st, st->allocated_bytes * 2);
     return st;
 }
@@ -66,7 +66,7 @@ TEST_CASE("string_table_grow")
     }
 
     astring_table_pack(st);
-    st = (astring_table_t*)realloc(st, st->allocated_bytes);
+    st = (astring_table_t*)realloc(st, (size_t)st->allocated_bytes);
 
     for (aint_t i = 0; i < 10000; ++i) {
         char string[10];

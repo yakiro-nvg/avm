@@ -29,7 +29,7 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
     ogch = (agc_header_t*)(self->cur_heap + v->v.heap_idx);
     ngch = (agc_header_t*)(self->new_heap + self->heap_sz);
     if (ogch->forwared == NOT_FORWARED) {
-        memcpy(ngch, ogch, ogch->sz);
+        memcpy(ngch, ogch, (size_t)ogch->sz);
         ogch->forwared = self->heap_sz;
         self->heap_sz += ogch->sz;
     }
@@ -107,7 +107,7 @@ aerror_t agc_reserve(agc_t* self, aint_t more)
     while (new_cap < self->heap_sz + more) new_cap *= GROW_FACTOR;
     nh = (uint8_t*)aalloc(self, NULL, new_cap * 2);
     if (!nh) return AERR_FULL;
-    memcpy(nh, self->cur_heap, self->heap_sz);
+    memcpy(nh, self->cur_heap, (size_t)self->heap_sz);
     aalloc(self, low_heap(self), 0);
     self->cur_heap = nh;
     self->new_heap = nh + new_cap;

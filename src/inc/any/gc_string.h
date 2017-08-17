@@ -22,7 +22,7 @@ static AINLINE aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v)
     else {
         agc_string_t* o = AGC_CAST(agc_string_t, &a->gc, oi);
         o->hal = hal;
-        memcpy(o + 1, s, hal.length + 1);
+        memcpy(o + 1, s, (size_t)hal.length + 1);
         av_collectable(v, AVT_STRING, oi);
         return AERR_NONE;
     }

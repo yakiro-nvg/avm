@@ -67,7 +67,7 @@ static void rebuild_hash_table(astring_table_t* self)
     const char* const strs = strings(self);
     const char* string = strs + sizeof(uint32_t) + 1;
     hash_slot_t* const ht = hashtable(self);
-    memset(ht, 0, self->num_hash_slots * sizeof(hash_slot_t));
+    memset(ht, 0, (size_t)self->num_hash_slots * sizeof(hash_slot_t));
 
     while (string < strs + self->string_bytes) {
         const ahash_and_length_t hl = ahash_and_length(string + sizeof(uint32_t));
@@ -90,7 +90,8 @@ void astring_table_init(
     self->allocated_bytes = bytes;
     self->count = 0;
 
-    memset(hashtable(self), 0, self->num_hash_slots * sizeof(hash_slot_t));
+    memset(hashtable(self), 0,
+        (size_t)self->num_hash_slots * sizeof(hash_slot_t));
 
     add_empty_string(self);
 }
@@ -104,7 +105,7 @@ void astring_table_grow(astring_table_t* self, aint_t bytes)
 
     recompute_num_hash_slots(self, bytes);
 
-    memmove(strings(self), old_strings, self->string_bytes);
+    memmove(strings(self), old_strings, (size_t)self->string_bytes);
     rebuild_hash_table(self);
 }
 
@@ -118,7 +119,7 @@ aint_t astring_table_pack(astring_table_t* self)
     if (self->num_hash_slots < self->count + 1)
         self->num_hash_slots = self->count + 1;
 
-    memmove(strings(self), old_strings, self->string_bytes);
+    memmove(strings(self), old_strings, (size_t)self->string_bytes);
     rebuild_hash_table(self);
 
     self->allocated_bytes = (aint_t)(
@@ -156,7 +157,7 @@ aint_t astring_table_to_ref(astring_table_t* self, const char* string)
             ht[i].offset = ref;
             self->count++;
             *(uint32_t*)dest = hl.hash;
-            memcpy(dest + sizeof(uint32_t), string, hl.length + 1);
+            memcpy(dest + sizeof(uint32_t), string, (size_t)hl.length + 1);
             self->string_bytes += sizeof(uint32_t)+hl.length + 1;
             return ref;
         }

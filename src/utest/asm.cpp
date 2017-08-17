@@ -12,7 +12,7 @@
 
 static void* myalloc(void*, void* old, aint_t sz)
 {
-    return realloc(old, sz);
+    return realloc(old, (size_t)sz);
 }
 
 static void num_vs_capacity_check(aasm_prototype_t* p)
@@ -171,7 +171,7 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
         memcmp(
             c1.instructions,
             c2.instructions,
-            p1->num_instructions*sizeof(ainstruction_t)) == 0);
+            (size_t)p1->num_instructions * sizeof(ainstruction_t)) == 0);
 
     REQUIRE(p1->num_constants == p2->num_constants);
     for (aint_t i = 0; i < p1->num_constants; ++i) {

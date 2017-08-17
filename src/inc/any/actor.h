@@ -192,7 +192,7 @@ static AINLINE void any_remove(aactor_t* a, aint_t idx)
     memmove(
         a->stack.v + idx,
         a->stack.v + idx + 1,
-        sizeof(avalue_t)*num_tails);
+        sizeof(avalue_t)*(size_t)num_tails);
 }
 
 static AINLINE void any_insert(aactor_t* a, aint_t idx)

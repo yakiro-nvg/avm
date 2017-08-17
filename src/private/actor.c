@@ -212,7 +212,7 @@ void any_mbox_remove(aactor_t* a)
             memmove(
                 a->msbox.v + a->msg_pp - 1,
                 a->msbox.v + a->msg_pp,
-                sizeof(avalue_t) * num_tails);
+                sizeof(avalue_t) * (size_t)num_tails);
         }
         a->msg_pp = 0;
         --a->msbox.sp;

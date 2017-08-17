@@ -9,7 +9,7 @@
 
 static void* myalloc(void*, void* old, aint_t sz)
 {
-    return realloc(old, sz);
+    return realloc(old, (size_t)sz);
 }
 
 static void push_module_a(aasm_t* a)

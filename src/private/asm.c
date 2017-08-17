@@ -113,7 +113,7 @@ static void gc(
     // copy referenced prototypes
     aasm_prototype_t* p = aasm_prototype_at(self, parent);
     aint_t p_sz = prototype_size(p);
-    memcpy(new_buff + *offset, p, p_sz);
+    memcpy(new_buff + *offset, p, (size_t)p_sz);
 
     // safe to update parent slot here
     // there are no more dereferences to that during gc
@@ -161,7 +161,7 @@ static aint_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
     }
 
     p = (aasm_prototype_t*)(self->_buff + poff);
-    memset(p, 0, rsz);
+    memset(p, 0, (size_t)rsz);
     p->max_instructions = sz->max_instructions;
     p->max_constants = sz->max_constants;
     p->max_imports = sz->max_imports;
@@ -251,7 +251,7 @@ static aint_t chunk_add_str(
     const aint_t off = header->strings_sz;
     uint8_t* const b = ((uint8_t*)header) + sizeof(aprototype_header_t) + off;
     memcpy(b, &hash, sizeof(uint32_t));
-    memcpy(b + sizeof(uint32_t), str, length + 1);
+    memcpy(b + sizeof(uint32_t), str, (size_t)length + 1);
     header->strings_sz += sizeof(uint32_t) + length + 1;
     return off + sizeof(uint32_t);
 }
@@ -297,7 +297,7 @@ static void copy_prototype(
     memcpy(
         rp.instructions,
         c->instructions,
-        p->num_instructions * sizeof(ainstruction_t));
+        (size_t)p->num_instructions * sizeof(ainstruction_t));
 
     // add constants
     for (i = 0; i < p->num_constants; ++i) {
@@ -381,7 +381,7 @@ static aerror_t load_chunk(
     memcpy(
         instructions_of(ap),
         rp.instructions,
-        p->num_instructions * sizeof(ainstruction_t));
+        (size_t)p->num_instructions * sizeof(ainstruction_t));
     ap->num_instructions = p->num_instructions;
 
     for (i = 0; i < p->num_constants; ++i) {
@@ -657,19 +657,19 @@ void aasm_reserve(aasm_t* self, const aasm_reserve_t* sz)
         memcpy(
             instructions_of(np),
             instructions_of_const(cp),
-            cp->num_instructions * sizeof(ainstruction_t));
+            (size_t)cp->num_instructions * sizeof(ainstruction_t));
         memcpy(
             constants_of(np),
             constants_of_const(cp),
-            cp->num_constants * sizeof(aconstant_t));
+            (size_t)cp->num_constants * sizeof(aconstant_t));
         memcpy(
             imports_of(np),
             imports_of_const(cp),
-            cp->num_imports * sizeof(aimport_t));
+            (size_t)cp->num_imports * sizeof(aimport_t));
         memcpy(
             nesteds_of(np),
             nesteds_of_const(cp),
-            cp->num_nesteds * sizeof(aint_t));
+            (size_t)cp->num_nesteds * sizeof(aint_t));
 
         self->_slots[ctx(self)->slot] = np_off;
     }
