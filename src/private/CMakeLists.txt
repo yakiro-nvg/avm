@@ -19,6 +19,6 @@ if(SANITIZE_ADDRESS)
     add_definitions(-DANY_USE_ASAN)
 endif()
 
-if(LINUX)
+if(UNIX AND NOT APPLE)
 	target_link_libraries(avm rt)
 endif()
