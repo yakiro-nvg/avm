@@ -48,20 +48,20 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
 
 ## What works currenty
 
-- Cooperative scheduler (no parallel).
+- Single, cooperative scheduler.
 - Lightweight real-time actor.
 - Reloadable loader.
-- Byte code assembler.
+- Bytecode assembler.
+- Bytecode dispatcher.
 - Copying GC.
 
 ## Coming soon
 
-- Bytecode dispatcher.
 - Debug bridge.
 
 ## Contributing
 
-- TODO, feel free to contact me if you have a question.
+- TODO, feel free to contact me if you have any question.
 
 ## Contact
 
