@@ -1,4 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+#include <any/platform.h>
 #include <catch.hpp>
 
 #include <any/rt_types.h>

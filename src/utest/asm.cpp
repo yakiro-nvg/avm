@@ -1,6 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #ifdef ANY_TOOL
 
+#include <any/platform.h>
 #include <catch.hpp>
 
 #include <stdlib.h>
