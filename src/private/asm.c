@@ -649,6 +649,8 @@ void aasm_reserve(aasm_t* self, const aasm_reserve_t* sz)
         aasm_prototype_t* const np = (aasm_prototype_t*)(self->_buff + np_off);
         const aasm_prototype_t* const cp = aasm_prototype(self);
 
+        np->source = cp->source;
+        np->symbol = cp->symbol;
         np->num_instructions = cp->num_instructions;
         np->num_constants = cp->num_constants;
         np->num_imports = cp->num_imports;
