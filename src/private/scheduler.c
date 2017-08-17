@@ -57,7 +57,7 @@ static void cleanup(ascheduler_t* self, int32_t shutdown)
     }
 }
 
-static void wait(
+static void wait_for(
     ascheduler_t* self, aactor_t* a, aint_t usecs, int32_t msg_wake)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
@@ -158,12 +158,12 @@ void ascheduler_yield(ascheduler_t* self, aactor_t* a)
 
 void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
-    wait(self, a, usecs, FALSE);
+    wait_for(self, a, usecs, FALSE);
 }
 
 void ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
-    wait(self, a, usecs, TRUE);
+    wait_for(self, a, usecs, TRUE);
 }
 
 void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a)
