@@ -18,3 +18,7 @@ add_definitions(-DANY_EXPORT -DANY_SHARED)
 if(SANITIZE_ADDRESS)
     add_definitions(-DANY_USE_ASAN)
 endif()
+
+if(LINUX)
+	target_link_libraries(avm rt)
+endif()
