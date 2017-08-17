@@ -58,7 +58,7 @@ static void cleanup(ascheduler_t* self, int32_t shutdown)
 }
 
 static void wait_for(
-    ascheduler_t* self, aactor_t* a, aint_t usecs, int32_t msg_wake)
+    ascheduler_t* self, aactor_t* a, aint_t nsecs, int32_t msg_wake)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
     alist_node_t* next_node = p->ptask.node.next;
@@ -67,7 +67,7 @@ static void wait_for(
     assert(p->wait_for == 0);
     alist_node_erase(&p->ptask.node);
     alist_node_insert(&p->ptask.node, wback, wback->next);
-    p->wait_for = usecs;
+    p->wait_for = nsecs;
     p->msg_wake = msg_wake;
     atask_yield(&p->ptask.task, &next->task);
 }
@@ -90,8 +90,8 @@ static void check_waitings(ascheduler_t* self, aint_t delta)
         if (p->wait_for >= 0) {
             p->wait_for -= delta;
             if (p->wait_for <= 0) {
-                p->msg_wake = FALSE;
                 p->wait_for = 0;
+                p->msg_wake = FALSE;
                 add_to_runnings(self, p);
             }
         }
@@ -143,7 +143,7 @@ void ascheduler_run_once(ascheduler_t* self)
         self->first_run = FALSE;
         atimer_start(&self->timer);
     } else {
-        check_waitings(self, atimer_delta_usecs(&self->timer));
+        check_waitings(self, atimer_delta_nsecs(&self->timer));
     }
     run_once(self);
 }
@@ -156,22 +156,22 @@ void ascheduler_yield(ascheduler_t* self, aactor_t* a)
     atask_yield(&p->ptask.task, &next->task);
 }
 
-void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t usecs)
+void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t nsecs)
 {
-    wait_for(self, a, usecs, FALSE);
+    wait_for(self, a, nsecs, FALSE);
 }
 
-void ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t usecs)
+void ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t nsecs)
 {
-    wait_for(self, a, usecs, TRUE);
+    wait_for(self, a, nsecs, TRUE);
 }
 
 void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
     if (p->msg_wake) {
-        p->msg_wake = FALSE;
         p->wait_for = 0;
+        p->msg_wake = FALSE;
         add_to_runnings(self, p);
     }
 }
@@ -195,8 +195,8 @@ aprocess_t* ascheduler_alloc(ascheduler_t* self)
             gen = (gen + 1) & ((1 << self->gen_bits) - 1);
             p->pid = apid_from(self->idx_bits, self->gen_bits, idx, gen);
             p->dead = FALSE;
-            p->msg_wake = FALSE;
             p->wait_for = 0;
+            p->msg_wake = FALSE;
             return p;
         }
     } while (--loop);

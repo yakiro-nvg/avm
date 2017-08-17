@@ -229,9 +229,9 @@ void any_yield(aactor_t* a)
     ascheduler_yield(a->owner, a);
 }
 
-void any_sleep(aactor_t* a, aint_t usecs)
+void any_sleep(aactor_t* a, aint_t nsecs)
 {
-    ascheduler_sleep(a->owner, a, usecs);
+    ascheduler_sleep(a->owner, a, nsecs);
 }
 
 aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
