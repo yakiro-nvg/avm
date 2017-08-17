@@ -69,6 +69,7 @@ void actor_dispatch(aactor_t* a)
                 aactor_push(a, &v);
             }
             break;
+jmp:
         case AOC_JMP: {
             aint_t nip = frame->ip + i->jmp.displacement + 1;
             if (nip < 0 || nip >= pth->num_instructions) {
@@ -79,7 +80,6 @@ void actor_dispatch(aactor_t* a)
             break;
         }
         case AOC_JIN: {
-            aint_t nip;
             avalue_t v;
             any_pop(a, 1);
             v = a->stack.v[a->stack.sp];
@@ -87,13 +87,7 @@ void actor_dispatch(aactor_t* a)
                 any_error(a, AERR_RUNTIME, "condition must be boolean or nil");
             }
             if (v.tag.type != AVT_NIL && v.v.boolean) continue;
-            nip = frame->ip + i->jin.displacement + 1;
-            if (nip < 0 || nip >= pth->num_instructions) {
-                any_error(a, AERR_RUNTIME, "bad jump");
-            } else {
-                frame->ip = nip - 1;
-            }
-            break;
+            goto jmp;
         }
         case AOC_IVK:
             any_call(a, i->ivk.nargs);
@@ -105,11 +99,12 @@ void actor_dispatch(aactor_t* a)
             break;
         case AOC_RCV: {
             avalue_t timeout = a->stack.v[a->stack.sp - 1];
-            any_pop(a, 1);
             if (timeout.tag.type != AVT_INTEGER) {
                 any_error(a, AERR_RUNTIME, "timeout must be integer");
             } else {
-                any_mbox_recv(a, timeout.v.integer);
+                if (any_mbox_recv(a, timeout.v.integer) == AERR_TIMEOUT) {
+                    goto jmp;
+                }
             }
             break;
         }

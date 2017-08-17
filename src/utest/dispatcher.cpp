@@ -1171,3 +1171,94 @@ TEST_CASE("dispatcher_mkc_ivk")
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);
 }
+
+TEST_CASE("dispatcher_msbox")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t as;
+    aasm_init(&as, &myalloc, NULL);
+    REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
+    add_test_module(&as);
+
+    ascheduler_t s;
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+
+    aasm_module_push(&as, "test_f");
+
+    aasm_emit(&as, ai_llv(-1));
+    aasm_emit(&as, ai_lsi(1));
+    aasm_emit(&as, ai_snd());
+    aasm_emit(&as, ai_llv(-1));
+    aasm_emit(&as, ai_lsi(2));
+    aasm_emit(&as, ai_snd());
+    aasm_emit(&as, ai_llv(-1));
+    aasm_emit(&as, ai_lsi(3));
+    aasm_emit(&as, ai_snd());
+
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+
+    aasm_emit(&as, ai_rwd());
+
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+
+    aasm_emit(&as, ai_rmv());
+
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_rmv());
+
+    aasm_emit(&as, ai_lsi(0));
+    aasm_emit(&as, ai_rcv(1));
+
+    bool timeout = false;
+
+    SECTION("timeout")
+    {
+        timeout = true;
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_rcv(1));
+        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(5));
+        aasm_emit(&as, ai_ret());
+    }
+
+    SECTION("normal")
+    {
+        aasm_emit(&as, ai_ret());
+    }
+
+    aasm_save(&as);
+
+    REQUIRE(AERR_NONE ==
+        aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+    REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+    aactor_t* a;
+    REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+    any_find(a, "mod_test", "test_f");
+    any_push_pid(a, ascheduler_pid(a));
+    ascheduler_start(&s, a, 1);
+
+    ascheduler_run_once(&s);
+
+    REQUIRE(any_count(a) == 2);
+    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, 0).type == AVT_INTEGER);
+    REQUIRE(any_to_integer(a, 0) == (timeout ? 5 : 2));
+
+    ascheduler_cleanup(&s);
+    aasm_cleanup(&as);
+}
