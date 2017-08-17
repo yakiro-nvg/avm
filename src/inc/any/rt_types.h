@@ -282,9 +282,9 @@ typedef struct {
 #define AINFINITE  (-1)
 #define ADONT_WAIT (0)
 
-static AINLINE aint_t amsec(aint_t us)
+static AINLINE aint_t amsec(aint_t ms)
 {
-    return us * 1000;
+    return ms*1000000;
 }
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.

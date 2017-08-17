@@ -85,8 +85,8 @@ ANY_API void any_mbox_rewind(aactor_t* a);
 /// Suspends the execution flow.
 ANY_API void any_yield(aactor_t* a);
 
-/// Sleep for `usecs`.
-ANY_API void any_sleep(aactor_t* a, aint_t usecs);
+/// Sleep for `nsecs`.
+ANY_API void any_sleep(aactor_t* a, aint_t nsecs);
 
 /// Execute in protected mode.
 ANY_API aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud);

@@ -44,7 +44,7 @@ static void consumer_actor(aactor_t* a)
 static void timeout_actor(aactor_t* a)
 {
     any_push_nil(a);
-    REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, amsec(15)));
+    REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, amsec(4500)));
     any_push_string(a, "timed out");
     done = true;
 }
