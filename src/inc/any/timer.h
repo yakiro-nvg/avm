@@ -68,7 +68,7 @@ static AINLINE aint_t atimer_delta_usecs(atimer_t* self)
     mach_timebase_info_data_t time_base_info;
     mach_timebase_info(&time_base_info);
     end = end - *self;
-    end = (end * time_base_info.number) / time_base_info.denom;
+    end = (end * time_base_info.numer) / time_base_info.denom;
     delta = end / 1000;
     *self = end;
     return (aint_t)delta;
