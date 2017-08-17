@@ -282,9 +282,9 @@ typedef struct {
 #define AINFINITE  (-1)
 #define ADONT_WAIT (0)
 
-static AINLINE aint_t amsec(aint_t ns)
+static AINLINE aint_t amsec(aint_t us)
 {
-    return ns * 1000000;
+    return us * 1000;
 }
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.
@@ -1011,6 +1011,8 @@ typedef struct {
     apid_t pid;
     aactor_t actor;
     aprocess_task_t ptask;
+    aint_t wait_for;
+    int32_t msg_wake;
 } aprocess_t;
 
 /** Process scheduler.
@@ -1033,4 +1035,7 @@ typedef struct ascheduler_t {
     aprocess_task_t root;
     alist_t pendings;
     alist_t runnings;
+    alist_t waitings;
+    atimer_t timer;
+    int32_t first_run;
 } ascheduler_t;

@@ -67,9 +67,8 @@ ANY_API void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t usecs);
 
 /** Wait for incoming message in `usecs`.
 \warning Suspends NOT running actor is undefined.
-\return Elapsed time.
 */
-ANY_API aint_t ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t usecs);
+ANY_API void ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t usecs);
 
 /// Wake-up this actor if its waiting for incoming message.
 ANY_API void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a);

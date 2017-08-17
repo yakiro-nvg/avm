@@ -16,15 +16,16 @@ static AINLINE void atimer_start(atimer_t* self)
     QueryPerformanceCounter(self);
 }
 
-static AINLINE aint_t atimer_elapsed_usecs(atimer_t* self)
+static AINLINE aint_t atimer_delta_usecs(atimer_t* self)
 {
-    LARGE_INTEGER end, frequency;
+    LARGE_INTEGER end, delta, frequency;
     QueryPerformanceFrequency(&frequency);
     QueryPerformanceCounter(&end);
-    end.QuadPart = end.QuadPart - self->QuadPart;
-    end.QuadPart *= 1000000;
-    end.QuadPart /= frequency.QuadPart;
-    return (aint_t)end.QuadPart;
+    delta.QuadPart = end.QuadPart - self->QuadPart;
+    delta.QuadPart *= 1000000;
+    delta.QuadPart /= frequency.QuadPart;
+    *self = end;
+    return (aint_t)delta.QuadPart;
 }
 
 #elif defined(ALINUX)
@@ -40,9 +41,11 @@ static AINLINE void atimer_start(atimer_t* self)
 
 static AINLINE aint_t atimer_elapsed_usecs(atimer_t* self)
 {
-    timespec end;
+    timespec end, delta;
     clock_gettime(CLOCK_MONOTONIC, &end);
-    return (aint_t)((end.tv_nsec - self->tv_nsec) / 1000);
+    delta = (end.tv_nsec - self->tv_nsec) / 1000;
+    *self = end;
+    return (aint_t)delta;
 }
 
 #elif defined(AAPPLE)
@@ -58,12 +61,14 @@ static AINLINE void atimer_start(atimer_t* self)
 
 static AINLINE aint_t atimer_elapsed_usecs(atimer_t* self)
 {
-    uint64_t end = mach_absolute_time();
+    uint64_t end = mach_absolute_time(), delta;
     mach_timebase_info_data_t time_base_info;
     mach_timebase_info(&time_base_info);
     end = end - *self;
     end = (end * time_base_info.number) / time_base_info.denom;
-    return (aint_t)(end / 1000);
+    delta = end / 1000;
+    *self = end;
+    return (aint_t)delta;
 }
 
 #else

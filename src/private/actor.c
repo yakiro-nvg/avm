@@ -195,7 +195,8 @@ aerror_t any_mbox_recv(aactor_t* a, aint_t timeout)
             if (timeout == ADONT_WAIT) {
                 return AERR_TIMEOUT;
             } else {
-                timeout = ascheduler_wait(a->owner, a, timeout);
+                ascheduler_wait(a->owner, a, timeout);
+                timeout = ADONT_WAIT;
             }
         }
     }

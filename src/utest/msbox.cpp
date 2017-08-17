@@ -36,7 +36,7 @@ static void consumer_actor(aactor_t* a)
         any_mbox_remove(a);
         REQUIRE(any_count(a) == 1);
         REQUIRE(any_type(a, 0).type == AVT_INTEGER);
-        REQUIRE(any_to_integer(a, 0) == 0);
+        REQUIRE(any_to_integer(a, 0) == i);
     }
     done = true;
 }
@@ -46,6 +46,7 @@ static void timeout_actor(aactor_t* a)
     any_push_nil(a);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, amsec(15)));
     any_push_string(a, "timed out");
+    done = true;
 }
 
 static void recv_to_empty_stack_actor(aactor_t* a)
@@ -267,7 +268,10 @@ TEST_CASE("msbox_timeout")
     any_push_native_func(a, &timeout_actor);
     ascheduler_start(&s, a, 0);
 
-    ascheduler_run_once(&s);
+    done = false;
+    while (!done) {
+        ascheduler_run_once(&s);
+    }
 
     REQUIRE(any_count(a) == 2);
     REQUIRE(any_type(a, 1).type == AVT_NIL);
