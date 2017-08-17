@@ -83,7 +83,7 @@ static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
     delta = end - *self;
     delta = (delta*time_base_info.numer) / time_base_info.denom;
     *self = end;
-    return (aint_t)end;
+    return (aint_t)delta;
 }
 
 #else
