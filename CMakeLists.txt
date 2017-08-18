@@ -45,7 +45,10 @@ if(CHECK_COVERAGE)
     APPEND_COVERAGE_COMPILER_FLAGS()
 endif()
 
-add_definitions(-DANY_TOOL)
+option(AMLC "Enable Any Machine Language Compiler." Off)
+if(AMLC)
+	add_subdirectory(tools/amlc)
+endif()
 
 add_subdirectory(cmake)
 add_subdirectory(src)

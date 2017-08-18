@@ -33,7 +33,7 @@ TEST_CASE("process_allocation")
             aprocess_t* p = ascheduler_alloc(&s);
             REQUIRE(p != NULL);
             REQUIRE(&p->actor == ascheduler_actor(&s, p->pid));
-            ascheduler_free(p);
+            ascheduler_free(&s, p);
         }
     }
 
@@ -45,7 +45,7 @@ TEST_CASE("process_allocation")
     }
     REQUIRE(ascheduler_alloc(&s) == NULL);
     for (apid_idx_t i = 0; i < 1 << NUM_IDX_BITS; ++i) {
-        ascheduler_free(procs[i]);
+        ascheduler_free(&s, procs[i]);
     }
 
     ascheduler_cleanup(&s);

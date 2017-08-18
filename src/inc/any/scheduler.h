@@ -20,6 +20,12 @@ ANY_API aerror_t ascheduler_init(
     ascheduler_t* self, int8_t idx_bits, int8_t gen_bits,
     aalloc_t alloc, void* alloc_ud);
 
+/// Register fatal error handler.
+static AINLINE void ascheduler_on_panic(ascheduler_t* self, aon_panic_t handler)
+{
+    self->on_panic = handler;
+}
+
 /// Release all processes.
 ANY_API void ascheduler_cleanup(ascheduler_t* self);
 
@@ -41,14 +47,22 @@ static AINLINE aactor_t* ascheduler_actor(ascheduler_t* self, apid_t pid)
 ANY_API aprocess_t* ascheduler_alloc(ascheduler_t* self);
 
 /// Return this process to the pool.
-static AINLINE void ascheduler_free(aprocess_t* p)
+static AINLINE void ascheduler_free(ascheduler_t* self, aprocess_t* p)
 {
     p->dead = TRUE;
+    --self->num_procs;
+}
+
+/// Return number of living processes.
+static AINLINE aint_t ascheduler_num_processes(ascheduler_t* self)
+{
+    return self->num_procs;
 }
 
 /// Get pid of this actor.
-static AINLINE apid_t ascheduler_pid(aactor_t* a)
+static AINLINE apid_t ascheduler_pid(ascheduler_t* self, aactor_t* a)
 {
+    AUNUSED(self);
     return ACAST_FROM_FIELD(aprocess_t, a, actor)->pid;
 }
 

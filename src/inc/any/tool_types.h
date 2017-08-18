@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#ifdef ANY_TOOL
-
 #include <any/rt_types.h>
 
 /** String table.
@@ -60,9 +58,6 @@ typedef struct {
     aint_t max_instructions;
     aint_t num_nesteds;
     aint_t max_nesteds;
-    aint_t num_upvalues;
-    aint_t num_arguments;
-    aint_t num_local_vars;
     aint_t num_constants;
     aint_t max_constants;
     aint_t num_imports;
@@ -142,5 +137,3 @@ enum {
     ANY_ASM_MAX_NESTED_LEVEL =
     (sizeof(((aasm_t*)0)->_context) / sizeof(((aasm_t*)0)->_context[0])) - 1
 };
-
-#endif //! ANY_TOOL

@@ -1249,7 +1249,7 @@ TEST_CASE("dispatcher_msbox")
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
     any_find(a, "mod_test", "test_f");
-    any_push_pid(a, ascheduler_pid(a));
+    any_push_pid(a, ascheduler_pid(&s, a));
     ascheduler_start(&s, a, 1);
 
     ascheduler_run_once(&s);

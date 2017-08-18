@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/string_table.h>
 
-#ifdef ANY_TOOL
-
 #include <any/gc_string.h>
 
 #define HASH_FACTOR (2.0f)
@@ -199,7 +197,3 @@ uint32_t astring_table_to_hash(const astring_table_t* self, aint_t ref)
 {
     return *(const uint32_t*)(strings_const(self) + ref);
 }
-
-#else // ANY_TOOL
-static char non_empty_unit;
-#endif

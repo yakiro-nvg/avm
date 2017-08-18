@@ -26,8 +26,8 @@ configuration:
 
 install:
   - git submodule update --init --recursive
-  - cmake -G "%TOOLSET%" -DTASK_BACKEND=fiber
+  - cmake -G "%TOOLSET%" -DTASK_BACKEND=fiber -DAMLC=On
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
-  - ctest -C %CONFIGURATION% -V -j 2 --timeout 5
+  - ctest -C %CONFIGURATION% -V -j 4 --timeout 5

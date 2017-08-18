@@ -1,6 +1,4 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#ifdef ANY_TOOL
-
 #include <any/platform.h>
 #include <catch.hpp>
 
@@ -162,9 +160,6 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
         astring_table_to_string(a1->st, p1->symbol),
         astring_table_to_string(a2->st, p2->symbol));
 
-    REQUIRE(p1->num_upvalues == p2->num_upvalues);
-    REQUIRE(p1->num_arguments == p2->num_arguments);
-    REQUIRE(p1->num_local_vars == p2->num_local_vars);
     REQUIRE(p1->num_nesteds == p2->num_nesteds);
 
     REQUIRE(p1->num_instructions == p2->num_instructions);
@@ -213,9 +208,6 @@ TEST_CASE("asm_module")
     REQUIRE(p->source == 0);
     REQUIRE(p->symbol == 0);
     REQUIRE(p->num_instructions == 0);
-    REQUIRE(p->num_upvalues == 0);
-    REQUIRE(p->num_arguments == 0);
-    REQUIRE(p->num_local_vars == 0);
     REQUIRE(p->num_constants == 0);
     REQUIRE(p->num_imports == 0);
     REQUIRE(p->num_nesteds == 0);
@@ -317,5 +309,3 @@ TEST_CASE("asm_save_load")
     aasm_cleanup(&a1);
     aasm_cleanup(&a2);
 }
-
-#endif // ANY_TOOL

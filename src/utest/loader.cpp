@@ -1,6 +1,4 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#ifdef ANY_TOOL
-
 #include <any/platform.h>
 #include <catch.hpp>
 
@@ -400,5 +398,3 @@ TEST_CASE("loader_link_safe_and_sweep")
     aasm_cleanup(&b);
     aasm_cleanup(&c);
 }
-
-#endif // ANT_TOOL

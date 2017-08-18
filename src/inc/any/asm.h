@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#ifdef ANY_TOOL
-
 #include <any/types.h>
 
 #ifdef __cplusplus
@@ -86,5 +84,3 @@ static AINLINE aasm_prototype_t* aasm_prototype_at(aasm_t* self, aint_t slot)
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
-#endif // ANY_TOOL

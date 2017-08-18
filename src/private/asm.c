@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/asm.h>
 
-#ifdef ANY_TOOL
-
 #include <any/string_table.h>
 
 #define GROW_FACTOR 2
@@ -263,8 +261,6 @@ static void set_headers(
     memset(header, 0, sizeof(*header));
     header->num_instructions = p->num_instructions;
     header->num_nesteds = p->num_nesteds;
-    header->num_upvalues = p->num_upvalues;
-    header->num_arguments = p->num_arguments;
     header->num_constants = p->num_constants;
     header->num_imports = p->num_imports;
     header->source = chunk_add_str(self, header, p->source);
@@ -375,9 +371,6 @@ static aerror_t load_chunk(
     ap->source = aasm_string_to_ref(self, rp_string(p, p->source));
     ap->symbol = aasm_string_to_ref(self, rp_string(p, p->symbol));
 
-    ap->num_upvalues = p->num_upvalues;
-    ap->num_arguments = p->num_arguments;
-
     memcpy(
         instructions_of(ap),
         rp.instructions,
@@ -466,6 +459,7 @@ aerror_t aasm_load(aasm_t* self, const achunk_header_t* input)
 void aasm_save(aasm_t* self)
 {
     aint_t sz = 0;
+    if (self->_num_slots == 0) return;
     compute_chunk_body_size(self, 0, &sz);
     sz += sizeof(achunk_header_t);
     self->chunk_size = 0;
@@ -686,7 +680,3 @@ aasm_current_t aasm_resolve(aasm_t* self)
 {
     return resolve(aasm_prototype(self));
 }
-
-#else // ANY_TOOL
-static char non_empty_unit;
-#endif

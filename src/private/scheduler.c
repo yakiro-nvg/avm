@@ -30,7 +30,7 @@ static void cleanup(ascheduler_t* self, int32_t shutdown)
         if (shutdown || (p->actor.flags & APF_EXIT) != 0) {
             aactor_cleanup(&p->actor);
             alist_node_erase(&t->node);
-            ascheduler_free(p);
+            ascheduler_free(p->actor.owner, p);
         }
         i = next;
     }
@@ -42,7 +42,7 @@ static void cleanup(ascheduler_t* self, int32_t shutdown)
         aprocess_t* const p = ACAST_FROM_FIELD(aprocess_t, t, ptask);
         aactor_cleanup(&p->actor);
         alist_node_erase(&t->node);
-        ascheduler_free(p);
+        ascheduler_free(p->actor.owner, p);
         i = next;
     }
     i = alist_head(&self->waitings);
@@ -52,7 +52,7 @@ static void cleanup(ascheduler_t* self, int32_t shutdown)
         aprocess_t* const p = ACAST_FROM_FIELD(aprocess_t, t, ptask);
         aactor_cleanup(&p->actor);
         alist_node_erase(&t->node);
-        ascheduler_free(p);
+        ascheduler_free(p->actor.owner, p);
         i = next;
     }
 }
@@ -197,6 +197,7 @@ aprocess_t* ascheduler_alloc(ascheduler_t* self)
             p->dead = FALSE;
             p->wait_for = 0;
             p->msg_wake = FALSE;
+            ++self->num_procs;
             return p;
         }
     } while (--loop);

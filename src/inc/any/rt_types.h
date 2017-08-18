@@ -837,8 +837,6 @@ sizeof(aint_t)                        to be exported
 sizeof(aint_t)                        num of string bytes
 sizeof(aint_t)                        num of instructions
 sizeof(aint_t)                        num of nesteds
-sizeof(aint_t)                        num of up-values
-sizeof(aint_t)                        num of arguments
 sizeof(aint_t)                        num of constants
 sizeof(aint_t)                        num of imports
 num of string bytes                   strings
@@ -855,8 +853,6 @@ typedef struct {
     aint_t strings_sz;
     aint_t num_instructions;
     aint_t num_nesteds;
-    aint_t num_upvalues;
-    aint_t num_arguments;
     aint_t num_constants;
     aint_t num_imports;
 } aprototype_header_t;
@@ -1015,6 +1011,9 @@ typedef struct {
     int32_t msg_wake;
 } aprocess_t;
 
+/// Fatal error handler.
+typedef void(*aon_panic_t)(struct aactor_t*);
+
 /** Process scheduler.
 \brief
 AVM is designed to be resumable, that sounds tricky and non-portable at first.
@@ -1028,6 +1027,7 @@ typedef struct ascheduler_t {
     aalloc_t alloc;
     void* alloc_ud;
     aprocess_t* procs;
+    aint_t num_procs;
     aloader_t loader;
     int8_t idx_bits;
     int8_t gen_bits;
@@ -1038,4 +1038,5 @@ typedef struct ascheduler_t {
     alist_t waitings;
     atimer_t timer;
     int32_t first_run;
+    aon_panic_t on_panic;
 } ascheduler_t;

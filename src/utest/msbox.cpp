@@ -52,7 +52,7 @@ static void timeout_actor(aactor_t* a)
 
 static void recv_to_empty_stack_actor(aactor_t* a)
 {
-    any_push_pid(a, ascheduler_pid(a));
+    any_push_pid(a, ascheduler_pid(a->owner, a));
     any_push_integer(a, 1);
     any_mbox_send(a);
     any_mbox_recv(a, ADONT_WAIT);
@@ -61,7 +61,7 @@ static void recv_to_empty_stack_actor(aactor_t* a)
 static void remove_actor(aactor_t* a)
 {
     for (aint_t i = 0; i < 5; ++i) {
-        any_push_pid(a, ascheduler_pid(a));
+        any_push_pid(a, ascheduler_pid(a->owner, a));
         any_push_integer(a, i);
         any_mbox_send(a);
     }
@@ -194,7 +194,7 @@ TEST_CASE("msbox_normal")
     aactor_t* pa;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &pa));
     any_push_native_func(pa, &producer_actor);
-    any_push_pid(pa, ascheduler_pid(ca));
+    any_push_pid(pa, ascheduler_pid(&s, ca));
     ascheduler_start(&s, pa, 1);
 
     done = false;
@@ -349,7 +349,7 @@ TEST_CASE("msbox_string")
     aactor_t* pa;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &pa));
     any_push_native_func(pa, &string_producer_actor);
-    any_push_pid(pa, ascheduler_pid(ca));
+    any_push_pid(pa, ascheduler_pid(&s, ca));
     ascheduler_start(&s, pa, 1);
 
     done = false;

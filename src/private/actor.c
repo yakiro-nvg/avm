@@ -47,16 +47,19 @@ void ASTDCALL actor_entry(void* ud)
     aframe_t frame;
     aactor_t* a = (aactor_t*)ud;
     aint_t nargs = a->stack.v[--a->stack.sp].v.integer;
-    acatch_t c;
-    c.status = AERR_NONE;
     memset(&frame, 0, sizeof(aframe_t));
     frame.bp = 1; // start from stack[0] (nil)
     frame.nargs = 0;
     a->frame = &frame;
-    a->error_jmp = &c;
-    if (setjmp(c.jbuff) == 0) any_protected_call(a, nargs);
+    a->error_jmp = NULL;
+    any_protected_call(a, nargs);
+    if (any_type(a, any_count(a) - 1).type != AVT_NIL && a->owner->on_panic) {
+        a->owner->on_panic(a);
+    }
     a->flags |= APF_EXIT;
-    while (TRUE) ascheduler_yield(a->owner, a);
+    for (;;) {
+        ascheduler_yield(a->owner, a);
+    }
 }
 
 aerror_t aactor_init(
@@ -129,9 +132,15 @@ void any_call(aactor_t* a, aint_t nargs)
 void any_protected_call(aactor_t* a, aint_t nargs)
 {
     avalue_t ev;
+    aint_t num_pops, count;
     if (any_try(a, &call, &nargs) == AERR_NONE) return;
     ev = a->stack.v[a->stack.sp - 1];
-    any_pop(a, 1 + nargs + 1); //error value, args and function
+    num_pops = 1 + nargs + 1; // error value, args and function
+    count = any_count(a);
+    if (num_pops > count) {
+        num_pops = count;
+    }
+    any_pop(a, count);
     aactor_push(a, &ev);
 }
 
@@ -322,6 +331,6 @@ aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
     }
     any_pop(a, nargs + 1);
     ascheduler_start(a->owner, na, nargs);
-    *pid = ascheduler_pid(na);
+    *pid = ascheduler_pid(na->owner, na);
     return AERR_NONE;
 }

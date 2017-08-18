@@ -1,8 +1,6 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
-#ifdef ANY_TOOL
-
 #include <any/types.h>
 
 #ifdef __cplusplus
@@ -68,5 +66,3 @@ ANY_API uint32_t astring_table_to_hash(const astring_table_t* self, aint_t ref);
 #ifdef __cplusplus
 } // extern "C"
 #endif
-
-#endif // ANY_TOOL
