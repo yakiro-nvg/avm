@@ -6,4 +6,4 @@
 	url = git://github.com/irskep/sphinx-better-theme.git
 [submodule "externals/ProgramOptions.hxx"]
 	path = externals/ProgramOptions.hxx
-	url = git@github.com:Fytch/ProgramOptions.hxx.git
+	url = git://github.com/Fytch/ProgramOptions.hxx.git
