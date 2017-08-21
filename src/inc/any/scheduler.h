@@ -46,14 +46,14 @@ static AINLINE aactor_t* ascheduler_actor(ascheduler_t* self, apid_t pid)
 */
 ANY_API aprocess_t* ascheduler_alloc(ascheduler_t* self);
 
-/// Return this process to the pool.
+/// Returns this process to the pool.
 static AINLINE void ascheduler_free(ascheduler_t* self, aprocess_t* p)
 {
     p->dead = TRUE;
     --self->num_procs;
 }
 
-/// Return number of living processes.
+/// Returns number of living processes.
 static AINLINE aint_t ascheduler_num_processes(ascheduler_t* self)
 {
     return self->num_procs;

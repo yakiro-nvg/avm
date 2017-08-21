@@ -50,6 +50,17 @@ static void free_chunk_list(
     }
 }
 
+static void free_libs(alist_t* l)
+{
+    alist_node_t* i = alist_head(l);
+    while (!alist_is_end(l, i)) {
+        alib_t* lib = ALIST_NODE_CAST(alib_t, i);
+        i = i->next;
+        alist_node_erase(&lib->node);
+        if (lib->destruct) lib->destruct(lib);
+    }
+}
+
 static void create_proto(
     achunk_t* chunk, aint_t* off,
     aprototype_t* pt, avalue_t** next_imp, aprototype_t** next_pt)
@@ -211,6 +222,7 @@ static void rollback_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
 
 void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud)
 {
+    memset(self, 0, sizeof(aloader_t));
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
     alist_init(&self->pendings);
@@ -224,7 +236,7 @@ void aloader_cleanup(aloader_t* self)
     free_chunk_list(self, &self->pendings, FALSE);
     free_chunk_list(self, &self->runnings, FALSE);
     free_chunk_list(self, &self->garbages, FALSE);
-    alist_init(&self->libs);
+    free_libs(&self->libs);
 }
 
 aerror_t aloader_add_chunk(

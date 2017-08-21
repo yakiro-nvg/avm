@@ -513,7 +513,13 @@ static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     match(ctx, ':');
     name << match_symbol(ctx);
     match(ctx, '/');
-    name << '/' << match_integer(ctx);
+    name << '/';
+    if (*ctx.s == '*') {
+        match(ctx, '*');
+        name << '*';
+    } else {
+        name << match_integer(ctx);
+    }
     aint_t idx = pool_push_import(pctx.imports, ctx.a, module, name.str());
     aasm_emit(ctx.a, ai_imp(idx));
 }

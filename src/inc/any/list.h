@@ -58,13 +58,13 @@ static AINLINE void alist_node_erase(alist_node_t* self)
 #endif
 }
 
-/// Return the fist node.
+/// Returns the fist node.
 static AINLINE alist_node_t* alist_head(alist_t* self)
 {
     return self->root.next;
 }
 
-/// Return the last node.
+/// Returns the last node.
 static AINLINE alist_node_t* alist_back(alist_t* self)
 {
     return self->root.prev;

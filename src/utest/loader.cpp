@@ -87,12 +87,15 @@ TEST_CASE("loader_link")
     aasm_save(&a);
     aasm_save(&b);
 
-    static alib_func_t nfuncs[] = {
+    alib_func_t nfuncs[] = {
         { "f1", (anative_func_t)0xF1 },
         { "f2", (anative_func_t)0xF2 },
         { NULL, NULL }
     };
-    static alib_t nmodule = { "mod_n", nfuncs };
+    alib_t nmodule;
+    memset(&nmodule, 0, sizeof(alib_t));
+    nmodule.name = "mod_n";
+    nmodule.funcs = nfuncs;
 
     aloader_t l;
     aloader_init(&l, &myalloc, NULL);
@@ -201,12 +204,15 @@ TEST_CASE("loader_link_unresolved")
 
     SECTION("missing_a")
     {
-        static alib_func_t nfuncs[] = {
+        alib_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { "f2", (anative_func_t)0xF2 },
             { NULL, NULL }
         };
-        static alib_t nmodule = { "mod_n", nfuncs };
+        alib_t nmodule;
+        memset(&nmodule, 0, sizeof(alib_t));
+        nmodule.name = "mod_n";
+        nmodule.funcs = nfuncs;
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
@@ -214,12 +220,15 @@ TEST_CASE("loader_link_unresolved")
 
     SECTION("missing_b")
     {
-        static alib_func_t nfuncs[] = {
+        alib_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { "f2", (anative_func_t)0xF2 },
             { NULL, NULL }
         };
-        static alib_t nmodule = { "mod_n", nfuncs };
+        alib_t nmodule;
+        memset(&nmodule, 0, sizeof(alib_t));
+        nmodule.name = "mod_n";
+        nmodule.funcs = nfuncs;
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
@@ -236,10 +245,13 @@ TEST_CASE("loader_link_unresolved")
     {
         achunk_header_t* chunks[] = { a.chunk, b.chunk, NULL };
         aint_t sizes[] = { a.chunk_size, b.chunk_size, 0 };
-        static alib_func_t nfuncs[] = {
+        alib_func_t nfuncs[] = {
             { NULL, NULL }
         };
-        alib_t nmodule = { "mod_n", nfuncs };
+        alib_t nmodule;
+        memset(&nmodule, 0, sizeof(alib_t));
+        nmodule.name = "mod_n";
+        nmodule.funcs = nfuncs;
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
@@ -248,11 +260,14 @@ TEST_CASE("loader_link_unresolved")
 
     SECTION("missing_native_2")
     {
-        static alib_func_t nfuncs[] = {
+        alib_func_t nfuncs[] = {
             { "f1", (anative_func_t)0xF1 },
             { NULL, NULL }
         };
-        alib_t nmodule = { "mod_n", nfuncs };
+        alib_t nmodule;
+        memset(&nmodule, 0, sizeof(alib_t));
+        nmodule.name = "mod_n";
+        nmodule.funcs = nfuncs;
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
@@ -285,12 +300,15 @@ TEST_CASE("loader_link_safe_and_sweep")
     aasm_save(&b);
     aasm_save(&c);
 
-    static alib_func_t nfuncs[] = {
+    alib_func_t nfuncs[] = {
         { "f1", (anative_func_t)0xF1 },
         { "f2", (anative_func_t)0xF2 },
         { NULL, NULL }
     };
-    static alib_t nmodule = { "mod_n", nfuncs };
+    alib_t nmodule;
+    memset(&nmodule, 0, sizeof(alib_t));
+    nmodule.name = "mod_n";
+    nmodule.funcs = nfuncs;
 
     aloader_t l;
     aloader_init(&l, &myalloc, NULL);

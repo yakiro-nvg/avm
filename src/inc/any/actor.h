@@ -201,6 +201,12 @@ static AINLINE void any_insert(aactor_t* a, aint_t idx)
     a->stack.v[aactor_absidx(a, idx)] = a->stack.v[a->stack.sp];
 }
 
+/// Returns number of passed arguments.
+static AINLINE aint_t any_nargs(aactor_t* a)
+{
+    return a->frame->nargs;
+}
+
 /// Returns the stack size.
 static AINLINE aint_t any_count(aactor_t* a)
 {

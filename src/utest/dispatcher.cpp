@@ -626,13 +626,16 @@ TEST_CASE("dispatcher_imp")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    static alib_func_t nfuncs[] = {
+    alib_func_t nfuncs[] = {
         { "f0", (anative_func_t)0xF0 },
         { "f1", (anative_func_t)0xF1 },
         { "f2", (anative_func_t)0xF2 },
         { NULL, NULL }
     };
-    static alib_t nmodule = { "mod_imp", nfuncs };
+    alib_t nmodule;
+    memset(&nmodule, 0, sizeof(alib_t));
+    nmodule.name = "mod_imp";
+    nmodule.funcs = nfuncs;
 
     aloader_add_lib(&s.loader, &nmodule);
 

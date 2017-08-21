@@ -64,6 +64,8 @@ static void try_throw(aactor_t* a)
 
 static void stack_test(aactor_t* a)
 {
+    REQUIRE(any_nargs(a) == 3);
+
     REQUIRE(any_type(a, -1).type == AVT_INTEGER);
     REQUIRE(any_to_integer(a, -1) == 0xA1);
 

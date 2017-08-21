@@ -864,7 +864,8 @@ typedef struct {
 } alib_func_t;
 
 /// Lib module.
-typedef struct {
+typedef struct alib_t {
+    void(*destruct)(struct alib_t*);
     const char* name;
     const alib_func_t* funcs;
     alist_node_t node;

@@ -15,7 +15,7 @@ ANY_API aerror_t agc_init(
 ANY_API void agc_cleanup(agc_t* self);
 
 /** Allocate a new collectable object.
-\brief Return the `heap_idx` of allocated object, negative value if failed.
+\brief Returns the `heap_idx` of allocated object, negative value if failed.
 */
 ANY_API aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz);
 
