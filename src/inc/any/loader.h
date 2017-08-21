@@ -13,6 +13,13 @@ ANY_API void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud);
 /// Release all internal allocated memory, result as a *fresh* loader.
 ANY_API void aloader_cleanup(aloader_t* self);
 
+/// Register linking error handler.
+static AINLINE void aloader_on_unresolved(
+    aloader_t* self, aon_unresolved_t handler)
+{
+    self->on_unresolved = handler;
+}
+
 /** Add new byte code chunk to `pendings` list.
 \note `chunk_alloc` is optional, used to free `chunk` if necessary.
 */

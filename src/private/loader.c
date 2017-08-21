@@ -140,14 +140,15 @@ static aint_t resolve(aloader_t* self, aprototype_t* p)
     for (i = 0; i < p->header->num_imports; ++i) {
         aimport_t* imp = p->imports + i;
         const char* m_name = p->strings + imp->module;
-        const char* s_name = p->strings + imp->name;
+        const char* n_name = p->strings + imp->name;
         avalue_t* val = p->import_values + i;
-        ec = find_in_libs(&self->libs, m_name, s_name, val);
+        ec = find_in_libs(&self->libs, m_name, n_name, val);
         if (ec == AERR_NONE) continue;
-        ec = find_in_list(&self->pendings, m_name, s_name, val);
+        ec = find_in_list(&self->pendings, m_name, n_name, val);
         if (ec == AERR_NONE) continue;
-        ec = find_in_list(&self->runnings, m_name, s_name, val);
+        ec = find_in_list(&self->runnings, m_name, n_name, val);
         if (ec == AERR_NONE) continue;
+        if (self->on_unresolved) self->on_unresolved(m_name, n_name);
         return AERR_UNRESOLVED;
     }
 

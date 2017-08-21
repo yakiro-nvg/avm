@@ -33,7 +33,7 @@ struct amlc_prototype_ctx_t
 
 struct amlc_ctx_t;
 
-typedef std::function<void(
+typedef function<void(
     amlc_ctx_t&, amlc_prototype_ctx_t&)> amlc_opcode_handler_t;
 
 struct amlc_ctx_t
@@ -45,7 +45,7 @@ struct amlc_ctx_t
     int line;
     int column;
     stringstream ss;
-    map<std::string, amlc_opcode_handler_t> opcode_handlers;
+    map<string, amlc_opcode_handler_t> opcode_handlers;
 };
 
 static void error(amlc_ctx_t& ctx, const char* fmt, ...)
@@ -55,16 +55,16 @@ static void error(amlc_ctx_t& ctx, const char* fmt, ...)
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
-    ctx.ss.str(std::string());
+    ctx.ss.str(string());
     ctx.ss << ctx.filename;
-    ctx.ss << "@" << ctx.line << ":" << ctx.column << "\n" << buf;
+    ctx.ss << '@' << ctx.line << ':' << ctx.column << '\n' << buf;
     throw exception(ctx.ss.str().c_str());
 }
 
 static amlc_pool::const_iterator pool_find(
     const amlc_pool& pool, const string& literal)
 {
-    return std::find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
+    return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.literal == literal;
     });
 }
@@ -72,7 +72,21 @@ static amlc_pool::const_iterator pool_find(
 static amlc_pool::const_iterator pool_find(
     const amlc_pool& pool, aint_t idx)
 {
-    return std::find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
+    return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
+        return v.idx == idx;
+    });
+}
+
+static amlc_pool::iterator pool_find(amlc_pool& pool, const string& literal)
+{
+    return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
+        return v.literal == literal;
+    });
+}
+
+static amlc_pool::iterator pool_find(amlc_pool& pool, aint_t idx)
+{
+    return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.idx == idx;
     });
 }
@@ -87,7 +101,7 @@ static aint_t pool_push(
         amlc_value_t v;
         v.idx = push();
         v.literal = literal;
-        pool.push_back(std::move(v));
+        pool.push_back(move(v));
         return v.idx;
     }
 }
@@ -100,7 +114,7 @@ static inline aint_t pool_push_argument(amlc_pool& pool, const string& literal)
 static inline aint_t pool_push_import(
     amlc_pool& pool, aasm_t* a, const string& module, const string& name)
 {
-    auto literal = module + ":" + name;
+    auto literal = module + ':' + name;
     return pool_push(pool, literal, [&] {
         return aasm_add_import(a, module.c_str(), name.c_str());
     });
@@ -176,7 +190,7 @@ static inline string character(char c)
         s = c;
         break;
     }
-    return std::move(s);
+    return move(s);
 }
 
 static inline void advance(amlc_ctx_t& ctx)
@@ -221,7 +235,7 @@ static inline void match(amlc_ctx_t& ctx, const char* s)
 
 static string lookahead(amlc_ctx_t& ctx, int nchars)
 {
-    ctx.ss.str(std::string());
+    ctx.ss.str(string());
     for (int i = 0; i < nchars; ++i) {
         if (!isalpha(ctx.s[i])) {
             error(ctx, "expect alphabet, saw `%s`", character(*ctx.s).c_str());
@@ -283,7 +297,7 @@ static void skip_whitespace(amlc_ctx_t& ctx, bool line)
 
 static string match_symbol(amlc_ctx_t& ctx)
 {
-    ctx.ss.str(std::string());
+    ctx.ss.str(string());
     if (isalpha(*ctx.s) == false) {
         error(ctx, "expect alphabet, saw `%s`", character(*ctx.s).c_str());
     }
@@ -370,6 +384,16 @@ static string match_number(amlc_ctx_t& ctx, bool& integer, aint_t& i, areal_t& r
     return ctx.ss.str();
 }
 
+static aint_t match_integer(amlc_ctx_t& ctx)
+{
+    bool integer; aint_t i; areal_t r;
+    auto literal = match_number(ctx, integer, i, r);
+    if (integer == false) {
+        error(ctx, "expected integer, saw `%s`", literal);
+    }
+    return i;
+}
+
 static string match_string(amlc_ctx_t& ctx)
 {
     ctx.ss.str("");
@@ -424,12 +448,7 @@ static void match_nop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 
 static void match_pop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "pop operand must be integer");
-    }
-    aasm_emit(ctx.a, ai_pop(i));
+    aasm_emit(ctx.a, ai_pop(match_integer(ctx)));
 }
 
 static void match_ldk(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -468,83 +487,60 @@ static void match_ldb(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 
 static void match_lsi(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_lsi(i));
+    aasm_emit(ctx.a, ai_lsi(match_integer(ctx)));
 }
 
 static void match_llv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
+    aint_t idx;
     if (isalpha(*ctx.s)) {
-        aint_t idx = pool_push_argument(pctx.arguments, match_symbol(ctx));
-        aasm_emit(ctx.a, ai_llv(idx));
+        idx = pool_push_argument(pctx.arguments, match_symbol(ctx));
     } else {
-        bool integer; aint_t i; areal_t r;
-        auto literal = match_number(ctx, integer, i, r);
-        if (integer == false) {
-            error(ctx, "expected integer, saw `%s`", literal);
-        }
-        aasm_emit(ctx.a, ai_llv(i));
+        idx = match_integer(ctx);
     }
+    aasm_emit(ctx.a, ai_llv(idx));
 }
 
 static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_slv(i));
+    aasm_emit(ctx.a, ai_slv(match_integer(ctx)));
 }
 
 static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
+    stringstream name;
     auto module = match_symbol(ctx);
     match(ctx, ':');
-    auto name = match_symbol(ctx);
-    aint_t idx = pool_push_import(pctx.imports, ctx.a, module, name);
+    name << match_symbol(ctx);
+    match(ctx, '/');
+    name << '/' << match_integer(ctx);
+    aint_t idx = pool_push_import(pctx.imports, ctx.a, module, name.str());
     aasm_emit(ctx.a, ai_imp(idx));
 }
 
 static void match_cls(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    aint_t idx = pool_push_pseudo_nested(
-        pctx.pseudo_nesteds, match_symbol(ctx));
+    stringstream name;
+    name << match_symbol(ctx);
+    match(ctx, '/');
+    name << '/' << match_integer(ctx);
+    aint_t idx = pool_push_pseudo_nested(pctx.pseudo_nesteds, name.str());
     aasm_emit(ctx.a, ai_cls(idx));
 }
 
 static void match_jmp(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_jmp(i));
+    aasm_emit(ctx.a, ai_jmp(match_integer(ctx)));
 }
 
 static void match_jin(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_jin(i));
+    aasm_emit(ctx.a, ai_jin(match_integer(ctx)));
 }
 
 static void match_ivk(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_ivk(i));
+    aasm_emit(ctx.a, ai_ivk(match_integer(ctx)));
 }
 
 static void match_ret(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
@@ -559,12 +555,7 @@ static void match_snd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 
 static void match_rcv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    bool integer; aint_t i; areal_t r;
-    auto literal = match_number(ctx, integer, i, r);
-    if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
-    }
-    aasm_emit(ctx.a, ai_rcv(i));
+    aasm_emit(ctx.a, ai_rcv(match_integer(ctx)));
 }
 
 static void match_rmv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
@@ -577,30 +568,32 @@ static void match_rwd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
     aasm_emit(ctx.a, ai_rwd());
 }
 
-static void match_prototype(amlc_ctx_t& ctx);
+static aint_t match_prototype(amlc_ctx_t& ctx);
 
 static void match_nested_prototype(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
+    stringstream name;
     match(ctx, "def");
     skip_whitespace(ctx, true);
-    pool_push_nested(pctx.nesteds, ctx.a, match_symbol(ctx).c_str());
+    name << match_symbol(ctx);
+    pool_push_nested(pctx.nesteds, ctx.a, name.str());
     skip_whitespace(ctx, true);
-    match_prototype(ctx);
+    aint_t nargs = match_prototype(ctx);
     skip_whitespace(ctx, true);
+    auto i = pool_find(pctx.nesteds, name.str());
+    name << '/' << nargs;
+    i->literal = name.str();
     aasm_pop(ctx.a);
 }
 
-static void match_prototype(amlc_ctx_t& ctx)
+static aint_t match_prototype(amlc_ctx_t& ctx)
 {
     amlc_prototype_ctx_t pctx;
 
     match(ctx, '(');
-    bool first_arg = true;
     while (*ctx.s != ')') {
         skip_whitespace(ctx, true);
-        if (first_arg) {
-            first_arg = false;
-        } else {
+        if (pctx.arguments.size() > 0) {
             match(ctx, ',');
             skip_whitespace(ctx, true);
         }
@@ -634,19 +627,27 @@ static void match_prototype(amlc_ctx_t& ctx)
 
     auto pt = aasm_prototype(ctx.a);
     auto cu = aasm_resolve(ctx.a);
+
     resolve_pseudo_nesteds(
         ctx, cu.instructions, pt->num_instructions,
         pctx.nesteds, pctx.pseudo_nesteds);
+
+    return (aint_t)pctx.arguments.size();
 }
 
 static void match_module_prototype(amlc_ctx_t& ctx)
 {
+    stringstream name;
     match(ctx, "def");
     skip_whitespace(ctx, true);
-    aasm_module_push(ctx.a, match_symbol(ctx).c_str());
+    name << match_symbol(ctx);
+    aasm_module_push(ctx.a, name.str().c_str());
     skip_whitespace(ctx, true);
-    match_prototype(ctx);
+    aint_t nargs = match_prototype(ctx);
     skip_whitespace(ctx, true);
+    auto pt = aasm_prototype(ctx.a);
+    name << '/' << nargs;
+    pt->symbol = aasm_string_to_ref(ctx.a, name.str().c_str());
     aasm_pop(ctx.a);
 }
 

@@ -91,6 +91,11 @@ static void on_panic(aactor_t* a)
     }
 }
 
+static void on_unresolved(const char* module, const char* name)
+{
+    cout << "unresolved import `" << module << ':' << name << "`\n";
+}
+
 static void io_format(aactor_t* a)
 {
     cout << any_to_string(a, -1);
@@ -117,16 +122,17 @@ static void execute(
         error("failed to init scheduler %d", ec);
     }
     ascheduler_on_panic(&s, &on_panic);
+    aloader_on_unresolved(&s.loader, &on_unresolved);
 
     static alib_func_t io_funcs[] = {
-        { "format", &io_format },
+        { "format/1", &io_format },
         { NULL, NULL }
     };
     static alib_t mod_io = { "io", io_funcs };
     aloader_add_lib(&s.loader, &mod_io);
 
     static alib_func_t string_funcs[] = {
-        { "concat", &string_concat },
+        { "concat/2", &string_concat },
         { NULL, NULL }
     };
     static alib_t mod_string = { "string", string_funcs };

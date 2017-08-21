@@ -893,6 +893,9 @@ typedef struct achunk_t {
     int32_t retain;
 } achunk_t;
 
+/// On linking failed handler.
+typedef void(*aon_unresolved_t)(const char* m, const char* n);
+
 /** Byte code loader.
 \brief
 AVM byte code loading and linking is done by `aloader_t`, with heavily focused
@@ -913,6 +916,7 @@ typedef struct {
     alist_t runnings;
     alist_t garbages;
     alist_t libs;
+    aon_unresolved_t on_unresolved;
 } aloader_t;
 
 /// Value stack.
