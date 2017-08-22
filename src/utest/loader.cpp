@@ -210,6 +210,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
+        aloader_cleanup(&l);
     }
 
     SECTION("missing_b")
@@ -223,6 +224,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
+        aloader_cleanup(&l);
     }
 
     SECTION("missing_native_0")
@@ -230,6 +232,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
+        aloader_cleanup(&l);
     }
 
     SECTION("missing_native_1")
@@ -244,6 +247,7 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
+        aloader_cleanup(&l);
     }
 
     SECTION("missing_native_2")
@@ -257,9 +261,8 @@ TEST_CASE("loader_link_unresolved")
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
+        aloader_cleanup(&l);
     }
-
-    aloader_cleanup(&l);
 
     aasm_cleanup(&a);
     aasm_cleanup(&b);
