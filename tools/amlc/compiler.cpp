@@ -111,6 +111,15 @@ static inline aint_t pool_push_argument(amlc_pool& pool, const string& literal)
     return pool_push(pool, literal, [&] { return -(aint_t)pool.size() - 1; });
 }
 
+static inline aint_t pool_take_argument(
+    amlc_ctx_t& ctx, amlc_pool& pool, const string& literal)
+{
+    return pool_push(pool, literal, [&]() -> int {
+        error(ctx, "undefined argument `%s`", literal.c_str());
+        return 0;
+    });
+}
+
 static inline aint_t pool_push_import(
     amlc_pool& pool, aasm_t* a, const string& module, const string& name)
 {
@@ -494,7 +503,7 @@ static void match_llv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
     aint_t idx;
     if (isalpha(*ctx.s)) {
-        idx = pool_push_argument(pctx.arguments, match_symbol(ctx));
+        idx = pool_take_argument(ctx, pctx.arguments, match_symbol(ctx));
     } else {
         idx = match_integer(ctx);
     }
