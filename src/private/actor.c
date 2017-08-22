@@ -183,7 +183,7 @@ void any_mbox_send(aactor_t* a)
     case AVT_BUFFER:
     case AVT_TUPLE:
     case AVT_ARRAY:
-    case AVT_MAP:
+    case AVT_TABLE:
         any_error(a, AERR_RUNTIME, "not supported type");
         break;
     }

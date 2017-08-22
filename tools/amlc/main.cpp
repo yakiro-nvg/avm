@@ -9,6 +9,7 @@
 #include <any/loader.h>
 #include <any/actor.h>
 #include <any/errno.h>
+#include <any/std_libs.h>
 #include <any/gc_string.h>
 
 #include "compiler.h"
@@ -96,19 +97,6 @@ static void on_unresolved(const char* module, const char* name)
     cout << "unresolved import `" << module << ':' << name << "`\n";
 }
 
-static void io_format(aactor_t* a)
-{
-    cout << any_to_string(a, -1);
-    any_push_nil(a);
-}
-
-static void string_concat(aactor_t* a)
-{
-    string s = any_to_string(a, -1);
-    s += any_to_string(a, -2);
-    any_push_string(a, s.c_str());
-}
-
 static void execute(
     const string& module, const string& name,
     int8_t idx_bits, int8_t gen_bits, aint_t cstack_sz,
@@ -124,19 +112,8 @@ static void execute(
     ascheduler_on_panic(&s, &on_panic);
     aloader_on_unresolved(&s.loader, &on_unresolved);
 
-    static alib_func_t io_funcs[] = {
-        { "format/1", &io_format },
-        { NULL, NULL }
-    };
-    static alib_t mod_io = { "io", io_funcs };
-    aloader_add_lib(&s.loader, &mod_io);
-
-    static alib_func_t string_funcs[] = {
-        { "concat/2", &string_concat },
-        { NULL, NULL }
-    };
-    static alib_t mod_string = { "string", string_funcs };
-    aloader_add_lib(&s.loader, &mod_string);
+    astd_lib_add_io(
+        &s.loader, [](void*, const char* str) { cout << str; }, NULL);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];

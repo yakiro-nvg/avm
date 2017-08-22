@@ -591,8 +591,8 @@ typedef enum {
     AVT_TUPLE,
     /// Collectable array.
     AVT_ARRAY,
-    /// Collectable map.
-    AVT_MAP
+    /// Collectable table.
+    AVT_TABLE
 } atype_t;
 
 /// Value tag.

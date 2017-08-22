@@ -56,7 +56,7 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
         break;
     case AVT_TUPLE:
     case AVT_ARRAY:
-    case AVT_MAP:
+    case AVT_TABLE:
         assert(!"TODO");
         break;
     default: assert(!"bad value type");
