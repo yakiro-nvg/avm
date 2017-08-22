@@ -35,7 +35,7 @@ TEST_CASE("dispatcher_loop")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    SECTION("no instructions")
+    SECTION("no_instructions")
     {
         aasm_module_push(&as, "test_f");
         aasm_pop(&as);
@@ -57,7 +57,7 @@ TEST_CASE("dispatcher_loop")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("return missing"));
     }
 
-    SECTION("return missing")
+    SECTION("return_missing")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_nop());
@@ -122,7 +122,7 @@ TEST_CASE("dispatcher_ldk")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    SECTION("no constant")
+    SECTION("no_constant")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_ldk(0));
@@ -144,7 +144,7 @@ TEST_CASE("dispatcher_ldk")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index 0"));
     }
 
-    SECTION("overflow index")
+    SECTION("overflow_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
@@ -167,7 +167,7 @@ TEST_CASE("dispatcher_ldk")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index 1"));
     }
 
-    SECTION("negative index")
+    SECTION("negative_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
@@ -190,7 +190,7 @@ TEST_CASE("dispatcher_ldk")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad constant index -1"));
     }
 
-    SECTION("return string")
+    SECTION("return_string")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
@@ -219,7 +219,7 @@ TEST_CASE("dispatcher_ldk")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("0xC1"));
     }
 
-    SECTION("return integer")
+    SECTION("return_integer")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
@@ -248,7 +248,7 @@ TEST_CASE("dispatcher_ldk")
         REQUIRE(any_to_integer(a, 0) == 0xC0);
     }
 
-    SECTION("return real")
+    SECTION("return_real")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
@@ -381,7 +381,7 @@ TEST_CASE("dispatcher_ldb")
         REQUIRE(any_to_bool(a, 0) == TRUE);
     }
 
-    SECTION("abnormal true")
+    SECTION("abnormal_true")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_ldb(0xFA));
@@ -639,7 +639,7 @@ TEST_CASE("dispatcher_imp")
 
     aloader_add_lib(&s.loader, &nmodule);
 
-    SECTION("no import")
+    SECTION("no_import")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_imp(0));
@@ -662,7 +662,7 @@ TEST_CASE("dispatcher_imp")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index 0"));
     }
 
-    SECTION("overflow index")
+    SECTION("overflow_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_import(&as, "mod_imp", "f0");
@@ -688,7 +688,7 @@ TEST_CASE("dispatcher_imp")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index 3"));
     }
 
-    SECTION("negative index")
+    SECTION("negative_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_import(&as, "mod_imp", "f0");
@@ -714,7 +714,7 @@ TEST_CASE("dispatcher_imp")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad import index -1"));
     };
 
-    SECTION("import 0")
+    SECTION("import_0")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_import(&as, "mod_imp", "f0");
@@ -742,7 +742,7 @@ TEST_CASE("dispatcher_imp")
             aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
 
-    SECTION("import 1")
+    SECTION("import_1")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_import(&as, "mod_imp", "f0");
@@ -770,7 +770,7 @@ TEST_CASE("dispatcher_imp")
             aactor_at(a, aactor_absidx(a, 0))->v.func);
     };
 
-    SECTION("import 2")
+    SECTION("import_2")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_import(&as, "mod_imp", "f0");
@@ -844,7 +844,7 @@ TEST_CASE("dispatcher_jmp")
         REQUIRE(any_to_integer(a, 0) == 1);
     }
 
-    SECTION("bad negative index")
+    SECTION("bad_negative_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_lsi(0));
@@ -871,7 +871,7 @@ TEST_CASE("dispatcher_jmp")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
-    SECTION("bad positive index")
+    SECTION("bad_positive_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_lsi(0));
@@ -1000,7 +1000,7 @@ TEST_CASE("dispatcher_jin")
         REQUIRE(any_to_integer(a, 0) == 1);
     }
 
-    SECTION("bad negative index")
+    SECTION("bad_negative_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_lsi(0));
@@ -1027,7 +1027,7 @@ TEST_CASE("dispatcher_jin")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
-    SECTION("bad positive index")
+    SECTION("bad_positive_index")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_lsi(0));
@@ -1054,7 +1054,7 @@ TEST_CASE("dispatcher_jin")
         CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad jump"));
     }
 
-    SECTION("bad condition")
+    SECTION("bad_condition")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_lsi(0));
@@ -1099,7 +1099,7 @@ TEST_CASE("dispatcher_mkc_ivk")
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
 
-    SECTION("normal fefe")
+    SECTION("normal_fefe")
     {
         aasm_module_push(&as, "test_f");
         aint_t npt = aasm_push(&as);
@@ -1135,7 +1135,7 @@ TEST_CASE("dispatcher_mkc_ivk")
         REQUIRE(any_to_integer(a, 0) == 0xFEFE);
     }
 
-    SECTION("normal fefa")
+    SECTION("normal_fefa")
     {
         aasm_module_push(&as, "test_f");
         aint_t npt = aasm_push(&as);

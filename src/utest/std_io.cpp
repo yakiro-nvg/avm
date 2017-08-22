@@ -40,7 +40,7 @@ TEST_CASE("std_io")
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
     any_find(a, "io", "print/*");
 
-    SECTION("no argument")
+    SECTION("no_argument")
     {
         ascheduler_start(&s, a, 0);
         ascheduler_run_once(&s);

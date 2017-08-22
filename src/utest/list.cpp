@@ -23,14 +23,14 @@ TEST_CASE("list")
         nodes[i].val = i;
     }
 
-    SECTION("push head")
+    SECTION("push_head")
     {
         for (aint_t i = NUM_TEST_NODES - 1; i >= 0; --i) {
             alist_push_head(&l, &nodes[i].node);
         }
     }
 
-    SECTION("push back")
+    SECTION("push_back")
     {
         for (aint_t i = 0; i < NUM_TEST_NODES; ++i) {
             alist_push_back(&l, &nodes[i].node);
