@@ -1,7 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/string_table.h>
 
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 #define HASH_FACTOR (2.0f)
 

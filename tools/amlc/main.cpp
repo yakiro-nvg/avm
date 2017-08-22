@@ -10,8 +10,8 @@
 #include <any/loader.h>
 #include <any/actor.h>
 #include <any/errno.h>
-#include <any/std_libs.h>
-#include <any/gc_string.h>
+#include <any/std_io.h>
+#include <any/std_string.h>
 
 #include "compiler.h"
 

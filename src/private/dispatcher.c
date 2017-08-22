@@ -1,7 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/actor.h>
 
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 void actor_dispatch(aactor_t* a)
 {

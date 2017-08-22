@@ -6,7 +6,7 @@
 #include <any/scheduler.h>
 #include <any/actor.h>
 #include <any/gc.h>
-#include <any/gc_buffer.h>
+#include <any/std_buffer.h>
 
 enum { CSTACK_SZ = 16384 };
 

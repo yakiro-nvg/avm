@@ -2,10 +2,10 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <any/std_libs.h>
 #include <any/scheduler.h>
 #include <any/actor.h>
-#include <any/gc_string.h>
+#include <any/std_io.h>
+#include <any/std_string.h>
 
 #include <sstream>
 

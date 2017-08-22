@@ -4,7 +4,7 @@
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/gc.h>
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 #define INIT_STACK_SZ 64
 #define INIT_MSBOX_SZ 32

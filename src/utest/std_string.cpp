@@ -6,7 +6,7 @@
 #include <any/gc.h>
 #include <any/scheduler.h>
 #include <any/actor.h>
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 enum { CSTACK_SZ = 16384 };
 
@@ -53,7 +53,7 @@ static void string_test(aactor_t* a)
     any_push_string(a, "ok");
 }
 
-TEST_CASE("gc_string")
+TEST_CASE("std_string")
 {
     enum { NUM_IDX_BITS = 4 };
     enum { NUM_GEN_BITS = 4 };
@@ -70,7 +70,6 @@ TEST_CASE("gc_string")
 
     ascheduler_run_once(&s);
 
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
     REQUIRE(any_count(a) == 2);
     REQUIRE(any_type(a, 1).type == AVT_NIL);
     REQUIRE(any_type(a, 0).type == AVT_STRING);

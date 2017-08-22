@@ -5,7 +5,7 @@
 #include <any/rt_types.h>
 #include <any/actor.h>
 #include <any/scheduler.h>
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 enum { CSTACK_SZ = 16384 };
 

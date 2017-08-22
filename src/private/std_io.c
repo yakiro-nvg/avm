@@ -1,9 +1,9 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/std_libs.h>
+#include <any/std_io.h>
 
 #include <any/actor.h>
 #include <any/loader.h>
-#include <any/gc_string.h>
+#include <any/std_string.h>
 
 static void(*out)(void*, const char*) = NULL;
 static void* out_ud = NULL;
@@ -44,7 +44,7 @@ static void print(aactor_t* a)
             out(out_ud, "<pointer>");
             break;
         case AVT_INTEGER:
-            snprintf(buf, sizeof(buf), "%lld", 
+            snprintf(buf, sizeof(buf), "%lld",
                 (long long int)any_to_integer(a, -i));
             out(out_ud, buf);
             break;
