@@ -113,7 +113,7 @@ matrix:
       compiler: gcc
       addons: 
         apt:
-          sources: ['ubuntu-toolchain-r-test']
+          sources: ['george-edison55-precise-backports']
           packages: ['cmake', 'g++-4.6']
       env: 
         - |
@@ -122,7 +122,7 @@ matrix:
       compiler: gcc
       addons: 
         apt:
-          sources: ['ubuntu-toolchain-r-test']
+          sources: ['george-edison55-precise-backports']
           packages: ['cmake', 'g++-4.6']
       env: 
         - |
