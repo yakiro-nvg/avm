@@ -108,6 +108,26 @@ matrix:
           CC_TEST_REPORTER_ID=9dc79ec67e0d8ace1a24b2fa04db9ecfa91a9c7e838c9790d5833d42f1dac663
           GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
+    # 5/ AMLC Build
+    - os: linux
+      compiler: gcc
+      addons: 
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-4.6']
+      env: 
+        - |
+          COMPILER='g++-4.6' AMLC='On' BUILD_TYPE='Debug'
+    - os: linux
+      compiler: gcc
+      addons: 
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-4.6']
+      env: 
+        - |
+          COMPILER='g++-4.6' AMLC='On' BUILD_TYPE='Release'
+
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
@@ -126,8 +146,10 @@ before_script:
     cd ${TRAVIS_BUILD_DIR}
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm -DCHECK_COVERAGE=On
-    else
+    elif [[ "${AMLC}" == "On" ]]; then
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm -DAMLC=On
+    else
+      cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
     fi
     cd Build
 

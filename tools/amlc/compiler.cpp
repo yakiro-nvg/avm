@@ -124,7 +124,7 @@ static inline aint_t pool_take_argument(
 }
 
 static inline aint_t pool_push_import(
-    amlc_pool& pool, aasm_t* a, 
+    amlc_pool& pool, aasm_t* a,
     const std::string& module, const std::string& name)
 {
     auto literal = module + ':' + name;
