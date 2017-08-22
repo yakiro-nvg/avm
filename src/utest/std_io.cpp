@@ -16,6 +16,11 @@ static void* myalloc(void*, void* old, aint_t sz)
     return realloc(old, (size_t)sz);
 }
 
+static void out(void* ud, const char* s)
+{
+    std::stringstream* output = (std::stringstream*)ud;
+    *output << s;
+}
 
 TEST_CASE("std_io")
 {
@@ -29,10 +34,7 @@ TEST_CASE("std_io")
 
     std::stringstream output;
 
-    astd_lib_add_io(&s.loader, [](void* ud, const char* str) {
-        std::stringstream* output = (std::stringstream*)ud;
-        *output << str;
-    }, &output);
+    astd_lib_add_io(&s.loader, &out, &output);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
