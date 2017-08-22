@@ -9,3 +9,4 @@ add_executable(amlc ${HEADERS} ${SOURCES})
 add_sanitizers(amlc)
 
 target_link_libraries(amlc avm)
+target_compile_features(amlc PRIVATE cxx_lambdas)
