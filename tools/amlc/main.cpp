@@ -2,6 +2,7 @@
 #include <ProgramOptions.hxx>
 #include <fstream>
 #include <vector>
+#include <stdexcept>
 
 #include <any/version.h>
 #include <any/asm.h>

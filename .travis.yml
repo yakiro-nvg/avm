@@ -130,6 +130,7 @@ matrix:
 
 before_install:
   - |
+    set -e
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       brew update
       brew outdated cmake || brew upgrade cmake
@@ -139,9 +140,11 @@ before_install:
       curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
       chmod +x ./cc-test-reporter
     fi
+    set +e
 
 before_script:
   - |
+    set -e
     export CXX=${COMPILER}
     cd ${TRAVIS_BUILD_DIR}
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
@@ -152,9 +155,11 @@ before_script:
       cmake -H./ -BBuild -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DTASK_BACKEND=gccasm
     fi
     cd Build
+    set +e
 
 script:
   - |
+    set -e
     make -j 2
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       ./cc-test-reporter before-build
@@ -162,11 +167,14 @@ script:
     else
       ctest -V -j 4 --timeout 5
     fi
+    set +e
 
 after_success:
   - |
+    set -e
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
       coveralls -r ../ -b . -E '/usr/.*' -E '.*/catch.hpp' -E '.*/externals/.*' -E '.*/CMakeFiles/.*'
       cp ./src/private/CMakeFiles/avm.dir/*.gcov ./ 
       ../cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
     fi
+    set +e

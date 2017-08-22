@@ -5,7 +5,7 @@
 
 #include <ctype.h>
 #include <math.h>
-#include <exception>
+#include <stdexcept>
 #include <string>
 #include <sstream>
 #include <vector>
