@@ -28,7 +28,7 @@ static void error(const char* fmt, ...)
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
-    throw exception(buf);
+    throw logic_error(buf);
 }
 
 static string file_name_without_extension(const string& path)
@@ -61,7 +61,7 @@ static void compile(const string& i, const string& o, bool verbose)
     vector<char> buf;
     buf.resize(sz + 1);
     is.read(buf.data(), sz);
-    buf[sz] = NULL;
+    buf[sz] = '\0';
     is.close();
 
     aasm_t a;
@@ -218,7 +218,7 @@ int main(int argc, char** argv)
             if (p["compile"].was_set()) {
                 auto i = p["compile"].get().string;
                 if (i.length() <= 0) {
-                    throw exception("input missing");
+                    error("input missing");
                 }
                 string o;
                 if (p["output"].was_set()) {
@@ -231,15 +231,15 @@ int main(int argc, char** argv)
             if (p["execute"].was_set()) {
                 auto e = p["execute"].get().string;
                 if (e.length() <= 0) {
-                    throw exception("entry point missing");
+                    error("entry point missing");
                 }
                 auto sep = e.find_first_of(':');
                 if (sep == string::npos) {
-                    throw exception(
+                    error(
                         ("bad entry `" + e + "`, missing `:`").c_str());
                 }
                 if (sep == e.length() - 1) {
-                    throw exception(
+                    error(
                         ("bad entry `" + e + "`, missing function").c_str());
                 }
                 execute(

@@ -4,6 +4,7 @@
 #include <any/asm.h>
 
 #include <ctype.h>
+#include <math.h>
 #include <exception>
 #include <string>
 #include <sstream>
@@ -58,7 +59,7 @@ static void error(amlc_ctx_t& ctx, const char* fmt, ...)
     ctx.ss.str(string());
     ctx.ss << ctx.filename;
     ctx.ss << '@' << ctx.line << ':' << ctx.column << '\n' << buf;
-    throw exception(ctx.ss.str().c_str());
+    throw logic_error(ctx.ss.str().c_str());
 }
 
 static amlc_pool::const_iterator pool_find(

@@ -44,7 +44,8 @@ static void print(aactor_t* a)
             out(out_ud, "<pointer>");
             break;
         case AVT_INTEGER:
-            snprintf(buf, sizeof(buf), "%lld", any_to_integer(a, -i));
+            snprintf(buf, sizeof(buf), "%lld", 
+                (long long int)any_to_integer(a, -i));
             out(out_ud, buf);
             break;
         case AVT_REAL:
