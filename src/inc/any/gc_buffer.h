@@ -52,6 +52,15 @@ static AINLINE uint8_t* any_to_buffer(aactor_t* a, aint_t idx)
     return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);
 }
 
+/// Returns size of buffer in bytes.
+static AINLINE aint_t any_buffer_size(aactor_t* a, aint_t idx)
+{
+    agc_buffer_t* b;
+    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
+    return b->sz;
+}
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
