@@ -14,8 +14,6 @@
 
 #include "compiler.h"
 
-using namespace std;
-
 static void* myalloc(void*, void* old, aint_t sz)
 {
     return realloc(old, (size_t)sz);
@@ -28,37 +26,37 @@ static void error(const char* fmt, ...)
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
-    throw logic_error(buf);
+    throw std::logic_error(buf);
 }
 
-static string file_name_without_extension(const string& path)
+static std::string file_name_without_extension(const std::string& path)
 {
     auto base_filename = path.substr(path.find_last_of("/\\") + 1);
-    string::size_type const p(base_filename.find_last_of('.'));
+    std::string::size_type const p(base_filename.find_last_of('.'));
     return base_filename.substr(0, p);
 }
 
 static void print_version()
 {
-    cout <<
+    std::cout <<
         "amlc version 1.0" << ", " <<
         "target AVM " << AVERSION_MAJOR << "." << AVERSION_MINOR <<
         " [" << AVERSION_NAME << "]\n";
 }
 
-static void compile(const string& i, const string& o, bool verbose)
+static void compile(const std::string& i, const std::string& o, bool verbose)
 {
-    cout << "compiling " << i << "\n";
+    std::cout << "compiling " << i << "\n";
 
-    ifstream is;
-    is.open(i, fstream::in);
+    std::ifstream is;
+    is.open(i, std::fstream::in);
     if (!is.is_open()) {
         error("failed to open `%s`", i);
     }
-    is.seekg(0, fstream::end);
+    is.seekg(0, std::fstream::end);
     auto sz = (size_t)is.tellg();
-    is.seekg(0, fstream::beg);
-    vector<char> buf;
+    is.seekg(0, std::fstream::beg);
+    std::vector<char> buf;
     buf.resize(sz + 1);
     is.read(buf.data(), sz);
     buf[sz] = '\0';
@@ -71,36 +69,36 @@ static void compile(const string& i, const string& o, bool verbose)
     }
     amlc_compile(&a, buf.data(), i.c_str(), verbose);
     aasm_save(&a);
-    ofstream os;
-    os.open(o, fstream::out | fstream::binary | fstream::trunc);
+    std::ofstream os;
+    os.open(o, std::fstream::out | std::fstream::binary | std::fstream::trunc);
     os.write((const char*)a.chunk, a.chunk_size);
     os.close();
     aasm_cleanup(&a);
 
-    cout << "    -> " << o << "\n";
+    std::cout << "    -> " << o << "\n";
 }
 
 static void on_panic(aactor_t* a)
 {
     aint_t ev_idx = any_count(a) - 1;
     if (any_type(a, ev_idx).type == AVT_STRING) {
-        cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
+        std::cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
             any_to_string(a, ev_idx) << "\n";
     } else {
-        cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
+        std::cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
             "unknown fatal error" << "\n";
     }
 }
 
 static void on_unresolved(const char* module, const char* name)
 {
-    cout << "unresolved import `" << module << ':' << name << "`\n";
+    std::cout << "unresolved import `" << module << ':' << name << "`\n";
 }
 
 static void execute(
-    const string& module, const string& name,
+    const std::string& module, const std::string& name,
     int8_t idx_bits, int8_t gen_bits, aint_t cstack_sz,
-    const vector<string>& chunks)
+    const std::vector<std::string>& chunks)
 {
     ascheduler_t s;
     aerror_t ec;
@@ -113,22 +111,22 @@ static void execute(
     aloader_on_unresolved(&s.loader, &on_unresolved);
 
     astd_lib_add_io(
-        &s.loader, [](void*, const char* str) { cout << str; }, NULL);
+        &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];
-        ifstream is;
-        is.open(c, fstream::in | fstream::binary);
+        std::ifstream is;
+        is.open(c, std::fstream::in | std::fstream::binary);
         if (!is.is_open()) {
             error("failed to open `%s`", c.c_str());
         }
-        is.seekg(0, fstream::end);
+        is.seekg(0, std::fstream::end);
         auto sz = (size_t)is.tellg();
-        is.seekg(0, fstream::beg);
+        is.seekg(0, std::fstream::beg);
         auto* chunk = (achunk_header_t*)myalloc(NULL, NULL, sz);
         is.read((char*)chunk, sz);
         is.close();
-        cout << "add " << c << "\n";
+        std::cout << "add " << c << "\n";
         ec = aloader_add_chunk(&s.loader, chunk, sz, &myalloc, NULL);
         if (ec != AERR_NONE) {
             error("failed to add chunk %d", ec);
@@ -139,15 +137,15 @@ static void execute(
     if (ec != AERR_NONE) {
         error("failed to link %d", ec);
     }
-    cout << "linking success\n";
+    std::cout << "linking success\n";
 
     aactor_t* a;
-    cout << "spawn " << module << ":" << name << "\n";
+    std::cout << "spawn " << module << ":" << name << "\n";
     ec = ascheduler_new_actor(&s, cstack_sz, &a);
     if (ec != AERR_NONE) {
         error("failed to create actor %d", ec);
     }
-    cout << "    -> pid = " << ascheduler_pid(&s, a) << "\n";
+    std::cout << "    -> pid = " << ascheduler_pid(&s, a) << "\n";
     any_find(a, module.c_str(), name.c_str());
     ascheduler_start(&s, a, 0);
 
@@ -167,7 +165,7 @@ int main(int argc, char** argv)
             .abbreviation('h')
             .description("print this help screen")
             .type(po::void_)
-            .callback([&] { cout << p << "\n"; });
+            .callback([&] { std::cout << p << "\n"; });
 
         p["version"]
             .abbreviation('v')
@@ -220,7 +218,7 @@ int main(int argc, char** argv)
                 if (i.length() <= 0) {
                     error("input missing");
                 }
-                string o;
+                std::string o;
                 if (p["output"].was_set()) {
                     o = p["output"].get().string;
                 } else {
@@ -234,7 +232,7 @@ int main(int argc, char** argv)
                     error("entry point missing");
                 }
                 auto sep = e.find_first_of(':');
-                if (sep == string::npos) {
+                if (sep == std::string::npos) {
                     error(
                         ("bad entry `" + e + "`, missing `:`").c_str());
                 }
@@ -251,8 +249,8 @@ int main(int argc, char** argv)
             }
             return 0;
         }
-    } catch (const exception& e) {
-        cerr << "uncaught exception: " << e.what() << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "uncaught exception: " << e.what() << "\n";
         return -1;
     }
 }

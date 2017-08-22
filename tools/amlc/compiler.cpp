@@ -13,15 +13,13 @@
 #include <functional>
 #include <map>
 
-using namespace std;
-
 struct amlc_value_t
 {
-    string literal;
+    std::string literal;
     aint_t idx;
 };
 
-typedef vector<amlc_value_t> amlc_pool;
+typedef std::vector<amlc_value_t> amlc_pool;
 
 struct amlc_prototype_ctx_t
 {
@@ -34,19 +32,21 @@ struct amlc_prototype_ctx_t
 
 struct amlc_ctx_t;
 
-typedef function<void(
+typedef std::function<void(
     amlc_ctx_t&, amlc_prototype_ctx_t&)> amlc_opcode_handler_t;
+
+typedef std::map<std::string, amlc_opcode_handler_t> opcode_handlers_t;
 
 struct amlc_ctx_t
 {
     aasm_t* a;
     bool verbose;
-    string filename;
+    std::string filename;
     const char* s;
     int line;
     int column;
-    stringstream ss;
-    map<string, amlc_opcode_handler_t> opcode_handlers;
+    std::stringstream ss;
+    opcode_handlers_t opcode_handlers;
 };
 
 static void error(amlc_ctx_t& ctx, const char* fmt, ...)
@@ -56,14 +56,14 @@ static void error(amlc_ctx_t& ctx, const char* fmt, ...)
     va_start(args, fmt);
     vsnprintf(buf, sizeof(buf), fmt, args);
     va_end(args);
-    ctx.ss.str(string());
+    ctx.ss.str(std::string());
     ctx.ss << ctx.filename;
     ctx.ss << '@' << ctx.line << ':' << ctx.column << '\n' << buf;
-    throw logic_error(ctx.ss.str().c_str());
+    throw std::logic_error(ctx.ss.str().c_str());
 }
 
 static amlc_pool::const_iterator pool_find(
-    const amlc_pool& pool, const string& literal)
+    const amlc_pool& pool, const std::string& literal)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.literal == literal;
@@ -78,7 +78,8 @@ static amlc_pool::const_iterator pool_find(
     });
 }
 
-static amlc_pool::iterator pool_find(amlc_pool& pool, const string& literal)
+static amlc_pool::iterator pool_find(
+    amlc_pool& pool, const std::string& literal)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.literal == literal;
@@ -93,7 +94,7 @@ static amlc_pool::iterator pool_find(amlc_pool& pool, aint_t idx)
 }
 
 static aint_t pool_push(
-    amlc_pool& pool, const string& literal, function<aint_t()> push)
+    amlc_pool& pool, const std::string& literal, std::function<aint_t()> push)
 {
     auto i = pool_find(pool, literal);
     if (i != pool.end()) {
@@ -102,18 +103,19 @@ static aint_t pool_push(
         amlc_value_t v;
         v.idx = push();
         v.literal = literal;
-        pool.push_back(move(v));
+        pool.push_back(std::move(v));
         return v.idx;
     }
 }
 
-static inline aint_t pool_push_argument(amlc_pool& pool, const string& literal)
+static inline aint_t pool_push_argument(
+    amlc_pool& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&] { return -(aint_t)pool.size() - 1; });
 }
 
 static inline aint_t pool_take_argument(
-    amlc_ctx_t& ctx, amlc_pool& pool, const string& literal)
+    amlc_ctx_t& ctx, amlc_pool& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&]() -> int {
         error(ctx, "undefined argument `%s`", literal.c_str());
@@ -122,7 +124,8 @@ static inline aint_t pool_take_argument(
 }
 
 static inline aint_t pool_push_import(
-    amlc_pool& pool, aasm_t* a, const string& module, const string& name)
+    amlc_pool& pool, aasm_t* a, 
+    const std::string& module, const std::string& name)
 {
     auto literal = module + ':' + name;
     return pool_push(pool, literal, [&] {
@@ -131,7 +134,7 @@ static inline aint_t pool_push_import(
 }
 
 static inline aint_t pool_push_integer_constant(
-    amlc_pool& pool, aasm_t* a, const string& literal, aint_t v)
+    amlc_pool& pool, aasm_t* a, const std::string& literal, aint_t v)
 {
     return pool_push(pool, literal, [&] {
         return aasm_add_constant(a, ac_integer(v));
@@ -139,7 +142,7 @@ static inline aint_t pool_push_integer_constant(
 }
 
 static inline aint_t pool_push_string_constant(
-    amlc_pool& pool, aasm_t* a, const string& v)
+    amlc_pool& pool, aasm_t* a, const std::string& v)
 {
     return pool_push(pool, v, [&] {
         return aasm_add_constant(
@@ -148,7 +151,7 @@ static inline aint_t pool_push_string_constant(
 }
 
 static inline aint_t pool_push_real_constant(
-    amlc_pool& pool, aasm_t* a, const string& literal, areal_t v)
+    amlc_pool& pool, aasm_t* a, const std::string& literal, areal_t v)
 {
     return pool_push(pool, literal, [&] {
         return aasm_add_constant(a, ac_real(v));
@@ -156,13 +159,13 @@ static inline aint_t pool_push_real_constant(
 }
 
 static inline aint_t pool_push_nested(
-    amlc_pool& pool, aasm_t* a, const string& literal)
+    amlc_pool& pool, aasm_t* a, const std::string& literal)
 {
     return pool_push(pool, literal, [&] { return aasm_push(a); });
 }
 
 static inline aint_t pool_push_pseudo_nested(
-    amlc_pool& pool, const string& literal)
+    amlc_pool& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&] { return pool.size(); });
 }
@@ -183,9 +186,9 @@ static void resolve_pseudo_nesteds(
     }
 }
 
-static inline string character(char c)
+static inline std::string character(char c)
 {
-    string s;
+    std::string s;
     switch (c) {
     case '\n':
         s = "\\n";
@@ -200,7 +203,7 @@ static inline string character(char c)
         s = c;
         break;
     }
-    return move(s);
+    return std::move(s);
 }
 
 static inline void advance(amlc_ctx_t& ctx)
@@ -243,9 +246,9 @@ static inline void match(amlc_ctx_t& ctx, const char* s)
     ctx.column += len;
 }
 
-static string lookahead(amlc_ctx_t& ctx, int nchars)
+static std::string lookahead(amlc_ctx_t& ctx, int nchars)
 {
-    ctx.ss.str(string());
+    ctx.ss.str(std::string());
     for (int i = 0; i < nchars; ++i) {
         if (!isalpha(ctx.s[i])) {
             error(ctx, "expect alphabet, saw `%s`", character(*ctx.s).c_str());
@@ -305,9 +308,9 @@ static void skip_whitespace(amlc_ctx_t& ctx, bool line)
     }
 }
 
-static string match_symbol(amlc_ctx_t& ctx)
+static std::string match_symbol(amlc_ctx_t& ctx)
 {
-    ctx.ss.str(string());
+    ctx.ss.str(std::string());
     if (isalpha(*ctx.s) == false) {
         error(ctx, "expect alphabet, saw `%s`", character(*ctx.s).c_str());
     }
@@ -318,9 +321,10 @@ static string match_symbol(amlc_ctx_t& ctx)
     return ctx.ss.str();
 }
 
-static string match_number(amlc_ctx_t& ctx, bool& integer, aint_t& i, areal_t& r)
+static std::string match_number(
+    amlc_ctx_t& ctx, bool& integer, aint_t& i, areal_t& r)
 {
-    ctx.ss.str("");
+    ctx.ss.str(std::string());
     aint_t sign = 1;
     if (*ctx.s == '-') {
         sign = -1;
@@ -404,9 +408,9 @@ static aint_t match_integer(amlc_ctx_t& ctx)
     return i;
 }
 
-static string match_string(amlc_ctx_t& ctx)
+static std::string match_string(amlc_ctx_t& ctx)
 {
-    ctx.ss.str("");
+    ctx.ss.str(std::string());
     match(ctx, '"');
     for (;;) {
         if (*ctx.s == 0 || *ctx.s == '"') {
@@ -518,7 +522,7 @@ static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 
 static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    stringstream name;
+    std::stringstream name;
     auto module = match_symbol(ctx);
     match(ctx, ':');
     name << match_symbol(ctx);
@@ -536,7 +540,7 @@ static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 
 static void match_cls(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    stringstream name;
+    std::stringstream name;
     name << match_symbol(ctx);
     match(ctx, '/');
     name << '/' << match_integer(ctx);
@@ -588,7 +592,7 @@ static aint_t match_prototype(amlc_ctx_t& ctx);
 
 static void match_nested_prototype(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    stringstream name;
+    std::stringstream name;
     match(ctx, "def");
     skip_whitespace(ctx, true);
     name << match_symbol(ctx);
@@ -653,7 +657,7 @@ static aint_t match_prototype(amlc_ctx_t& ctx)
 
 static void match_module_prototype(amlc_ctx_t& ctx)
 {
-    stringstream name;
+    std::stringstream name;
     match(ctx, "def");
     skip_whitespace(ctx, true);
     name << match_symbol(ctx);
