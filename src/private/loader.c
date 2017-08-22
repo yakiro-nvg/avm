@@ -57,7 +57,6 @@ static void free_libs(alist_t* l)
         alib_t* lib = ALIST_NODE_CAST(alib_t, i);
         i = i->next;
         alist_node_erase(&lib->node);
-        if (lib->destruct) lib->destruct(lib);
     }
 }
 
