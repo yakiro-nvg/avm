@@ -47,7 +47,7 @@ endif()
 
 option(AMLC "Enable Any Machine Language Compiler." Off)
 if(AMLC)
-	#add_subdirectory(tools/amlc)
+    add_subdirectory(tools/amlc)
 endif()
 
 add_subdirectory(cmake)
