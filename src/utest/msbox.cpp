@@ -7,7 +7,7 @@
 #include <any/scheduler.h>
 #include <any/gc_string.h>
 
-enum { CSTACK_SZ = 16384 };
+enum { CSTACK_SZ = 16384*2 };
 
 static void* myalloc(void*, void* old, aint_t sz)
 {

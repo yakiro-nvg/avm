@@ -51,7 +51,7 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
     std::ifstream is;
     is.open(i, std::fstream::in);
     if (!is.is_open()) {
-        error("failed to open `%s`", i);
+        error("failed to open `%s`", i.c_str());
     }
     is.seekg(0, std::fstream::end);
     auto sz = (size_t)is.tellg();

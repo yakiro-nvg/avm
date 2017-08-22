@@ -403,7 +403,7 @@ static aint_t match_integer(amlc_ctx_t& ctx)
     bool integer; aint_t i; areal_t r;
     auto literal = match_number(ctx, integer, i, r);
     if (integer == false) {
-        error(ctx, "expected integer, saw `%s`", literal);
+        error(ctx, "expected integer, saw `%s`", literal.c_str());
     }
     return i;
 }
