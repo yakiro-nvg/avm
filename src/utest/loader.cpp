@@ -92,10 +92,7 @@ TEST_CASE("loader_link")
         { "f2", (anative_func_t)0xF2 },
         { NULL, NULL }
     };
-    alib_t nmodule;
-    memset(&nmodule, 0, sizeof(alib_t));
-    nmodule.name = "mod_n";
-    nmodule.funcs = nfuncs;
+    alib_t nmodule = { "mod_n", nfuncs };
 
     aloader_t l;
     aloader_init(&l, &myalloc, NULL);
@@ -209,10 +206,7 @@ TEST_CASE("loader_link_unresolved")
             { "f2", (anative_func_t)0xF2 },
             { NULL, NULL }
         };
-        alib_t nmodule;
-        memset(&nmodule, 0, sizeof(alib_t));
-        nmodule.name = "mod_n";
-        nmodule.funcs = nfuncs;
+        alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
@@ -225,10 +219,7 @@ TEST_CASE("loader_link_unresolved")
             { "f2", (anative_func_t)0xF2 },
             { NULL, NULL }
         };
-        alib_t nmodule;
-        memset(&nmodule, 0, sizeof(alib_t));
-        nmodule.name = "mod_n";
-        nmodule.funcs = nfuncs;
+        alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         REQUIRE(AERR_UNRESOLVED == aloader_link(&l, FALSE));
@@ -248,10 +239,7 @@ TEST_CASE("loader_link_unresolved")
         alib_func_t nfuncs[] = {
             { NULL, NULL }
         };
-        alib_t nmodule;
-        memset(&nmodule, 0, sizeof(alib_t));
-        nmodule.name = "mod_n";
-        nmodule.funcs = nfuncs;
+        alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
@@ -264,10 +252,7 @@ TEST_CASE("loader_link_unresolved")
             { "f1", (anative_func_t)0xF1 },
             { NULL, NULL }
         };
-        alib_t nmodule;
-        memset(&nmodule, 0, sizeof(alib_t));
-        nmodule.name = "mod_n";
-        nmodule.funcs = nfuncs;
+        alib_t nmodule = { "mod_n", nfuncs };
         aloader_add_lib(&l, &nmodule);
         aloader_add_chunk(&l, a.chunk, a.chunk_size, NULL, NULL);
         aloader_add_chunk(&l, b.chunk, b.chunk_size, NULL, NULL);
@@ -305,10 +290,7 @@ TEST_CASE("loader_link_safe_and_sweep")
         { "f2", (anative_func_t)0xF2 },
         { NULL, NULL }
     };
-    alib_t nmodule;
-    memset(&nmodule, 0, sizeof(alib_t));
-    nmodule.name = "mod_n";
-    nmodule.funcs = nfuncs;
+    alib_t nmodule = { "mod_n", nfuncs };
 
     aloader_t l;
     aloader_init(&l, &myalloc, NULL);
