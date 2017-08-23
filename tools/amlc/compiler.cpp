@@ -214,7 +214,7 @@ static inline void advance(amlc_ctx_t& ctx)
 
 static inline bool issymbol(char c)
 {
-    return c == '_';
+    return c == '_' || c == '-';
 }
 
 static inline bool isbareword(char c)
