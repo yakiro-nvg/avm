@@ -30,4 +30,4 @@ install:
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
-  - ctest -C %CONFIGURATION% -V -j 4 --timeout 5
+  - ctest -C %CONFIGURATION% -V --timeout 30

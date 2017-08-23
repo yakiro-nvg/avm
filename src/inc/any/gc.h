@@ -19,7 +19,7 @@ ANY_API void agc_cleanup(agc_t* self);
 */
 ANY_API aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz);
 
-/// Ensures that there are `more` bytes in the heap.
+/// Ensures that there are `more` bytes for a new object in the heap.
 ANY_API aerror_t agc_reserve(agc_t* self, aint_t more);
 
 /** Reclaim unreferenced objects.

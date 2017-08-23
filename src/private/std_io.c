@@ -66,7 +66,7 @@ static void print(aactor_t* a)
             out(out_ud, "<buffer>");
             break;
         case AVT_STRING:
-            snprintf(buf, sizeof(buf), "%s", any_to_string(a, -i));
+            snprintf(buf, sizeof(buf), "%s", any_get_string(a, -i));
             out(out_ud, buf);
             break;
         case AVT_TUPLE:
@@ -87,7 +87,7 @@ static alib_func_t funcs[] = {
     { NULL, NULL }
 };
 
-static alib_t mod = { "io", funcs };
+static alib_t mod = { "std-io", funcs };
 
 void astd_lib_add_io(aloader_t* l, void(*o)(void*, const char*), void* ud)
 {

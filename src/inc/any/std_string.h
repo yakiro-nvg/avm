@@ -3,7 +3,6 @@
 
 #include <any/rt_types.h>
 #include <any/actor.h>
-#include <any/gc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,7 +19,7 @@ static AINLINE void any_push_string(aactor_t* a, const char* s)
 {
     avalue_t v;
     aint_t ec = agc_string_new(a, s, &v);
-    if (ec != AERR_NONE) any_error(a, (aerror_t)ec, "out of memory");
+    if (ec != AERR_NONE) any_error(a, AERR_RUNTIME, "out of memory");
     aactor_push(a, &v);
 }
 
@@ -32,7 +31,7 @@ static AINLINE const char* agc_string_to_cstr(aactor_t* a, avalue_t* v)
 }
 
 /// Get NULL terminated string pointer, available until next gc.
-static AINLINE const char* any_to_string(aactor_t* a, aint_t idx)
+static AINLINE const char* any_get_string(aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     return agc_string_to_cstr(a, v);

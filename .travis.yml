@@ -165,7 +165,7 @@ script:
       ./cc-test-reporter before-build
       make coverage
     else
-      ctest -V -j 4 --timeout 5
+      ctest -V --timeout 30
     fi
     set +e
 

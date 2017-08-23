@@ -96,7 +96,7 @@ static void stack_test(aactor_t* a)
     REQUIRE(any_count(a) == NUM_INTS + 6);
 
     REQUIRE(any_type(a, any_count(a) - 1).type == AVT_NATIVE_FUNC);
-    REQUIRE(any_to_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
+    REQUIRE(any_get_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
 
     REQUIRE(any_type(a, any_count(a) - 2).type == AVT_PID);
     REQUIRE(any_to_pid(a, any_count(a) - 2) == 0xBEEF);
@@ -117,7 +117,7 @@ static void stack_test(aactor_t* a)
     any_remove(a, any_count(a) - 3);
 
     REQUIRE(any_type(a, any_count(a) - 1).type == AVT_NATIVE_FUNC);
-    REQUIRE(any_to_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
+    REQUIRE(any_get_native_func(a, any_count(a) - 1) == (anative_func_t)0xF0);
 
     REQUIRE(any_type(a, any_count(a) - 2).type == AVT_PID);
     REQUIRE(any_to_pid(a, any_count(a) - 2) == 0xBEEF);
@@ -252,7 +252,7 @@ TEST_CASE("process_call_non_function")
 
     REQUIRE(any_count(a) == 1);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0),
+    CHECK_THAT(any_get_string(a, 0),
         Catch::Equals("attempt to call a non-function"));
 
     ascheduler_cleanup(&s);

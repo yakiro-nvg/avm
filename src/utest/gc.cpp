@@ -6,7 +6,6 @@
 #include <any/scheduler.h>
 #include <any/actor.h>
 #include <any/gc.h>
-#include <any/std_buffer.h>
 
 enum { CSTACK_SZ = 16384 };
 
@@ -20,7 +19,7 @@ static bool search_for(agc_t* gc, aint_t i)
     aint_t off = 0;
     while (off < gc->heap_sz) {
         agc_header_t* h = (agc_header_t*)(gc->cur_heap + off);
-        if (h->type == AVT_FIXED_BUFFER && *(aint_t*)(h + 1) == i) {
+        if (h->type == AVT_INTEGER && *(aint_t*)(h + 1) == i) {
             return true;
         }
         off += h->sz;
@@ -37,11 +36,11 @@ TEST_CASE("gc")
 
     for (aint_t i = 0; i < 1000; ++i) {
         avalue_t v;
-        while (AERR_NONE != agc_buffer_new(&gc, 100, &v)) {
-            REQUIRE(AERR_NONE == agc_reserve(&gc, 50));
-        }
-        agc_buffer_t* b = AGC_CAST(agc_buffer_t, &gc, v.v.heap_idx);
-        *AGC_CAST(aint_t, &gc, b->buff.v.heap_idx) = i;
+        REQUIRE(AERR_NONE == agc_reserve(&gc, sizeof(aint_t)));
+        aint_t oi = agc_alloc(&gc, AVT_INTEGER, sizeof(aint_t));
+        REQUIRE(oi >= 0);
+        av_collectable(&v, AVT_INTEGER, oi);
+        *AGC_CAST(aint_t, &gc, v.v.heap_idx) = i;
         stack.push_back(v);
     }
 

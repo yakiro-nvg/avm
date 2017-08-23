@@ -18,11 +18,8 @@ ANY_API void aactor_cleanup(aactor_t* self);
 /// Throw an error, with description string pushed onto the stack.
 ANY_API void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...);
 
-/** Allocate a new collectable object.
-\brief Collect or grow if necessary.
-\note Please refer \ref agc_alloc.
-*/
-ANY_API aint_t aactor_alloc(aactor_t* self, atype_t type, aint_t sz);
+/// Ensures that there are `more` bytes for a new object in the heap.
+ANY_API aerror_t aactor_heap_reserve(aactor_t* self, aint_t more);
 
 /// Push a value onto the stack, should be internal used.
 static AINLINE void aactor_push(aactor_t* self, avalue_t* v)
@@ -45,7 +42,7 @@ static AINLINE aint_t aactor_absidx(aactor_t* self, aint_t idx)
 {
     if (idx < -self->frame->nargs) return 0;
     if (idx >= self->stack.sp - self->frame->bp) {
-        any_error(self, AERR_RUNTIME, "bad index %d", idx);
+        any_error(self, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
     return self->frame->bp + idx;
 }
@@ -158,25 +155,61 @@ static AINLINE void any_push_idx(aactor_t* a, aint_t idx)
 
 static AINLINE int32_t any_to_bool(aactor_t* a, aint_t idx)
 {
-    return a->stack.v[aactor_absidx(a, idx)].v.boolean;
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
+    if (v->tag.type != AVT_BOOLEAN) {
+        if (idx < 0) {
+            any_error(a, AERR_RUNTIME, "arg %lld isn't a boolean",
+                (long long int)-idx);
+        } else {
+            any_error(a, AERR_RUNTIME, "not a boolean");
+        }
+    }
+    return v->v.boolean;
 }
 
 static AINLINE aint_t any_to_integer(aactor_t* a, aint_t idx)
 {
-    return a->stack.v[aactor_absidx(a, idx)].v.integer;
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
+    if (v->tag.type != AVT_INTEGER) {
+        if (idx < 0) {
+            any_error(a, AERR_RUNTIME, "arg %lld isn't a integer",
+                (long long int) - idx);
+        } else {
+            any_error(a, AERR_RUNTIME, "not a integer");
+        }
+    }
+    return v->v.integer;
 }
 
 static AINLINE areal_t any_to_real(aactor_t* a, aint_t idx)
 {
-    return a->stack.v[aactor_absidx(a, idx)].v.real;
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
+    if (v->tag.type != AVT_REAL) {
+        if (idx < 0) {
+            any_error(a, AERR_RUNTIME, "arg %lld isn't a real",
+                (long long int) - idx);
+        } else {
+            any_error(a, AERR_RUNTIME, "not a real");
+        }
+    }
+    return v->v.real;
 }
 
 static AINLINE apid_t any_to_pid(aactor_t* a, aint_t idx)
 {
-    return a->stack.v[aactor_absidx(a, idx)].v.pid;
+    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
+    if (v->tag.type != AVT_PID) {
+        if (idx < 0) {
+            any_error(a, AERR_RUNTIME, "arg %lld isn't a pid",
+                (long long int) - idx);
+        } else {
+            any_error(a, AERR_RUNTIME, "not a pid");
+        }
+    }
+    return v->v.pid;
 }
 
-static AINLINE anative_func_t any_to_native_func(aactor_t* a, aint_t idx)
+static AINLINE anative_func_t any_get_native_func(aactor_t* a, aint_t idx)
 {
     return a->stack.v[aactor_absidx(a, idx)].v.func;
 }

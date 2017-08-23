@@ -711,9 +711,9 @@ typedef struct {
 
 /// Collectable buffer.
 typedef struct {
-    avalue_t buff;
     aint_t cap;
     aint_t sz;
+    avalue_t buff;
 } agc_buffer_t;
 
 /// Combination of hash and length.

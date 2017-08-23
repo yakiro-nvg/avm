@@ -7,8 +7,9 @@
 extern "C" {
 #endif
 
-    ANY_API void astd_lib_add_io(
-        aloader_t* l, void(*out)(void*, const char*), void* ud);
+/// Add std-io library.
+ANY_API void astd_lib_add_io(
+    aloader_t* l, void(*out)(void*, const char*), void* ud);
 
 #ifdef __cplusplus
 } // extern "C"

@@ -38,7 +38,7 @@ TEST_CASE("std_io")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "io", "print/*");
+    any_find(a, "std-io", "print/*");
 
     SECTION("no_argument")
     {

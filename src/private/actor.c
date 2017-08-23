@@ -42,6 +42,20 @@ static AINLINE void load_ctx(aactor_t* a)
     a->frame = a->frame->prev;
 }
 
+static AINLINE void heap_gc(aactor_t* self)
+{
+    avalue_t* roots[] = {
+        self->stack.v,
+        self->msbox.v,
+        NULL
+    };
+    aint_t num_roots[] = {
+        self->stack.sp,
+        self->msbox.sp
+    };
+    agc_collect(&self->gc, roots, num_roots);
+}
+
 void ASTDCALL actor_entry(void* ud)
 {
     aframe_t frame;
@@ -283,27 +297,14 @@ void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
     any_throw(a, ec);
 }
 
-aint_t aactor_alloc(aactor_t* self, atype_t type, aint_t sz)
+aerror_t aactor_heap_reserve(aactor_t* self, aint_t more)
 {
-    agc_t* gc = &self->gc;
-    aint_t i = agc_alloc(gc, type, sz);
-    if (i >= 0) return i;
-    else {
-        avalue_t* roots[] = {
-            self->stack.v,
-            self->msbox.v,
-            NULL
-        };
-        aint_t num_roots[] = {
-            self->stack.sp,
-            self->msbox.sp
-        };
-        agc_collect(gc, roots, num_roots);
-        i = agc_alloc(gc, type, sz);
-        if (i >= 0) return i;
-        agc_reserve(gc, sz);
-        return agc_alloc(gc, type, sz);
+    aerror_t ec = agc_reserve(&self->gc, more);
+    if (ec < 0) {
+        heap_gc(self);
+        ec = agc_reserve(&self->gc, more);
     }
+    return ec;
 }
 
 aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
