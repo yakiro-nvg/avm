@@ -23,11 +23,11 @@ static AINLINE void any_push_buffer(aactor_t* a, aint_t cap)
     aactor_push(a, &v);
 }
 
-/// Get buffer pointer, available until next gc.
+/// Get buffer pointer.
 static AINLINE uint8_t* any_to_buffer(aactor_t* a, aint_t idx)
 {
     agc_buffer_t* b;
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);
 }
@@ -35,22 +35,20 @@ static AINLINE uint8_t* any_to_buffer(aactor_t* a, aint_t idx)
 /// Check if that is buffer.
 static AINLINE uint8_t* any_check_buffer(aactor_t* a, aint_t idx)
 {
+    agc_buffer_t* b;
+    avalue_t* v = aactor_at(a, idx);
     if (any_type(a, idx).type != AVT_BUFFER) {
-        if (idx < 0) {
-            any_error(a, AERR_RUNTIME, "arg %lld isn't a buffer",
-                (long long int) - idx);
-        } else {
-            any_error(a, AERR_RUNTIME, "not a buffer");
-        }
+        any_error(a, AERR_RUNTIME, "not a buffer");
     }
-    return any_to_buffer(a, idx);
+    b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
+    return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);
 }
 
 /// Returns size of buffer in bytes.
 static AINLINE aint_t any_buffer_size(aactor_t* a, aint_t idx)
 {
     agc_buffer_t* b;
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return b->sz;
 }
@@ -59,7 +57,7 @@ static AINLINE aint_t any_buffer_size(aactor_t* a, aint_t idx)
 static AINLINE aint_t any_buffer_capacity(aactor_t* a, aint_t idx)
 {
     agc_buffer_t* b;
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return b->cap;
 }

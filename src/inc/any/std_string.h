@@ -23,17 +23,27 @@ static AINLINE void any_push_string(aactor_t* a, const char* s)
     aactor_push(a, &v);
 }
 
-/// Get NULL terminated string pointer, available until next gc.
+/// Get NULL terminated string pointer.
 static AINLINE const char* agc_string_to_cstr(aactor_t* a, avalue_t* v)
 {
     agc_string_t* s = AGC_CAST(agc_string_t, &a->gc, v->v.heap_idx);
     return (const char*)(s + 1);
 }
 
-/// Get NULL terminated string pointer, available until next gc.
+/// Get NULL terminated string pointer.
 static AINLINE const char* any_to_string(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = a->stack.v + aactor_absidx(a, idx);
+    avalue_t* v = a->stack.v + idx;
+    return agc_string_to_cstr(a, v);
+}
+
+/// Get NULL terminated string pointer.
+static AINLINE const char* any_check_string(aactor_t* a, aint_t idx)
+{
+    avalue_t* v = a->stack.v + idx;
+    if (v->tag.type != AVT_STRING) {
+        any_error(a, AERR_RUNTIME, "not a string");
+    }
     return agc_string_to_cstr(a, v);
 }
 

@@ -19,10 +19,10 @@ static bool done;
 static void producer_actor(aactor_t* a)
 {
     for (aint_t i = 0; true; i += 2) {
-        any_push_idx(a, -1);
+        any_push_index(a, any_check_index(a, -1));
         any_push_integer(a, i);
         any_mbox_send(a);
-        any_push_idx(a, -1);
+        any_push_index(a, any_check_index(a, -1));
         any_push_integer(a, i + 1);
         any_mbox_send(a);
         any_yield(a);
@@ -36,8 +36,7 @@ static void consumer_actor(aactor_t* a)
         REQUIRE(AERR_NONE == any_mbox_recv(a, AINFINITE));
         any_mbox_remove(a);
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
-        REQUIRE(any_check_integer(a, 0) == i);
+        REQUIRE(any_check_integer(a, any_check_index(a, 0)) == i);
     }
     done = true;
 }
@@ -68,67 +67,69 @@ static void remove_actor(aactor_t* a)
 
     any_push_nil(a);
 
+    aint_t idx_0 = any_check_index(a, 0);
+
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, idx_0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, idx_0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, idx_0) == 3);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 4);
+    REQUIRE(any_check_integer(a, idx_0) == 4);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, idx_0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, idx_0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, idx_0) == 3);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 4);
+    REQUIRE(any_check_integer(a, idx_0) == 4);
     any_mbox_remove(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, idx_0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, idx_0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, idx_0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, idx_0) == 0);
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, idx_0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, idx_0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, idx_0) == 2);
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, idx_0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_check_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, idx_0) == 1);
     any_mbox_remove(a);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
@@ -149,11 +150,11 @@ static void string_producer_actor(aactor_t* a)
 {
     char buff[32];
     for (aint_t i = 0; true; i += 2) {
-        any_push_idx(a, -1);
+        any_push_index(a, any_check_index(a, -1));
         snprintf(buff, sizeof(buff), "string %d", (int)i);
         any_push_string(a, buff);
         any_mbox_send(a);
-        any_push_idx(a, -1);
+        any_push_index(a, any_check_index(a, -1));
         snprintf(buff, sizeof(buff), "string %d", (int)(i + 1));
         any_push_string(a, buff);
         any_mbox_send(a);
@@ -169,9 +170,9 @@ static void string_consumer_actor(aactor_t* a)
         REQUIRE(AERR_NONE == any_mbox_recv(a, AINFINITE));
         any_mbox_remove(a);
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
         snprintf(buff, sizeof(buff), "string %d", (int)i);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals(buff));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals(buff));
     }
     done = true;
 }
@@ -224,8 +225,8 @@ TEST_CASE("msbox_not_a_pid")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 1);
-    REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("target must be a pid"));
+    CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+        Catch::Equals("target must be a pid"));
 
     ascheduler_cleanup(&s);
 }
@@ -248,8 +249,8 @@ TEST_CASE("msbox_recv_to_empty_stack")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 1);
-    REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("receive to empty stack"));
+    CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+        Catch::Equals("receive to empty stack"));
 
     ascheduler_cleanup(&s);
 }
@@ -275,9 +276,9 @@ TEST_CASE("msbox_timeout")
     }
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
-    REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("timed out"));
+    REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+    CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+        Catch::Equals("timed out"));
 
     ascheduler_cleanup(&s);
 }
@@ -300,9 +301,9 @@ TEST_CASE("msbox_remove")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
-    REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("removed"));
+    REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+    CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+        Catch::Equals("removed"));
 
     ascheduler_cleanup(&s);
 }
@@ -325,8 +326,8 @@ TEST_CASE("msbox_bad_remove")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 1);
-    REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_to_string(a, 0), Catch::Equals("no message to remove"));
+    CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+        Catch::Equals("no message to remove"));
 
     ascheduler_cleanup(&s);
 }

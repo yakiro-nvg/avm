@@ -37,57 +37,62 @@ static void test(const void* buf, aint_t sz)
 static void buffer_test(aactor_t* a)
 {
     any_push_buffer(a, 8);
-    REQUIRE(any_buffer_size(a, 0) == 0);
-    REQUIRE(any_buffer_capacity(a, 0) == 8);
+
+    aint_t b_idx = any_check_index(a, 0);
+
+    REQUIRE(any_buffer_size(a, b_idx) == 0);
+    REQUIRE(any_buffer_capacity(a, b_idx) == 8);
 
     for (aint_t i = 1; i <= 100; ++i) {
         aint_t new_cap = i * 10;
-        any_buffer_reserve(a, 0, new_cap);
-        REQUIRE(any_buffer_capacity(a, 0) == new_cap);
+        any_buffer_reserve(a, b_idx, new_cap);
+        REQUIRE(any_buffer_capacity(a, b_idx) == new_cap);
     }
 
-    any_buffer_shrink_to_fit(a, 0);
-    REQUIRE(any_buffer_size(a, 0) == 0);
-    REQUIRE(any_buffer_capacity(a, 0) == 0);
+    any_buffer_shrink_to_fit(a, b_idx);
+    REQUIRE(any_buffer_size(a, b_idx) == 0);
+    REQUIRE(any_buffer_capacity(a, b_idx) == 0);
 
     for (aint_t i = 1; i <= 100; ++i) {
         aint_t new_sz = i * 10;
-        test(any_check_buffer(a, 0), any_buffer_size(a, 0));
-        any_buffer_resize(a, 0, new_sz);
-        REQUIRE(any_buffer_capacity(a, 0) >= new_sz);
-        REQUIRE(any_buffer_size(a, 0) == new_sz);
-        fill(any_check_buffer(a, 0), new_sz);
+        test(any_check_buffer(a, b_idx), any_buffer_size(a, b_idx));
+        any_buffer_resize(a, b_idx, new_sz);
+        REQUIRE(any_buffer_capacity(a, b_idx) >= new_sz);
+        REQUIRE(any_buffer_size(a, b_idx) == new_sz);
+        fill(any_check_buffer(a, b_idx), new_sz);
     }
 
-    any_buffer_shrink_to_fit(a, 0);
-    REQUIRE(any_buffer_size(a, 0) == 1000);
-    REQUIRE(any_buffer_capacity(a, 0) == 1000);
-    test(any_check_buffer(a, 0), any_buffer_size(a, 0));
+    any_buffer_shrink_to_fit(a, b_idx);
+    REQUIRE(any_buffer_size(a, b_idx) == 1000);
+    REQUIRE(any_buffer_capacity(a, b_idx) == 1000);
+    test(any_check_buffer(a, b_idx), any_buffer_size(a, b_idx));
 
     any_push_integer(a, 0xFFEE);
 }
 
 static void lib_fill(aactor_t* a, aint_t sz)
 {
+    aint_t b_idx = any_check_index(a, 0);
     for (aint_t i = 0; i < sz; ++i) {
         any_find(a, "std-buffer", "set/3");
         any_push_integer(a, i % 255);
         any_push_integer(a, i);
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 3);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
         any_pop(a, 1);
     }
 }
 
 static void lib_test(aactor_t* a, aint_t sz)
 {
+    aint_t b_idx = any_check_index(a, 0);
     for (aint_t i = 0; i < sz; ++i) {
         any_find(a, "std-buffer", "get/2");
         any_push_integer(a, i);
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 2);
-        REQUIRE(any_check_integer(a, 1) == i % 255);
+        REQUIRE(any_check_integer(a, b_idx + 1) == i % 255);
         any_pop(a, 1);
     }
 }
@@ -100,16 +105,18 @@ static void buffer_binding_test(aactor_t* a)
     any_push_integer(a, 8);
     any_call(a, 1);
 
+    aint_t b_idx = any_check_index(a, 0);
+
     any_find(a, "std-buffer", "size/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 0);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 0);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "capacity/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 8);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 8);
     any_pop(a, 1);
 
     for (aint_t i = 1; i <= 100; ++i) {
@@ -117,97 +124,97 @@ static void buffer_binding_test(aactor_t* a)
 
         any_find(a, "std-buffer", "reserve/2");
         any_push_integer(a, new_cap);
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
         any_pop(a, 1);
 
         any_find(a, "std-buffer", "capacity/1");
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 1);
-        REQUIRE(any_check_integer(a, 1) == new_cap);
+        REQUIRE(any_check_integer(a, b_idx + 1) == new_cap);
         any_pop(a, 1);
     }
 
     any_find(a, "std-buffer", "shrink_to_fit/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "size/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 0);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 0);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "capacity/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 0);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 0);
     any_pop(a, 1);
 
     for (aint_t i = 1; i <= 100; ++i) {
         aint_t new_sz = i * 10;
 
         any_find(a, "std-buffer", "size/1");
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 1);
-        buf_sz = any_check_integer(a, 1);
+        buf_sz = any_check_integer(a, b_idx + 1);
         any_pop(a, 1);
         lib_test(a, buf_sz);
 
         any_find(a, "std-buffer", "resize/2");
         any_push_integer(a, new_sz);
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
+        REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
         any_pop(a, 1);
 
-        any_buffer_resize(a, 0, new_sz);
+        any_buffer_resize(a, b_idx, new_sz);
 
         any_find(a, "std-buffer", "capacity/1");
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 1);
-        REQUIRE(any_check_integer(a, 1) >= new_sz);
+        REQUIRE(any_check_integer(a, b_idx + 1) >= new_sz);
         any_pop(a, 1);
 
         any_find(a, "std-buffer", "size/1");
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 1);
-        REQUIRE(any_check_integer(a, 1) == new_sz);
+        REQUIRE(any_check_integer(a, b_idx + 1) == new_sz);
         any_pop(a, 1);
 
         any_find(a, "std-buffer", "size/1");
-        any_push_idx(a, 0);
+        any_push_index(a, b_idx);
         any_call(a, 1);
-        buf_sz = any_check_integer(a, 1);
+        buf_sz = any_check_integer(a, b_idx + 1);
         any_pop(a, 1);
         lib_fill(a, buf_sz);
     }
 
     any_find(a, "std-buffer", "shrink_to_fit/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
+    REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "size/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 1000);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 1000);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "capacity/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    REQUIRE(any_check_integer(a, 1) == 1000);
+    REQUIRE(any_check_integer(a, b_idx + 1) == 1000);
     any_pop(a, 1);
 
     any_find(a, "std-buffer", "size/1");
-    any_push_idx(a, 0);
+    any_push_index(a, b_idx);
     any_call(a, 1);
-    buf_sz = any_check_integer(a, 1);
+    buf_sz = any_check_integer(a, b_idx + 1);
     any_pop(a, 1);
     lib_fill(a, buf_sz);
 
@@ -238,9 +245,8 @@ TEST_CASE("std_buffer")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
-    REQUIRE(any_type(a, 0).type == AVT_INTEGER);
-    REQUIRE(any_check_integer(a, 0) == 0xFFEE);
+    REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+    REQUIRE(any_check_integer(a, any_check_index(a, 0)) == 0xFFEE);
 
     ascheduler_cleanup(&s);
 }
@@ -265,9 +271,8 @@ TEST_CASE("std_buffer_binding")
     ascheduler_run_once(&s);
 
     REQUIRE(any_count(a) == 2);
-    REQUIRE(any_type(a, 1).type == AVT_NIL);
-    REQUIRE(any_type(a, 0).type == AVT_INTEGER);
-    REQUIRE(any_check_integer(a, 0) == 0xFFFA);
+    REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+    REQUIRE(any_check_integer(a, any_check_index(a, 0)) == 0xFFFA);
 
     ascheduler_cleanup(&s);
 }
@@ -314,8 +319,8 @@ TEST_CASE("std_buffer_binding_new")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad capacity -1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad capacity -1"));
     }
 
     ascheduler_cleanup(&s);
@@ -365,8 +370,8 @@ TEST_CASE("std_buffer_binding_reserve")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("arg 1 isn't a buffer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a buffer"));
     }
 
     SECTION("cap_not_a_integer")
@@ -400,9 +405,8 @@ TEST_CASE("std_buffer_binding_reserve")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("arg 2 isn't a integer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a integer"));
     }
 
     SECTION("negative_cap")
@@ -442,8 +446,8 @@ TEST_CASE("std_buffer_binding_reserve")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_check_integer(a, 0) == 8);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_check_integer(a, any_check_index(a, 0)) == 8);
     }
 
     ascheduler_cleanup(&s);
@@ -492,8 +496,8 @@ TEST_CASE("std_buffer_binding_shrink")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("arg 1 isn't a buffer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a buffer"));
     }
 
     ascheduler_cleanup(&s);
@@ -543,8 +547,8 @@ TEST_CASE("std_buffer_binding_resize")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("arg 1 isn't a buffer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a buffer"));
     }
 
     SECTION("sz_not_a_integer")
@@ -578,9 +582,8 @@ TEST_CASE("std_buffer_binding_resize")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("arg 2 isn't a integer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a integer"));
     }
 
     SECTION("negative_sz")
@@ -614,7 +617,8 @@ TEST_CASE("std_buffer_binding_resize")
 
         ascheduler_run_once(&s);
 
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad size -1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad size -1"));
     }
 
     ascheduler_cleanup(&s);
@@ -676,8 +680,8 @@ TEST_CASE("std_buffer_binding_get")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_INTEGER);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_INTEGER);
     }
 
     SECTION("bad_no_elements")
@@ -711,8 +715,8 @@ TEST_CASE("std_buffer_binding_get")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index 0"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 0"));
     }
 
     SECTION("bad_index_underflow")
@@ -753,8 +757,8 @@ TEST_CASE("std_buffer_binding_get")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index -1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index -1"));
     }
 
     SECTION("bad_index_overflow")
@@ -795,8 +799,8 @@ TEST_CASE("std_buffer_binding_get")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index 1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 1"));
     }
 
     SECTION("bad_index_not_a_integer")
@@ -837,9 +841,8 @@ TEST_CASE("std_buffer_binding_get")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("arg 2 isn't a integer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a integer"));
     }
 
     ascheduler_cleanup(&s);
@@ -902,8 +905,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
     }
 
     SECTION("bad_no_elements")
@@ -938,8 +941,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index 0"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 0"));
     }
 
     SECTION("bad_index_underflow")
@@ -981,8 +984,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index -1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index -1"));
     }
 
     SECTION("bad_index_overflow")
@@ -1024,8 +1027,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("bad index 1"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 1"));
     }
 
     SECTION("bad_index_not_a_integer")
@@ -1067,9 +1070,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("arg 2 isn't a integer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a integer"));
     }
 
     SECTION("bad_value_not_a_integer")
@@ -1111,9 +1113,8 @@ TEST_CASE("std_buffer_binding_set")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0),
-            Catch::Equals("arg 3 isn't a integer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a integer"));
     }
 
     ascheduler_cleanup(&s);
@@ -1162,8 +1163,8 @@ TEST_CASE("std_buffer_binding_size")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("arg 1 isn't a buffer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a buffer"));
     }
 
     ascheduler_cleanup(&s);
@@ -1212,8 +1213,8 @@ TEST_CASE("std_buffer_binding_capacity")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 1);
-        REQUIRE(any_type(a, 0).type == AVT_STRING);
-        CHECK_THAT(any_to_string(a, 0), Catch::Equals("arg 1 isn't a buffer"));
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not a buffer"));
     }
 
     ascheduler_cleanup(&s);

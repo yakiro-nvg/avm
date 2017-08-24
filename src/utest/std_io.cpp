@@ -46,8 +46,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals(""));
     }
 
@@ -58,8 +58,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("nil"));
     }
 
@@ -73,8 +73,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals(pid_buf));
     }
 
@@ -86,8 +86,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("falsetrue"));
     }
 
@@ -100,8 +100,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<pointer>"));
     }
 
@@ -112,8 +112,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("1024768"));
     }
 
@@ -124,8 +124,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("3.14"));
     }
 
@@ -136,8 +136,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<native function>"));
     }
 
@@ -150,8 +150,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<function>"));
     }
 
@@ -164,8 +164,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<fixed buffer>"));
     }
 
@@ -178,8 +178,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<buffer>"));
     }
 
@@ -190,8 +190,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("that's string"));
     }
 
@@ -204,8 +204,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<tuple>"));
     }
 
@@ -218,8 +218,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<array>"));
     }
 
@@ -232,8 +232,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("<table>"));
     }
 
@@ -246,8 +246,8 @@ TEST_CASE("std_io")
         ascheduler_run_once(&s);
 
         REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, 1).type == AVT_NIL);
-        REQUIRE(any_type(a, 0).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
         CHECK_THAT(output.str(), Catch::Equals("hello KITTY 123"));
     }
 

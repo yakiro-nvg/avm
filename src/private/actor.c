@@ -67,7 +67,8 @@ void ASTDCALL actor_entry(void* ud)
     a->frame = &frame;
     a->error_jmp = NULL;
     any_protected_call(a, nargs);
-    if (any_type(a, any_count(a) - 1).type != AVT_NIL && a->owner->on_panic) {
+    if (any_type(a, any_check_index(a, any_count(a) - 1)).type != AVT_NIL &&
+        a->owner->on_panic) {
         a->owner->on_panic(a);
     }
     a->flags |= APF_EXIT;

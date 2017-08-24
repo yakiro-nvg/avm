@@ -27,17 +27,18 @@ static void print(aactor_t* a)
     any_push_nil(a);
     if (out == NULL) return;
     for (i = 1; i <= nargs; ++i) {
-        switch (any_type(a, -i).type) {
+        aint_t arg_idx = any_check_index(a, -i);
+        switch (any_type(a, arg_idx).type) {
         case AVT_NIL:
             out(out_ud, "nil");
             break;
         case AVT_PID:
-            snprintf(buf, sizeof(buf), "<0x%x>", any_check_pid(a, -i));
+            snprintf(buf, sizeof(buf), "<0x%x>", any_to_pid(a, arg_idx));
             out(out_ud, buf);
             break;
         case AVT_BOOLEAN:
             snprintf(buf, sizeof(buf), "%s",
-                any_check_bool(a, -i) ? "true" : "false");
+                any_to_bool(a, arg_idx) ? "true" : "false");
             out(out_ud, buf);
             break;
         case AVT_POINTER:
@@ -45,11 +46,11 @@ static void print(aactor_t* a)
             break;
         case AVT_INTEGER:
             snprintf(buf, sizeof(buf), "%lld",
-                (long long int)any_check_integer(a, -i));
+                (long long int)any_to_integer(a, arg_idx));
             out(out_ud, buf);
             break;
         case AVT_REAL:
-            snprintf(buf, sizeof(buf), "%f", any_check_real(a, -i));
+            snprintf(buf, sizeof(buf), "%f", any_to_real(a, arg_idx));
             remove_trailing_zeroes(buf);
             out(out_ud, buf);
             break;
@@ -66,7 +67,7 @@ static void print(aactor_t* a)
             out(out_ud, "<buffer>");
             break;
         case AVT_STRING:
-            snprintf(buf, sizeof(buf), "%s", any_to_string(a, -i));
+            snprintf(buf, sizeof(buf), "%s", any_to_string(a, arg_idx));
             out(out_ud, buf);
             break;
         case AVT_TUPLE:

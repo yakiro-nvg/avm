@@ -14,7 +14,7 @@ static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
     aint_t bi = agc_alloc(&a->gc, AVT_FIXED_BUFFER, cap);
     assert(bi >= 0);
     if (ec < 0) any_error(a, AERR_RUNTIME, "out of memory");
-    v = aactor_at(a, aactor_absidx(a, idx));
+    v = aactor_at(a, idx);
     o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     assert(cap >= o->sz);
     memcpy(
@@ -25,9 +25,8 @@ static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
     av_collectable(&o->buff, AVT_FIXED_BUFFER, bi);
 }
 
-static AINLINE void check_index(aactor_t* a, aint_t idx)
+static AINLINE void check_index(aactor_t* a, aint_t idx, aint_t sz)
 {
-    aint_t sz = any_buffer_size(a, -1);
     if (idx >= sz || idx < 0) {
         any_error(a, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
@@ -35,8 +34,8 @@ static AINLINE void check_index(aactor_t* a, aint_t idx)
 
 static void lnew(aactor_t* a)
 {
-    enum { CAP = -1 };
-    aint_t cap = any_check_integer(a, CAP);
+    aint_t a_cap = any_check_index(a, -1);
+    aint_t cap = any_check_integer(a, a_cap);
     if (cap < 0) {
         any_error(a, AERR_RUNTIME, "bad capacity %lld",
             (long long int)cap);
@@ -46,43 +45,43 @@ static void lnew(aactor_t* a)
 
 static void lreserve(aactor_t* a)
 {
-    enum { SELF = -1 };
-    enum { CAP = -2 };
-    aint_t cap = any_check_integer(a, CAP);
-    any_check_buffer(a, SELF);
-    any_buffer_reserve(a, SELF, cap);
+    aint_t a_self = any_check_index(a, -1);
+    aint_t a_cap = any_check_index(a, -2);
+    aint_t cap = any_check_integer(a, a_cap);
+    any_check_buffer(a, a_self);
+    any_buffer_reserve(a, a_self, cap);
     any_push_nil(a);
 }
 
 static void lshrink_to_fit(aactor_t* a)
 {
-    enum { SELF = -1 };
-    any_check_buffer(a, SELF);
-    any_buffer_shrink_to_fit(a, SELF);
+    aint_t a_self = any_check_index(a, -1);
+    any_check_buffer(a, a_self);
+    any_buffer_shrink_to_fit(a, a_self);
     any_push_nil(a);
 }
 
 static void lresize(aactor_t* a)
 {
-    enum { SELF = -1 };
-    enum { SZ = -2 };
-    aint_t sz = any_check_integer(a, SZ);
+    aint_t a_self = any_check_index(a, -1);
+    aint_t a_sz = any_check_index(a, -2);
+    aint_t sz = any_check_integer(a, a_sz);
     if (sz < 0) {
         any_error(a, AERR_RUNTIME, "bad size %lld", (long long int)sz);
     }
-    any_check_buffer(a, SELF);
-    any_buffer_resize(a, SELF, sz);
+    any_check_buffer(a, a_self);
+    any_buffer_resize(a, a_self, sz);
     any_push_nil(a);
 }
 
 static void lget(aactor_t* a)
 {
-    enum { SELF = -1 };
-    enum { IDX = -2 };
-    uint8_t* b = any_check_buffer(a, SELF);
-    aint_t sz = any_buffer_size(a, SELF);
-    aint_t idx = any_check_integer(a, IDX);
-    check_index(a, idx);
+    aint_t a_self = any_check_index(a, -1);
+    aint_t a_idx = any_check_index(a, -2);
+    uint8_t* b = any_check_buffer(a, a_self);
+    aint_t idx = any_check_integer(a, a_idx);
+    aint_t sz = any_buffer_size(a, a_self);
+    check_index(a, idx, sz);
     any_push_integer(a, b[idx]);
 }
 
@@ -91,27 +90,30 @@ static void lset(aactor_t* a)
     enum { SELF = -1 };
     enum { INDEX = -2 };
     enum { VALUE = -3 };
-    uint8_t* b = any_check_buffer(a, SELF);
-    aint_t sz = any_buffer_size(a, SELF);
-    aint_t idx = any_check_integer(a, INDEX);
-    aint_t val = any_check_integer(a, VALUE);
-    check_index(a, idx);
+    aint_t a_self = any_check_index(a, -1);
+    aint_t a_idx = any_check_index(a, -2);
+    aint_t a_val = any_check_index(a, -3);
+    uint8_t* b = any_check_buffer(a, a_self);
+    aint_t idx = any_check_integer(a, a_idx);
+    aint_t val = any_check_integer(a, a_val);
+    aint_t sz = any_buffer_size(a, a_self);
+    check_index(a, idx, sz);
     b[idx] = (uint8_t)val;
     any_push_nil(a);
 }
 
 static void lsize(aactor_t* a)
 {
-    enum { SELF = -1 };
-    any_check_buffer(a, SELF);
-    any_push_integer(a, any_buffer_size(a, SELF));
+    aint_t a_self = any_check_index(a, -1);
+    any_check_buffer(a, a_self);
+    any_push_integer(a, any_buffer_size(a, a_self));
 }
 
 static void lcapacity(aactor_t* a)
 {
-    enum { SELF = -1 };
-    any_check_buffer(a, SELF);
-    any_push_integer(a, any_buffer_capacity(a, SELF));
+    aint_t a_self = any_check_index(a, -1);
+    any_check_buffer(a, a_self);
+    any_push_integer(a, any_buffer_capacity(a, a_self));
 }
 
 static alib_func_t funcs[] = {
@@ -157,7 +159,7 @@ aint_t agc_buffer_new(aactor_t* a, aint_t cap, avalue_t* v)
 
 void any_buffer_reserve(aactor_t* a, aint_t idx, aint_t cap)
 {
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     agc_buffer_t* o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     if (o->cap < cap) {
         set_capacity(a, idx, cap);
@@ -166,14 +168,14 @@ void any_buffer_reserve(aactor_t* a, aint_t idx, aint_t cap)
 
 void any_buffer_shrink_to_fit(aactor_t* a, aint_t idx)
 {
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     agc_buffer_t* o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     set_capacity(a, idx, o->sz);
 }
 
 void any_buffer_resize(aactor_t* a, aint_t idx, aint_t sz)
 {
-    avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
+    avalue_t* v = aactor_at(a, idx);
     agc_buffer_t* o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     assert(sz >= 0);
     if (o->cap < sz) {
@@ -181,7 +183,7 @@ void any_buffer_resize(aactor_t* a, aint_t idx, aint_t sz)
         if (new_cap == 0) new_cap = INIT_GROW;
         while (new_cap < sz) new_cap *= GROW_FACTOR;
         set_capacity(a, idx, new_cap);
-        v = aactor_at(a, aactor_absidx(a, idx));
+        v = aactor_at(a, idx);
         o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     }
     assert(o->cap >= sz);

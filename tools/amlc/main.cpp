@@ -82,7 +82,7 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
 
 static void on_panic(aactor_t* a)
 {
-    aint_t ev_idx = any_count(a) - 1;
+    aint_t ev_idx = any_check_index(a, any_count(a) - 1);
     if (any_type(a, ev_idx).type == AVT_STRING) {
         std::cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
             any_to_string(a, ev_idx) << "\n";

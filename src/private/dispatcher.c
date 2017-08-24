@@ -48,10 +48,10 @@ void actor_dispatch(aactor_t* a)
             any_push_integer(a, i->lsi.val);
             break;
         case AOC_LLV:
-            any_push_idx(a, i->llv.idx);
+            any_push_index(a, any_check_index(a, i->llv.idx));
             break;
         case AOC_SLV:
-            any_insert(a, i->slv.idx);
+            any_insert(a, any_check_index(a, i->slv.idx));
             break;
         case AOC_IMP:
             if (i->imp.idx < 0 || i->imp.idx >= pth->num_imports) {
