@@ -114,8 +114,8 @@ static void execute(
 
     astd_lib_add_io(
         &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
-
     astd_lib_add_buffer(&s.loader);
+    astd_lib_add_string(&s.loader);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];

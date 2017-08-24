@@ -2,7 +2,6 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <any/rt_types.h>
 #include <any/list.h>
 
 struct test_node
