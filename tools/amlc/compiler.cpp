@@ -260,7 +260,7 @@ static std::string lookahead(amlc_ctx_t& ctx, int nchars)
 
 static void skip_whitespace(amlc_ctx_t& ctx, bool line)
 {
-    while (isspace(*ctx.s) || *ctx.s == '/' || *ctx.s == ',') {
+    while (isspace(*ctx.s) || *ctx.s == '/' || *ctx.s == '%') {
         if (*ctx.s == '\n') {
             if (line == false) return;
             ++ctx.line;
@@ -271,7 +271,7 @@ static void skip_whitespace(amlc_ctx_t& ctx, bool line)
                 ctx.column += 3;
             }
             advance(ctx);
-        } else if (*ctx.s == ';') { // semicolon style comment
+        } else if (*ctx.s == '%') { // percent sign style comment
             while (*ctx.s && *ctx.s != '\n') {
                 advance(ctx);
             }
