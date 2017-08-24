@@ -36,7 +36,7 @@ static AINLINE void check_index(aactor_t* a, aint_t idx)
 static void lnew(aactor_t* a)
 {
     enum { CAP = -1 };
-    aint_t cap = any_to_integer(a, CAP);
+    aint_t cap = any_check_integer(a, CAP);
     if (cap < 0) {
         any_error(a, AERR_RUNTIME, "bad capacity %lld",
             (long long int)cap);
@@ -48,7 +48,7 @@ static void lreserve(aactor_t* a)
 {
     enum { SELF = -1 };
     enum { CAP = -2 };
-    aint_t cap = any_to_integer(a, CAP);
+    aint_t cap = any_check_integer(a, CAP);
     any_check_buffer(a, SELF);
     any_buffer_reserve(a, SELF, cap);
     any_push_nil(a);
@@ -66,7 +66,7 @@ static void lresize(aactor_t* a)
 {
     enum { SELF = -1 };
     enum { SZ = -2 };
-    aint_t sz = any_to_integer(a, SZ);
+    aint_t sz = any_check_integer(a, SZ);
     if (sz < 0) {
         any_error(a, AERR_RUNTIME, "bad size %lld", (long long int)sz);
     }
@@ -79,13 +79,11 @@ static void lget(aactor_t* a)
 {
     enum { SELF = -1 };
     enum { IDX = -2 };
-    any_check_buffer(a, SELF);
-    {
-        aint_t sz = any_buffer_size(a, SELF);
-        aint_t idx = any_to_integer(a, IDX);
-        check_index(a, idx);
-        any_push_integer(a, any_get_buffer(a, SELF)[idx]);
-    }
+    uint8_t* b = any_check_buffer(a, SELF);
+    aint_t sz = any_buffer_size(a, SELF);
+    aint_t idx = any_check_integer(a, IDX);
+    check_index(a, idx);
+    any_push_integer(a, b[idx]);
 }
 
 static void lset(aactor_t* a)
@@ -93,15 +91,13 @@ static void lset(aactor_t* a)
     enum { SELF = -1 };
     enum { INDEX = -2 };
     enum { VALUE = -3 };
-    any_check_buffer(a, SELF);
-    {
-        aint_t sz = any_buffer_size(a, SELF);
-        aint_t idx = any_to_integer(a, INDEX);
-        aint_t val = any_to_integer(a, VALUE);
-        check_index(a, idx);
-        any_get_buffer(a, SELF)[idx] = (uint8_t)val;
-        any_push_nil(a);
-    }
+    uint8_t* b = any_check_buffer(a, SELF);
+    aint_t sz = any_buffer_size(a, SELF);
+    aint_t idx = any_check_integer(a, INDEX);
+    aint_t val = any_check_integer(a, VALUE);
+    check_index(a, idx);
+    b[idx] = (uint8_t)val;
+    any_push_nil(a);
 }
 
 static void lsize(aactor_t* a)

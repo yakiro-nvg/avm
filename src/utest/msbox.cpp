@@ -37,7 +37,7 @@ static void consumer_actor(aactor_t* a)
         any_mbox_remove(a);
         REQUIRE(any_count(a) == 1);
         REQUIRE(any_type(a, 0).type == AVT_INTEGER);
-        REQUIRE(any_to_integer(a, 0) == i);
+        REQUIRE(any_check_integer(a, 0) == i);
     }
     done = true;
 }
@@ -69,66 +69,66 @@ static void remove_actor(aactor_t* a)
     any_push_nil(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, 0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, 0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, 0) == 3);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 4);
+    REQUIRE(any_check_integer(a, 0) == 4);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, 0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, 0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, 0) == 3);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 4);
+    REQUIRE(any_check_integer(a, 0) == 4);
     any_mbox_remove(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, 0) == 0);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, 0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, 0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 0);
+    REQUIRE(any_check_integer(a, 0) == 0);
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, 0) == 2);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, 0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
 
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 2);
+    REQUIRE(any_check_integer(a, 0) == 2);
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 3);
+    REQUIRE(any_check_integer(a, 0) == 3);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_remove(a);
     REQUIRE(AERR_NONE == any_mbox_recv(a, ADONT_WAIT));
-    REQUIRE(any_to_integer(a, 0) == 1);
+    REQUIRE(any_check_integer(a, 0) == 1);
     any_mbox_remove(a);
     REQUIRE(AERR_TIMEOUT == any_mbox_recv(a, ADONT_WAIT));
     any_mbox_rewind(a);
@@ -171,7 +171,7 @@ static void string_consumer_actor(aactor_t* a)
         REQUIRE(any_count(a) == 1);
         REQUIRE(any_type(a, 0).type == AVT_STRING);
         snprintf(buff, sizeof(buff), "string %d", (int)i);
-        CHECK_THAT(any_get_string(a, 0), Catch::Equals(buff));
+        CHECK_THAT(any_to_string(a, 0), Catch::Equals(buff));
     }
     done = true;
 }
@@ -225,7 +225,7 @@ TEST_CASE("msbox_not_a_pid")
 
     REQUIRE(any_count(a) == 1);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("target must be a pid"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("target must be a pid"));
 
     ascheduler_cleanup(&s);
 }
@@ -249,7 +249,7 @@ TEST_CASE("msbox_recv_to_empty_stack")
 
     REQUIRE(any_count(a) == 1);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("receive to empty stack"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("receive to empty stack"));
 
     ascheduler_cleanup(&s);
 }
@@ -277,7 +277,7 @@ TEST_CASE("msbox_timeout")
     REQUIRE(any_count(a) == 2);
     REQUIRE(any_type(a, 1).type == AVT_NIL);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("timed out"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("timed out"));
 
     ascheduler_cleanup(&s);
 }
@@ -302,7 +302,7 @@ TEST_CASE("msbox_remove")
     REQUIRE(any_count(a) == 2);
     REQUIRE(any_type(a, 1).type == AVT_NIL);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("removed"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("removed"));
 
     ascheduler_cleanup(&s);
 }
@@ -326,7 +326,7 @@ TEST_CASE("msbox_bad_remove")
 
     REQUIRE(any_count(a) == 1);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("no message to remove"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("no message to remove"));
 
     ascheduler_cleanup(&s);
 }

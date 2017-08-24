@@ -48,7 +48,7 @@ static void string_test(aactor_t* a)
     for (aint_t i = 0; i < 10000; ++i) {
         if (i % 2 == 0) continue;
         snprintf(buff, sizeof(buff), "string %d", (int)i);
-        CHECK_THAT(any_get_string(a, i), Catch::Equals(buff));
+        CHECK_THAT(any_to_string(a, i), Catch::Equals(buff));
     }
     any_push_string(a, "ok");
 }
@@ -73,7 +73,7 @@ TEST_CASE("std_string")
     REQUIRE(any_count(a) == 2);
     REQUIRE(any_type(a, 1).type == AVT_NIL);
     REQUIRE(any_type(a, 0).type == AVT_STRING);
-    CHECK_THAT(any_get_string(a, 0), Catch::Equals("ok"));
+    CHECK_THAT(any_to_string(a, 0), Catch::Equals("ok"));
 
     ascheduler_cleanup(&s);
 }

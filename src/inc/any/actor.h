@@ -153,7 +153,7 @@ static AINLINE void any_push_idx(aactor_t* a, aint_t idx)
     aactor_push(a, a->stack.v + aactor_absidx(a, idx));
 }
 
-static AINLINE int32_t any_to_bool(aactor_t* a, aint_t idx)
+static AINLINE int32_t any_check_bool(aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     if (v->tag.type != AVT_BOOLEAN) {
@@ -167,7 +167,7 @@ static AINLINE int32_t any_to_bool(aactor_t* a, aint_t idx)
     return v->v.boolean;
 }
 
-static AINLINE aint_t any_to_integer(aactor_t* a, aint_t idx)
+static AINLINE aint_t any_check_integer(aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     if (v->tag.type != AVT_INTEGER) {
@@ -181,7 +181,7 @@ static AINLINE aint_t any_to_integer(aactor_t* a, aint_t idx)
     return v->v.integer;
 }
 
-static AINLINE areal_t any_to_real(aactor_t* a, aint_t idx)
+static AINLINE areal_t any_check_real(aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     if (v->tag.type != AVT_REAL) {
@@ -195,7 +195,7 @@ static AINLINE areal_t any_to_real(aactor_t* a, aint_t idx)
     return v->v.real;
 }
 
-static AINLINE apid_t any_to_pid(aactor_t* a, aint_t idx)
+static AINLINE apid_t any_check_pid(aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + aactor_absidx(a, idx);
     if (v->tag.type != AVT_PID) {
@@ -209,7 +209,7 @@ static AINLINE apid_t any_to_pid(aactor_t* a, aint_t idx)
     return v->v.pid;
 }
 
-static AINLINE anative_func_t any_get_native_func(aactor_t* a, aint_t idx)
+static AINLINE anative_func_t any_to_native_func(aactor_t* a, aint_t idx)
 {
     return a->stack.v[aactor_absidx(a, idx)].v.func;
 }

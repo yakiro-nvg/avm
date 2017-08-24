@@ -24,7 +24,7 @@ static AINLINE void any_push_buffer(aactor_t* a, aint_t cap)
 }
 
 /// Get buffer pointer, available until next gc.
-static AINLINE uint8_t* any_get_buffer(aactor_t* a, aint_t idx)
+static AINLINE uint8_t* any_to_buffer(aactor_t* a, aint_t idx)
 {
     agc_buffer_t* b;
     avalue_t* v = aactor_at(a, aactor_absidx(a, idx));
@@ -33,7 +33,7 @@ static AINLINE uint8_t* any_get_buffer(aactor_t* a, aint_t idx)
 }
 
 /// Check if that is buffer.
-static AINLINE void any_check_buffer(aactor_t* a, aint_t idx)
+static AINLINE uint8_t* any_check_buffer(aactor_t* a, aint_t idx)
 {
     if (any_type(a, idx).type != AVT_BUFFER) {
         if (idx < 0) {
@@ -43,6 +43,7 @@ static AINLINE void any_check_buffer(aactor_t* a, aint_t idx)
             any_error(a, AERR_RUNTIME, "not a buffer");
         }
     }
+    return any_to_buffer(a, idx);
 }
 
 /// Returns size of buffer in bytes.
