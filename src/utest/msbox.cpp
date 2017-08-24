@@ -2,7 +2,6 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <any/rt_types.h>
 #include <any/actor.h>
 #include <any/scheduler.h>
 #include <any/std_string.h>

@@ -2,7 +2,6 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <any/rt_types.h>
 #include <any/scheduler.h>
 
 static void* myalloc(void*, void* old, aint_t sz)

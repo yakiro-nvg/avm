@@ -2,8 +2,6 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <stdlib.h>
-#include <string.h>
 #include <any/asm.h>
 #include <any/string_table.h>
 

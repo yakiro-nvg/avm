@@ -2,9 +2,7 @@
 #include <any/platform.h>
 #include <catch.hpp>
 
-#include <any/rt_types.h>
 #include <any/asm.h>
-#include <any/gc.h>
 #include <any/scheduler.h>
 #include <any/loader.h>
 #include <any/actor.h>
