@@ -174,7 +174,7 @@ static AINLINE int32_t any_check_bool(aactor_t* a, aint_t idx)
     avalue_t* v = a->stack.v + idx;
     ANY_ASSERT_IDX(a, idx);
     if (v->tag.type != AVT_BOOLEAN) {
-        any_error(a, AERR_RUNTIME, "not a boolean");
+        any_error(a, AERR_RUNTIME, "not boolean");
     }
     return v->v.boolean;
 }
@@ -190,7 +190,7 @@ static AINLINE aint_t any_check_integer(aactor_t* a, aint_t idx)
     avalue_t* v = a->stack.v + idx;
     ANY_ASSERT_IDX(a, idx);
     if (v->tag.type != AVT_INTEGER) {
-        any_error(a, AERR_RUNTIME, "not a integer");
+        any_error(a, AERR_RUNTIME, "not integer");
     }
     return v->v.integer;
 }
@@ -206,7 +206,7 @@ static AINLINE areal_t any_check_real(aactor_t* a, aint_t idx)
     avalue_t* v = a->stack.v + idx;
     ANY_ASSERT_IDX(a, idx);
     if (v->tag.type != AVT_REAL) {
-        any_error(a, AERR_RUNTIME, "not a real");
+        any_error(a, AERR_RUNTIME, "not real");
     }
     return v->v.real;
 }
@@ -222,7 +222,7 @@ static AINLINE apid_t any_check_pid(aactor_t* a, aint_t idx)
     avalue_t* v = a->stack.v + idx;
     ANY_ASSERT_IDX(a, idx);
     if (v->tag.type != AVT_PID) {
-        any_error(a, AERR_RUNTIME, "not a pid");
+        any_error(a, AERR_RUNTIME, "not pid");
     }
     return v->v.pid;
 }

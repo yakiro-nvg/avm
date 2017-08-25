@@ -38,7 +38,7 @@ static AINLINE uint8_t* any_check_buffer(aactor_t* a, aint_t idx)
     agc_buffer_t* b;
     avalue_t* v = aactor_at(a, idx);
     if (any_type(a, idx).type != AVT_BUFFER) {
-        any_error(a, AERR_RUNTIME, "not a buffer");
+        any_error(a, AERR_RUNTIME, "not buffer");
     }
     b = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     return AGC_CAST(uint8_t, &a->gc, b->buff.v.heap_idx);

@@ -154,7 +154,7 @@ TEST_CASE("std_string_binding_length")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a string"));
+            Catch::Equals("not string"));
     }
 
     ascheduler_cleanup(&s);
@@ -237,7 +237,7 @@ TEST_CASE("std_string_binding_hash")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a string"));
+            Catch::Equals("not string"));
     }
 
     ascheduler_cleanup(&s);
@@ -328,7 +328,7 @@ TEST_CASE("std_string_binding_get")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a string"));
+            Catch::Equals("not string"));
     }
 
     SECTION("no_elements")
@@ -517,7 +517,7 @@ TEST_CASE("std_string_binding_concat")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a string"));
+            Catch::Equals("not string"));
     }
 
     SECTION("lhs_not_a_string")
@@ -550,7 +550,7 @@ TEST_CASE("std_string_binding_concat")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a string"));
+            Catch::Equals("not string"));
     }
 
     ascheduler_cleanup(&s);

@@ -365,7 +365,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a buffer"));
+            Catch::Equals("not buffer"));
     }
 
     SECTION("cap_not_a_integer")
@@ -400,7 +400,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a integer"));
+            Catch::Equals("not integer"));
     }
 
     SECTION("negative_cap")
@@ -492,7 +492,7 @@ TEST_CASE("std_buffer_binding_shrink")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a buffer"));
+            Catch::Equals("not buffer"));
     }
 
     ascheduler_cleanup(&s);
@@ -544,7 +544,7 @@ TEST_CASE("std_buffer_binding_resize")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a buffer"));
+            Catch::Equals("not buffer"));
     }
 
     SECTION("sz_not_a_integer")
@@ -579,7 +579,7 @@ TEST_CASE("std_buffer_binding_resize")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a integer"));
+            Catch::Equals("not integer"));
     }
 
     SECTION("negative_sz")
@@ -839,7 +839,7 @@ TEST_CASE("std_buffer_binding_get")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a integer"));
+            Catch::Equals("not integer"));
     }
 
     ascheduler_cleanup(&s);
@@ -1069,7 +1069,7 @@ TEST_CASE("std_buffer_binding_set")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a integer"));
+            Catch::Equals("not integer"));
     }
 
     SECTION("bad_value_not_a_integer")
@@ -1112,7 +1112,7 @@ TEST_CASE("std_buffer_binding_set")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a integer"));
+            Catch::Equals("not integer"));
     }
 
     ascheduler_cleanup(&s);
@@ -1163,7 +1163,7 @@ TEST_CASE("std_buffer_binding_size")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a buffer"));
+            Catch::Equals("not buffer"));
     }
 
     ascheduler_cleanup(&s);
@@ -1214,7 +1214,7 @@ TEST_CASE("std_buffer_binding_capacity")
 
         REQUIRE(any_count(a) == 1);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("not a buffer"));
+            Catch::Equals("not buffer"));
     }
 
     ascheduler_cleanup(&s);

@@ -47,7 +47,7 @@ static AINLINE const char* any_check_string(aactor_t* a, aint_t idx)
     agc_string_t* s;
     avalue_t* v = a->stack.v + idx;
     if (v->tag.type != AVT_STRING) {
-        any_error(a, AERR_RUNTIME, "not a string");
+        any_error(a, AERR_RUNTIME, "not string");
     }
     s = AGC_CAST(agc_string_t, &a->gc, v->v.heap_idx);
     return (const char*)(s + 1);
