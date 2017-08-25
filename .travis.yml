@@ -2,6 +2,15 @@ language: cpp
 sudo: false
 dist: trusty
 
+notifications:
+  webhooks: 
+    - secure: "jPW63N8mmDanG8WkMiq1tdpfOz+F85W5/iAtupntrbO93dSLv8eNEhIfH1yQNE8ezKx3DRO8VJcu4wRHZb3U5sNjBTp23u7UWqsWPgvvO5vcNrPboxDpDizEiptF2W6kejQptR/LD5Yo+VqAw6Y40ldSCIcQakfiyyQ2H5bsXg9nHvZP1s0jOGx4DBJxL2JhZ2Q1nijEPetWczp2ji17yxgieTGBUCIimcQTqgsGbbdWNYqEDyFHmErgoHJIYhQGryvjGK+FYrDbCKtqKypFG/nWFLgEsE09PfhRCZ0Gb5yBne9iMxCgKi8yREJhlF9gotXtuJdWRyr7/0n4M47GljqIVaz3QRFqEfd93K+3is2BwhkhKqC1JL8SSX1gohpnOGUsSm3ENMNN3GChhcmhFS6tYNg0BJjRPn8otEaUY3y4i/cy6S/4SZngziCA+ufZLffX9r7p3TYp/s/916gnZakBw3q9ZlGfUV0rOt2MGbksKti1uEcySRwkip9mLp0Ni7iKkmJBzTqfISXPBK18rVOT4t+4bEphtf/OURY8b+Cbxw/lqtIQnYpNfNoPNfphGn3+wyxPx1Qq4A7oiGz0Pe08kX+gygNctWCPCD9la9Sd85p6kfviUqFjbZcGj09YyOx/h3dYYOq5TqyF07vNXoF+yQjFBuOcIv+X87G5uQc="
+  on_success: change
+  on_failure: always
+  on_start: change
+  on_cancel: always
+  on_error: always
+
 matrix:
   include:
     # 1/ Linux Clang Builds
