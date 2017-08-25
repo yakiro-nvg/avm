@@ -102,10 +102,10 @@ matrix:
       addons: 
         apt:
           sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-4.6', 'lcov']
+          packages: ['cmake', 'g++-4.9', 'lcov']
       env: 
         - |
-          COMPILER='g++-4.6' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
+          COMPILER='g++-4.9' BUILD_TYPE='Debug' CHECK_COVERAGE='On'
           CC_TEST_REPORTER_ID=9dc79ec67e0d8ace1a24b2fa04db9ecfa91a9c7e838c9790d5833d42f1dac663
           GIT_COMMITTED_AT=$(if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then git log -1 --pretty=format:%ct; else git log -1 --skip 1 --pretty=format:%ct; fi)
 
