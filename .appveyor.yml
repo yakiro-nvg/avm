@@ -14,8 +14,8 @@ environment:
   matrix:
   - { TOOLSET: 'Visual Studio 15 2017',       AMLC: 'On'  }
   - { TOOLSET: 'Visual Studio 15 2017 Win64', AMLC: 'On'  }
-  - { TOOLSET: 'Visual Studio 14 2015',       AMLC: 'Off' }
-  - { TOOLSET: 'Visual Studio 14 2015 Win64', AMLC: 'Off' }
+  - { TOOLSET: 'Visual Studio 14 2015',       AMLC: 'On'  }
+  - { TOOLSET: 'Visual Studio 14 2015 Win64', AMLC: 'On'  }
   - { TOOLSET: 'Visual Studio 12 2013',       AMLC: 'Off' }
   - { TOOLSET: 'Visual Studio 12 2013 Win64', AMLC: 'Off' }
   - { TOOLSET: 'Visual Studio 11 2012',       AMLC: 'Off' }
