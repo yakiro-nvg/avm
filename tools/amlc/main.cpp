@@ -13,6 +13,7 @@
 #include <any/std_io.h>
 #include <any/std_string.h>
 #include <any/std_buffer.h>
+#include <any/std_array.h>
 
 #include "compiler.h"
 
@@ -114,8 +115,9 @@ static void execute(
 
     astd_lib_add_io(
         &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
-    astd_lib_add_buffer(&s.loader);
     astd_lib_add_string(&s.loader);
+    astd_lib_add_buffer(&s.loader);
+    astd_lib_add_array(&s.loader);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];

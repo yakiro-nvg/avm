@@ -734,16 +734,16 @@ typedef struct {
 
 /// Collectable array.
 typedef struct {
-    avalue_t buff;
     aint_t cap;
     aint_t sz;
+    avalue_t buff;
 } agc_array_t;
 
 /// Collectable map.
 typedef struct {
-    avalue_t buff;
     aint_t cap;
     aint_t sz;
+    avalue_t buff;
 } agc_map_t;
 
 #pragma pack(push, 1)

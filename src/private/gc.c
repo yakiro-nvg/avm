@@ -36,6 +36,15 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
     v->v.heap_idx = ogch->forwared;
 }
 
+static AINLINE void copy_array(agc_t* self, agc_array_t* o)
+{
+    aint_t i;
+    avalue_t* elements = AGC_CAST(avalue_t, self, o->buff.v.heap_idx);
+    for (i = 0; i < o->sz; ++i) {
+        copy(self, elements + i);
+    }
+}
+
 static AINLINE void scan(agc_t* self, agc_header_t* gch)
 {
     switch (gch->type) {
@@ -48,14 +57,23 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
     case AVT_NATIVE_FUNC:
     case AVT_BYTE_CODE_FUNC:
     case AVT_FIXED_BUFFER:
-    case AVT_STRING:
         // nop
         break;
     case AVT_BUFFER:
         copy(self, &((agc_buffer_t*)(gch + 1))->buff);
         break;
+    case AVT_STRING:
+        // nop
+        break;
     case AVT_TUPLE:
-    case AVT_ARRAY:
+        assert(!"TODO");
+        break;
+    case AVT_ARRAY: {
+        agc_array_t* o = (agc_array_t*)(gch + 1);
+        copy_array(self, o);
+        copy(self, &o->buff);
+        break;
+    }
     case AVT_TABLE:
         assert(!"TODO");
         break;
