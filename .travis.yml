@@ -114,19 +114,19 @@ matrix:
       addons: 
         apt:
           sources: ['george-edison55-precise-backports']
-          packages: ['cmake', 'cmake-data', 'g++-4.6']
+          packages: ['cmake', 'cmake-data', 'g++-4.9']
       env: 
         - |
-          COMPILER='g++-4.6' AMLC='On' BUILD_TYPE='Debug'
+          COMPILER='g++-4.9' AMLC='On' BUILD_TYPE='Debug'
     - os: linux
       compiler: gcc
       addons: 
         apt:
           sources: ['george-edison55-precise-backports']
-          packages: ['cmake', 'cmake-data', 'g++-4.6']
+          packages: ['cmake', 'cmake-data', 'g++-4.9']
       env: 
         - |
-          COMPILER='g++-4.6' AMLC='On' BUILD_TYPE='Release'
+          COMPILER='g++-4.9' AMLC='On' BUILD_TYPE='Release'
 
 before_install:
   - |
@@ -162,7 +162,7 @@ script:
     set -e
     make -j 2
     if [[ "${CHECK_COVERAGE}" == "On" ]]; then
-      ./cc-test-reporter before-build
+      ../cc-test-reporter before-build
       make coverage
     else
       ctest -V --timeout 30
