@@ -1,17 +1,8 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
-#include <stdlib.h>
 #include <any/scheduler.h>
 #include <any/actor.h>
-
-enum { CSTACK_SZ = 8192 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void nop(aactor_t* a)
 {
@@ -35,6 +26,7 @@ TEST_CASE("scheduler_new_process")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     for (aint_t i = 0; i < 10; ++i) {
         spawn_new(&s);

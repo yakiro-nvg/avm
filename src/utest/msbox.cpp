@@ -1,17 +1,9 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/actor.h>
 #include <any/scheduler.h>
 #include <any/std_string.h>
-
-enum { CSTACK_SZ = 16384*2 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static bool done;
 
@@ -185,6 +177,7 @@ TEST_CASE("msbox_normal")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* ca;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &ca));
@@ -214,6 +207,7 @@ TEST_CASE("msbox_not_a_pid")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -239,6 +233,7 @@ TEST_CASE("msbox_recv_to_empty_stack")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -263,6 +258,7 @@ TEST_CASE("msbox_timeout")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -291,6 +287,7 @@ TEST_CASE("msbox_remove")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -316,6 +313,7 @@ TEST_CASE("msbox_bad_remove")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -340,6 +338,7 @@ TEST_CASE("msbox_string")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* ca;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &ca));

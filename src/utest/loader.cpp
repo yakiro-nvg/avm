@@ -1,15 +1,9 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/asm.h>
 #include <any/loader.h>
 #include <any/list.h>
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void push_module_a(aasm_t* a)
 {

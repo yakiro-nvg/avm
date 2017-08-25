@@ -1,6 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/asm.h>
 #include <any/scheduler.h>
@@ -8,13 +7,6 @@
 #include <any/actor.h>
 #include <any/std_buffer.h>
 #include <any/std_string.h>
-
-enum { CSTACK_SZ = 16384*2 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void fill(const void* buf, aint_t sz)
 {
@@ -234,6 +226,7 @@ TEST_CASE("std_buffer")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -258,6 +251,7 @@ TEST_CASE("std_buffer_binding")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -289,6 +283,7 @@ TEST_CASE("std_buffer_binding_new")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -339,6 +334,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -466,6 +462,7 @@ TEST_CASE("std_buffer_binding_shrink")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -516,6 +513,7 @@ TEST_CASE("std_buffer_binding_resize")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -637,6 +635,7 @@ TEST_CASE("std_buffer_binding_get")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -861,6 +860,7 @@ TEST_CASE("std_buffer_binding_set")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -1133,6 +1133,7 @@ TEST_CASE("std_buffer_binding_size")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -1183,6 +1184,7 @@ TEST_CASE("std_buffer_binding_capacity")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     astd_lib_add_buffer(&s.loader);
 

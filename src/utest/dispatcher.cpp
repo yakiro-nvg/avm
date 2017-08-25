@@ -1,19 +1,11 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/asm.h>
 #include <any/loader.h>
 #include <any/scheduler.h>
 #include <any/actor.h>
 #include <any/std_string.h>
-
-enum { CSTACK_SZ = 8192 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void add_test_module(aasm_t* a)
 {
@@ -34,6 +26,7 @@ TEST_CASE("dispatcher_loop")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("no_instructions")
     {
@@ -121,6 +114,7 @@ TEST_CASE("dispatcher_ldk")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("no_constant")
     {
@@ -297,6 +291,7 @@ TEST_CASE("dispatcher_nil")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     REQUIRE(AERR_NONE ==
         aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
@@ -330,6 +325,7 @@ TEST_CASE("dispatcher_ldb")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));;
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("false")
     {
@@ -417,6 +413,7 @@ TEST_CASE("dispatcher_lsi")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("zero")
     {
@@ -504,6 +501,7 @@ TEST_CASE("dispatcher_pop")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aasm_module_push(&as, "test_f");
     aasm_emit(&as, ai_lsi(1969));
@@ -548,6 +546,7 @@ TEST_CASE("dispatcher_llv_slv")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     int pop_num;
 
@@ -616,6 +615,7 @@ TEST_CASE("dispatcher_imp")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     alib_func_t nfuncs[] = {
         { "f0", (anative_func_t)0xF0 },
@@ -806,6 +806,7 @@ TEST_CASE("dispatcher_jmp")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("normal")
     {
@@ -905,6 +906,7 @@ TEST_CASE("dispatcher_jin")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("true")
     {
@@ -1084,6 +1086,7 @@ TEST_CASE("dispatcher_mkc_ivk")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     SECTION("normal_fefe")
     {
@@ -1172,6 +1175,7 @@ TEST_CASE("dispatcher_msbox")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aasm_module_push(&as, "test_f");
 

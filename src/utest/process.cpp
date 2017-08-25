@@ -1,13 +1,7 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/scheduler.h>
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 TEST_CASE("process_allocation")
 {
@@ -17,6 +11,7 @@ TEST_CASE("process_allocation")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     // empty
     for (apid_gen_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {

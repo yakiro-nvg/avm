@@ -1,18 +1,9 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
-#include <any/rt_types.h>
 #include <any/actor.h>
 #include <any/scheduler.h>
 #include <any/std_string.h>
-
-enum { CSTACK_SZ = 16384 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void try_throw6(aactor_t*, void* ud)
 {
@@ -186,6 +177,7 @@ TEST_CASE("process_try_throw")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -205,6 +197,7 @@ TEST_CASE("process_stack")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -231,6 +224,7 @@ TEST_CASE("process_call_non_function")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -255,6 +249,7 @@ TEST_CASE("process_spawn")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     num_spawn_tests = 0;
 

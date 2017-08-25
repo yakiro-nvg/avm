@@ -1,10 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
-
-#include <any/rt_types.h>
-
-enum { CSTACK_SZ = 8192 };
+#include "prereq.h"
 
 struct ctx_t
 {

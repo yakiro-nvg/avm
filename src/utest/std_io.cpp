@@ -1,6 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/scheduler.h>
 #include <any/actor.h>
@@ -8,13 +7,6 @@
 #include <any/std_string.h>
 
 #include <sstream>
-
-enum { CSTACK_SZ = 8192 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void out(void* ud, const char* s)
 {
@@ -31,6 +23,7 @@ TEST_CASE("std_io")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
 
     std::stringstream output;
 

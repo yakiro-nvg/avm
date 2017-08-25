@@ -1,17 +1,11 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
+
+#include <vector>
 
 #include <any/scheduler.h>
 #include <any/actor.h>
 #include <any/gc.h>
-
-enum { CSTACK_SZ = 16384 };
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static bool search_for(agc_t* gc, aint_t i)
 {

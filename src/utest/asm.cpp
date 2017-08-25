@@ -1,16 +1,8 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include <any/platform.h>
-#include <catch.hpp>
+#include "prereq.h"
 
 #include <any/asm.h>
 #include <any/string_table.h>
-
-#define REQUIRE_STR_EQUALS(a, b) REQUIRE(strcmp(a, b) == 0)
-
-static void* myalloc(void*, void* old, aint_t sz)
-{
-    return realloc(old, (size_t)sz);
-}
 
 static void num_vs_capacity_check(aasm_prototype_t* p)
 {
@@ -136,12 +128,18 @@ static void basic_check(aasm_t* a, basic_test_ctx& t)
     REQUIRE(c.constants[2].real == t.creal.real);
 
     REQUIRE(p->num_imports == 3);
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[0].module), "tim0");
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[0].name), "tin0");
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[1].module), "tim1");
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[1].name), "tin1");
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[2].module), "tim2");
-    REQUIRE_STR_EQUALS(astring_table_to_string(a->st, c.imports[2].name), "tin2");
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[0].module),
+        Catch::Equals("tim0"));
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[0].name),
+        Catch::Equals("tin0"));
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[1].module),
+        Catch::Equals("tim1"));
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[1].name),
+        Catch::Equals("tin1"));
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[2].module),
+        Catch::Equals("tim2"));
+    CHECK_THAT(astring_table_to_string(a->st, c.imports[2].name),
+        Catch::Equals("tin2"));
 }
 
 static void require_equals(aasm_t* a1, aasm_t* a2)
@@ -151,12 +149,12 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
     aasm_current_t c1 = aasm_resolve(a1);
     aasm_current_t c2 = aasm_resolve(a2);
 
-    REQUIRE_STR_EQUALS(
+    CHECK_THAT(
         astring_table_to_string(a1->st, p1->source),
-        astring_table_to_string(a2->st, p2->source));
-    REQUIRE_STR_EQUALS(
+        Catch::Equals(astring_table_to_string(a2->st, p2->source)));
+    CHECK_THAT(
         astring_table_to_string(a1->st, p1->symbol),
-        astring_table_to_string(a2->st, p2->symbol));
+        Catch::Equals(astring_table_to_string(a2->st, p2->symbol)));
 
     REQUIRE(p1->num_nesteds == p2->num_nesteds);
 
@@ -175,9 +173,10 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
             REQUIRE(c1.constants[i].integer == c2.constants[i].integer);
             break;
         case ACT_STRING:
-            REQUIRE_STR_EQUALS(
+            CHECK_THAT(
                 astring_table_to_string(a1->st, c1.constants[i].string),
-                astring_table_to_string(a2->st, c2.constants[i].string));
+                Catch::Equals(
+                    astring_table_to_string(a2->st, c2.constants[i].string)));
             break;
         case ACT_REAL:
             REQUIRE(c1.constants[i].real == c2.constants[i].real);
@@ -187,12 +186,14 @@ static void require_equals(aasm_t* a1, aasm_t* a2)
 
     REQUIRE(p1->num_imports == p2->num_imports);
     for (aint_t i = 0; i < p2->num_imports; ++i) {
-        REQUIRE_STR_EQUALS(
+        CHECK_THAT(
             astring_table_to_string(a1->st, c1.imports[i].module),
-            astring_table_to_string(a2->st, c2.imports[i].module));
-        REQUIRE_STR_EQUALS(
+            Catch::Equals(
+                astring_table_to_string(a2->st, c2.imports[i].module)));
+        CHECK_THAT(
             astring_table_to_string(a1->st, c1.imports[i].name),
-            astring_table_to_string(a2->st, c2.imports[i].name));
+            Catch::Equals(
+                astring_table_to_string(a2->st, c2.imports[i].name)));
     }
 }
 
@@ -250,7 +251,8 @@ TEST_CASE("asm_nested")
         if (i == 0) {
             REQUIRE(PUSH_COUNT == aasm_module_push(&a, "symbol"));
             const aasm_prototype_t* p = aasm_prototype(&a);
-            REQUIRE_STR_EQUALS(astring_table_to_string(a.st, p->symbol), "symbol");
+            CHECK_THAT(astring_table_to_string(a.st, p->symbol),
+                Catch::Equals("symbol"));
         } else {
             REQUIRE(PUSH_COUNT == aasm_push(&a));
         }
