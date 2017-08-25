@@ -42,20 +42,6 @@ static AINLINE void load_ctx(aactor_t* a)
     a->frame = a->frame->prev;
 }
 
-static AINLINE void heap_gc(aactor_t* self)
-{
-    avalue_t* roots[] = {
-        self->stack.v,
-        self->msbox.v,
-        NULL
-    };
-    aint_t num_roots[] = {
-        self->stack.sp,
-        self->msbox.sp
-    };
-    agc_collect(&self->gc, roots, num_roots);
-}
-
 void ASTDCALL actor_entry(void* ud)
 {
     aframe_t frame;
@@ -298,14 +284,29 @@ void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
     any_throw(a, ec);
 }
 
+void aactor_gc(aactor_t* a)
+{
+    avalue_t* roots[] = {
+        a->stack.v,
+        a->msbox.v,
+        NULL
+    };
+    aint_t num_roots[] = {
+        a->stack.sp,
+        a->msbox.sp
+    };
+    agc_collect(&a->gc, roots, num_roots);
+}
+
 aerror_t aactor_heap_reserve(aactor_t* self, aint_t more)
 {
-    aerror_t ec = agc_reserve(&self->gc, more);
-    if (ec < 0) {
-        heap_gc(self);
-        ec = agc_reserve(&self->gc, more);
+    if (agc_check(&self->gc, more) == FALSE) {
+        aactor_gc(self);
+        if (agc_check(&self->gc, more) == FALSE) {
+            return agc_reserve(&self->gc, more);
+        }
     }
-    return ec;
+    return AERR_NONE;
 }
 
 aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)

@@ -90,7 +90,7 @@ aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
     aint_t more = sz + sizeof(agc_header_t);
     aint_t new_heap_sz = self->heap_sz + more;
     aint_t heap_idx = self->heap_sz;
-    if (new_heap_sz > self->heap_cap) return AERR_FULL;
+    assert(new_heap_sz <= self->heap_cap);
     self->heap_sz = new_heap_sz;
     gch = ((agc_header_t*)(self->cur_heap + heap_idx));
     gch->type = type;

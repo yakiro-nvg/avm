@@ -14,8 +14,16 @@ ANY_API aerror_t agc_init(
 /// Release all dynamic allocated object.
 ANY_API void agc_cleanup(agc_t* self);
 
+/// Check if there are enough space for a new object.
+static AINLINE int32_t agc_check(agc_t* self, aint_t sz)
+{
+    aint_t more = sz + sizeof(agc_header_t);
+    aint_t new_heap_sz = self->heap_sz + more;
+    return new_heap_sz <= self->heap_cap ? TRUE : FALSE;
+}
+
 /** Allocate a new collectable object.
-\brief Returns the `heap_idx` of allocated object, negative value if failed.
+\brief Returns the `heap_idx` of allocated object.
 */
 ANY_API aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz);
 

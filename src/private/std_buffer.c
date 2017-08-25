@@ -10,10 +10,10 @@ static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
 {
     avalue_t* v;
     agc_buffer_t* o;
+    aint_t bi;
     aerror_t ec = aactor_heap_reserve(a, cap);
-    aint_t bi = agc_alloc(&a->gc, AVT_FIXED_BUFFER, cap);
-    assert(bi >= 0);
     if (ec < 0) any_error(a, AERR_RUNTIME, "out of memory");
+    bi = agc_alloc(&a->gc, AVT_FIXED_BUFFER, cap);
     v = aactor_at(a, idx);
     o = AGC_CAST(agc_buffer_t, &a->gc, v->v.heap_idx);
     assert(cap >= o->sz);
@@ -87,9 +87,6 @@ static void lget(aactor_t* a)
 
 static void lset(aactor_t* a)
 {
-    enum { SELF = -1 };
-    enum { INDEX = -2 };
-    enum { VALUE = -3 };
     aint_t a_self = any_check_index(a, -1);
     aint_t a_idx = any_check_index(a, -2);
     aint_t a_val = any_check_index(a, -3);
@@ -148,7 +145,6 @@ aint_t agc_buffer_new(aactor_t* a, aint_t cap, avalue_t* v)
         aint_t oi = agc_alloc(&a->gc, AVT_BUFFER, sizeof(agc_buffer_t));
         aint_t bi = agc_alloc(&a->gc, AVT_FIXED_BUFFER, cap);
         agc_buffer_t* o = AGC_CAST(agc_buffer_t, &a->gc, oi);
-        assert(oi >= 0 && bi >= 0);
         o->cap = cap;
         o->sz = 0;
         av_collectable(&o->buff, AVT_FIXED_BUFFER, bi);

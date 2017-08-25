@@ -31,7 +31,6 @@ TEST_CASE("gc")
         avalue_t v;
         REQUIRE(AERR_NONE == agc_reserve(&gc, sizeof(aint_t)));
         aint_t oi = agc_alloc(&gc, AVT_INTEGER, sizeof(aint_t));
-        REQUIRE(oi >= 0);
         av_collectable(&v, AVT_INTEGER, oi);
         *AGC_CAST(aint_t, &gc, v.v.heap_idx) = i;
         stack.push_back(v);

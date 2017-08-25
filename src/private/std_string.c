@@ -52,7 +52,6 @@ static void lconcat(aactor_t* a)
         agc_string_t* o;
         aint_t sz = sizeof(agc_string_t) + lhs_len + rhs_len + 1;
         aint_t oi = agc_alloc(&a->gc, AVT_STRING, sz);
-        assert(oi >= 0);
         o = AGC_CAST(agc_string_t, &a->gc, oi);
         lhs = any_to_string(a, a_lhs);
         rhs = any_to_string(a, a_rhs);
@@ -103,7 +102,6 @@ aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v)
     } else {
         aint_t oi = agc_alloc(&a->gc, AVT_STRING, sz);
         agc_string_t* o = AGC_CAST(agc_string_t, &a->gc, oi);
-        assert(oi >= 0);
         o->hal = hal;
         memcpy(o + 1, s, (size_t)hal.length + 1);
         av_collectable(v, AVT_STRING, oi);

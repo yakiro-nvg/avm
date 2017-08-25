@@ -22,6 +22,9 @@ ANY_API void aactor_cleanup(aactor_t* self);
 /// Throw an error, with description string pushed onto the stack.
 ANY_API void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...);
 
+/// Forces a garbage collection.
+ANY_API void aactor_gc(aactor_t* a);
+
 /// Ensures that there are `more` bytes for a new object in the heap.
 ANY_API aerror_t aactor_heap_reserve(aactor_t* self, aint_t more);
 
