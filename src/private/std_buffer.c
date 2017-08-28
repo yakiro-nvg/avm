@@ -12,7 +12,7 @@ static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
     avalue_t* v;
     agc_buffer_t* o;
     aint_t bi;
-    aerror_t ec = aactor_heap_reserve(a, cap);
+    aerror_t ec = aactor_heap_reserve(a, cap, 1);
     if (ec < 0) any_error(a, AERR_RUNTIME, "out of memory");
     bi = agc_alloc(&a->gc, AVT_FIXED_BUFFER, cap);
     v = aactor_at(a, idx);
@@ -137,9 +137,7 @@ aint_t agc_buffer_new(aactor_t* a, aint_t cap, avalue_t* v)
 {
     aerror_t ec;
     assert(cap >= 0);
-    ec = aactor_heap_reserve(a, sizeof(agc_buffer_t));
-    if (ec < 0) return ec;
-    ec = aactor_heap_reserve(a, cap);
+    ec = aactor_heap_reserve(a, sizeof(agc_buffer_t) + cap, 2);
     if (ec < 0) {
         return ec;
     } else {

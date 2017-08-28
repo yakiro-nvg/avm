@@ -80,9 +80,9 @@ void astd_lib_add_tuple(aloader_t* l)
 aint_t agc_tuple_new(aactor_t* a, aint_t sz, avalue_t* v)
 {
     aerror_t ec;
-    aint_t bytes = sizeof(agc_tuple_t) +  sz * sizeof(avalue_t);
+    aint_t bytes = sizeof(agc_tuple_t) +  (sz * sizeof(avalue_t));
     assert(sz >= 0);
-    ec = aactor_heap_reserve(a, bytes);
+    ec = aactor_heap_reserve(a, bytes, 1);
     if (ec < 0) {
         return ec;
     } else {

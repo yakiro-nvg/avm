@@ -298,12 +298,12 @@ void aactor_gc(aactor_t* a)
     agc_collect(&a->gc, roots, num_roots);
 }
 
-aerror_t aactor_heap_reserve(aactor_t* self, aint_t more)
+aerror_t aactor_heap_reserve(aactor_t* self, aint_t more, aint_t n)
 {
-    if (agc_check(&self->gc, more) == FALSE) {
+    if (agc_check(&self->gc, more, n) == FALSE) {
         aactor_gc(self);
-        if (agc_check(&self->gc, more) == FALSE) {
-            return agc_reserve(&self->gc, more);
+        if (agc_check(&self->gc, more, n) == FALSE) {
+            return agc_reserve(&self->gc, more, n);
         }
     }
     return AERR_NONE;

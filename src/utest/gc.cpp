@@ -29,7 +29,7 @@ TEST_CASE("gc")
 
     for (aint_t i = 0; i < 1000; ++i) {
         avalue_t v;
-        REQUIRE(AERR_NONE == agc_reserve(&gc, sizeof(aint_t)));
+        REQUIRE(AERR_NONE == agc_reserve(&gc, sizeof(aint_t), 1));
         aint_t oi = agc_alloc(&gc, AVT_INTEGER, sizeof(aint_t));
         av_collectable(&v, AVT_INTEGER, oi);
         *AGC_CAST(aint_t, &gc, v.v.heap_idx) = i;

@@ -128,11 +128,11 @@ aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
     return heap_idx;
 }
 
-aerror_t agc_reserve(agc_t* self, aint_t more)
+aerror_t agc_reserve(agc_t* self, aint_t more, aint_t n)
 {
     uint8_t* nh;
     aint_t new_cap = self->heap_cap;
-    more += sizeof(agc_header_t);
+    more += (n * sizeof(agc_header_t));
     while (new_cap < self->heap_sz + more) new_cap *= GROW_FACTOR;
     nh = (uint8_t*)aalloc(self, NULL, new_cap * 2);
     if (!nh) return AERR_FULL;

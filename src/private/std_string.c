@@ -44,7 +44,8 @@ static void lconcat(aactor_t* a)
     const char* rhs = any_check_string(a, a_rhs);
     aint_t lhs_len = any_string_length(a, a_lhs);
     aint_t rhs_len = any_string_length(a, a_rhs);
-    aerror_t ec = aactor_heap_reserve(a, lhs_len + rhs_len);
+    aerror_t ec = aactor_heap_reserve(
+        a, sizeof(agc_string_t) + lhs_len + rhs_len + 1, 1);
     if (ec < 0) {
         any_error(a, AERR_RUNTIME, "out of memory");
     } else {
@@ -96,7 +97,7 @@ aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v)
 {
     ahash_and_length_t hal = ahash_and_length(s);
     aint_t sz = sizeof(agc_string_t) + hal.length + 1;
-    aerror_t ec = aactor_heap_reserve(a, sz);
+    aerror_t ec = aactor_heap_reserve(a, sz, 1);
     if (ec < 0) {
         return ec;
     } else {
