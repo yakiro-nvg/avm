@@ -32,7 +32,6 @@ static void push_array(aactor_t* a)
     for (aint_t i = 0; i < 100; ++i) {
         if (i % 2 == 0) {
             any_find(a, "std-array", "set/3");
-            snprintf(buff, sizeof(buff), "string %d", (int)i);
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
@@ -57,7 +56,6 @@ static void push_array(aactor_t* a)
     for (aint_t i = 100; i < 500; ++i) {
         if (i % 2 == 0) {
             any_find(a, "std-array", "set/3");
-            snprintf(buff, sizeof(buff), "string %d", (int)i);
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
@@ -82,7 +80,6 @@ static void push_array(aactor_t* a)
     for (aint_t i = 500; i < 1000; ++i) {
         if (i % 2 == 0) {
             any_find(a, "std-array", "set/3");
-            snprintf(buff, sizeof(buff), "string %d", (int)i);
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
