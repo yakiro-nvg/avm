@@ -1,3 +1,4 @@
+/* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/std_buffer.h>
 
 #include <any/gc.h>

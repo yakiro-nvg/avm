@@ -1,3 +1,4 @@
+/* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #include <any/std_tuple.h>
 
 #include <any/gc.h>
