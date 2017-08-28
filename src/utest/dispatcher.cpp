@@ -324,7 +324,7 @@ TEST_CASE("dispatcher_ldb")
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
-        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));;
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
     ascheduler_on_panic(&s, &on_panic);
 
     SECTION("false")
