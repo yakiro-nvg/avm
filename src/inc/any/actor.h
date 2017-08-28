@@ -48,7 +48,9 @@ static AINLINE avalue_t* aactor_at(aactor_t* self, aint_t idx)
 /// Get the absolute index.
 static AINLINE aint_t any_check_index(aactor_t* self, aint_t idx)
 {
-    if (idx < -self->frame->nargs) return 0;
+    if (idx < -self->frame->nargs) {
+        return 0; // nil
+    }
     if (idx >= self->stack.sp - self->frame->bp) {
         any_error(self, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
