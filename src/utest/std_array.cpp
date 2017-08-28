@@ -698,3 +698,458 @@ TEST_CASE("std_array_binding_resize")
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);
 }
+
+TEST_CASE("std_array_binding_get")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t as;
+    aasm_init(&as, &myalloc, NULL);
+    REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
+    add_test_module(&as);
+
+    ascheduler_t s;
+
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
+
+    astd_lib_add_array(&s.loader);
+
+    SECTION("normal")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lget = aasm_add_import(&as, "std-array", "get/2");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lget));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 2);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
+    }
+
+    SECTION("bad_no_elements")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lget = aasm_add_import(&as, "std-array", "get/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lget));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 0"));
+    }
+
+    SECTION("bad_index_underflow")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lget = aasm_add_import(&as, "std-array", "get/2");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lget));
+        aasm_emit(&as, ai_lsi(-1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index -1"));
+    }
+
+    SECTION("bad_index_overflow")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lget = aasm_add_import(&as, "std-array", "get/2");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lget));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 1"));
+    }
+
+    SECTION("bad_index_not_a_integer")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lget = aasm_add_import(&as, "std-array", "get/2");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lget));
+        aasm_emit(&as, ai_nil());
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not integer"));
+    }
+
+    ascheduler_cleanup(&s);
+    aasm_cleanup(&as);
+}
+
+TEST_CASE("std_array_binding_set")
+{
+    enum { NUM_IDX_BITS = 4 };
+    enum { NUM_GEN_BITS = 4 };
+
+    aasm_t as;
+    aasm_init(&as, &myalloc, NULL);
+    REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
+    add_test_module(&as);
+
+    ascheduler_t s;
+
+    REQUIRE(AERR_NONE ==
+        ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
+    ascheduler_on_panic(&s, &on_panic);
+
+    astd_lib_add_array(&s.loader);
+
+    SECTION("normal")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lset = aasm_add_import(&as, "std-array", "set/3");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lset));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(3));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 2);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
+    }
+
+    SECTION("bad_no_elements")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lset = aasm_add_import(&as, "std-array", "set/3");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lset));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(3));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 0"));
+    }
+
+    SECTION("bad_index_underflow")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lset = aasm_add_import(&as, "std-array", "set/3");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lset));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_lsi(-1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(3));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index -1"));
+    }
+
+    SECTION("bad_index_overflow")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lset = aasm_add_import(&as, "std-array", "set/3");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lset));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(3));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("bad index 1"));
+    }
+
+    SECTION("bad_index_not_a_integer")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-array", "new/1");
+        aint_t lset = aasm_add_import(&as, "std-array", "set/3");
+        aint_t lresize = aasm_add_import(&as, "std-array", "resize/2");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(8));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_imp(lresize));
+        aasm_emit(&as, ai_lsi(1));
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_pop(1));
+
+        aasm_emit(&as, ai_imp(lset));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_nil());
+        aasm_emit(&as, ai_llv(0));
+        aasm_emit(&as, ai_ivk(3));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 1);
+        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
+            Catch::Equals("not integer"));
+    }
+
+    ascheduler_cleanup(&s);
+    aasm_cleanup(&as);
+}
