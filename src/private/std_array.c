@@ -146,7 +146,7 @@ aint_t agc_array_new(aactor_t* a, aint_t cap, avalue_t* v)
 {
     aerror_t ec;
     aint_t cap_bytes = cap * sizeof(avalue_t);
-    assert(cap > 0);
+    assert(cap >= 0);
     ec = aactor_heap_reserve(a, sizeof(agc_array_t));
     if (ec < 0) return ec;
     ec = aactor_heap_reserve(a, cap_bytes);

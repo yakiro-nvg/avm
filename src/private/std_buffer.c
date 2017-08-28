@@ -135,7 +135,7 @@ void astd_lib_add_buffer(aloader_t* l)
 aint_t agc_buffer_new(aactor_t* a, aint_t cap, avalue_t* v)
 {
     aerror_t ec;
-    assert(cap > 0);
+    assert(cap >= 0);
     ec = aactor_heap_reserve(a, sizeof(agc_buffer_t));
     if (ec < 0) return ec;
     ec = aactor_heap_reserve(a, cap);

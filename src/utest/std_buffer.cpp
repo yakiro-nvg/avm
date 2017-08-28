@@ -316,6 +316,35 @@ TEST_CASE("std_buffer_binding_new")
             Catch::Equals("bad capacity -1"));
     }
 
+    SECTION("zero_capacity")
+    {
+        aasm_module_push(&as, "test_f");
+        aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
+
+        aasm_emit(&as, ai_imp(lnew));
+        aasm_emit(&as, ai_lsi(0));
+        aasm_emit(&as, ai_ivk(1));
+
+        aasm_emit(&as, ai_ret());
+        aasm_pop(&as);
+        aasm_save(&as);
+
+        REQUIRE(AERR_NONE ==
+            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
+        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
+
+        aactor_t* a;
+        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
+        any_find(a, "mod_test", "test_f");
+        ascheduler_start(&s, a, 0);
+
+        ascheduler_run_once(&s);
+
+        REQUIRE(any_count(a) == 2);
+        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
+        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_BUFFER);
+    }
+
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);
 }
