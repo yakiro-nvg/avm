@@ -191,8 +191,7 @@ static void nested_test(aactor_t* a)
             any_push_integer(a, i);
             any_push_index(a, a_idx);
             any_call(a, 2);
-            REQUIRE(AVT_NIL ==
-                any_type(a, any_check_index(a, any_count(a) - 1)).type);
+            REQUIRE(AVT_NIL == any_type(a, any_top(a)).type);
             any_pop(a, 1);
         } else {
             any_push_native_func(a, &test_array);

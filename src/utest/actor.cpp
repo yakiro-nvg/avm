@@ -81,52 +81,30 @@ static void stack_test(aactor_t* a)
 
     REQUIRE(any_count(a) == NUM_INTS + 6);
 
-    REQUIRE(AVT_NATIVE_FUNC ==
-        any_type(a, any_check_index(a, any_count(a) - 1)).type);
-    REQUIRE((anative_func_t)0xF0 ==
-        any_to_native_func(a, any_check_index(a, any_count(a) - 1)));
+    REQUIRE(AVT_NATIVE_FUNC == any_type(a, any_top(a)).type);
+    REQUIRE((anative_func_t)0xF0 == any_to_native_func(a, any_top(a)));
+    REQUIRE(0xBEEF == any_check_pid(a, any_top(a) - 1));
+    REQUIRE(Approx(18.12) == any_check_real(a, any_top(a) - 2));
+    REQUIRE(1991 == any_check_integer(a, any_top(a) - 3));
+    REQUIRE(FALSE == any_check_bool(a, any_top(a) - 4));
+    REQUIRE(TRUE == any_check_bool(a, any_top(a) - 5));
 
-    REQUIRE(0xBEEF ==
-        any_check_pid(a, any_check_index(a,  any_count(a) - 2)));
+    any_remove(a, any_top(a) - 2);
 
-    REQUIRE(Approx(18.12) ==
-        any_check_real(a, any_check_index(a, any_count(a) - 3)));
+    REQUIRE(AVT_NATIVE_FUNC == any_type(a, any_top(a)).type);
+    REQUIRE((anative_func_t)0xF0 == any_to_native_func(a, any_top(a)));
 
-    REQUIRE(1991 ==
-        any_check_integer(a, any_check_index(a, any_count(a) - 4)));
+    REQUIRE(0xBEEF == any_check_pid(a, any_top(a) - 1));
+    REQUIRE(1991 == any_check_integer(a, any_top(a) - 2));
+    REQUIRE(FALSE == any_check_bool(a, any_top(a) - 3));
+    REQUIRE(TRUE == any_check_bool(a, any_top(a) - 4));
 
-    REQUIRE(FALSE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 5)));
-    REQUIRE(TRUE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 6)));
+    any_remove(a, any_top(a));
 
-    any_remove(a, any_check_index(a, any_count(a) - 3));
-
-    REQUIRE(AVT_NATIVE_FUNC ==
-        any_type(a, any_check_index(a, any_count(a) - 1)).type);
-    REQUIRE((anative_func_t)0xF0 ==
-        any_to_native_func(a, any_check_index(a, any_count(a) - 1)));
-
-    REQUIRE(0xBEEF ==
-        any_check_pid(a, any_check_index(a, any_count(a) - 2)));
-    REQUIRE(1991 ==
-        any_check_integer(a, any_check_index(a, any_count(a) - 3)));
-    REQUIRE(FALSE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 4)));
-
-    REQUIRE(TRUE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 5)));
-
-    any_remove(a, any_check_index(a, any_count(a) - 1));
-
-    REQUIRE(0xBEEF ==
-        any_check_pid(a, any_check_index(a, any_count(a) - 1)));
-    REQUIRE(1991 ==
-        any_check_integer(a, any_check_index(a, any_count(a) - 2)));
-    REQUIRE(FALSE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 3)));
-    REQUIRE(TRUE ==
-        any_check_bool(a, any_check_index(a, any_count(a) - 4)));
+    REQUIRE(0xBEEF == any_check_pid(a, any_top(a)));
+    REQUIRE(1991 == any_check_integer(a, any_top(a) - 1));
+    REQUIRE(FALSE == any_check_bool(a, any_top(a) - 2));
+    REQUIRE(TRUE == any_check_bool(a, any_top(a) - 3));
 
     any_pop(a, 4);
 

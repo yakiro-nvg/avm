@@ -265,6 +265,12 @@ static AINLINE aint_t any_count(aactor_t* a)
     return a->stack.sp - a->frame->bp;
 }
 
+/// Returns the stack top.
+static AINLINE aint_t any_top(aactor_t* a)
+{
+    return any_check_index(a, any_count(a) - 1);
+}
+
 /** Spawn a new actor.
 \brief This function follow the same protocol as \ref any_call.
 */
