@@ -36,6 +36,15 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
     v->v.heap_idx = ogch->forwared;
 }
 
+static AINLINE void copy_tuple(agc_t* self, agc_tuple_t* o)
+{
+    aint_t i;
+    avalue_t* elements = (avalue_t*)(o + 1);
+    for (i = 0; i < o->sz; ++i) {
+        copy(self, elements + i);
+    }
+}
+
 static AINLINE void copy_array(agc_t* self, agc_array_t* o)
 {
     aint_t i;
@@ -65,9 +74,11 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
     case AVT_STRING:
         // nop
         break;
-    case AVT_TUPLE:
-        assert(!"TODO");
+    case AVT_TUPLE: {
+        agc_tuple_t* o = (agc_tuple_t*)(gch + 1);
+        copy_tuple(self, o);
         break;
+    }
     case AVT_ARRAY: {
         agc_array_t* o = (agc_array_t*)(gch + 1);
         copy_array(self, o);
