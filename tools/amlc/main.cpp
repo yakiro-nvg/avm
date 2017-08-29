@@ -15,6 +15,7 @@
 #include <any/std_buffer.h>
 #include <any/std_array.h>
 #include <any/std_tuple.h>
+#include <any/std_table.h>
 
 #include "compiler.h"
 
@@ -120,6 +121,7 @@ static void execute(
     astd_lib_add_buffer(&s.loader);
     astd_lib_add_array(&s.loader);
     astd_lib_add_tuple(&s.loader);
+    astd_lib_add_table(&s.loader);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];
