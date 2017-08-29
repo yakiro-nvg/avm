@@ -84,20 +84,6 @@ TEST_CASE("std_io")
         CHECK_THAT(output.str(), Catch::Equals("falsetrue"));
     }
 
-    SECTION("pointer")
-    {
-        avalue_t v;
-        v.tag.type = AVT_POINTER;
-        aactor_push(a, &v);
-        ascheduler_start(&s, a, 1);
-        ascheduler_run_once(&s);
-
-        REQUIRE(any_count(a) == 2);
-        REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
-        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
-        CHECK_THAT(output.str(), Catch::Equals("<pointer>"));
-    }
-
     SECTION("integer")
     {
         any_push_integer(a, 1024768);

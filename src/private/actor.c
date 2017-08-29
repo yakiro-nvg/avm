@@ -177,7 +177,6 @@ void any_mbox_send(aactor_t* a)
             return; // TODO: review it
         }
         break;
-    case AVT_POINTER:
     case AVT_NATIVE_FUNC:
     case AVT_BYTE_CODE_FUNC:
     case AVT_FIXED_BUFFER:

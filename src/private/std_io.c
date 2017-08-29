@@ -41,9 +41,6 @@ static void print(aactor_t* a)
                 any_to_bool(a, arg_idx) ? "true" : "false");
             out(out_ud, buf);
             break;
-        case AVT_POINTER:
-            out(out_ud, "<pointer>");
-            break;
         case AVT_INTEGER:
             snprintf(buf, sizeof(buf), "%lld",
                 (long long int)any_to_integer(a, arg_idx));

@@ -571,8 +571,6 @@ typedef enum {
     AVT_PID,
     /// Either `true`: 1 or `false`: 0.
     AVT_BOOLEAN,
-    /// Raw pointer.
-    AVT_POINTER,
     /// No fractional.
     AVT_INTEGER,
     /// Floating-point number.
@@ -592,7 +590,9 @@ typedef enum {
     /// Collectable array.
     AVT_ARRAY,
     /// Collectable table.
-    AVT_TABLE
+    AVT_TABLE,
+
+    __AVT_LAST__ = AVT_TABLE
 } atype_t;
 
 /// Value tag.
@@ -610,8 +610,6 @@ typedef struct {
         apid_t pid;
         /// \ref AVT_BOOLEAN.
         int32_t boolean;
-        /// \ref AVT_POINTER.
-        void* ptr;
         /// \ref AVT_INTEGER.
         aint_t integer;
         /// \ref AVT_REAL.
@@ -644,13 +642,6 @@ static AINLINE void av_boolean(avalue_t* v, int32_t b)
     v->tag.type = AVT_BOOLEAN;
     v->tag.collectable = FALSE;
     v->v.boolean = b;
-}
-
-static AINLINE void av_pointer(avalue_t* v, void* p)
-{
-    v->tag.type = AVT_POINTER;
-    v->tag.collectable = FALSE;
-    v->v.ptr = p;
 }
 
 static AINLINE void av_integer(avalue_t* v, aint_t i)
@@ -739,12 +730,12 @@ typedef struct {
     avalue_t buff;
 } agc_array_t;
 
-/// Collectable map.
+/// Collectable table.
 typedef struct {
     aint_t cap;
     aint_t sz;
     avalue_t buff;
-} agc_map_t;
+} agc_table_t;
 
 #pragma pack(push, 1)
 

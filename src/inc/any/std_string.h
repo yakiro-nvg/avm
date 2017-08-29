@@ -24,6 +24,19 @@ static AINLINE const char* agc_string_to_cstr(aactor_t* a, avalue_t* v)
 /// Create a new string.
 ANY_API aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v);
 
+/// Compare two strings.
+static AINLINE aint_t agc_string_compare(
+    aactor_t* a, avalue_t* lhs, avalue_t* rhs)
+{
+    agc_string_t* ls = AGC_CAST(agc_string_t, &a->gc, lhs->v.heap_idx);
+    agc_string_t* rs = AGC_CAST(agc_string_t, &a->gc, rhs->v.heap_idx);
+    if (ls->hal.hash != rs->hal.hash) {
+        return ls->hal.hash < rs->hal.hash ? -1 : 1;
+    } else {
+        return strcmp((const char*)(ls + 1), (const char*)(rs + 1));
+    }
+}
+
 /// Push new string onto the stack.
 static AINLINE void any_push_string(aactor_t* a, const char* s)
 {

@@ -54,13 +54,22 @@ static AINLINE void copy_array(agc_t* self, agc_array_t* o)
     }
 }
 
+static AINLINE void copy_table(agc_t* self, agc_table_t* o)
+{
+    aint_t i;
+    avalue_t* elements = AGC_CAST(avalue_t, self, o->buff.v.heap_idx);
+    for (i = 0; i < o->sz; ++i) {
+        copy(self, elements + i * 2);
+        copy(self, elements + i * 2 + 1);
+    }
+}
+
 static AINLINE void scan(agc_t* self, agc_header_t* gch)
 {
     switch (gch->type) {
     case AVT_NIL:
     case AVT_PID:
     case AVT_BOOLEAN:
-    case AVT_POINTER:
     case AVT_INTEGER:
     case AVT_REAL:
     case AVT_NATIVE_FUNC:
@@ -85,9 +94,12 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
         copy(self, &o->buff);
         break;
     }
-    case AVT_TABLE:
-        assert(!"TODO");
+    case AVT_TABLE: {
+        agc_table_t* o = (agc_table_t*)(gch + 1);
+        copy_table(self, o);
+        copy(self, &o->buff);
         break;
+    }
     default: assert(!"bad value type");
     }
 }
