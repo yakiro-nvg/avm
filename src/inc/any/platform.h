@@ -111,3 +111,5 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 // Primitive types.
 typedef int64_t aint_t;
 typedef double areal_t;
+
+#define AALIGN_FORWARD(v, a) ((v + (a - 1)) & -a)

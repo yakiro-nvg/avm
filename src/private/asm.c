@@ -208,6 +208,8 @@ static aint_t compute_strings_sz(
             (aint_t)strlen(astring_table_to_string(st, imports[i].name));
     }
 
+    sz = AALIGN_FORWARD(sz, 8);
+
     return sz;
 }
 
@@ -308,6 +310,7 @@ static void copy_prototype(
             self, header, c->imports[i].name);
     }
 
+    header->strings_sz = AALIGN_FORWARD(header->strings_sz, 8);
     assert(header->strings_sz == strings_sz);
 
     // add nesteds

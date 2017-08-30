@@ -37,8 +37,6 @@ else()
     message(FATAL_ERROR "Unknown task backend ${TASK_BACKEND}")
 endif()
 
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
-
 option(CHECK_COVERAGE "Enable Coverage Checking." Off)
 if(CHECK_COVERAGE)
     include(CodeCoverage)

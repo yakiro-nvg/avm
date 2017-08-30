@@ -128,7 +128,7 @@ void agc_cleanup(agc_t* self)
 aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
 {
     agc_header_t* gch;
-    aint_t more = sz + sizeof(agc_header_t);
+    aint_t more = AALIGN_FORWARD(sz + sizeof(agc_header_t), 8);
     aint_t new_heap_sz = self->heap_sz + more;
     aint_t heap_idx = self->heap_sz;
     assert(new_heap_sz <= self->heap_cap);

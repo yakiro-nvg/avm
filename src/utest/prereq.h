@@ -6,7 +6,7 @@
 
 #include <any/rt_types.h>
 
-enum { CSTACK_SZ = 1024 * 64 };
+enum { CSTACK_SZ = 1024 * 512 };
 
 void* myalloc(void*, void* old, aint_t sz);
 void on_panic(aactor_t* a);

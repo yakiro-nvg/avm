@@ -8,16 +8,33 @@ typedef struct atask_ctx_t {
 #if defined(AARCH_I386)
 #error "TODO"
 #elif defined(AARCH_AMD64)
-    void* rip;
-    void* rsp;
-    void* rbp;
-    void* rbx;
-    void* r12;
-    void* r13;
-    void* r14;
-    void* r15;
+
+void* rip;
+void* rsp;
+void* rbp;
+void* rbx;
+void* r12;
+void* r13;
+void* r14;
+void* r15;
+
 #elif defined(AARCH_ARM)
+
+#ifndef __ARM_EABI__
 #error "TODO"
+#endif
+
+#if !__SOFTFP__
+// d8-d15,
+void* d[16];
+#endif
+
+// r4-r11
+void* r[8];
+
+void* lr;
+void* sp;   
+
 #endif
 } atask_ctx_t;
 
