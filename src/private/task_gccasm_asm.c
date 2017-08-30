@@ -24,7 +24,6 @@ __asm__(
         "movq    %r13, %rdi\n"
         "jmpq    *%r12\n"
         "ret\n"
-    ".size " ENTRYP ", .-" ENTRYP "\n"
 
     SWITCH ":\n"
         "leaq    0x3D(%rip), %rax\n"
@@ -45,7 +44,6 @@ __asm__(
         "movq    8(%rsi),    %rsp\n"
         "jmpq    *(%rsi)\n"
         "ret\n"
-    ".size " SWITCH ", .-" SWITCH "\n"
 );
 #elif defined(__ARM_EABI__)
 __asm__(
@@ -54,7 +52,6 @@ __asm__(
         "mov     %ip, %r5\n"
         "mov     %lr, %r6\n"
         "bx      %ip\n"
-    ".size " ENTRYP ", .-" ENTRYP "\n"
 
     SWITCH ":\n"
 #if !__SOFTFP__
@@ -67,7 +64,6 @@ __asm__(
 #endif
         "ldr     sp,  [r1, #9*4]\n"
         "ldmia   r1,  {r4-r11, pc}\n"
-    ".size " SWITCH ", .-" SWITCH "\n"
 );
 #endif
 
