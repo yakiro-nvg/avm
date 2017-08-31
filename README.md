@@ -1,5 +1,5 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Coverage Status](https://coveralls.io/repos/github/innostory/any-vm/badge.svg)](https://coveralls.io/github/innostory/any-vm)
+<a href='https://coveralls.io/github/innostory/avm?branch=master'><img src='https://coveralls.io/repos/github/innostory/avm/badge.svg?branch=master' alt='Coverage Status' /></a>
 
 # AVM - Embeddable concurrent oriented Virtual Machine
 
