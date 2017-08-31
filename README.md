@@ -23,7 +23,7 @@ What is out of the scope?
 
 *Now, `AVM` is still under heavy development.*
 
-[**API Documentation**](https://innostory.github.io/any-vm/)
+[**API Documentation**](https://innostory.github.io/avm/)
 
 ## Inspiration
 
@@ -36,7 +36,7 @@ What is out of the scope?
 Using cmake to compile with Makefile, Visual Studio or XCode etc.
 
 ```sh
-git clone --recursive https://github.com/innostory/any-vm.git
+git clone --recursive https://github.com/innostory/avm.git
 cd any-vm && mkdir .build && cd .build
 cmake ../ -G "Unix Makefiles" -DTASK_BACKEND=gccasm
 make && ctest
@@ -68,10 +68,9 @@ On windows, just change the `TASK_BACKEND` to `fiber`, it's only one supported.
 - **Giang Nv** - giangnv.is@gmail.com
 
 ## Nonsense Badgets
-[![Build Status](https://travis-ci.org/innostory/any-vm.svg?branch=master)](https://travis-ci.org/innostory/any-vm) 
-[![Build status](https://ci.appveyor.com/api/projects/status/0t5f79e4x9akyi0e?svg=true)](https://ci.appveyor.com/project/innostory/any-vm)
-<a href="https://scan.coverity.com/projects/innostory-any-vm">
+[![Build Status](https://travis-ci.org/innostory/avm.svg?branch=master)](https://travis-ci.org/innostory/avm) 
+[![Build status](https://ci.appveyor.com/api/projects/status/0t5f79e4x9akyi0e?svg=true)](https://ci.appveyor.com/project/innostory/avm)
+<a href="https://scan.coverity.com/projects/innostory-avm">
   <img alt="Coverity Scan Build Status"
        src="https://scan.coverity.com/projects/12663/badge.svg"/>
 </a>
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/097d1900291f4c19987d3b9847fc4330)](https://www.codacy.com/app/innostory/any-vm?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=innostory/any-vm&amp;utm_campaign=Badge_Grade)
