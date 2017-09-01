@@ -19,7 +19,9 @@ set(AVM_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DANY_DEBUG")
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/sanitizers-cmake/cmake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH 
+	"${CMAKE_CURRENT_SOURCE_DIR}/externals/sanitizers-cmake/cmake"
+	${CMAKE_MODULE_PATH})
 find_package(Sanitizers REQUIRED)
 
 option(USE_VALGRIND "Enable Valgrid Support." Off)
