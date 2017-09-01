@@ -2,3 +2,4 @@
 /docs/.doxyxml/
 /docs/.build_docs/
 x64/
+src/inc/any/config.h

@@ -1,0 +1,3 @@
+#pragma once
+
+#define ANY_TASK_${TASK_BACKEND_STRING}

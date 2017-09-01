@@ -4,6 +4,8 @@ include_directories(
     ${AVM_ROOT_DIRECTORY}/src/inc
     ${VALGRIND_INCLUDE_DIR})
 
+configure_file(config.h.in ${AVM_ROOT_DIRECTORY}/src/inc/any/config.h)
+
 file(GLOB_RECURSE PUB_HEADERS ${AVM_ROOT_DIRECTORY}/src/inc/*.h)
 file(GLOB_RECURSE HEADERS 	  ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE SOURCES 	  ${CMAKE_CURRENT_SOURCE_DIR}/*.c)

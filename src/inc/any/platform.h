@@ -1,6 +1,8 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
 #pragma once
 
+#include <any/config.h>
+
 #ifdef _MSC_VER
 #define AMSVC _MSC_VER
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
