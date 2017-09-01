@@ -1,4 +1,5 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+#include <any/config.h>
 
 #ifdef ANY_TASK_GCCASM
 
