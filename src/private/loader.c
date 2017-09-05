@@ -15,7 +15,8 @@ const achunk_header_t CHUNK_HEADER = {
     { 0, 0 }
 };
 
-static aint_t calc_sizes(
+static aint_t
+calc_sizes(
     int8_t* b, aint_t sz, aint_t* off, aint_t* num_imps, aint_t* num_protos)
 {
     aint_t i;
@@ -36,7 +37,8 @@ static aint_t calc_sizes(
     return AERR_NONE;
 }
 
-static void free_chunk_list(
+static void
+free_chunk_list(
     aloader_t* self, alist_t* l, int32_t check_for_retain)
 {
     alist_node_t* i = alist_head(l);
@@ -50,7 +52,9 @@ static void free_chunk_list(
     }
 }
 
-static void free_libs(alist_t* l)
+static void
+free_libs(
+    alist_t* l)
 {
     alist_node_t* i = alist_head(l);
     while (!alist_is_end(l, i)) {
@@ -60,7 +64,8 @@ static void free_libs(alist_t* l)
     }
 }
 
-static void create_proto(
+static void
+create_proto(
     achunk_t* chunk, aint_t* off,
     aprototype_t* pt, avalue_t** next_imp, aprototype_t** next_pt)
 {
@@ -83,7 +88,8 @@ static void create_proto(
     }
 }
 
-static aint_t find_in_libs(
+static aint_t
+find_in_libs(
     alist_t* libs, const char* module, const char* name, avalue_t* value)
 {
     alist_node_t* n;
@@ -104,7 +110,8 @@ static aint_t find_in_libs(
     return AERR_UNRESOLVED;
 }
 
-static aint_t find_in_list(
+static aint_t
+find_in_list(
     alist_t* list, const char* module, const char* name, avalue_t* value)
 {
     aint_t i;
@@ -127,7 +134,9 @@ static aint_t find_in_list(
     return AERR_UNRESOLVED;
 }
 
-static int32_t has_chunk(alist_t* list, alist_node_t* node)
+static int32_t
+has_chunk(
+    alist_t* list, alist_node_t* node)
 {
     aprototype_t* a = ALIST_NODE_CAST(achunk_t, node)->prototypes;
     const char* a_sym = a->strings + a->header->symbol;
@@ -141,7 +150,9 @@ static int32_t has_chunk(alist_t* list, alist_node_t* node)
     return FALSE;
 }
 
-static aint_t resolve(aloader_t* self, aprototype_t* p)
+static aint_t
+resolve(
+    aloader_t* self, aprototype_t* p)
 {
     aint_t i;
     aerror_t ec;
@@ -171,7 +182,9 @@ static aint_t resolve(aloader_t* self, aprototype_t* p)
     return AERR_NONE;
 }
 
-static aint_t cacl_chunk_imports(aprototype_t* pt)
+static aint_t
+cacl_chunk_imports(
+    aprototype_t* pt)
 {
     aint_t i;
     aint_t acc = pt->header->num_imports;
@@ -181,7 +194,9 @@ static aint_t cacl_chunk_imports(aprototype_t* pt)
     return acc;
 }
 
-static aint_t calc_imports(alist_t* list)
+static aint_t
+calc_imports(
+    alist_t* list)
 {
     aint_t acc = 0;
     alist_node_t* i = alist_head(list);
@@ -193,7 +208,9 @@ static aint_t calc_imports(alist_t* list)
     return acc;
 }
 
-static void backup_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
+static void
+backup_imports(
+    aprototype_t* pt, aint_t* off, avalue_t* imp)
 {
     aint_t i;
     memcpy(
@@ -206,7 +223,9 @@ static void backup_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
     }
 }
 
-static void rollback_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
+static void
+rollback_imports(
+    aprototype_t* pt, aint_t* off, avalue_t* imp)
 {
     aint_t i;
     memcpy(
@@ -219,7 +238,9 @@ static void rollback_imports(aprototype_t* pt, aint_t* off, avalue_t* imp)
     }
 }
 
-void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud)
+void
+aloader_init(
+    aloader_t* self, aalloc_t alloc, void* alloc_ud)
 {
     memset(self, 0, sizeof(aloader_t));
     self->alloc = alloc;
@@ -230,7 +251,9 @@ void aloader_init(aloader_t* self, aalloc_t alloc, void* alloc_ud)
     alist_init(&self->libs);
 }
 
-void aloader_cleanup(aloader_t* self)
+void
+aloader_cleanup(
+    aloader_t* self)
 {
     free_chunk_list(self, &self->pendings, FALSE);
     free_chunk_list(self, &self->runnings, FALSE);
@@ -238,7 +261,8 @@ void aloader_cleanup(aloader_t* self)
     free_libs(&self->libs);
 }
 
-aerror_t aloader_add_chunk(
+aerror_t
+aloader_add_chunk(
     aloader_t* self, achunk_header_t* chunk, aint_t chunk_sz,
     aalloc_t chunk_alloc, void* chunk_alloc_ud)
 {
@@ -271,12 +295,16 @@ aerror_t aloader_add_chunk(
     return AERR_NONE;
 }
 
-void aloader_add_lib(aloader_t* self, alib_t* lib)
+void
+aloader_add_lib(
+    aloader_t* self, alib_t* lib)
 {
     alist_push_back(&self->libs, &lib->node);
 }
 
-aerror_t aloader_link(aloader_t* self, int32_t safe)
+aerror_t
+aloader_link(
+    aloader_t* self, int32_t safe)
 {
     alist_node_t* const garbage_back = alist_back(&self->garbages);
     avalue_t* old_imps;
@@ -381,12 +409,15 @@ aerror_t aloader_link(aloader_t* self, int32_t safe)
     return AERR_NONE;
 }
 
-void aloader_sweep(aloader_t* self)
+void
+aloader_sweep(
+    aloader_t* self)
 {
     free_chunk_list(self, &self->garbages, TRUE);
 }
 
-aerror_t aloader_find(
+aerror_t
+aloader_find(
     aloader_t* self, const char* module, const char* name, avalue_t* value)
 {
     aerror_t ec;

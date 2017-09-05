@@ -10,20 +10,28 @@
 #define INIT_MSBOX_SZ 32
 #define INIT_HEAP_SZ 512
 
-void actor_dispatch(aactor_t* a);
+void
+actor_dispatch(
+    aactor_t* a);
 
-static AINLINE void* aalloc(aactor_t* self, void* old, const aint_t sz)
+static AINLINE void*
+aalloc(
+    aactor_t* self, void* old, const aint_t sz)
 {
     assert(self->alloc);
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static void call(aactor_t* self, void* ud)
+static void
+call(
+    aactor_t* self, void* ud)
 {
     any_call(self, *(aint_t*)ud);
 }
 
-static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, aint_t nargs)
+static AINLINE void
+save_ctx(
+    aactor_t* a, aframe_t* frame, aint_t nargs)
 {
     frame->prev = a->frame;
     a->frame = frame;
@@ -31,7 +39,9 @@ static AINLINE void save_ctx(aactor_t* a, aframe_t* frame, aint_t nargs)
     frame->nargs = nargs;
 }
 
-static AINLINE void load_ctx(aactor_t* a)
+static AINLINE void
+load_ctx(
+    aactor_t* a)
 {
     aint_t nsp = a->frame->bp - a->frame->nargs;
     if (a->stack.sp <= a->frame->bp) {
@@ -42,7 +52,9 @@ static AINLINE void load_ctx(aactor_t* a)
     a->frame = a->frame->prev;
 }
 
-void ASTDCALL actor_entry(void* ud)
+void ASTDCALL
+actor_entry(
+    void* ud)
 {
     aframe_t frame;
     aactor_t* a = (aactor_t*)ud;
@@ -63,7 +75,8 @@ void ASTDCALL actor_entry(void* ud)
     }
 }
 
-aerror_t aactor_init(
+aerror_t
+aactor_init(
     aactor_t* self, ascheduler_t* owner, aalloc_t alloc, void* alloc_ud)
 {
     aerror_t ec;
@@ -85,14 +98,18 @@ failed:
     return ec;
 }
 
-void aactor_cleanup(aactor_t* self)
+void
+aactor_cleanup(
+    aactor_t* self)
 {
     astack_cleanup(&self->stack);
     astack_cleanup(&self->msbox);
     agc_cleanup(&self->gc);
 }
 
-void any_find(aactor_t* a, const char* module, const char* name)
+void
+any_find(
+    aactor_t* a, const char* module, const char* name)
 {
     avalue_t v;
     aerror_t ec = aloader_find(&a->owner->loader, module, name, &v);
@@ -100,7 +117,9 @@ void any_find(aactor_t* a, const char* module, const char* name)
     else aactor_push(a, &v);
 }
 
-void any_call(aactor_t* a, aint_t nargs)
+void
+any_call(
+    aactor_t* a, aint_t nargs)
 {
     aframe_t frame;
     aint_t fp = a->stack.sp - nargs - 1;
@@ -130,7 +149,9 @@ void any_call(aactor_t* a, aint_t nargs)
     load_ctx(a);
 }
 
-void any_protected_call(aactor_t* a, aint_t nargs)
+void
+any_protected_call(
+    aactor_t* a, aint_t nargs)
 {
     avalue_t ev;
     aint_t num_pops, count;
@@ -145,7 +166,9 @@ void any_protected_call(aactor_t* a, aint_t nargs)
     aactor_push(a, &ev);
 }
 
-void any_mbox_send(aactor_t* a)
+void
+any_mbox_send(
+    aactor_t* a)
 {
     avalue_t* pid;
     avalue_t* msg;
@@ -191,7 +214,9 @@ void any_mbox_send(aactor_t* a)
     ascheduler_got_new_message(a->owner, ta);
 }
 
-aerror_t any_mbox_recv(aactor_t* a, aint_t timeout)
+aerror_t
+any_mbox_recv(
+    aactor_t* a, aint_t timeout)
 {
     for (;;) {
         if (a->msg_pp < a->msbox.sp) {
@@ -211,7 +236,9 @@ aerror_t any_mbox_recv(aactor_t* a, aint_t timeout)
     }
 }
 
-void any_mbox_remove(aactor_t* a)
+void
+any_mbox_remove(
+    aactor_t* a)
 {
     if (a->msg_pp <= 0) {
         any_error(a, AERR_RUNTIME, "no message to remove");
@@ -228,22 +255,30 @@ void any_mbox_remove(aactor_t* a)
     }
 }
 
-void any_mbox_rewind(aactor_t* a)
+void
+any_mbox_rewind(
+    aactor_t* a)
 {
     a->msg_pp = 0;
 }
 
-void any_yield(aactor_t* a)
+void
+any_yield(
+    aactor_t* a)
 {
     ascheduler_yield(a->owner, a);
 }
 
-void any_sleep(aactor_t* a, aint_t nsecs)
+void
+any_sleep(
+    aactor_t* a, aint_t nsecs)
 {
     ascheduler_sleep(a->owner, a, nsecs);
 }
 
-aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
+aerror_t
+any_try(
+    aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
 {
     aint_t sp = a->stack.sp;
     aframe_t* frame = a->frame;
@@ -265,14 +300,18 @@ aerror_t any_try(aactor_t* a, void(*f)(aactor_t*, void*), void* ud)
     return c.status;
 }
 
-void any_throw(aactor_t* a, aerror_t ec)
+void
+any_throw(
+    aactor_t* a, aerror_t ec)
 {
     assert(a->error_jmp);
     a->error_jmp->status = ec;
     longjmp(a->error_jmp->jbuff, 1);
 }
 
-void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
+void
+any_error(
+    aactor_t* a, aerror_t ec, const char* fmt, ...)
 {
     va_list args;
     char buf[128];
@@ -283,7 +322,9 @@ void any_error(aactor_t* a, aerror_t ec, const char* fmt, ...)
     any_throw(a, ec);
 }
 
-void aactor_gc(aactor_t* a)
+void
+aactor_gc(
+    aactor_t* a)
 {
     avalue_t* roots[] = {
         a->stack.v,
@@ -297,7 +338,9 @@ void aactor_gc(aactor_t* a)
     agc_collect(&a->gc, roots, num_roots);
 }
 
-aerror_t aactor_heap_reserve(aactor_t* self, aint_t more, aint_t n)
+aerror_t
+aactor_heap_reserve(
+    aactor_t* self, aint_t more, aint_t n)
 {
     if (agc_check(&self->gc, more, n) == FALSE) {
         aactor_gc(self);
@@ -308,7 +351,9 @@ aerror_t aactor_heap_reserve(aactor_t* self, aint_t more, aint_t n)
     return AERR_NONE;
 }
 
-aerror_t any_spawn(aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
+aerror_t
+any_spawn(
+    aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
 {
     aactor_t* na;
     aint_t i;

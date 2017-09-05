@@ -4,14 +4,18 @@
 #include <any/gc.h>
 #include <any/loader.h>
 
-static AINLINE void check_index(aactor_t* a, aint_t idx, aint_t sz)
+static AINLINE void
+check_index(
+    aactor_t* a, aint_t idx, aint_t sz)
 {
     if (idx >= sz || idx < 0) {
         any_error(a, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
 }
 
-static void lnew(aactor_t* a)
+static void
+lnew(
+    aactor_t* a)
 {
     aint_t a_sz = any_check_index(a, -1);
     aint_t sz = any_check_integer(a, a_sz);
@@ -21,7 +25,9 @@ static void lnew(aactor_t* a)
     any_push_tuple(a, sz);
 }
 
-static void lget(aactor_t* a)
+static void
+lget(
+    aactor_t* a)
 {
     aint_t sz;
     agc_tuple_t* o;
@@ -37,7 +43,9 @@ static void lget(aactor_t* a)
     aactor_push(a, ((avalue_t*)(o + 1)) + idx);
 }
 
-static void lset(aactor_t* a)
+static void
+lset(
+    aactor_t* a)
 {
     aint_t sz;
     agc_tuple_t* o;
@@ -55,7 +63,9 @@ static void lset(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lsize(aactor_t* a)
+static void
+lsize(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_tuple(a, a_self);
@@ -72,12 +82,16 @@ static alib_func_t funcs[] = {
 
 static alib_t mod = { "std-tuple", funcs };
 
-void astd_lib_add_tuple(aloader_t* l)
+void
+astd_lib_add_tuple(
+    aloader_t* l)
 {
     aloader_add_lib(l, &mod);
 }
 
-aint_t agc_tuple_new(aactor_t* a, aint_t sz, avalue_t* v)
+aint_t
+agc_tuple_new(
+    aactor_t* a, aint_t sz, avalue_t* v)
 {
     aerror_t ec;
     aint_t bytes = sizeof(agc_tuple_t) +  (sz * sizeof(avalue_t));

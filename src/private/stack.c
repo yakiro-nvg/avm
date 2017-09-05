@@ -3,7 +3,9 @@
 
 #define GROW_FACTOR 2
 
-aerror_t astack_reserve(astack_t* self, aint_t more)
+aerror_t
+astack_reserve(
+    astack_t* self, aint_t more)
 {
     avalue_t* nv;
     aint_t new_cap;

@@ -340,14 +340,17 @@ typedef union {
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-static AINLINE ainstruction_t ai_nop()
+static AINLINE ainstruction_t
+ai_nop()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NOP;
     return i;
 }
 
-static AINLINE ainstruction_t ai_pop(aint_t n)
+static AINLINE ainstruction_t
+ai_pop(
+    aint_t n)
 {
     ainstruction_t i;
     i.b.opcode = AOC_POP;
@@ -355,7 +358,9 @@ static AINLINE ainstruction_t ai_pop(aint_t n)
     return i;
 }
 
-static AINLINE ainstruction_t ai_ldk(aint_t idx)
+static AINLINE ainstruction_t
+ai_ldk(
+    aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDK;
@@ -363,14 +368,17 @@ static AINLINE ainstruction_t ai_ldk(aint_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_nil()
+static AINLINE ainstruction_t
+ai_nil()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NIL;
     return i;
 }
 
-static AINLINE ainstruction_t ai_ldb(int32_t val)
+static AINLINE ainstruction_t
+ai_ldb(
+    int32_t val)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LDB;
@@ -378,7 +386,9 @@ static AINLINE ainstruction_t ai_ldb(int32_t val)
     return i;
 }
 
-static AINLINE ainstruction_t ai_lsi(aint_t val)
+static AINLINE ainstruction_t
+ai_lsi(
+    aint_t val)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LSI;
@@ -386,7 +396,9 @@ static AINLINE ainstruction_t ai_lsi(aint_t val)
     return i;
 }
 
-static AINLINE ainstruction_t ai_llv(aint_t idx)
+static AINLINE ainstruction_t
+ai_llv(
+    aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_LLV;
@@ -394,7 +406,9 @@ static AINLINE ainstruction_t ai_llv(aint_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_slv(aint_t idx)
+static AINLINE ainstruction_t
+ai_slv(
+    aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_SLV;
@@ -402,7 +416,9 @@ static AINLINE ainstruction_t ai_slv(aint_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_imp(aint_t idx)
+static AINLINE ainstruction_t
+ai_imp(
+    aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IMP;
@@ -410,7 +426,9 @@ static AINLINE ainstruction_t ai_imp(aint_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_cls(aint_t idx)
+static AINLINE ainstruction_t
+ai_cls(
+    aint_t idx)
 {
     ainstruction_t i;
     i.b.opcode = AOC_CLS;
@@ -418,7 +436,9 @@ static AINLINE ainstruction_t ai_cls(aint_t idx)
     return i;
 }
 
-static AINLINE ainstruction_t ai_jmp(aint_t displacement)
+static AINLINE ainstruction_t
+ai_jmp(
+    aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JMP;
@@ -426,7 +446,9 @@ static AINLINE ainstruction_t ai_jmp(aint_t displacement)
     return i;
 }
 
-static AINLINE ainstruction_t ai_jin(aint_t displacement)
+static AINLINE ainstruction_t
+ai_jin(
+    aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_JIN;
@@ -434,7 +456,9 @@ static AINLINE ainstruction_t ai_jin(aint_t displacement)
     return i;
 }
 
-static AINLINE ainstruction_t ai_ivk(aint_t nargs)
+static AINLINE ainstruction_t
+ai_ivk(
+    aint_t nargs)
 {
     ainstruction_t i;
     i.b.opcode = AOC_IVK;
@@ -442,21 +466,25 @@ static AINLINE ainstruction_t ai_ivk(aint_t nargs)
     return i;
 }
 
-static AINLINE ainstruction_t ai_ret()
+static AINLINE ainstruction_t
+ai_ret()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RET;
     return i;
 }
 
-static AINLINE ainstruction_t ai_snd()
+static AINLINE ainstruction_t
+ai_snd()
 {
     ainstruction_t i;
     i.b.opcode = AOC_SND;
     return i;
 }
 
-static AINLINE ainstruction_t ai_rcv(aint_t displacement)
+static AINLINE ainstruction_t
+ai_rcv(
+    aint_t displacement)
 {
     ainstruction_t i;
     i.b.opcode = AOC_RCV;
@@ -464,14 +492,16 @@ static AINLINE ainstruction_t ai_rcv(aint_t displacement)
     return i;
 }
 
-static AINLINE ainstruction_t ai_rmv()
+static AINLINE ainstruction_t
+ai_rmv()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RMV;
     return i;
 }
 
-static AINLINE ainstruction_t ai_rwd()
+static AINLINE ainstruction_t
+ai_rwd()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RWD;
@@ -493,7 +523,8 @@ typedef uint32_t apid_gen_t;
 enum { APID_BITS = sizeof(apid_t)*8 };
 
 /// Make a pid from index and generation.
-static AINLINE apid_t apid_from(
+static AINLINE apid_t
+apid_from(
     int8_t idx_bits, int8_t gen_bits, apid_idx_t idx, apid_gen_t gen)
 {
     return
@@ -502,13 +533,17 @@ static AINLINE apid_t apid_from(
 }
 
 /// Get index part.
-static AINLINE apid_idx_t apid_idx(int8_t idx_bits, apid_t pid)
+static AINLINE apid_idx_t
+apid_idx(
+    int8_t idx_bits, apid_t pid)
 {
     return pid >> (APID_BITS - idx_bits);
 }
 
 /// Get generation part.
-static AINLINE apid_gen_t apid_gen(int8_t idx_bits, int8_t gen_bits, apid_t pid)
+static AINLINE apid_gen_t
+apid_gen(
+    int8_t idx_bits, int8_t gen_bits, apid_t pid)
 {
     return (pid << idx_bits) >> (APID_BITS - gen_bits);
 }
@@ -539,7 +574,9 @@ typedef struct APACKED {
 #pragma pack(pop)
 
 // Constant constructors.
-static AINLINE aconstant_t ac_integer(aint_t val)
+static AINLINE aconstant_t
+ac_integer(
+    aint_t val)
 {
     aconstant_t c;
     c.type = ACT_INTEGER;
@@ -547,7 +584,9 @@ static AINLINE aconstant_t ac_integer(aint_t val)
     return c;
 }
 
-static AINLINE aconstant_t ac_string(aint_t string)
+static AINLINE aconstant_t
+ac_string(
+    aint_t string)
 {
     aconstant_t c;
     c.type = ACT_STRING;
@@ -555,7 +594,9 @@ static AINLINE aconstant_t ac_string(aint_t string)
     return c;
 }
 
-static AINLINE aconstant_t ac_real(areal_t val)
+static AINLINE aconstant_t
+ac_real(
+    areal_t val)
 {
     aconstant_t c;
     c.type = ACT_REAL;
@@ -624,55 +665,71 @@ typedef struct {
 } avalue_t;
 
 // Value constructors.
-static AINLINE void av_nil(avalue_t* v)
+static AINLINE void
+av_nil(
+    avalue_t* v)
 {
     v->tag.type = AVT_NIL;
     v->tag.collectable = FALSE;
 }
 
-static AINLINE void av_pid(avalue_t* v, apid_t pid)
+static AINLINE void
+av_pid(
+    avalue_t* v, apid_t pid)
 {
     v->tag.type = AVT_PID;
     v->tag.collectable = FALSE;
     v->v.pid = pid;
 }
 
-static AINLINE void av_boolean(avalue_t* v, int32_t b)
+static AINLINE void
+av_boolean(
+    avalue_t* v, int32_t b)
 {
     v->tag.type = AVT_BOOLEAN;
     v->tag.collectable = FALSE;
     v->v.boolean = b;
 }
 
-static AINLINE void av_integer(avalue_t* v, aint_t i)
+static AINLINE void
+av_integer(
+    avalue_t* v, aint_t i)
 {
     v->tag.type = AVT_INTEGER;
     v->tag.collectable = FALSE;
     v->v.integer = i;
 }
 
-static AINLINE void av_real(avalue_t* v, areal_t r)
+static AINLINE void
+av_real(
+    avalue_t* v, areal_t r)
 {
     v->tag.type = AVT_REAL;
     v->tag.collectable = FALSE;
     v->v.real = r;
 }
 
-static AINLINE void av_native_func(avalue_t* v, anative_func_t f)
+static AINLINE void
+av_native_func(
+    avalue_t* v, anative_func_t f)
 {
     v->tag.type = AVT_NATIVE_FUNC;
     v->tag.collectable = FALSE;
     v->v.func = f;
 }
 
-static AINLINE void av_byte_code_func(avalue_t* v, struct aprototype_t* f)
+static AINLINE void
+av_byte_code_func(
+    avalue_t* v, struct aprototype_t* f)
 {
     v->tag.type = AVT_BYTE_CODE_FUNC;
     v->tag.collectable = FALSE;
     v->v.avm_func = f;
 }
 
-static AINLINE void av_collectable(avalue_t* v, atype_t type, aint_t heap_idx)
+static AINLINE void
+av_collectable(
+    avalue_t* v, atype_t type, aint_t heap_idx)
 {
     v->tag.type = type;
     v->tag.collectable = TRUE;
@@ -787,7 +844,9 @@ typedef struct {
     aint_t name;
 } aimport_t;
 
-static AINLINE aimport_t aimport(aint_t module, aint_t name)
+static AINLINE aimport_t
+aimport(
+    aint_t module, aint_t name)
 {
     aimport_t i;
     i.module = module;
@@ -1007,7 +1066,12 @@ typedef struct {
 } aprocess_t;
 
 /// Fatal error handler.
-typedef void(*aon_panic_t)(struct aactor_t*);
+typedef void(*aon_panic_t)(
+    struct aactor_t*);
+
+/// Before an instruction is executed.
+typedef void(*aon_step_t)(
+    struct aactor_t*);
 
 /** Process scheduler.
 \brief
@@ -1034,4 +1098,5 @@ typedef struct ascheduler_t {
     atimer_t timer;
     int32_t first_run;
     aon_panic_t on_panic;
+    aon_step_t on_step;
 } ascheduler_t;

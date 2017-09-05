@@ -68,4 +68,6 @@ __asm__(
 );
 #endif
 
-#endif // ANY_TASK_GCCASM
+#else // ANY_TASK_GCCASM
+static char non_empty_unit;
+#endif

@@ -3,7 +3,6 @@
 
 #ifdef ANY_TASK_GCCASM
 
-
 #ifdef ANY_USE_VALGRIND
 #include <valgrind.h>
 #define STACK_REG(t, p, sz) (t)->vgid = VALGRIND_STACK_REGISTER(p, p+sz)
@@ -18,16 +17,23 @@
 
 #define STACK_ADJUST(p, n) &((size_t*)p)[-n]
 
-void atask_ctx_switch(atask_ctx_t*, atask_ctx_t*);
-void atask_ctx_entryp();
+void
+atask_ctx_switch(
+    atask_ctx_t*, atask_ctx_t*);
 
-aerror_t atask_shadow(struct atask_t* self)
+void
+atask_ctx_entryp();
+
+aerror_t
+atask_shadow(
+    struct atask_t* self)
 {
     self->stack = NULL;
     return AERR_NONE;
 }
 
-aerror_t atask_create(
+aerror_t
+atask_create(
     struct atask_t* self, atask_entry_t entry, void* ud, aint_t stack_sz)
 {
     self->stack = (uint8_t*)malloc(stack_sz);
@@ -55,13 +61,17 @@ aerror_t atask_create(
     return AERR_NONE;
 }
 
-void atask_delete(struct atask_t* self)
+void
+atask_delete(
+    struct atask_t* self)
 {
     STACK_DEREG(self);
     free(self->stack);
 }
 
-void atask_yield(struct atask_t* self, struct atask_t* next)
+void
+atask_yield(
+    struct atask_t* self, struct atask_t* next)
 {
     assert(self != next);
     atask_ctx_switch(&self->ctx, &next->ctx);

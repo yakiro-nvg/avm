@@ -9,13 +9,19 @@ extern "C" {
 #endif
 
 /// Add std-tuple library.
-ANY_API void astd_lib_add_tuple(aloader_t* l);
+ANY_API void
+astd_lib_add_tuple(
+    aloader_t* l);
 
 /// Create a new tuple.
-ANY_API aint_t agc_tuple_new(aactor_t* a, aint_t sz, avalue_t* v);
+ANY_API aint_t
+agc_tuple_new(
+    aactor_t* a, aint_t sz, avalue_t* v);
 
 /// Push new tuple onto the stack.
-static AINLINE void any_push_tuple(aactor_t* a, aint_t sz)
+static AINLINE void
+any_push_tuple(
+    aactor_t* a, aint_t sz)
 {
     avalue_t v;
     aint_t ec = agc_tuple_new(a, sz, &v);
@@ -24,7 +30,9 @@ static AINLINE void any_push_tuple(aactor_t* a, aint_t sz)
 }
 
 /// Check if that is tuple.
-static AINLINE void any_check_tuple(aactor_t* a, aint_t idx)
+static AINLINE void
+any_check_tuple(
+    aactor_t* a, aint_t idx)
 {
     if (any_type(a, idx).type != AVT_TUPLE) {
         any_error(a, AERR_RUNTIME, "not tuple");
@@ -32,7 +40,9 @@ static AINLINE void any_check_tuple(aactor_t* a, aint_t idx)
 }
 
 /// Returns the number of elements.
-static AINLINE aint_t any_tuple_size(aactor_t* a, aint_t idx)
+static AINLINE aint_t
+any_tuple_size(
+    aactor_t* a, aint_t idx)
 {
     agc_tuple_t* o;
     avalue_t* v = aactor_at(a, idx);

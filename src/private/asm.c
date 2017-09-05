@@ -27,12 +27,16 @@ typedef struct {
     aimport_t* imports;
 } resolved_proto_t;
 
-static AINLINE void* aalloc(aasm_t* self, void* old, const aint_t sz)
+static AINLINE void*
+aalloc(
+    aasm_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static AINLINE aint_t required_size(const aasm_reserve_t* sz)
+static AINLINE aint_t
+required_size(
+    const aasm_reserve_t* sz)
 {
     return sizeof(aasm_prototype_t) +
         sz->max_instructions * sizeof(ainstruction_t) +
@@ -41,7 +45,9 @@ static AINLINE aint_t required_size(const aasm_reserve_t* sz)
         sz->max_nesteds * sizeof(aint_t);
 }
 
-static AINLINE aint_t prototype_size(const aasm_prototype_t* p)
+static AINLINE aint_t
+prototype_size(
+    const aasm_prototype_t* p)
 {
     aasm_reserve_t sz;
     sz.max_instructions = p->max_instructions;
@@ -51,49 +57,66 @@ static AINLINE aint_t prototype_size(const aasm_prototype_t* p)
     return required_size(&sz);
 }
 
-static AINLINE ainstruction_t* instructions_of(aasm_prototype_t* p)
+static AINLINE ainstruction_t*
+instructions_of(
+    aasm_prototype_t* p)
 {
     return (ainstruction_t*)(p + 1);
 }
 
-static AINLINE const ainstruction_t* instructions_of_const(
+static AINLINE const ainstruction_t*
+instructions_of_const(
     const aasm_prototype_t* p)
 {
     return (const ainstruction_t*)(p + 1);
 }
 
-static AINLINE aconstant_t* constants_of(aasm_prototype_t* p)
+static AINLINE aconstant_t*
+constants_of(
+    aasm_prototype_t* p)
 {
     return (aconstant_t*)(instructions_of(p) + p->max_instructions);
 }
 
-static AINLINE const aconstant_t* constants_of_const(const aasm_prototype_t* p)
+static AINLINE const aconstant_t*
+constants_of_const(
+    const aasm_prototype_t* p)
 {
     return (const aconstant_t*)(
         instructions_of_const(p) + p->max_instructions);
 }
 
-static AINLINE aimport_t* imports_of(aasm_prototype_t* p)
+static AINLINE aimport_t*
+imports_of(
+    aasm_prototype_t* p)
 {
     return (aimport_t*)(constants_of(p) + p->max_constants);
 }
 
-static AINLINE const aimport_t* imports_of_const(const aasm_prototype_t* p)
+static AINLINE const aimport_t*
+imports_of_const(
+    const aasm_prototype_t* p)
 {
     return (const aimport_t*)(constants_of_const(p) + p->max_constants);
 }
 
-static AINLINE aint_t* nesteds_of(aasm_prototype_t* p)
+static AINLINE aint_t*
+nesteds_of(
+    aasm_prototype_t* p)
 {
     return (aint_t*)(imports_of(p) + p->max_imports);
 }
 
-static AINLINE const aint_t* nesteds_of_const(const aasm_prototype_t* p)
+static AINLINE const aint_t*
+nesteds_of_const(
+    const aasm_prototype_t* p)
 {
     return (const aint_t*)(imports_of_const(p) + p->max_imports);
 }
 
-static AINLINE aasm_current_t resolve(aasm_prototype_t* p)
+static AINLINE aasm_current_t
+resolve(
+    aasm_prototype_t* p)
 {
     aasm_current_t c;
     c.instructions = instructions_of(p);
@@ -103,7 +126,8 @@ static AINLINE aasm_current_t resolve(aasm_prototype_t* p)
     return c;
 }
 
-static void gc(
+static void
+gc(
     aasm_t* self, uint8_t* new_buff, aint_t* offset, const aint_t parent)
 {
     aint_t i;
@@ -125,7 +149,9 @@ static void gc(
     }
 }
 
-static void grow_buff(aasm_t* self, aint_t expected)
+static void
+grow_buff(
+    aasm_t* self, aint_t expected)
 {
     uint8_t* new_buff = NULL;
 
@@ -144,7 +170,9 @@ static void grow_buff(aasm_t* self, aint_t expected)
 
 // returns a new prototype offset,
 // and guarantee that at least 1 free slot is available.
-static aint_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
+static aint_t
+new_prototype(
+    aasm_t* self, const aasm_reserve_t* sz)
 {
     aint_t poff;
     aasm_prototype_t* p = NULL;
@@ -169,18 +197,23 @@ static aint_t new_prototype(aasm_t* self, const aasm_reserve_t* sz)
     return poff;
 }
 
-static AINLINE aint_t new_prototype_default_size(aasm_t* self)
+static AINLINE aint_t
+new_prototype_default_size(
+    aasm_t* self)
 {
     return new_prototype(self, &DEFAULT_PROTO_SZ);
 }
 
-static AINLINE aasm_ctx_t* ctx(aasm_t* self)
+static AINLINE aasm_ctx_t*
+ctx(
+    aasm_t* self)
 {
     return self->_context + self->_nested_level;
 }
 
 // compute the required size for strings.
-static aint_t compute_strings_sz(
+static aint_t
+compute_strings_sz(
     const astring_table_t* st,
     const aasm_prototype_t* p,
     const aconstant_t* constants,
@@ -213,7 +246,8 @@ static aint_t compute_strings_sz(
     return sz;
 }
 
-static void compute_chunk_body_size(
+static void
+compute_chunk_body_size(
     const aasm_t* self, aint_t parent, aint_t* psz)
 {
     aint_t i;
@@ -232,7 +266,8 @@ static void compute_chunk_body_size(
     }
 }
 
-static AINLINE resolved_proto_t rp_resolve(
+static AINLINE resolved_proto_t
+rp_resolve(
     const aprototype_header_t* p, aint_t strings_sz)
 {
     resolved_proto_t c;
@@ -242,7 +277,8 @@ static AINLINE resolved_proto_t rp_resolve(
     return c;
 }
 
-static aint_t chunk_add_str(
+static aint_t
+chunk_add_str(
     const aasm_t* self, aprototype_header_t* header, aint_t string)
 {
     const uint32_t hash = astring_table_to_hash(self->st, string);
@@ -257,7 +293,8 @@ static aint_t chunk_add_str(
 }
 
 // set header fields
-static void set_headers(
+static void
+set_headers(
     const aasm_t* self, aprototype_header_t* header, const aasm_prototype_t* p)
 {
     memset(header, 0, sizeof(*header));
@@ -269,7 +306,8 @@ static void set_headers(
     header->symbol = chunk_add_str(self, header, p->symbol);
 }
 
-static AINLINE aconstant_t to_chunk(
+static AINLINE aconstant_t
+to_chunk(
     aconstant_t c, aasm_t* self, aprototype_header_t* header)
 {
     aconstant_t v = c;
@@ -279,9 +317,12 @@ static AINLINE aconstant_t to_chunk(
     return v;
 }
 
-static void save_chunk(aasm_t* self, aint_t parent);
+static void
+save_chunk(
+    aasm_t* self, aint_t parent);
 
-static void copy_prototype(
+static void
+copy_prototype(
     aasm_t* self,
     const aasm_prototype_t* p,
     const aasm_current_t* c,
@@ -319,7 +360,9 @@ static void copy_prototype(
     }
 }
 
-static void save_chunk(aasm_t* self, aint_t parent)
+static void
+save_chunk(
+    aasm_t* self, aint_t parent)
 {
     const aasm_prototype_t* const p = aasm_prototype_at(self, parent);
     const aasm_current_t c = resolve((aasm_prototype_t*)p);
@@ -336,13 +379,15 @@ static void save_chunk(aasm_t* self, aint_t parent)
     copy_prototype(self, p, &c, header, str_sz);
 }
 
-static AINLINE const char* rp_string(
+static AINLINE const char*
+rp_string(
     const aprototype_header_t* p, aint_t string)
 {
     return ((const char*)p) + sizeof(aprototype_header_t) + string;
 }
 
-static aconstant_t from_chunk(
+static aconstant_t
+from_chunk(
     aconstant_t v, aasm_t* self, const aprototype_header_t* p)
 {
     aconstant_t c = v;
@@ -352,7 +397,8 @@ static aconstant_t from_chunk(
     return c;
 }
 
-static aerror_t load_chunk(
+static aerror_t
+load_chunk(
     aasm_t* self, const achunk_header_t* input, aint_t* offset)
 {
     aerror_t ec = AERR_NONE;
@@ -407,7 +453,9 @@ static aerror_t load_chunk(
     return ec;
 }
 
-static aint_t push_unsafe(aasm_t* self)
+static aint_t
+push_unsafe(
+    aasm_t* self)
 {
     const aint_t np_off = new_prototype_default_size(self);
     const aint_t np = self->_num_slots++;
@@ -425,14 +473,18 @@ static aint_t push_unsafe(aasm_t* self)
     return p->num_nesteds++;
 }
 
-void aasm_init(aasm_t* self, aalloc_t alloc, void* alloc_ud)
+void
+aasm_init(
+    aasm_t* self, aalloc_t alloc, void* alloc_ud)
 {
     memset(self, 0, sizeof(*self));
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
 }
 
-aerror_t aasm_load(aasm_t* self, const achunk_header_t* input)
+aerror_t
+aasm_load(
+    aasm_t* self, const achunk_header_t* input)
 {
     aasm_cleanup(self);
 
@@ -459,7 +511,9 @@ aerror_t aasm_load(aasm_t* self, const achunk_header_t* input)
     }
 }
 
-void aasm_save(aasm_t* self)
+void
+aasm_save(
+    aasm_t* self)
 {
     aint_t sz = 0;
     if (self->_num_slots == 0) return;
@@ -479,7 +533,9 @@ void aasm_save(aasm_t* self)
     assert(self->chunk_size == sz);
 }
 
-void aasm_cleanup(aasm_t* self)
+void
+aasm_cleanup(
+    aasm_t* self)
 {
     aalloc(self, self->st, 0);
     self->st = NULL;
@@ -502,7 +558,9 @@ void aasm_cleanup(aasm_t* self)
     self->_chunk_capacity = 0;
 }
 
-aint_t aasm_emit(aasm_t* self, ainstruction_t instruction)
+aint_t
+aasm_emit(
+    aasm_t* self, ainstruction_t instruction)
 {
     aasm_prototype_t* p = aasm_prototype(self);
     aasm_reserve_t sz;
@@ -522,7 +580,9 @@ aint_t aasm_emit(aasm_t* self, ainstruction_t instruction)
     return p->num_instructions++;
 }
 
-aint_t aasm_add_constant(aasm_t* self, aconstant_t constant)
+aint_t
+aasm_add_constant(
+    aasm_t* self, aconstant_t constant)
 {
     aasm_prototype_t* p = aasm_prototype(self);
     aasm_reserve_t sz;
@@ -542,7 +602,9 @@ aint_t aasm_add_constant(aasm_t* self, aconstant_t constant)
     return p->num_constants++;
 }
 
-aint_t aasm_add_import(aasm_t* self, const char* module, const char* name)
+aint_t
+aasm_add_import(
+    aasm_t* self, const char* module, const char* name)
 {
     aimport_t import;
     aasm_prototype_t* p;
@@ -567,7 +629,9 @@ aint_t aasm_add_import(aasm_t* self, const char* module, const char* name)
     return p->num_imports++;
 }
 
-aint_t aasm_module_push(aasm_t* self, const char* name)
+aint_t
+aasm_module_push(
+    aasm_t* self, const char* name)
 {
     aasm_prototype_t* p;
     aint_t idx;
@@ -579,7 +643,9 @@ aint_t aasm_module_push(aasm_t* self, const char* name)
     return idx;
 }
 
-aint_t aasm_push(aasm_t* self)
+aint_t
+aasm_push(
+    aasm_t* self)
 {
     const aasm_prototype_t* p = aasm_prototype(self);
     aasm_reserve_t sz;
@@ -597,7 +663,9 @@ aint_t aasm_push(aasm_t* self)
     return push_unsafe(self);
 }
 
-void aasm_open(aasm_t* self, aint_t idx)
+void
+aasm_open(
+    aasm_t* self, aint_t idx)
 {
     aasm_prototype_t* const p = aasm_prototype(self);
     assert(idx < p->num_nesteds);
@@ -607,7 +675,9 @@ void aasm_open(aasm_t* self, aint_t idx)
     self->_context[self->_nested_level].idx = idx;
 }
 
-aint_t aasm_pop(aasm_t* self)
+aint_t
+aasm_pop(
+    aasm_t* self)
 {
     aint_t idx;
     assert(self->_nested_level > 0);
@@ -616,7 +686,9 @@ aint_t aasm_pop(aasm_t* self)
     return idx;
 }
 
-aint_t aasm_string_to_ref(aasm_t* self, const char* string)
+aint_t
+aasm_string_to_ref(
+    aasm_t* self, const char* string)
 {
     aint_t ref = AERR_FULL;
     do {
@@ -632,7 +704,9 @@ aint_t aasm_string_to_ref(aasm_t* self, const char* string)
     return ref;
 }
 
-void aasm_reserve(aasm_t* self, const aasm_reserve_t* sz)
+void
+aasm_reserve(
+    aasm_t* self, const aasm_reserve_t* sz)
 {
     {
         const aasm_prototype_t* const p = aasm_prototype(self);
@@ -674,12 +748,16 @@ void aasm_reserve(aasm_t* self, const aasm_reserve_t* sz)
     }
 }
 
-aasm_prototype_t* aasm_prototype(aasm_t* self)
+aasm_prototype_t*
+aasm_prototype(
+    aasm_t* self)
 {
     return aasm_prototype_at(self, ctx(self)->slot);
 }
 
-aasm_current_t aasm_resolve(aasm_t* self)
+aasm_current_t
+aasm_resolve(
+    aasm_t* self)
 {
     return resolve(aasm_prototype(self));
 }

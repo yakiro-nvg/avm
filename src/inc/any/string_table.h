@@ -13,7 +13,8 @@ extern "C" {
 `average_strlen` is the expected average length of the strings that
 will be added.
 */
-ANY_API void astring_table_init(
+ANY_API void
+astring_table_init(
     astring_table_t* self, aint_t bytes, aint_t average_strlen);
 
 /** Grows the string table to size `bytes`.
@@ -22,7 +23,9 @@ You must make sure that this many `bytes` are available in
 the pointer `self`, typically by realloc before calling this
 function.
 */
-ANY_API void astring_table_grow(astring_table_t* self, aint_t bytes);
+ANY_API void
+astring_table_grow(
+    astring_table_t* self, aint_t bytes);
 
 /** Packs the string table.
 \brief
@@ -31,7 +34,9 @@ still preserving the content. Updates `self->allocated_bytes`
 and returns the new value. You can use that to shrink the buffer
 with realloc if so desired.
 */
-ANY_API aint_t astring_table_pack(astring_table_t* self);
+ANY_API aint_t
+astring_table_pack(
+    astring_table_t* self);
 
 /** Returns the reference for the string `s`.
 \brief
@@ -40,12 +45,15 @@ added because the table is full, the function returns `AERR_FULL`.
 
 \note The empty string is guaranteed to have the reference `0`.
 */
-ANY_API aint_t astring_table_to_ref(astring_table_t* self, const char* string);
+ANY_API aint_t
+astring_table_to_ref(
+    astring_table_t* self, const char* string);
 
 /** As same as \ref astring_table_to_ref, but never adds the string to the table.
 \note If the string doesn't exist in the table AERR_FULL is returned.
 */
-ANY_API aint_t astring_table_to_ref_const(
+ANY_API aint_t
+astring_table_to_ref_const(
     const astring_table_t* self, const char* string);
 
 /** Returns the string corresponding to the `ref`.
@@ -53,7 +61,8 @@ ANY_API aint_t astring_table_to_ref_const(
 Calling this with a value which is not a ref returned
 by \ref astring_table_to_ref results in undefined behavior.
 */
-ANY_API const char* astring_table_to_string(
+ANY_API const char*
+astring_table_to_string(
     const astring_table_t* self, aint_t ref);
 
 /** Returns the hashed value corresponding the the `ref`.
@@ -61,7 +70,9 @@ ANY_API const char* astring_table_to_string(
 Calling this with a value which is not a ref returned
 by \ref astring_table_to_ref results in undefined behavior.
 */
-ANY_API uint32_t astring_table_to_hash(const astring_table_t* self, aint_t ref);
+ANY_API uint32_t
+astring_table_to_hash(
+    const astring_table_t* self, aint_t ref);
 
 #ifdef __cplusplus
 } // extern "C"

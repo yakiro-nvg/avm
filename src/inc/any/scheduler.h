@@ -16,23 +16,38 @@ to distinguish processes created at the same index slot. That caused by limited
 size of process array so eventually the index will be reused.
 \note This will shadow current thread.
 */
-ANY_API aerror_t ascheduler_init(
+ANY_API aerror_t
+ascheduler_init(
     ascheduler_t* self, int8_t idx_bits, int8_t gen_bits,
     aalloc_t alloc, void* alloc_ud);
 
 /// Register fatal error handler.
-static AINLINE void ascheduler_on_panic(ascheduler_t* self, aon_panic_t handler)
+static AINLINE void
+ascheduler_on_panic(
+    ascheduler_t* self, aon_panic_t handler)
 {
     self->on_panic = handler;
 }
 
+/// Register debug step handler.
+static AINLINE void
+ascheduler_on_step(
+    ascheduler_t* self, aon_step_t handler)
+{
+    self->on_step = handler;
+}
+
 /// Release all processes.
-ANY_API void ascheduler_cleanup(ascheduler_t* self);
+ANY_API void
+ascheduler_cleanup(
+    ascheduler_t* self);
 
 /** Get alive actor by pid.
 \return NULL if that is not found or died.
 */
-static AINLINE aactor_t* ascheduler_actor(ascheduler_t* self, apid_t pid)
+static AINLINE aactor_t*
+ascheduler_actor(
+    ascheduler_t* self, apid_t pid)
 {
     apid_idx_t idx = apid_idx(self->idx_bits, pid);
     aprocess_t* p = self->procs + idx;
@@ -44,57 +59,78 @@ static AINLINE aactor_t* ascheduler_actor(ascheduler_t* self, apid_t pid)
 /** Take an unused slot from the pool.
 \return NULL if no more space.
 */
-ANY_API aprocess_t* ascheduler_alloc(ascheduler_t* self);
+ANY_API aprocess_t*
+ascheduler_alloc(
+    ascheduler_t* self);
 
 /// Returns this process to the pool.
-static AINLINE void ascheduler_free(ascheduler_t* self, aprocess_t* p)
+static AINLINE void
+ascheduler_free(
+    ascheduler_t* self, aprocess_t* p)
 {
     p->dead = TRUE;
     --self->num_procs;
 }
 
 /// Returns number of living processes.
-static AINLINE aint_t ascheduler_num_processes(ascheduler_t* self)
+static AINLINE aint_t
+ascheduler_num_processes(
+    ascheduler_t* self)
 {
     return self->num_procs;
 }
 
 /// Get pid of this actor.
-static AINLINE apid_t ascheduler_pid(ascheduler_t* self, aactor_t* a)
+static AINLINE apid_t
+ascheduler_pid(
+    ascheduler_t* self, aactor_t* a)
 {
     AUNUSED(self);
     return ACAST_FROM_FIELD(aprocess_t, a, actor)->pid;
 }
 
 /// Run all processes, must be called on the creation thread.
-ANY_API void ascheduler_run_once(ascheduler_t* self);
+ANY_API void
+ascheduler_run_once(
+    ascheduler_t* self);
 
 /** Suspends this actor, and switch to next.
 \warning Suspends NOT running actor is undefined.
 */
-ANY_API void ascheduler_yield(ascheduler_t* self, aactor_t* a);
+ANY_API void
+ascheduler_yield(
+    ascheduler_t* self, aactor_t* a);
 
 /** Suspends this actor for `nsecs`.
 \warning Suspends NOT running actor is undefined.
 */
-ANY_API void ascheduler_sleep(ascheduler_t* self, aactor_t* a, aint_t nsecs);
+ANY_API void
+ascheduler_sleep(
+    ascheduler_t* self, aactor_t* a, aint_t nsecs);
 
 /** Wait for incoming message in `nsecs`.
 \warning Suspends NOT running actor is undefined.
 */
-ANY_API void ascheduler_wait(ascheduler_t* self, aactor_t* a, aint_t nsecs);
+ANY_API void
+ascheduler_wait(
+    ascheduler_t* self, aactor_t* a, aint_t nsecs);
 
 /// Wake-up this actor if its waiting for incoming message.
-ANY_API void ascheduler_got_new_message(ascheduler_t* self, aactor_t* a);
+ANY_API void
+ascheduler_got_new_message(
+    ascheduler_t* self, aactor_t* a);
 
 /** Create a new actor, and store its pointer to `a`.
 \note Must be started manually.
 */
-ANY_API aerror_t ascheduler_new_actor(
+ANY_API aerror_t
+ascheduler_new_actor(
     ascheduler_t* self, aint_t cstack_sz, aactor_t** a);
 
 /// Start actor and invoke the entry point.
-ANY_API void ascheduler_start(ascheduler_t* self, aactor_t* a, aint_t nargs);
+ANY_API void
+ascheduler_start(
+    ascheduler_t* self, aactor_t* a, aint_t nargs);
 
 #ifdef __cplusplus
 } // extern "C"

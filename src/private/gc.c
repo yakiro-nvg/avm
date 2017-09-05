@@ -4,24 +4,32 @@
 #define GROW_FACTOR 2
 #define NOT_FORWARED -1
 
-static AINLINE void* aalloc(agc_t* self, void* old, const aint_t sz)
+static AINLINE void*
+aalloc(
+    agc_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static AINLINE uint8_t* low_heap(agc_t* self)
+static AINLINE uint8_t*
+low_heap(
+    agc_t* self)
 {
     return self->cur_heap < self->new_heap ? self->cur_heap : self->new_heap;
 }
 
-static AINLINE void swap(agc_t* self)
+static AINLINE void
+swap(
+    agc_t* self)
 {
     uint8_t* tmp = self->cur_heap;
     self->cur_heap = self->new_heap;
     self->new_heap = tmp;
 }
 
-static AINLINE void copy(agc_t* self, avalue_t* v)
+static AINLINE void
+copy(
+    agc_t* self, avalue_t* v)
 {
     agc_header_t* ogch;
     agc_header_t* ngch;
@@ -36,7 +44,9 @@ static AINLINE void copy(agc_t* self, avalue_t* v)
     v->v.heap_idx = ogch->forwared;
 }
 
-static AINLINE void copy_tuple(agc_t* self, agc_tuple_t* o)
+static AINLINE void
+copy_tuple(
+    agc_t* self, agc_tuple_t* o)
 {
     aint_t i;
     avalue_t* elements = (avalue_t*)(o + 1);
@@ -45,7 +55,9 @@ static AINLINE void copy_tuple(agc_t* self, agc_tuple_t* o)
     }
 }
 
-static AINLINE void copy_array(agc_t* self, agc_array_t* o)
+static AINLINE void
+copy_array(
+    agc_t* self, agc_array_t* o)
 {
     aint_t i;
     avalue_t* elements = AGC_CAST(avalue_t, self, o->buff.v.heap_idx);
@@ -54,7 +66,9 @@ static AINLINE void copy_array(agc_t* self, agc_array_t* o)
     }
 }
 
-static AINLINE void copy_table(agc_t* self, agc_table_t* o)
+static AINLINE void
+copy_table(
+    agc_t* self, agc_table_t* o)
 {
     aint_t i;
     avalue_t* elements = AGC_CAST(avalue_t, self, o->buff.v.heap_idx);
@@ -64,7 +78,9 @@ static AINLINE void copy_table(agc_t* self, agc_table_t* o)
     }
 }
 
-static AINLINE void scan(agc_t* self, agc_header_t* gch)
+static AINLINE void
+scan(
+    agc_t* self, agc_header_t* gch)
 {
     switch (gch->type) {
     case AVT_NIL:
@@ -104,7 +120,9 @@ static AINLINE void scan(agc_t* self, agc_header_t* gch)
     }
 }
 
-aerror_t agc_init(agc_t* self, aint_t heap_cap, aalloc_t alloc, void* alloc_ud)
+aerror_t
+agc_init(
+    agc_t* self, aint_t heap_cap, aalloc_t alloc, void* alloc_ud)
 {
     self->alloc = alloc;
     self->alloc_ud = alloc_ud;
@@ -116,7 +134,9 @@ aerror_t agc_init(agc_t* self, aint_t heap_cap, aalloc_t alloc, void* alloc_ud)
     return AERR_NONE;
 }
 
-void agc_cleanup(agc_t* self)
+void
+agc_cleanup(
+    agc_t* self)
 {
     aalloc(self, low_heap(self), 0);
     self->new_heap = NULL;
@@ -125,7 +145,9 @@ void agc_cleanup(agc_t* self)
     self->heap_sz = 0;
 }
 
-aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
+aint_t
+agc_alloc(
+    agc_t* self, atype_t type, aint_t sz)
 {
     agc_header_t* gch;
     aint_t more = AALIGN_FORWARD(sz + sizeof(agc_header_t), 8);
@@ -140,7 +162,9 @@ aint_t agc_alloc(agc_t* self, atype_t type, aint_t sz)
     return heap_idx;
 }
 
-aerror_t agc_reserve(agc_t* self, aint_t more, aint_t n)
+aerror_t
+agc_reserve(
+    agc_t* self, aint_t more, aint_t n)
 {
     uint8_t* nh;
     aint_t new_cap = self->heap_cap;
@@ -156,7 +180,9 @@ aerror_t agc_reserve(agc_t* self, aint_t more, aint_t n)
     return AERR_NONE;
 }
 
-void agc_collect(agc_t* self, avalue_t** roots, aint_t* num_roots)
+void
+agc_collect(
+    agc_t* self, avalue_t** roots, aint_t* num_roots)
 {
     aint_t i;
     self->heap_sz = 0;

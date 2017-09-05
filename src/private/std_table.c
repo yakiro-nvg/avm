@@ -8,7 +8,9 @@
 #define GROW_FACTOR 2
 #define INIT_GROW 64
 
-static agc_table_t* set_capacity(aactor_t* a, avalue_t* t, aint_t cap)
+static agc_table_t*
+set_capacity(
+    aactor_t* a, avalue_t* t, aint_t cap)
 {
     agc_table_t* o;
     aint_t bi;
@@ -45,7 +47,9 @@ static int32_t valid_keys[] = {
 
 ASTATIC_ASSERT(__AVT_LAST__ == sizeof(valid_keys) / sizeof(valid_keys[0]) - 1);
 
-static AINLINE void check_key(aactor_t* a, avalue_t* k)
+static AINLINE void
+check_key(
+    aactor_t* a, avalue_t* k)
 {
     if (k->tag.type > __AVT_LAST__ ||
         k->tag.type < 0 ||
@@ -54,13 +58,17 @@ static AINLINE void check_key(aactor_t* a, avalue_t* k)
     }
 }
 
-static AINLINE int32_t fuzzy_equals(areal_t a, areal_t b)
+static AINLINE int32_t
+fuzzy_equals(
+    areal_t a, areal_t b)
 {
     areal_t precision = (areal_t)0.00001;
     return (a - precision) < b && (a + precision) > b;
 }
 
-static avalue_t* search_for(aactor_t* a, agc_table_t* t, avalue_t* k)
+static avalue_t*
+search_for(
+    aactor_t* a, agc_table_t* t, avalue_t* k)
 {
     aint_t i;
     avalue_t* vals = AGC_CAST(avalue_t, &a->gc, t->buff.v.heap_idx);
@@ -95,7 +103,9 @@ static avalue_t* search_for(aactor_t* a, agc_table_t* t, avalue_t* k)
     return NULL;
 }
 
-static void lnew(aactor_t* a)
+static void
+lnew(
+    aactor_t* a)
 {
     aint_t a_cap = any_check_index(a, -1);
     aint_t cap = any_check_integer(a, a_cap);
@@ -106,7 +116,9 @@ static void lnew(aactor_t* a)
     any_push_table(a, cap);
 }
 
-static void lget(aactor_t* a)
+static void
+lget(
+    aactor_t* a)
 {
     agc_table_t* o;
     avalue_t *t, *k, *v;
@@ -125,7 +137,9 @@ static void lget(aactor_t* a)
     }
 }
 
-static void lset(aactor_t* a)
+static void
+lset(
+    aactor_t* a)
 {
     agc_table_t* o;
     avalue_t *t, *k, *v, *val;
@@ -157,14 +171,18 @@ static void lset(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lsize(aactor_t* a)
+static void
+lsize(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_table(a, a_self);
     any_push_integer(a, any_table_size(a, a_self));
 }
 
-static void lcapacity(aactor_t* a)
+static void
+lcapacity(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_table(a, a_self);
@@ -182,12 +200,16 @@ static alib_func_t funcs[] = {
 
 static alib_t mod = { "std-table", funcs };
 
-void astd_lib_add_table(aloader_t* l)
+void
+astd_lib_add_table(
+    aloader_t* l)
 {
     aloader_add_lib(l, &mod);
 }
 
-aint_t agc_table_new(aactor_t* a, aint_t cap, avalue_t* v)
+aint_t
+agc_table_new(
+    aactor_t* a, aint_t cap, avalue_t* v)
 {
     aerror_t ec;
     aint_t cap_bytes = cap * 2 * sizeof(avalue_t);

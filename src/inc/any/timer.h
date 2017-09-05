@@ -11,12 +11,16 @@ extern "C" {
 
 typedef LARGE_INTEGER atimer_t;
 
-static AINLINE void atimer_start(atimer_t* self)
+static AINLINE void
+atimer_start(
+    atimer_t* self)
 {
     QueryPerformanceCounter(self);
 }
 
-static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
+static AINLINE aint_t
+atimer_delta_nsecs(
+    atimer_t* self)
 {
     LARGE_INTEGER end, delta, frequency;
     QueryPerformanceFrequency(&frequency);
@@ -37,8 +41,9 @@ static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
 
 typedef struct timespec atimer_t;
 
-static AINLINE void time_diff(
-    const struct timespec* start, const struct timespec* end, 
+static AINLINE void
+time_diff(
+    const struct timespec* start, const struct timespec* end,
     struct timespec* r)
 {
     if ((end->tv_nsec - start->tv_nsec) < 0) {
@@ -50,12 +55,16 @@ static AINLINE void time_diff(
     }
 }
 
-static AINLINE void atimer_start(atimer_t* self)
+static AINLINE void
+atimer_start(
+    atimer_t* self)
 {
     clock_gettime(CLOCK_MONOTONIC, self);
 }
 
-static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
+static AINLINE aint_t
+atimer_delta_nsecs(
+    atimer_t* self)
 {
     struct timespec end, delta;
     clock_gettime(CLOCK_MONOTONIC, &end);
@@ -70,12 +79,16 @@ static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
 
 typedef uint64_t atimer_t;
 
-static AINLINE void atimer_start(atimer_t* self)
+static AINLINE void
+atimer_start(
+    atimer_t* self)
 {
     *self = mach_absolute_time();
 }
 
-static AINLINE aint_t atimer_delta_nsecs(atimer_t* self)
+static AINLINE aint_t
+atimer_delta_nsecs(
+    atimer_t* self)
 {
     uint64_t end = mach_absolute_time(), delta;
     mach_timebase_info_data_t time_base_info;

@@ -3,7 +3,9 @@
 
 #ifdef ANY_TASK_FIBER
 
-aerror_t atask_shadow(struct atask_t* self)
+aerror_t
+atask_shadow(
+    struct atask_t* self)
 {
     self->fiber = GetCurrentFiber();
     self->fiber = (self->fiber && self->fiber != (void*)0x1E00)
@@ -13,7 +15,8 @@ aerror_t atask_shadow(struct atask_t* self)
     return AERR_NONE;
 }
 
-aerror_t atask_create(
+aerror_t
+atask_create(
     struct atask_t* self, atask_entry_t entry, void* ud, aint_t stack_sz)
 {
     self->fiber = CreateFiber((SIZE_T)stack_sz, entry, ud);
@@ -21,12 +24,16 @@ aerror_t atask_create(
     return AERR_NONE;
 }
 
-void atask_delete(struct atask_t* self)
+void
+atask_delete(
+    struct atask_t* self)
 {
     DeleteFiber(self->fiber);
 }
 
-void atask_yield(struct atask_t* self, struct atask_t* next)
+void
+atask_yield(
+    struct atask_t* self, struct atask_t* next)
 {
     assert(self != next);
     SwitchToFiber(next->fiber);

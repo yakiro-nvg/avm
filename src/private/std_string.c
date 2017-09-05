@@ -4,28 +4,36 @@
 #include <any/gc.h>
 #include <any/loader.h>
 
-static AINLINE void check_index(aactor_t* a, aint_t idx, aint_t len)
+static AINLINE void
+check_index(
+    aactor_t* a, aint_t idx, aint_t len)
 {
     if (idx >= len || idx < 0) {
         any_error(a, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
 }
 
-static void llength(aactor_t* a)
+static void
+llength(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_string(a, a_self);
     any_push_integer(a, any_string_length(a, a_self));
 }
 
-static void lhash(aactor_t* a)
+static void
+lhash(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_string(a, a_self);
     any_push_integer(a, any_string_hash(a, a_self));
 }
 
-static void lget(aactor_t* a)
+static void
+lget(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     aint_t a_idx = any_check_index(a, -2);
@@ -36,7 +44,9 @@ static void lget(aactor_t* a)
     any_push_integer(a, s[idx]);
 }
 
-static void lconcat(aactor_t* a)
+static void
+lconcat(
+    aactor_t* a)
 {
     aint_t a_lhs = any_check_index(a, -1);
     aint_t a_rhs = any_check_index(a, -2);
@@ -74,12 +84,16 @@ static alib_func_t funcs[] = {
 
 static alib_t mod = { "std-string", funcs };
 
-void astd_lib_add_string(aloader_t* l)
+void
+astd_lib_add_string(
+    aloader_t* l)
 {
     aloader_add_lib(l, &mod);
 }
 
-ahash_and_length_t ahash_and_length(const char* s)
+ahash_and_length_t
+ahash_and_length(
+    const char* s)
 {
     // The hash function is borrowed from Lua.
     // Since we need to walk the entire string anyway for finding the
@@ -93,7 +107,9 @@ ahash_and_length_t ahash_and_length(const char* s)
     return result;
 }
 
-aint_t agc_string_new(aactor_t* a, const char* s, avalue_t* v)
+aint_t
+agc_string_new(
+    aactor_t* a, const char* s, avalue_t* v)
 {
     ahash_and_length_t hal = ahash_and_length(s);
     aint_t sz = sizeof(agc_string_t) + hal.length + 1;

@@ -8,7 +8,9 @@
 static void(*out)(void*, const char*) = NULL;
 static void* out_ud = NULL;
 
-static void remove_trailing_zeroes(char* buf)
+static void
+remove_trailing_zeroes(
+    char* buf)
 {
     char* dot = strchr(buf, '.');
     if (dot != NULL) {
@@ -19,7 +21,9 @@ static void remove_trailing_zeroes(char* buf)
     }
 }
 
-static void print(aactor_t* a)
+static void
+print(
+    aactor_t* a)
 {
     aint_t i;
     aint_t nargs = any_nargs(a);
@@ -87,7 +91,9 @@ static alib_func_t funcs[] = {
 
 static alib_t mod = { "std-io", funcs };
 
-void astd_lib_add_io(aloader_t* l, void(*o)(void*, const char*), void* ud)
+void
+astd_lib_add_io(
+    aloader_t* l, void(*o)(void*, const char*), void* ud)
 {
     aloader_add_lib(l, &mod);
     out = o;

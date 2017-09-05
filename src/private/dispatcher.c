@@ -3,7 +3,9 @@
 
 #include <any/std_string.h>
 
-void actor_dispatch(aactor_t* a)
+void
+actor_dispatch(
+    aactor_t* a)
 {
     aframe_t* frame = a->frame;
     aprototype_t* pt = frame->pt;

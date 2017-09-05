@@ -9,13 +9,19 @@ extern "C" {
 #endif
 
 /// Add std-table library.
-ANY_API void astd_lib_add_table(aloader_t* l);
+ANY_API void
+astd_lib_add_table(
+    aloader_t* l);
 
 /// Create a new table.
-ANY_API aint_t agc_table_new(aactor_t* a, aint_t cap, avalue_t* v);
+ANY_API aint_t
+agc_table_new(
+    aactor_t* a, aint_t cap, avalue_t* v);
 
 /// Push new table onto the stack.
-static AINLINE void any_push_table(aactor_t* a, aint_t cap)
+static AINLINE void
+any_push_table(
+    aactor_t* a, aint_t cap)
 {
     avalue_t v;
     aint_t ec = agc_table_new(a, cap, &v);
@@ -24,7 +30,9 @@ static AINLINE void any_push_table(aactor_t* a, aint_t cap)
 }
 
 /// Check if that is table.
-static AINLINE void any_check_table(aactor_t* a, aint_t idx)
+static AINLINE void
+any_check_table(
+    aactor_t* a, aint_t idx)
 {
     if (any_type(a, idx).type != AVT_TABLE) {
         any_error(a, AERR_RUNTIME, "not table");
@@ -32,7 +40,9 @@ static AINLINE void any_check_table(aactor_t* a, aint_t idx)
 }
 
 /// Returns the number of elements.
-static AINLINE aint_t any_table_size(aactor_t* a, aint_t idx)
+static AINLINE aint_t
+any_table_size(
+    aactor_t* a, aint_t idx)
 {
     agc_table_t* o;
     avalue_t* v = aactor_at(a, idx);
@@ -41,7 +51,9 @@ static AINLINE aint_t any_table_size(aactor_t* a, aint_t idx)
 }
 
 /// Returns the capacity.
-static AINLINE aint_t any_table_capacity(aactor_t* a, aint_t idx)
+static AINLINE aint_t
+any_table_capacity(
+    aactor_t* a, aint_t idx)
 {
     agc_table_t* o;
     avalue_t* v = aactor_at(a, idx);

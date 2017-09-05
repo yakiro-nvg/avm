@@ -7,7 +7,9 @@
 #define GROW_FACTOR 2
 #define INIT_GROW 64
 
-static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
+static void
+set_capacity(
+    aactor_t* a, aint_t idx, aint_t cap)
 {
     avalue_t* v;
     agc_array_t* o;
@@ -27,14 +29,18 @@ static void set_capacity(aactor_t* a, aint_t idx, aint_t cap)
     av_collectable(&o->buff, AVT_FIXED_BUFFER, bi);
 }
 
-static AINLINE void check_index(aactor_t* a, aint_t idx, aint_t sz)
+static AINLINE void
+check_index(
+    aactor_t* a, aint_t idx, aint_t sz)
 {
     if (idx >= sz || idx < 0) {
         any_error(a, AERR_RUNTIME, "bad index %lld", (long long int)idx);
     }
 }
 
-static void lnew(aactor_t* a)
+static void
+lnew(
+    aactor_t* a)
 {
     aint_t a_cap = any_check_index(a, -1);
     aint_t cap = any_check_integer(a, a_cap);
@@ -45,7 +51,9 @@ static void lnew(aactor_t* a)
     any_push_array(a, cap);
 }
 
-static void lreserve(aactor_t* a)
+static void
+lreserve(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     aint_t a_cap = any_check_index(a, -2);
@@ -55,7 +63,9 @@ static void lreserve(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lshrink_to_fit(aactor_t* a)
+static void
+lshrink_to_fit(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_array(a, a_self);
@@ -63,7 +73,9 @@ static void lshrink_to_fit(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lresize(aactor_t* a)
+static void
+lresize(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     aint_t a_sz = any_check_index(a, -2);
@@ -76,7 +88,9 @@ static void lresize(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lget(aactor_t* a)
+static void
+lget(
+    aactor_t* a)
 {
     aint_t sz;
     agc_array_t* o;
@@ -92,7 +106,9 @@ static void lget(aactor_t* a)
     aactor_push(a, AGC_CAST(avalue_t, &a->gc, o->buff.v.heap_idx) + idx);
 }
 
-static void lset(aactor_t* a)
+static void
+lset(
+    aactor_t* a)
 {
     aint_t sz;
     agc_array_t* o;
@@ -110,14 +126,18 @@ static void lset(aactor_t* a)
     any_push_nil(a);
 }
 
-static void lsize(aactor_t* a)
+static void
+lsize(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_array(a, a_self);
     any_push_integer(a, any_array_size(a, a_self));
 }
 
-static void lcapacity(aactor_t* a)
+static void
+lcapacity(
+    aactor_t* a)
 {
     aint_t a_self = any_check_index(a, -1);
     any_check_array(a, a_self);
@@ -138,12 +158,16 @@ static alib_func_t funcs[] = {
 
 static alib_t mod = { "std-array", funcs };
 
-void astd_lib_add_array(aloader_t* l)
+void
+astd_lib_add_array(
+    aloader_t* l)
 {
     aloader_add_lib(l, &mod);
 }
 
-aint_t agc_array_new(aactor_t* a, aint_t cap, avalue_t* v)
+aint_t
+agc_array_new(
+    aactor_t* a, aint_t cap, avalue_t* v)
 {
     aerror_t ec;
     aint_t cap_bytes = cap * sizeof(avalue_t);
@@ -163,7 +187,9 @@ aint_t agc_array_new(aactor_t* a, aint_t cap, avalue_t* v)
     }
 }
 
-void any_array_reserve(aactor_t* a, aint_t idx, aint_t cap)
+void
+any_array_reserve(
+    aactor_t* a, aint_t idx, aint_t cap)
 {
     avalue_t* v = aactor_at(a, idx);
     agc_array_t* o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
@@ -172,14 +198,18 @@ void any_array_reserve(aactor_t* a, aint_t idx, aint_t cap)
     }
 }
 
-void any_array_shrink_to_fit(aactor_t* a, aint_t idx)
+void
+any_array_shrink_to_fit(
+    aactor_t* a, aint_t idx)
 {
     avalue_t* v = aactor_at(a, idx);
     agc_array_t* o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
     set_capacity(a, idx, o->sz);
 }
 
-void any_array_resize(aactor_t* a, aint_t idx, aint_t sz)
+void
+any_array_resize(
+    aactor_t* a, aint_t idx, aint_t sz)
 {
     avalue_t* v = aactor_at(a, idx);
     agc_array_t* o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
