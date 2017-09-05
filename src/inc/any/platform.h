@@ -47,7 +47,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #elif defined(__arm__)
 #define AARCH_ARM
 #else
-#   error "unknown cpu architecture"
+#error "unknown cpu architecture"
 #endif
 
 #ifdef AMSVC
