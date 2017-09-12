@@ -14,6 +14,42 @@ static void spawn_new(ascheduler_t* s)
     ascheduler_start(s, a, 0);
 }
 
+static void expected(aactor_t* a, void* ud)
+{
+    *(aerror_t*)ud = a->error_jmp->status;
+}
+
+static void unexpect(aactor_t* a, void* ud)
+{
+    REQUIRE(false);
+}
+
+static void throw_runtime(aactor_t* a, void*)
+{
+    any_throw(a, AERR_RUNTIME);
+}
+
+static void root_throw(aactor_t* a)
+{
+    throw_runtime(a, NULL);
+}
+
+static void safe_throw(aactor_t* a)
+{
+    any_try(a, &throw_runtime, NULL);
+}
+
+static void get_pid(aactor_t* a, void* ud)
+{
+    *(apid_t*)ud = ascheduler_pid(a->owner, a);
+}
+
+static void step(aactor_t* a, void* ud)
+{
+    aint_t& idx = *(aint_t*)ud;
+    REQUIRE(a->frame->ip == idx++);
+}
+
 TEST_CASE("scheduler_new_process")
 {
     enum { NUM_IDX_BITS = 4 };
@@ -52,17 +88,12 @@ TEST_CASE("scheduler_on_panic")
 
     aerror_t ec = AERR_NONE;
 
-    ascheduler_on_panic(&s, [](aactor_t* a, void* ud) {
-        *(aerror_t*)ud = a->error_jmp->status;
-    }, &ec);
-
-    ascheduler_on_throw(&s, [](aactor_t* a, void*) {
-        REQUIRE(false);
-    }, NULL);
+    ascheduler_on_panic(&s, &expected, &ec);
+    ascheduler_on_throw(&s, &unexpect, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_push_native_func(a, [](aactor_t* a) { any_throw(a, AERR_RUNTIME); });
+    any_push_native_func(a, &root_throw);
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -84,21 +115,12 @@ TEST_CASE("scheduler_on_throw")
 
     aerror_t ec = AERR_NONE;
 
-    ascheduler_on_panic(&s, [](aactor_t* a, void*) {
-        REQUIRE(false);
-    }, NULL);
-
-    ascheduler_on_throw(&s, [](aactor_t* a, void* ud) {
-        *(aerror_t*)ud = a->error_jmp->status;
-    }, &ec);
+    ascheduler_on_panic(&s, &unexpect, NULL);
+    ascheduler_on_throw(&s, &expected, &ec);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_push_native_func(a, [](aactor_t* a) {
-        any_try(a, [](aactor_t* a, void*) {
-            any_throw(a, AERR_RUNTIME);
-        }, NULL);
-    });
+    any_push_native_func(a, &safe_throw);
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -122,13 +144,8 @@ TEST_CASE("scheduler_on_spawn_exit")
     apid_t spid = (apid_t)-1;
     apid_t epid = (apid_t)-1;
 
-    ascheduler_on_spawn(&s, [](aactor_t* a, void* ud) {
-        *(apid_t*)ud = ascheduler_pid(a->owner, a);
-    }, &spid);
-
-    ascheduler_on_exit(&s,  [](aactor_t* a, void* ud) {
-        *(apid_t*)ud = ascheduler_pid(a->owner, a);
-    }, &epid);
+    ascheduler_on_spawn(&s, &get_pid, &spid);
+    ascheduler_on_exit(&s,  &get_pid, &epid);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -179,10 +196,7 @@ TEST_CASE("scheduler_on_step")
 
     aint_t idx = 0;
 
-    ascheduler_on_step(&s, [](aactor_t* a, void* ud) {
-        aint_t& idx = *(aint_t*)ud;
-        REQUIRE(a->frame->ip == idx++);
-    }, &idx);
+    ascheduler_on_step(&s, &step, &idx);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
