@@ -25,16 +25,20 @@ ascheduler_init(
 static AINLINE void
 ascheduler_on_panic(
     ascheduler_t* self, aon_panic_t handler)
+    ascheduler_t* self, aon_panic_t handler, void* ud)
 {
     self->on_panic = handler;
+    self->on_panic_ud = ud;
+}
 }
 
 /// Register debug step handler.
 static AINLINE void
 ascheduler_on_step(
-    ascheduler_t* self, aon_step_t handler)
+    ascheduler_t* self, aon_step_t handler, void* ud)
 {
     self->on_step = handler;
+    self->on_step_ud = ud;
 }
 
 /// Release all processes.

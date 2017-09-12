@@ -155,7 +155,7 @@ TEST_CASE("process_try_throw")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -175,7 +175,7 @@ TEST_CASE("process_stack")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -202,7 +202,7 @@ TEST_CASE("process_call_non_function")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -227,7 +227,7 @@ TEST_CASE("process_spawn")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     num_spawn_tests = 0;
 

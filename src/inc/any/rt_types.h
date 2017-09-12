@@ -1067,11 +1067,11 @@ typedef struct {
 
 /// Fatal error handler.
 typedef void(*aon_panic_t)(
-    struct aactor_t*);
+    struct aactor_t*, void* ud);
 
 /// Before an instruction is executed.
 typedef void(*aon_step_t)(
-    struct aactor_t*);
+    struct aactor_t*, void* ud);
 
 /** Process scheduler.
 \brief
@@ -1098,5 +1098,7 @@ typedef struct ascheduler_t {
     atimer_t timer;
     int32_t first_run;
     aon_panic_t on_panic;
+    void* on_panic_ud;
     aon_step_t on_step;
+    void* on_step_ud;
 } ascheduler_t;

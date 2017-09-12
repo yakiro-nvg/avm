@@ -11,7 +11,7 @@ TEST_CASE("process_allocation")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     // empty
     for (apid_gen_t g = 0; g < 1 << NUM_GEN_BITS; ++g) {

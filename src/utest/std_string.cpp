@@ -46,13 +46,6 @@ static void string_test(aactor_t* a)
     any_push_string(a, "ok");
 }
 
-static void add_test_module(aasm_t* a)
-{
-    aasm_prototype_t* p = aasm_prototype(a);
-    p->symbol = aasm_string_to_ref(a, "mod_test");
-}
-
-
 TEST_CASE("std_string")
 {
     enum { NUM_IDX_BITS = 4 };
@@ -62,7 +55,7 @@ TEST_CASE("std_string")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -87,13 +80,13 @@ TEST_CASE("std_string_binding_length")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_string(&s.loader);
 
@@ -169,13 +162,13 @@ TEST_CASE("std_string_binding_hash")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_string(&s.loader);
 
@@ -252,13 +245,13 @@ TEST_CASE("std_string_binding_get")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_string(&s.loader);
 
@@ -439,13 +432,13 @@ TEST_CASE("std_string_binding_concat")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_string(&s.loader);
 

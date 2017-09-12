@@ -7,12 +7,6 @@
 #include <any/actor.h>
 #include <any/std_string.h>
 
-static void add_test_module(aasm_t* a)
-{
-    aasm_prototype_t* p = aasm_prototype(a);
-    p->symbol = aasm_string_to_ref(a, "mod_test");
-}
-
 TEST_CASE("dispatcher_loop")
 {
     enum { NUM_IDX_BITS = 4 };
@@ -21,12 +15,12 @@ TEST_CASE("dispatcher_loop")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("no_instructions")
     {
@@ -109,12 +103,12 @@ TEST_CASE("dispatcher_ldk")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("no_constant")
     {
@@ -281,7 +275,7 @@ TEST_CASE("dispatcher_nil")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     aasm_module_push(&as, "test_f");
     aasm_emit(&as, ai_nil());
@@ -291,7 +285,7 @@ TEST_CASE("dispatcher_nil")
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     REQUIRE(AERR_NONE ==
         aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
@@ -320,12 +314,12 @@ TEST_CASE("dispatcher_ldb")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("false")
     {
@@ -408,12 +402,12 @@ TEST_CASE("dispatcher_lsi")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("zero")
     {
@@ -496,12 +490,12 @@ TEST_CASE("dispatcher_pop")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aasm_module_push(&as, "test_f");
     aasm_emit(&as, ai_lsi(1969));
@@ -541,12 +535,12 @@ TEST_CASE("dispatcher_llv_slv")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     int pop_num;
 
@@ -610,12 +604,12 @@ TEST_CASE("dispatcher_imp")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     alib_func_t nfuncs[] = {
         { "f0", (anative_func_t)0xF0 },
@@ -801,12 +795,12 @@ TEST_CASE("dispatcher_jmp")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("normal")
     {
@@ -901,12 +895,12 @@ TEST_CASE("dispatcher_jin")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("true")
     {
@@ -1081,12 +1075,12 @@ TEST_CASE("dispatcher_mkc_ivk")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     SECTION("normal_fefe")
     {
@@ -1170,12 +1164,12 @@ TEST_CASE("dispatcher_msbox")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aasm_module_push(&as, "test_f");
 

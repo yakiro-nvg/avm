@@ -211,12 +211,6 @@ static void buffer_binding_test(aactor_t* a)
     any_push_integer(a, 0xFFFA);
 }
 
-static void add_test_module(aasm_t* a)
-{
-    aasm_prototype_t* p = aasm_prototype(a);
-    p->symbol = aasm_string_to_ref(a, "mod_test");
-}
-
 TEST_CASE("std_buffer")
 {
     enum { NUM_IDX_BITS = 4 };
@@ -226,7 +220,7 @@ TEST_CASE("std_buffer")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -251,7 +245,7 @@ TEST_CASE("std_buffer_binding")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -277,13 +271,13 @@ TEST_CASE("std_buffer_binding_new")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -357,13 +351,13 @@ TEST_CASE("std_buffer_binding_reserve")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -485,13 +479,13 @@ TEST_CASE("std_buffer_binding_shrink")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -536,13 +530,13 @@ TEST_CASE("std_buffer_binding_resize")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -658,13 +652,13 @@ TEST_CASE("std_buffer_binding_get")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -883,13 +877,13 @@ TEST_CASE("std_buffer_binding_set")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -1156,13 +1150,13 @@ TEST_CASE("std_buffer_binding_size")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 
@@ -1207,13 +1201,13 @@ TEST_CASE("std_buffer_binding_capacity")
     aasm_t as;
     aasm_init(&as, &myalloc, NULL);
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
-    add_test_module(&as);
+    add_module(&as, "mod_test");
 
     ascheduler_t s;
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     astd_lib_add_buffer(&s.loader);
 

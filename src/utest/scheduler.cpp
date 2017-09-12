@@ -26,7 +26,7 @@ TEST_CASE("scheduler_new_process")
 
     REQUIRE(AERR_NONE ==
         ascheduler_init(&s, NUM_IDX_BITS, NUM_GEN_BITS, &myalloc, NULL));
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
 
     for (aint_t i = 0; i < 10; ++i) {
         spawn_new(&s);
