@@ -65,11 +65,10 @@ actor_entry(
     a->frame = &frame;
     a->error_jmp = NULL;
     any_protected_call(a, nargs);
-    if (any_type(a, any_top(a)).type != AVT_NIL &&
-        a->owner->on_panic) {
-        a->owner->on_panic(a);
-    }
     a->flags |= APF_EXIT;
+    if (a->owner->on_exit) {
+        a->owner->on_exit(a, a->owner->on_exit_ud);
+    }
     for (;;) {
         ascheduler_yield(a->owner, a);
     }
@@ -306,6 +305,15 @@ any_throw(
 {
     assert(a->error_jmp);
     a->error_jmp->status = ec;
+    if (a->error_jmp->prev == NULL) {
+        if (a->owner->on_panic) {
+            a->owner->on_panic(a, a->owner->on_panic_ud);
+        }
+    } else {
+        if (a->owner->on_throw) {
+            a->owner->on_throw(a, a->owner->on_throw_ud);
+        }
+    }
     longjmp(a->error_jmp->jbuff, 1);
 }
 

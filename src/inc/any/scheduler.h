@@ -24,12 +24,37 @@ ascheduler_init(
 /// Register fatal error handler.
 static AINLINE void
 ascheduler_on_panic(
-    ascheduler_t* self, aon_panic_t handler)
     ascheduler_t* self, aon_panic_t handler, void* ud)
 {
     self->on_panic = handler;
     self->on_panic_ud = ud;
 }
+
+/// Register exception error handler.
+static AINLINE void
+ascheduler_on_throw(
+    ascheduler_t* self, aon_throw_t handler, void* ud)
+{
+    self->on_throw = handler;
+    self->on_throw_ud = ud;
+}
+
+/// Register spawning handler.
+static AINLINE void
+ascheduler_on_spawn(
+    ascheduler_t* self, aon_spawn_t handler, void* ud)
+{
+    self->on_spawn = handler;
+    self->on_spawn_ud = ud;
+}
+
+/// Register exit handler.
+static AINLINE void
+ascheduler_on_exit(
+    ascheduler_t* self, aon_exit_t handler, void* ud)
+{
+    self->on_exit = handler;
+    self->on_exit_ud = ud;
 }
 
 /// Register debug step handler.

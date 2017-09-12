@@ -12,6 +12,9 @@ actor_dispatch(
     aprototype_header_t* pth = pt->header;
     for (; frame->ip < pth->num_instructions; ++frame->ip) {
         ainstruction_t* i = pt->instructions + frame->ip;
+        if (a->owner->on_step) {
+            a->owner->on_step(a, a->owner->on_step_ud);
+        }
         switch (i->b.opcode) {
         case AOC_NOP:
             break;

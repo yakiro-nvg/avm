@@ -246,6 +246,9 @@ ascheduler_new_actor(
     if (ec != AERR_NONE) return ec;
     ec = aactor_init(*a, self, self->alloc, self->alloc_ud);
     if (ec != AERR_NONE) atask_delete(&p->ptask.task);
+    if (self->on_spawn) {
+        self->on_spawn(*a, self->on_spawn_ud);
+    }
     alist_push_back(&self->pendings, &p->ptask.node);
     return ec;
 }

@@ -995,7 +995,7 @@ typedef struct aframe_t {
 /// Error catching points.
 typedef struct acatch_t {
     struct acatch_t* prev;
-    volatile aerror_t status;
+    aerror_t status;
     jmp_buf jbuff;
 } acatch_t;
 
@@ -1069,6 +1069,18 @@ typedef struct {
 typedef void(*aon_panic_t)(
     struct aactor_t*, void* ud);
 
+/// Exception error handler.
+typedef void(*aon_throw_t)(
+    struct aactor_t*, void* ud);
+
+/// New actor spawned handler.
+typedef void(*aon_spawn_t)(
+    struct aactor_t*, void* ud);
+
+/// Current actor is going to die.
+typedef void(*aon_exit_t)(
+    struct aactor_t*, void* ud);
+
 /// Before an instruction is executed.
 typedef void(*aon_step_t)(
     struct aactor_t*, void* ud);
@@ -1099,6 +1111,12 @@ typedef struct ascheduler_t {
     int32_t first_run;
     aon_panic_t on_panic;
     void* on_panic_ud;
+    aon_throw_t on_throw;
+    void* on_throw_ud;
+    aon_spawn_t on_spawn;
+    void* on_spawn_ud;
+    aon_exit_t on_exit;
+    void* on_exit_ud;
     aon_step_t on_step;
     void* on_step_ud;
 } ascheduler_t;
