@@ -23,7 +23,7 @@ set_capacity(
     memcpy(
         AGC_CAST(void, &a->gc, bi),
         AGC_CAST(void, &a->gc, o->buff.v.heap_idx),
-        o->sz * 2 * sizeof(avalue_t));
+        (size_t)o->sz * 2 * sizeof(avalue_t));
     o->cap = cap;
     av_collectable(&o->buff, AVT_FIXED_BUFFER, bi);
     return o;

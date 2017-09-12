@@ -66,8 +66,8 @@ lconcat(
         o = AGC_CAST(agc_string_t, &a->gc, oi);
         lhs = any_to_string(a, a_lhs);
         rhs = any_to_string(a, a_rhs);
-        memcpy(o + 1, lhs, lhs_len);
-        memcpy(((uint8_t*)(o + 1)) + lhs_len, rhs, rhs_len + 1);
+        memcpy(o + 1, lhs, (size_t)lhs_len);
+        memcpy(((uint8_t*)(o + 1)) + lhs_len, rhs, (size_t)rhs_len + 1);
         o->hal = ahash_and_length((const char*)(o + 1));
         av_collectable(&v, AVT_STRING, oi);
         aactor_push(a, &v);
