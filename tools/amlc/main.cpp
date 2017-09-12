@@ -83,7 +83,7 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
     std::cout << "    -> " << o << "\n";
 }
 
-static void on_panic(aactor_t* a)
+static void on_panic(aactor_t* a, void*)
 {
     aint_t ev_idx = any_top(a);
     if (any_type(a, ev_idx).type == AVT_STRING) {
@@ -112,7 +112,7 @@ static void execute(
     if (ec != AERR_NONE) {
         error("failed to init scheduler %d", ec);
     }
-    ascheduler_on_panic(&s, &on_panic);
+    ascheduler_on_panic(&s, &on_panic, NULL);
     aloader_on_unresolved(&s.loader, &on_unresolved);
 
     astd_lib_add_io(
