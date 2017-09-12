@@ -659,7 +659,7 @@ typedef struct {
         anative_func_t func;
         /// \ref AVT_AVM.
         struct aprototype_t* avm_func;
-        /// collectable value.
+        /// Collectable value.
         aint_t heap_idx;
     } v;
 } avalue_t;
