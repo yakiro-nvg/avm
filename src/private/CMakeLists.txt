@@ -14,7 +14,7 @@ add_library(avm SHARED ${PUB_HEADERS} ${HEADERS} ${SOURCES})
 
 add_sanitizers(avm)
 
-add_definitions(-DANY_EXPORT -DANY_SHARED)
+add_definitions(-DANY_EXPORT)
 
 if(SANITIZE_ADDRESS)
     add_definitions(-DANY_USE_ASAN)
@@ -22,4 +22,8 @@ endif()
 
 if(UNIX AND NOT APPLE)
 	target_link_libraries(avm rt)
+endif()
+
+if(WIN32)
+	target_link_libraries(avm wsock32 ws2_32)
 endif()

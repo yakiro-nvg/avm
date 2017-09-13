@@ -44,10 +44,18 @@ static void get_pid(aactor_t* a, void* ud)
     *(apid_t*)ud = ascheduler_pid(a->owner, a);
 }
 
-static void step(aactor_t* a, void* ud)
+struct step_ud_t
 {
-    aint_t& idx = *(aint_t*)ud;
-    REQUIRE(a->frame->ip == idx++);
+    bool brk;
+    aint_t idx;
+};
+
+static int32_t step(aactor_t* a, void* ud)
+{
+    step_ud_t& sud = *(step_ud_t*)ud;
+    if (sud.brk) return FALSE;
+    REQUIRE(a->frame->ip == sud.idx++);
+    return TRUE;
 }
 
 TEST_CASE("scheduler_new_process")
@@ -194,9 +202,11 @@ TEST_CASE("scheduler_on_step")
         aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
     REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
 
-    aint_t idx = 0;
+    step_ud_t sud;
+    sud.brk = TRUE;
+    sud.idx = 0;
 
-    ascheduler_on_step(&s, &step, &idx);
+    ascheduler_on_step(&s, &step, &sud);
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
@@ -204,8 +214,14 @@ TEST_CASE("scheduler_on_step")
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
+    ascheduler_run_once(&s);
 
-    REQUIRE(idx == num_instructions);
+    REQUIRE(sud.idx == 0);
+
+    sud.brk = FALSE;
+    ascheduler_run_once(&s);
+
+    REQUIRE(sud.idx == num_instructions);
 
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);

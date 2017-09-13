@@ -13,7 +13,8 @@ struct aactor_t;
 // Specify the operation to be performed by the instructions.
 typedef enum {
     AOC_NOP = 0,
-    AOC_POP = 1,
+    AOC_BRK = 1,
+    AOC_POP = 2,
 
     AOC_LDK = 10,
     AOC_NIL = 11,
@@ -62,6 +63,19 @@ AOC_NOP  _
 typedef struct {
     uint32_t _;
 } ai_nop_t;
+
+/** Break if there is debug service attached
+\rst
+=======  =======
+8 bits   24 bits
+=======  =======
+AOC_BRK  _
+=======  =======
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_brk_t;
 
 /** Pop `n` elements from the stack.
 \rst
@@ -318,6 +332,7 @@ typedef struct {
 typedef union {
     ai_base_t b;
     ai_nop_t nop;
+    ai_brk_t brk;
     ai_pop_t pop;
     ai_ldk_t ldk;
     ai_nil_t nil;
@@ -345,6 +360,14 @@ ai_nop()
 {
     ainstruction_t i;
     i.b.opcode = AOC_NOP;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_brk()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_BRK;
     return i;
 }
 
@@ -1081,8 +1104,8 @@ typedef void(*aon_spawn_t)(
 typedef void(*aon_exit_t)(
     struct aactor_t*, void* ud);
 
-/// Before an instruction is executed.
-typedef void(*aon_step_t)(
+/// Before an instruction is executed, return TRUE to move forward.
+typedef int32_t(*aon_step_t)(
     struct aactor_t*, void* ud);
 
 /** Process scheduler.

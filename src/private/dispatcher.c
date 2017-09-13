@@ -13,10 +13,14 @@ actor_dispatch(
     for (; frame->ip < pth->num_instructions; ++frame->ip) {
         ainstruction_t* i = pt->instructions + frame->ip;
         if (a->owner->on_step) {
-            a->owner->on_step(a, a->owner->on_step_ud);
+            while (a->owner->on_step(a, a->owner->on_step_ud) == FALSE) {
+                any_yield(a);
+            }
         }
         switch (i->b.opcode) {
         case AOC_NOP:
+        case AOC_BRK:
+            // nop
             break;
         case AOC_POP:
             any_pop(a, i->pop.n);

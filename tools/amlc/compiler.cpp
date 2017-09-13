@@ -460,6 +460,11 @@ static void match_nop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
     aasm_emit(ctx.a, ai_nop());
 }
 
+static void match_brk(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_brk());
+}
+
 static void match_pop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
     aasm_emit(ctx.a, ai_pop(match_integer(ctx)));
@@ -698,6 +703,7 @@ void amlc_compile(
 #define ADD_HANDLER(n) ctx.opcode_handlers[#n] = &match_##n
 
     ADD_HANDLER(nop);
+    ADD_HANDLER(brk);
     ADD_HANDLER(pop);
     ADD_HANDLER(ldk);
     ADD_HANDLER(nil);

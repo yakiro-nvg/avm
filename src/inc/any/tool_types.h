@@ -2,9 +2,9 @@
 #pragma once
 
 #include <any/rt_types.h>
+#include <any/wby.h>
 
 /** String table.
-
 \warning
 Don't cache the char* pointer, the content of this table may be relocated.
 
@@ -48,7 +48,7 @@ enum {
 };
 
 /** Byte code assembler prototype.
-\warning `max_*` is **readonly**.
+\warning `max_*` is **read-only**.
 \ref aasm_reserve are required to extends these values.
 */
 typedef struct {
@@ -137,3 +137,18 @@ enum {
     ANY_ASM_MAX_NESTED_LEVEL =
     (sizeof(((aasm_t*)0)->_context) / sizeof(((aasm_t*)0)->_context[0])) - 1
 };
+
+/** Debug service.
+AVM debug service is the back-end that exposes debugging capabilities over wire.
+Which can be used to debug AVM byte code function that is currently running by
+the actor. Technically, debugger must touch the actor state, and vice versa. So
+a dedicated debug service is required for each scheduler, to get rid of locking
+and other threading headaches.
+*/
+typedef struct {
+    aalloc_t alloc;
+    void* alloc_ud;
+    struct wby_server wby;
+    void* wby_buff;
+    ascheduler_t* target;
+} adb_t;

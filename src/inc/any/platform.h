@@ -8,6 +8,8 @@
 #define ASTATIC_ASSERT(c) typedef char _astatic_assertion[(c) ? 1 : -1]
 #define ASTDCALL __stdcall
 #pragma warning(disable: 4127) // conditional expression is constant
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 #elif defined(__clang__)
 #define ACLANG (((__clang_major__)*100) + \
     (__clang_minor__*10) + \
@@ -101,7 +103,8 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
-#include <windows.h>
+#include <Windows.h>
+#include <WinSock2.h>
 #endif
 
 #if defined(AMSVC) && !defined(snprintf)

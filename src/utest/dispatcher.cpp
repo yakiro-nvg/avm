@@ -67,10 +67,11 @@ TEST_CASE("dispatcher_loop")
             Catch::Equals("return missing"));
     }
 
-    SECTION("nop")
+    SECTION("nop_brk")
     {
         aasm_module_push(&as, "test_f");
         aasm_emit(&as, ai_nop());
+        aasm_emit(&as, ai_brk());
         aasm_emit(&as, ai_ret());
         aasm_pop(&as);
         aasm_save(&as);

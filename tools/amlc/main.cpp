@@ -7,6 +7,7 @@
 #include <any/version.h>
 #include <any/asm.h>
 #include <any/scheduler.h>
+#include <any/db.h>
 #include <any/loader.h>
 #include <any/actor.h>
 #include <any/errno.h>
@@ -18,6 +19,12 @@
 #include <any/std_table.h>
 
 #include "compiler.h"
+
+struct address_t
+{
+    std::string host;
+    uint16_t port;
+};
 
 static void* myalloc(void*, void* old, aint_t sz)
 {
@@ -80,7 +87,7 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
     os.close();
     aasm_cleanup(&a);
 
-    std::cout << "    -> " << o << "\n";
+    std::cout << " -> " << o << "\n";
 }
 
 static void on_panic(aactor_t* a, void*)
@@ -103,10 +110,13 @@ static void on_unresolved(const char* module, const char* name)
 static void execute(
     const std::string& module, const std::string& name,
     int8_t idx_bits, int8_t gen_bits, aint_t cstack_sz,
-    const std::vector<std::string>& chunks)
+    const std::vector<std::string>& chunks,
+    address_t* debug, int32_t max_conns, bool alive,
+    int32_t realtime_resolution)
 {
-    ascheduler_t s;
     aerror_t ec;
+    ascheduler_t s;
+    adb_t db;
 
     ec = ascheduler_init(&s, idx_bits, gen_bits, &myalloc, NULL);
     if (ec != AERR_NONE) {
@@ -115,13 +125,26 @@ static void execute(
     ascheduler_on_panic(&s, &on_panic, NULL);
     aloader_on_unresolved(&s.loader, &on_unresolved);
 
+    if (debug) {
+        ec = adb_init(
+            &db, &myalloc, NULL, &s,
+            debug->host.c_str(), debug->port, (aint_t)max_conns);
+        if (ec != AERR_NONE) {
+            error("failed to init debug service %d", ec);
+        } else {
+            std::cout <<
+                "debug service attached\n" <<
+                " -> at " << debug->host << ":" << debug->port << "\n";
+        }
+    }
+
     astd_lib_add_io(
         &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
     astd_lib_add_string(&s.loader);
     astd_lib_add_buffer(&s.loader);
-    astd_lib_add_array(&s.loader);
-    astd_lib_add_tuple(&s.loader);
-    astd_lib_add_table(&s.loader);
+    astd_lib_add_array (&s.loader);
+    astd_lib_add_tuple (&s.loader);
+    astd_lib_add_table (&s.loader);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];
@@ -155,18 +178,25 @@ static void execute(
     if (ec != AERR_NONE) {
         error("failed to create actor %d", ec);
     }
-    std::cout << "    -> pid = " << ascheduler_pid(&s, a) << "\n";
+    std::cout << " -> pid = " << ascheduler_pid(&s, a) << "\n";
     any_find(a, module.c_str(), name.c_str());
     ascheduler_start(&s, a, 0);
 
-    while (ascheduler_num_processes(&s) > 0) {
+    while (alive || ascheduler_num_processes(&s) > 0) {
+        if (debug) adb_run_once(&db);
         ascheduler_run_once(&s);
+#ifdef AWINDOWS
+        Sleep((DWORD)realtime_resolution * 1000);
+#else
+        usleep((useconds_t)realtime_resolution);
+#endif
     }
 
+    if (debug) adb_cleanup(&db);
     ascheduler_cleanup(&s);
 }
 
-int main(int argc, char** argv)
+int entry(int argc, char** argv)
 {
     try {
         po::parser p;
@@ -193,6 +223,11 @@ int main(int argc, char** argv)
             .description("run with entry point")
             .type(po::string);
 
+        p["debug"]
+            .abbreviation('d')
+            .description("run with debug service at host:port")
+            .type(po::string);
+
         p["verbose"]
             .abbreviation('V')
             .description("display debugging log")
@@ -217,6 +252,20 @@ int main(int argc, char** argv)
             .description("size of entry point native stack in bytes")
             .type(po::i32)
             .fallback(4096000);
+
+        p["max_conns"]
+            .description("maximum number of debug connections")
+            .type(po::i32)
+            .fallback(64);
+
+        p["alive"]
+            .description("keep AMLC execution session alive")
+            .type(po::void_);
+
+        p["rt_res"]
+            .description("real-time resolution hint in us")
+            .type(po::i32)
+            .fallback(1);
 
         p[""];
 
@@ -250,12 +299,24 @@ int main(int argc, char** argv)
                     error(
                         ("bad entry `" + e + "`, missing function").c_str());
                 }
+                std::unique_ptr<address_t> debug;
+                if (p["debug"].was_set()) {
+                    debug = std::make_unique<address_t>();
+                    auto d = p["debug"].get().string;
+                    auto colon = d.find_first_of(':');
+                    debug->host = d.substr(0, colon);
+                    auto port_str = d.substr(colon + 1);
+                    debug->port = (uint16_t)atoi(port_str.c_str());
+                }
                 execute(
                     e.substr(0, sep), e.substr(sep + 1),
                     (int8_t)p["idx_bits"].get().i32,
                     (int8_t)p["gen_bits"].get().i32,
                     (aint_t)p["cstack_sz"].get().i32,
-                    p[""].to_vector<po::string>());
+                    p[""].to_vector<po::string>(),
+                    debug.get(), p["max_conns"].get().i32,
+                    p["alive"].was_set(),
+                    p["rt_res"].get().i32);
             }
             return 0;
         }
@@ -263,4 +324,19 @@ int main(int argc, char** argv)
         std::cerr << "uncaught exception: " << e.what() << "\n";
         return -1;
     }
+}
+
+int main(int argc, char** argv)
+{
+#ifdef AWINDOWS
+    WSADATA wsa_data;
+    int ws_err = WSAStartup(MAKEWORD(2, 2), &wsa_data);
+    if (ws_err != 0) {
+        error("WSAStartup failed %d", ws_err);
+    }
+#endif
+    entry(argc, argv);
+#ifdef AWINDOWS
+    WSACleanup();
+#endif
 }
