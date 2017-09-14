@@ -29,7 +29,7 @@ set_capacity(
     return o;
 }
 
-static int32_t valid_keys[] = {
+static const int32_t VALID_KEYS[] = {
     FALSE, // AVT_NIL
     TRUE,  // AVT_PID
     FALSE, // AVT_BOOLEAN
@@ -45,7 +45,7 @@ static int32_t valid_keys[] = {
     FALSE  // AVT_TABLE
 };
 
-ASTATIC_ASSERT(__AVT_LAST__ == sizeof(valid_keys) / sizeof(valid_keys[0]) - 1);
+ASTATIC_ASSERT(__AVT_LAST__ == ASTATIC_ARRAY_COUNT(VALID_KEYS) - 1);
 
 static AINLINE void
 check_key(
@@ -53,7 +53,7 @@ check_key(
 {
     if (k->tag.type > __AVT_LAST__ ||
         k->tag.type < 0 ||
-        valid_keys[k->tag.type] == FALSE) {
+        VALID_KEYS[k->tag.type] == FALSE) {
         any_error(a, AERR_RUNTIME, "bad key type");
     }
 }

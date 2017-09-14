@@ -169,7 +169,9 @@ resolve(
         if (ec == AERR_NONE) continue;
         ec = find_in_list(&self->runnings, m_name, n_name, val);
         if (ec == AERR_NONE) continue;
-        if (self->on_unresolved) self->on_unresolved(m_name, n_name);
+        if (self->on_unresolved) {
+            self->on_unresolved(self, m_name, n_name, self->on_unresolved_ud);
+        }
         return AERR_UNRESOLVED;
     }
 
@@ -284,6 +286,7 @@ aloader_add_chunk(
         num_imps * sizeof(avalue_t) +
         num_protos * sizeof(aprototype_t));
     c->header = chunk;
+    c->chunk_sz = chunk_sz;
     c->alloc = chunk_alloc;
     c->alloc_ud = chunk_alloc_ud;
     c->imports = (avalue_t*)(((uint8_t*)c) + sizeof(achunk_t));
@@ -404,6 +407,10 @@ aloader_link(
         alist_node_erase(i);
         alist_push_back(&self->runnings, i);
         i = next;
+    }
+
+    if (self->on_linked) {
+        self->on_linked(self, self->on_linked_ud);
     }
 
     return AERR_NONE;

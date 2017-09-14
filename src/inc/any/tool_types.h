@@ -151,4 +151,8 @@ typedef struct {
     struct wby_server wby;
     void* wby_buff;
     ascheduler_t* target;
+    void* res_buf;
+    aint_t res_buf_sz;
+    void* req_buf;
+    aint_t req_buf_sz;
 } adb_t;

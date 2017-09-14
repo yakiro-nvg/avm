@@ -958,6 +958,7 @@ typedef struct aprototype_t {
 /// Runtime byte code chunk.
 typedef struct achunk_t {
     achunk_header_t* header;
+    aint_t chunk_sz;
     aalloc_t alloc;
     void* alloc_ud;
     avalue_t* imports;
@@ -966,8 +967,13 @@ typedef struct achunk_t {
     int32_t retain;
 } achunk_t;
 
-/// On linking failed handler.
-typedef void(*aon_unresolved_t)(const char* m, const char* n);
+/// On linking failed.
+typedef void(*aon_unresolved_t)(
+    struct aloader_t* loader, const char* m, const char* n, void* ud);
+
+/// On successfully linked.
+typedef void(*aon_linked_t)(
+    struct aloader_t* loader, void* ud);
 
 /** Byte code loader.
 \brief
@@ -982,7 +988,7 @@ state is `garbage`, as the name suggested, is out-of-date but still be there so
 already referenced may continue to work. `aloader_sweep` could be used to free
 these chunks.
 */
-typedef struct {
+typedef struct aloader_t {
     aalloc_t alloc;
     void* alloc_ud;
     alist_t pendings;
@@ -990,6 +996,9 @@ typedef struct {
     alist_t garbages;
     alist_t libs;
     aon_unresolved_t on_unresolved;
+    void* on_unresolved_ud;
+    aon_linked_t on_linked;
+    void* on_linked_ud;
 } aloader_t;
 
 /// Value stack.
@@ -1104,7 +1113,8 @@ typedef void(*aon_spawn_t)(
 typedef void(*aon_exit_t)(
     struct aactor_t*, void* ud);
 
-/// Before an instruction is executed, return TRUE to move forward.
+/// Before an instruction is executed,
+/// return TRUE to move forward.
 typedef int32_t(*aon_step_t)(
     struct aactor_t*, void* ud);
 

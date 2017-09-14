@@ -20,9 +20,19 @@ aloader_cleanup(
 /// Register linking error handler.
 static AINLINE void
 aloader_on_unresolved(
-    aloader_t* self, aon_unresolved_t handler)
+    aloader_t* self, aon_unresolved_t handler, void* ud)
 {
     self->on_unresolved = handler;
+    self->on_unresolved_ud = ud;
+}
+
+/// Register linking success handler.
+static AINLINE void
+aloader_on_linked(
+    aloader_t* self, aon_linked_t handler, void* ud)
+{
+    self->on_linked = handler;
+    self->on_linked_ud = ud;
 }
 
 /** Add new byte code chunk to `pendings` list.

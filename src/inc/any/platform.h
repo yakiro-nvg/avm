@@ -118,3 +118,4 @@ typedef int64_t aint_t;
 typedef double areal_t;
 
 #define AALIGN_FORWARD(v, a) ((v + (a - 1)) & -a)
+#define ASTATIC_ARRAY_COUNT(arr) (sizeof(arr)/sizeof(arr[0]))

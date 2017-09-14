@@ -102,7 +102,8 @@ static void on_panic(aactor_t* a, void*)
     }
 }
 
-static void on_unresolved(const char* module, const char* name)
+static void on_unresolved(
+    aloader_t*, const char* module, const char* name, void*)
 {
     std::cout << "unresolved import `" << module << ':' << name << "`\n";
 }
@@ -123,7 +124,7 @@ static void execute(
         error("failed to init scheduler %d", ec);
     }
     ascheduler_on_panic(&s, &on_panic, NULL);
-    aloader_on_unresolved(&s.loader, &on_unresolved);
+    aloader_on_unresolved(&s.loader, &on_unresolved, NULL);
 
     if (debug) {
         ec = adb_init(
