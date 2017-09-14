@@ -11,7 +11,7 @@ static void string_test(aactor_t* a)
 {
     char buff[64];
     for (aint_t i = 0; i < 1000; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
     }
     for (aint_t i = 0; i < 1000; ++i) {
@@ -20,7 +20,7 @@ static void string_test(aactor_t* a)
         }
     }
     for (aint_t i = 1000; i < 5000; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
     }
     for (aint_t i = 1000; i < 5000; ++i) {
@@ -29,7 +29,7 @@ static void string_test(aactor_t* a)
         }
     }
     for (aint_t i = 5000; i < 10000; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
     }
     for (aint_t i = 5000; i < 10000; ++i) {
@@ -39,7 +39,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 0; i < 10000; ++i) {
         if (i % 2 == 0) continue;
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         CHECK_THAT(any_check_string(a, any_check_index(a, i)),
             Catch::Equals(buff));
     }

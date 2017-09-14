@@ -19,7 +19,7 @@ static void push_tuple(aactor_t* a, aint_t num_elements)
 
     for (aint_t i = 0; i < num_elements; ++i) {
         any_find(a, "std-tuple", "set/3");
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
         any_push_index(a, t_idx);
@@ -68,7 +68,7 @@ static void test_tuple(aactor_t* a, aint_t num_elements)
                 test_tuple(a, n);
             }
         } else {
-            snprintf(buff, sizeof(buff), "string %d", (int)i);
+            snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
             CHECK_THAT(any_check_string(a, any_top(a)), Catch::Equals(buff));
         }
         any_pop(a, 1);

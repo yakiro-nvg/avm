@@ -21,7 +21,7 @@ static void push_table(aactor_t* a, aint_t num_elements)
     aint_t t_idx = any_top(a);
 
     for (aint_t i = 0; i < num_elements; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_find(a, "std-table", "set/3");
         any_push_string(a, buff);
         any_push_string(a, buff);
@@ -31,7 +31,7 @@ static void push_table(aactor_t* a, aint_t num_elements)
     }
 
     for (aint_t i = 0; i < num_elements; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         if (i % 2 == 0) {
             aint_t n = num_elements / 2;
             if (n == 0) {
@@ -60,7 +60,7 @@ static void test_table(aactor_t* a, aint_t num_elements)
     aint_t t_idx = any_top(a);
 
     for (aint_t i = 0; i < num_elements; ++i) {
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_find(a, "std-table", "get/2");
         any_push_string(a, buff);
         any_push_index(a, t_idx);

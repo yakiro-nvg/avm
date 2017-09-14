@@ -21,7 +21,7 @@ static void push_array(aactor_t* a)
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
         any_find(a, "std-array", "set/3");
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -45,7 +45,7 @@ static void push_array(aactor_t* a)
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
         any_find(a, "std-array", "set/3");
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -69,7 +69,7 @@ static void push_array(aactor_t* a)
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
         any_find(a, "std-array", "set/3");
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -97,7 +97,7 @@ static void test_array(aactor_t* a)
 
     for (aint_t i = 0; i < 1000; ++i) {
         if (i % 2 == 0) continue;
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_find(a, "std-array", "get/2");
         any_push_integer(a, i);
         any_push_index(a, arr_idx);

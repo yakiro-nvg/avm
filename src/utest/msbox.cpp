@@ -142,11 +142,11 @@ static void string_producer_actor(aactor_t* a)
     char buff[32];
     for (aint_t i = 0; true; i += 2) {
         any_push_index(a, any_check_index(a, -1));
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_mbox_send(a);
         any_push_index(a, any_check_index(a, -1));
-        snprintf(buff, sizeof(buff), "string %d", (int)(i + 1));
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)(i + 1));
         any_push_string(a, buff);
         any_mbox_send(a);
         any_yield(a);
@@ -161,7 +161,7 @@ static void string_consumer_actor(aactor_t* a)
         REQUIRE(AERR_NONE == any_mbox_recv(a, AINFINITE));
         any_mbox_remove(a);
         REQUIRE(any_count(a) == 1);
-        snprintf(buff, sizeof(buff), "string %d", (int)i);
+        snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
             Catch::Equals(buff));
     }
