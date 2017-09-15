@@ -31,10 +31,27 @@ static void wby_stop(struct wby_server*)
     // nop
 }
 
-static void wby_update(struct wby_server* s, int)
+static void wby_update(struct wby_server*, int)
 {
     // TODO
-    s->con_count = 0;
+}
+
+static int wby_response_begin(
+    struct wby_con*, int, int, const struct wby_header*, int)
+{
+    // TODO
+    return 0;
+}
+
+static void wby_response_end(struct wby_con*)
+{
+    // TODO
+}
+
+static int wby_write(struct wby_con*, const void*, wby_size)
+{
+    // TODO
+    return 0;
 }
 
 TEST_CASE("db")
