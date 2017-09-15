@@ -9,19 +9,6 @@ static void(*out)(void*, const char*) = NULL;
 static void* out_ud = NULL;
 
 static void
-remove_trailing_zeroes(
-    char* buf)
-{
-    char* dot = strchr(buf, '.');
-    if (dot != NULL) {
-        char* c = dot + strlen(dot) - 1;
-        for (; *c == '0'; --c) {
-            *c = '\0';
-        }
-    }
-}
-
-static void
 print(
     aactor_t* a)
 {
@@ -52,7 +39,6 @@ print(
             break;
         case AVT_REAL:
             snprintf(buf, sizeof(buf), "%f", any_to_real(a, arg_idx));
-            remove_trailing_zeroes(buf);
             out(out_ud, buf);
             break;
         case AVT_NATIVE_FUNC:
