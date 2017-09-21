@@ -313,6 +313,8 @@ WBY_API void wby_stop(struct wby_server*);
 /* stops and shutdown the server */
 WBY_API struct wby_con* wby_find_conn(struct wby_server*, void *user_data);
 /* returns the first connection with matching user_data pointer or NULL */
+WBY_API struct wby_con* wby_conn(struct wby_server*, wby_size idx);
+/* get connection at `idx` */
 WBY_API int wby_response_begin(struct wby_con*, int status_code, int content_length,
                                     const struct wby_header* headers, int header_count);
 /*  this function begins a response
@@ -1670,6 +1672,12 @@ wby_find_conn(struct wby_server *srv, void *user_data)
         }
     }
     return NULL;
+}
+
+WBY_API struct wby_con*
+wby_conn(struct wby_server* srv, wby_size idx)
+{
+    return &srv->con[idx].public_data;
 }
 
 WBY_INTERN int

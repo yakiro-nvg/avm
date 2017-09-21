@@ -7,6 +7,9 @@
 #define REQUEST_BUFF_SZ 2048
 #define IO_BUFF_SZ 8192
 
+#define WBY_CON_NONE ((void*)0)
+#define WBY_CON_PUSH ((void*)1)
+
 static const struct wby_header CORS_HEADERS[] = {
     { "Access-Control-Allow-Origin",
       "*"
@@ -50,7 +53,25 @@ aalloc(
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-#define WBY_WRITE_STATIC(con, buf) wby_write(con, buf, sizeof(buf) - 1)
+#define WBY_WRITE_STATIC(con, buf) \
+    wby_write(con, buf, (wby_size)(sizeof(buf) - 1))
+
+static void
+push(
+    adb_t* db, const void* msg, aint_t sz)
+{
+    wby_size i;
+    for (i = 0; i < db->wby.con_count; ++i) {
+        struct wby_con* con = wby_conn(&db->wby, i);
+        if (con->user_data == WBY_CON_PUSH) {
+            wby_frame_begin(con, WBY_WSOP_TEXT_FRAME);
+            wby_write(con, msg, (wby_size)sz);
+            wby_frame_end(con);
+        }
+    }
+}
+
+#define WBY_PUSH_STATIC(db, buf) push(db, buf, sizeof(buf) - 1)
 
 static void
 wby_write_fmt(
@@ -62,7 +83,7 @@ wby_write_fmt(
     va_start(args, fmt);
     sz = vsnprintf(buf, sizeof(buf), fmt, args);
     assert(sz >= 0 && sz < sizeof(buf));
-    wby_write(con, buf, sz);
+    wby_write(con, buf, (wby_size)sz);
     va_end(args);
 }
 
@@ -297,22 +318,25 @@ static int
 websocket_connect(
     struct wby_con* con, void* ud)
 {
-    // TODO
-    return 0;
+    return strcmp(con->request.uri, "/push");
 }
 
 static void
 websocket_connected(
     struct wby_con* con, void* ud)
 {
-    // TODO
+    adb_t* db = (adb_t*)ud;
+    con->user_data = WBY_CON_PUSH;
+    WBY_PUSH_STATIC(db, "linked");
 }
 
 static int
 websocket_frame(
     struct wby_con* con, const struct wby_frame* frame, void* ud)
 {
-    // TODO
+    AUNUSED(con);
+    AUNUSED(frame);
+    AUNUSED(ud);
     return 0;
 }
 
@@ -320,7 +344,8 @@ static void
 websocket_closed(
     struct wby_con* con, void* ud)
 {
-    // TODO
+    AUNUSED(con);
+    AUNUSED(ud);
 }
 
 static void
@@ -356,8 +381,9 @@ static void
 on_linked(
     aloader_t* l, void* ud)
 {
-    // TODO
-    ud = NULL;
+    AUNUSED(l);
+    adb_t* db = (adb_t*)ud;
+    WBY_PUSH_STATIC(db, "linked");
 }
 
 static void
