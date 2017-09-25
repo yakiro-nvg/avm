@@ -2,6 +2,8 @@
 #pragma once
 
 #include <any/rt_types.h>
+
+#define WBY_UINT_PTR size_t
 #include <any/wby.h>
 
 /** String table.

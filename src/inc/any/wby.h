@@ -1339,7 +1339,7 @@ wby_read(struct wby_con *conn, void *ptr_, wby_size len)
     }
 
     while (len > 0) {
-        long err = recv(WBY_SOCK(conn_prv->socket), ptr, (wby_size)len, 0);
+        long err = recv(WBY_SOCK(conn_prv->socket), ptr, (int)len, 0);
         if (err < 0) {
             conn_prv->flags &= (unsigned short)~WBY_CON_FLAG_ALIVE;
             return (int)err;
