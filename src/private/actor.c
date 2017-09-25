@@ -56,15 +56,12 @@ void ASTDCALL
 actor_entry(
     void* ud)
 {
-    aframe_t frame;
+	aframe_t frame;
     aactor_t* a = (aactor_t*)ud;
     aint_t nargs = a->stack.v[--a->stack.sp].v.integer;
-    memset(&frame, 0, sizeof(aframe_t));
-    frame.bp = 1; // start from stack[0] (nil)
-    frame.nargs = 0;
-    a->frame = &frame;
-    a->error_jmp = NULL;
-    any_protected_call(a, nargs);
+	memset(&frame, 0, sizeof(aframe_t));
+	a->frame = &frame;
+	any_protected_call(a, nargs);
     a->flags |= APF_EXIT;
     if (a->owner->on_exit) {
         a->owner->on_exit(a, a->owner->on_exit_ud);
@@ -85,7 +82,6 @@ aactor_init(
     self->alloc_ud = alloc_ud;
     ec = astack_init(&self->stack, INIT_STACK_SZ, alloc, alloc_ud);
     if (ec != AERR_NONE) goto failed;
-    any_push_nil(self); // stack[0] is nil
     ec = astack_init(&self->msbox, INIT_MSBOX_SZ, alloc, alloc_ud);
     if (ec != AERR_NONE) goto failed;
     ec = agc_init(&self->gc, INIT_HEAP_SZ, alloc, alloc_ud);

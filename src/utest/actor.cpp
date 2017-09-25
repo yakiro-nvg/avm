@@ -61,9 +61,6 @@ static void stack_test(aactor_t* a)
     REQUIRE(any_check_integer(a, any_check_index(a, -2)) == 0xA2);
     REQUIRE(any_check_integer(a, any_check_index(a, -3)) == 0xA3);
 
-    REQUIRE(any_type(a, any_check_index(a, -4)).type == AVT_NIL);
-    REQUIRE(any_type(a, any_check_index(a, -5)).type == AVT_NIL);
-
     REQUIRE(any_count(a) == 0);
 
     enum { NUM_INTS = 10000 };

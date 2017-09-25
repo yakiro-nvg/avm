@@ -1063,8 +1063,7 @@ index  description  pointer
 -1     argument 1
 -2     argument 2
 -3     argument 3
--4     nil
--5     nil
+-4     underflow
 =====  ===========  =======
 \endrst
 */

@@ -16,7 +16,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 0; i < 1000; ++i) {
         if (i % 2 == 0) {
-            av_nil(aactor_at(a, i));
+			av_nil(aactor_at(a, any_check_index(a, i)));
         }
     }
     for (aint_t i = 1000; i < 5000; ++i) {
@@ -25,7 +25,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 1000; i < 5000; ++i) {
         if (i % 2 == 0) {
-            av_nil(aactor_at(a, i));
+            av_nil(aactor_at(a, any_check_index(a, i)));
         }
     }
     for (aint_t i = 5000; i < 10000; ++i) {
@@ -34,7 +34,7 @@ static void string_test(aactor_t* a)
     }
     for (aint_t i = 5000; i < 10000; ++i) {
         if (i % 2 == 0) {
-            av_nil(aactor_at(a, i));
+            av_nil(aactor_at(a, any_check_index(a, i)));
         }
     }
     for (aint_t i = 0; i < 10000; ++i) {
