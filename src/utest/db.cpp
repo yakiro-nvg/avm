@@ -54,6 +54,24 @@ static int wby_write(struct wby_con*, const void*, wby_size)
     return 0;
 }
 
+static struct wby_con* wby_conn(struct wby_server*, wby_size)
+{
+	// TODO
+	return NULL;
+}
+
+static int wby_frame_begin(struct wby_con*, int)
+{
+	// TODO
+	return 0;
+}
+
+static int wby_frame_end(struct wby_con*)
+{
+	// TODO
+	return 0;
+}
+
 TEST_CASE("db")
 {
     enum { NUM_IDX_BITS = 4 };
