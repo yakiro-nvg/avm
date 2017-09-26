@@ -908,6 +908,7 @@ bytes                                 description
 sizeof(aint_t)                        source file name
 sizeof(aint_t)                        to be exported
 sizeof(aint_t)                        num of string bytes
+sizeof(aint_t)                        num of local variables
 sizeof(aint_t)                        num of instructions
 sizeof(aint_t)                        num of nesteds
 sizeof(aint_t)                        num of constants
@@ -924,6 +925,7 @@ typedef struct {
     aint_t source;
     aint_t symbol;
     aint_t strings_sz;
+    aint_t num_local_vars;
     aint_t num_instructions;
     aint_t num_nesteds;
     aint_t num_constants;
@@ -1055,8 +1057,10 @@ order. Underflow always result as a nil value.
 =====  ===========  =======
 index  description  pointer
 =====  ===========  =======
- 4     overflow     sp
- 3     local var3   top
+ 6     overflow     sp
+ 5     operand 2    top
+ 4     operand 1
+ 3     local var3
  2     local var2
  1     local var1
  0     local var0   bp

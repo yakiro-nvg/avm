@@ -152,7 +152,11 @@ any_pop(
     aactor_t* a, aint_t n)
 {
     a->stack.sp -= n;
-    assert(a->stack.sp >= a->frame->bp);
+    if (a->stack.sp <
+        (a->frame->bp + (a->frame->pt
+            ? a->frame->pt->header->num_local_vars : 0))) {
+        any_error(a, AERR_RUNTIME, "pop underflow");
+    }
 }
 
 static AINLINE void

@@ -3,6 +3,16 @@
 
 #include <any/std_string.h>
 
+static void
+fill_nil(
+    aactor_t* a, aint_t num)
+{
+    aint_t i;
+    for (i = 0; i < num; ++i) {
+        any_push_nil(a);
+    }
+}
+
 void
 actor_dispatch(
     aactor_t* a)
@@ -10,6 +20,7 @@ actor_dispatch(
     aframe_t* frame = a->frame;
     aprototype_t* pt = frame->pt;
     aprototype_header_t* pth = pt->header;
+    fill_nil(a, pth->num_local_vars);
     for (; frame->ip < pth->num_instructions; ++frame->ip) {
         ainstruction_t* i = pt->instructions + frame->ip;
         if (a->owner->on_step) {

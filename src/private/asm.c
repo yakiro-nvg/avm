@@ -298,6 +298,7 @@ set_headers(
     const aasm_t* self, aprototype_header_t* header, const aasm_prototype_t* p)
 {
     memset(header, 0, sizeof(*header));
+    header->num_local_vars = p->num_local_vars;
     header->num_instructions = p->num_instructions;
     header->num_nesteds = p->num_nesteds;
     header->num_constants = p->num_constants;
@@ -419,6 +420,8 @@ load_chunk(
 
     ap->source = aasm_string_to_ref(self, rp_string(p, p->source));
     ap->symbol = aasm_string_to_ref(self, rp_string(p, p->symbol));
+
+    ap->num_local_vars = p->num_local_vars;
 
     memcpy(
         instructions_of(ap),

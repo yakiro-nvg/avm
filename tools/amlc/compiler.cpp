@@ -23,7 +23,9 @@ typedef std::vector<amlc_value_t> amlc_pool;
 
 struct amlc_prototype_ctx_t
 {
-    amlc_pool arguments;
+    aint_t num_arguments;
+    aint_t num_variables;
+    amlc_pool locals;
     amlc_pool imports;
     amlc_pool constants;
     amlc_pool nesteds;
@@ -108,17 +110,34 @@ static aint_t pool_push(
     }
 }
 
-static inline aint_t pool_push_argument(
-    amlc_pool& pool, const std::string& literal)
+static inline void pool_push_argument(
+    amlc_ctx_t& ctx, amlc_pool& pool,
+    aint_t& num_arguments, const std::string& literal)
 {
-    return pool_push(pool, literal, [&] { return -(aint_t)pool.size() - 1; });
+    if (pool_find(pool, literal) != pool.end()) {
+        error(ctx, "duplicated symbol `%s`", literal.c_str());
+    } else {
+        pool_push(pool, literal, [&] { return -(++num_arguments); });
+    }
 }
 
-static inline aint_t pool_take_argument(
+static inline void pool_push_variable(
+    amlc_ctx_t& ctx, amlc_pool& pool,
+    aint_t& num_variables, const std::string& literal)
+{
+    if (pool_find(pool, literal) != pool.end()) {
+        error(ctx, "duplicated symbol `%s`", literal.c_str());
+    }
+    else {
+        pool_push(pool, literal, [&] { return num_variables++; });
+    }
+}
+
+static inline aint_t pool_take_local(
     amlc_ctx_t& ctx, amlc_pool& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&]() -> int {
-        error(ctx, "undefined argument `%s`", literal.c_str());
+        error(ctx, "undefined symbol `%s`", literal.c_str());
         return 0;
     });
 }
@@ -513,16 +532,22 @@ static void match_llv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
     aint_t idx;
     if (isalpha(*ctx.s)) {
-        idx = pool_take_argument(ctx, pctx.arguments, match_symbol(ctx));
+        idx = pool_take_local(ctx, pctx.locals, match_symbol(ctx));
     } else {
         idx = match_integer(ctx);
     }
     aasm_emit(ctx.a, ai_llv(idx));
 }
 
-static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    aasm_emit(ctx.a, ai_slv(match_integer(ctx)));
+    aint_t idx;
+    if (isalpha(*ctx.s)) {
+        idx = pool_take_local(ctx, pctx.locals, match_symbol(ctx));
+    } else {
+        idx = match_integer(ctx);
+    }
+    aasm_emit(ctx.a, ai_slv(idx));
 }
 
 static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -593,6 +618,25 @@ static void match_rwd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
     aasm_emit(ctx.a, ai_rwd());
 }
 
+static void match_variables(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
+{
+    match(ctx, "var");
+    skip_whitespace(ctx, true);
+    match(ctx, '[');
+    skip_whitespace(ctx, true);
+    while (*ctx.s != ']') {
+        skip_whitespace(ctx, true);
+        if (pctx.num_variables != 0) {
+            match(ctx, ',');
+            skip_whitespace(ctx, true);
+        }
+        pool_push_variable(
+            ctx, pctx.locals, pctx.num_variables, match_symbol(ctx));
+        skip_whitespace(ctx, true);
+    }
+    match(ctx, ']');
+}
+
 static aint_t match_prototype(amlc_ctx_t& ctx);
 
 static void match_nested_prototype(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -614,19 +658,28 @@ static void match_nested_prototype(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 static aint_t match_prototype(amlc_ctx_t& ctx)
 {
     amlc_prototype_ctx_t pctx;
+    pctx.num_arguments = 0;
+    pctx.num_variables = 0;
 
     match(ctx, '(');
     while (*ctx.s != ')') {
         skip_whitespace(ctx, true);
-        if (pctx.arguments.size() > 0) {
+        if (pctx.num_arguments != 0) {
             match(ctx, ',');
             skip_whitespace(ctx, true);
         }
-        pool_push_argument(pctx.arguments, match_symbol(ctx));
+        pool_push_argument(
+            ctx, pctx.locals, pctx.num_arguments, match_symbol(ctx));
+        skip_whitespace(ctx, true);
     }
     skip_whitespace(ctx, true);
     match(ctx, ')');
     skip_whitespace(ctx, true);
+
+    if (lookahead(ctx, 3) == "var") {
+        match_variables(ctx, pctx);
+        skip_whitespace(ctx, true);
+    }
 
     for (;;) {
         auto word = lookahead(ctx, 3);
@@ -657,7 +710,9 @@ static aint_t match_prototype(amlc_ctx_t& ctx)
         ctx, cu.instructions, pt->num_instructions,
         pctx.nesteds, pctx.pseudo_nesteds);
 
-    return (aint_t)pctx.arguments.size();
+    pt->num_local_vars = pctx.num_variables;
+
+    return (aint_t)pctx.num_arguments;
 }
 
 static void match_module_prototype(amlc_ctx_t& ctx)

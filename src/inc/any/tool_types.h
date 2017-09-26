@@ -56,6 +56,7 @@ enum {
 typedef struct {
     aint_t source;
     aint_t symbol;
+    aint_t num_local_vars;
     aint_t num_instructions;
     aint_t max_instructions;
     aint_t num_nesteds;
