@@ -9,7 +9,7 @@ static void(*out)(void*, const char*) = NULL;
 static void* out_ud = NULL;
 
 static void
-print(
+lprint(
     aactor_t* a)
 {
     aint_t i;
@@ -71,7 +71,7 @@ print(
 }
 
 static alib_func_t funcs[] = {
-    { "print/*", &print },
+    { "print/*", &lprint },
     { NULL, NULL }
 };
 
