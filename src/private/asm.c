@@ -25,6 +25,7 @@ typedef struct {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
+    aint_t* source_lines;
 } resolved_proto_t;
 
 static AINLINE void*
@@ -42,6 +43,7 @@ required_size(
         sz->max_instructions * sizeof(ainstruction_t) +
         sz->max_constants * sizeof(aconstant_t) +
         sz->max_imports * sizeof(aimport_t) +
+        sz->max_instructions * sizeof(aint_t) +
         sz->max_nesteds * sizeof(aint_t);
 }
 
@@ -101,17 +103,31 @@ imports_of_const(
 }
 
 static AINLINE aint_t*
-nesteds_of(
+source_lines_of(
     aasm_prototype_t* p)
 {
     return (aint_t*)(imports_of(p) + p->max_imports);
 }
 
 static AINLINE const aint_t*
-nesteds_of_const(
+source_lines_of_const(
     const aasm_prototype_t* p)
 {
     return (const aint_t*)(imports_of_const(p) + p->max_imports);
+}
+
+static AINLINE aint_t*
+nesteds_of(
+    aasm_prototype_t* p)
+{
+    return (aint_t*)(source_lines_of(p) + p->max_instructions);
+}
+
+static AINLINE const aint_t*
+nesteds_of_const(
+    const aasm_prototype_t* p)
+{
+    return (const aint_t*)(source_lines_of_const(p) + p->max_instructions);
 }
 
 static AINLINE aasm_current_t
@@ -122,6 +138,7 @@ resolve(
     c.instructions = instructions_of(p);
     c.constants = constants_of(p);
     c.imports = imports_of(p);
+    c.source_lines = source_lines_of(p);
     c.nesteds = nesteds_of(p);
     return c;
 }
@@ -259,7 +276,8 @@ compute_chunk_body_size(
         compute_strings_sz(self->st, p, c.constants, c.imports) +
         p->num_instructions * sizeof(ainstruction_t) +
         p->num_constants * sizeof(aconstant_t) +
-        p->num_imports * sizeof(aimport_t);
+        p->num_imports * sizeof(aimport_t) +
+        p->num_instructions * sizeof(aint_t);
 
     for (i = 0; i < p->num_nesteds; ++i) {
         compute_chunk_body_size(self, nesteds_of(p)[i], psz);
@@ -274,6 +292,7 @@ rp_resolve(
     c.instructions = (ainstruction_t*)(((uint8_t*)(p + 1)) + strings_sz);
     c.constants = (aconstant_t*)(c.instructions + p->num_instructions);
     c.imports = (aimport_t*)(c.constants + p->num_constants);
+    c.source_lines = (aint_t*)(c.imports + p->num_imports);
     return c;
 }
 
@@ -352,6 +371,12 @@ copy_prototype(
             self, header, c->imports[i].name);
     }
 
+    // add source lines
+    memcpy(
+        rp.source_lines,
+        c->source_lines,
+        (size_t)p->num_instructions * sizeof(aint_t));
+
     header->strings_sz = AALIGN_FORWARD(header->strings_sz, 8);
     assert(header->strings_sz == strings_sz);
 
@@ -372,7 +397,8 @@ save_chunk(
         str_sz +
         p->num_instructions * sizeof(ainstruction_t) +
         p->num_constants * sizeof(aconstant_t) +
-        p->num_imports * sizeof(aimport_t);
+        p->num_imports * sizeof(aimport_t) +
+        p->num_instructions * sizeof(aint_t);
     aprototype_header_t* const header = (aprototype_header_t*)(
         ((uint8_t*)self->chunk) + self->chunk_size);
     set_headers(self, header, p);
@@ -423,28 +449,38 @@ load_chunk(
 
     ap->num_local_vars = p->num_local_vars;
 
+    // load instructions
     memcpy(
         instructions_of(ap),
         rp.instructions,
         (size_t)p->num_instructions * sizeof(ainstruction_t));
     ap->num_instructions = p->num_instructions;
 
+    // load constants
     for (i = 0; i < p->num_constants; ++i) {
         aasm_add_constant(self, from_chunk(rp.constants[i], self, p));
     }
 
+    // load imports
     for (i = 0; i < p->num_imports; ++i) {
         aimport_t imp = rp.imports[i];
         aasm_add_import(
             self, rp_string(p, imp.module), rp_string(p, imp.name));
     }
 
+    // load source lines
+    memcpy(
+        source_lines_of(ap),
+        rp.source_lines,
+        (size_t)p->num_instructions * sizeof(aint_t));
+
     *offset +=
         sizeof(aprototype_header_t) +
         p->strings_sz +
         p->num_instructions * sizeof(ainstruction_t) +
         p->num_constants * sizeof(aconstant_t) +
-        p->num_imports * sizeof(aimport_t);
+        p->num_imports * sizeof(aimport_t) +
+        p->num_instructions * sizeof(aint_t);
 
     for (i = 0; i < p->num_nesteds; ++i) {
         aasm_push(self);
@@ -563,7 +599,7 @@ aasm_cleanup(
 
 aint_t
 aasm_emit(
-    aasm_t* self, ainstruction_t instruction)
+    aasm_t* self, ainstruction_t instruction, aint_t source_line)
 {
     aasm_prototype_t* p = aasm_prototype(self);
     aasm_reserve_t sz;
@@ -580,6 +616,7 @@ aasm_emit(
 
     assert(p->num_instructions < p->max_instructions);
     instructions_of(p)[p->num_instructions] = instruction;
+    source_lines_of(p)[p->num_instructions] = source_line;
     return p->num_instructions++;
 }
 
@@ -742,6 +779,10 @@ aasm_reserve(
             imports_of(np),
             imports_of_const(cp),
             (size_t)cp->num_imports * sizeof(aimport_t));
+        memcpy(
+            source_lines_of(np),
+            source_lines_of_const(cp),
+            (size_t)cp->num_instructions * sizeof(aint_t));
         memcpy(
             nesteds_of(np),
             nesteds_of_const(cp),

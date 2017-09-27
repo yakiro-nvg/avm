@@ -286,11 +286,11 @@ TEST_CASE("std_buffer_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(-1), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -315,11 +315,11 @@ TEST_CASE("std_buffer_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -366,12 +366,12 @@ TEST_CASE("std_buffer_binding_reserve")
         aasm_module_push(&as, "test_f");
         aint_t lreserve = aasm_add_import(&as, "std-buffer", "reserve/2");
 
-        aasm_emit(&as, ai_imp(lreserve));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lreserve), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_nil(), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -397,16 +397,16 @@ TEST_CASE("std_buffer_binding_reserve")
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
         aint_t lreserve = aasm_add_import(&as, "std-buffer", "reserve/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lreserve));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lreserve), 4);
+        aasm_emit(&as, ai_nil(), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -433,21 +433,21 @@ TEST_CASE("std_buffer_binding_reserve")
         aint_t lreserve = aasm_add_import(&as, "std-buffer", "reserve/2");
         aint_t lcapacity = aasm_add_import(&as, "std-buffer", "capacity/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lreserve));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lreserve), 4);
+        aasm_emit(&as, ai_lsi(-1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lcapacity));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lcapacity), 9);
+        aasm_emit(&as, ai_llv(0), 10);
+        aasm_emit(&as, ai_ivk(1), 11);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 12);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -494,11 +494,11 @@ TEST_CASE("std_buffer_binding_shrink")
         aasm_module_push(&as, "test_f");
         aint_t lshrink = aasm_add_import(&as, "std-buffer", "shrink_to_fit/1");
 
-        aasm_emit(&as, ai_imp(lshrink));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lshrink), 1);
+        aasm_emit(&as, ai_nil(), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -545,12 +545,12 @@ TEST_CASE("std_buffer_binding_resize")
         aasm_module_push(&as, "test_f");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lresize), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_nil(), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -576,16 +576,16 @@ TEST_CASE("std_buffer_binding_resize")
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_nil(), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -611,17 +611,17 @@ TEST_CASE("std_buffer_binding_resize")
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(-1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -669,22 +669,22 @@ TEST_CASE("std_buffer_binding_get")
         aint_t lget = aasm_add_import(&as, "std-buffer", "get/2");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 9);
+        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_llv(0), 11);
+        aasm_emit(&as, ai_ivk(2), 12);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 13);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -710,16 +710,16 @@ TEST_CASE("std_buffer_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
         aint_t lget = aasm_add_import(&as, "std-buffer", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -746,22 +746,22 @@ TEST_CASE("std_buffer_binding_get")
         aint_t lget = aasm_add_import(&as, "std-buffer", "get/2");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 9);
+        aasm_emit(&as, ai_lsi(-1), 10);
+        aasm_emit(&as, ai_llv(0), 11);
+        aasm_emit(&as, ai_ivk(2), 12);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 13);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -788,22 +788,22 @@ TEST_CASE("std_buffer_binding_get")
         aint_t lget = aasm_add_import(&as, "std-buffer", "get/2");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 9);
+        aasm_emit(&as, ai_lsi(1), 10);
+        aasm_emit(&as, ai_llv(0), 11);
+        aasm_emit(&as, ai_ivk(2), 12);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 13);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -830,22 +830,22 @@ TEST_CASE("std_buffer_binding_get")
         aint_t lget = aasm_add_import(&as, "std-buffer", "get/2");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 9);
+        aasm_emit(&as, ai_nil(), 10);
+        aasm_emit(&as, ai_llv(0), 11);
+        aasm_emit(&as, ai_ivk(2), 12);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 13);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -894,23 +894,23 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 9);
+        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_lsi(0), 11);
+        aasm_emit(&as, ai_llv(0), 12);
+        aasm_emit(&as, ai_ivk(3), 13);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 14);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -936,17 +936,17 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-buffer", "new/1");
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_lsi(0), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -973,23 +973,23 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 9);
+        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_lsi(-1), 11);
+        aasm_emit(&as, ai_llv(0), 12);
+        aasm_emit(&as, ai_ivk(3), 13);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 14);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -1016,23 +1016,23 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 9);
+        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_lsi(1), 11);
+        aasm_emit(&as, ai_llv(0), 12);
+        aasm_emit(&as, ai_ivk(3), 13);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 14);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -1059,23 +1059,23 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 9);
+        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_nil(), 11);
+        aasm_emit(&as, ai_llv(0), 12);
+        aasm_emit(&as, ai_ivk(3), 13);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 14);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -1102,23 +1102,23 @@ TEST_CASE("std_buffer_binding_set")
         aint_t lset = aasm_add_import(&as, "std-buffer", "set/3");
         aint_t lresize = aasm_add_import(&as, "std-buffer", "resize/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lresize));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lresize), 4);
+        aasm_emit(&as, ai_lsi(1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
+        aasm_emit(&as, ai_pop(1), 8);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 9);
+        aasm_emit(&as, ai_nil(), 10);
+        aasm_emit(&as, ai_lsi(0), 11);
+        aasm_emit(&as, ai_llv(0), 12);
+        aasm_emit(&as, ai_ivk(3), 13);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 14);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -1165,11 +1165,11 @@ TEST_CASE("std_buffer_binding_size")
         aasm_module_push(&as, "test_f");
         aint_t lsize = aasm_add_import(&as, "std-buffer", "size/1");
 
-        aasm_emit(&as, ai_imp(lsize));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lsize), 1);
+        aasm_emit(&as, ai_nil(), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -1216,11 +1216,11 @@ TEST_CASE("std_buffer_binding_capacity")
         aasm_module_push(&as, "test_f");
         aint_t lcapacity = aasm_add_import(&as, "std-buffer", "capacity/1");
 
-        aasm_emit(&as, ai_imp(lcapacity));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lcapacity), 1);
+        aasm_emit(&as, ai_nil(), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 

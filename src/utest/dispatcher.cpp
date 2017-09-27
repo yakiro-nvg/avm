@@ -47,7 +47,7 @@ TEST_CASE("dispatcher_loop")
     SECTION("return_missing")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_nop());
+        aasm_emit(&as, ai_nop(), 1);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -70,9 +70,9 @@ TEST_CASE("dispatcher_loop")
     SECTION("nop_brk")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_nop());
-        aasm_emit(&as, ai_brk());
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_nop(), 1);
+        aasm_emit(&as, ai_brk(), 2);
+        aasm_emit(&as, ai_ret(), 3);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -114,7 +114,7 @@ TEST_CASE("dispatcher_ldk")
     SECTION("no_constant")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_ldk(0));
+        aasm_emit(&as, ai_ldk(0), 1);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -137,7 +137,7 @@ TEST_CASE("dispatcher_ldk")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
-        aasm_emit(&as, ai_ldk(1));
+        aasm_emit(&as, ai_ldk(1), 1);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -160,7 +160,7 @@ TEST_CASE("dispatcher_ldk")
     {
         aasm_module_push(&as, "test_f");
         aasm_add_constant(&as, ac_integer(0xC0));
-        aasm_emit(&as, ai_ldk(-1));
+        aasm_emit(&as, ai_ldk(-1), 1);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -185,10 +185,10 @@ TEST_CASE("dispatcher_ldk")
         aasm_add_constant(&as, ac_integer(0xC0));
         aasm_add_constant(&as, ac_string(aasm_string_to_ref(&as, "0xC1")));
         aasm_add_constant(&as, ac_real(3.14f));
-        aasm_emit(&as, ai_ldk(2));
-        aasm_emit(&as, ai_ldk(0));
-        aasm_emit(&as, ai_ldk(1));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldk(2), 1);
+        aasm_emit(&as, ai_ldk(0), 2);
+        aasm_emit(&as, ai_ldk(1), 3);
+        aasm_emit(&as, ai_ret(), 4);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -214,10 +214,10 @@ TEST_CASE("dispatcher_ldk")
         aasm_add_constant(&as, ac_integer(0xC0));
         aasm_add_constant(&as, ac_string(aasm_string_to_ref(&as, "0xC1")));
         aasm_add_constant(&as, ac_real(3.14f));
-        aasm_emit(&as, ai_ldk(1));
-        aasm_emit(&as, ai_ldk(2));
-        aasm_emit(&as, ai_ldk(0));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldk(1), 1);
+        aasm_emit(&as, ai_ldk(2), 2);
+        aasm_emit(&as, ai_ldk(0), 3);
+        aasm_emit(&as, ai_ret(), 4);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -242,10 +242,10 @@ TEST_CASE("dispatcher_ldk")
         aasm_add_constant(&as, ac_integer(0xC0));
         aasm_add_constant(&as, ac_string(aasm_string_to_ref(&as, "0xC1")));
         aasm_add_constant(&as, ac_real(3.14f));
-        aasm_emit(&as, ai_ldk(0));
-        aasm_emit(&as, ai_ldk(1));
-        aasm_emit(&as, ai_ldk(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldk(0), 1);
+        aasm_emit(&as, ai_ldk(1), 2);
+        aasm_emit(&as, ai_ldk(2), 3);
+        aasm_emit(&as, ai_ret(), 4);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -279,8 +279,8 @@ TEST_CASE("dispatcher_nil")
     add_module(&as, "mod_test");
 
     aasm_module_push(&as, "test_f");
-    aasm_emit(&as, ai_nil());
-    aasm_emit(&as, ai_ret());
+    aasm_emit(&as, ai_nil(), 1);
+    aasm_emit(&as, ai_ret(), 2);
     aasm_save(&as);
 
     ascheduler_t s;
@@ -325,8 +325,8 @@ TEST_CASE("dispatcher_ldb")
     SECTION("false")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_ldb(FALSE));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldb(FALSE), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -348,8 +348,8 @@ TEST_CASE("dispatcher_ldb")
     SECTION("true")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_ldb(TRUE));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldb(TRUE), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -371,8 +371,8 @@ TEST_CASE("dispatcher_ldb")
     SECTION("abnormal_true")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_ldb(0xFA));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ldb(0xFA), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -413,8 +413,8 @@ TEST_CASE("dispatcher_lsi")
     SECTION("zero")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -436,8 +436,8 @@ TEST_CASE("dispatcher_lsi")
     SECTION("positive")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(2017));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(2017), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -459,8 +459,8 @@ TEST_CASE("dispatcher_lsi")
     SECTION("negative")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(-2020));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(-2020), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -499,14 +499,14 @@ TEST_CASE("dispatcher_pop")
     ascheduler_on_panic(&s, &on_panic, NULL);
 
     aasm_module_push(&as, "test_f");
-    aasm_emit(&as, ai_lsi(1969));
-    aasm_emit(&as, ai_lsi(1970));
-    aasm_emit(&as, ai_lsi(1971));
-    aasm_emit(&as, ai_lsi(1972));
-    aasm_emit(&as, ai_pop(0));
-    aasm_emit(&as, ai_pop(2));
-    aasm_emit(&as, ai_pop(0));
-    aasm_emit(&as, ai_ret());
+    aasm_emit(&as, ai_lsi(1969), 1);
+    aasm_emit(&as, ai_lsi(1970), 2);
+    aasm_emit(&as, ai_lsi(1971), 3);
+    aasm_emit(&as, ai_lsi(1972), 4);
+    aasm_emit(&as, ai_pop(0), 5);
+    aasm_emit(&as, ai_pop(2), 6);
+    aasm_emit(&as, ai_pop(0), 7);
+    aasm_emit(&as, ai_ret(), 8);
     aasm_save(&as);
 
     REQUIRE(AERR_NONE ==
@@ -552,22 +552,22 @@ TEST_CASE("dispatcher_llv_slv")
     SECTION("pop 4") { pop_num = 4; }
 
     aasm_module_push(&as, "test_f");
-    aasm_emit(&as, ai_lsi(1969));
-    aasm_emit(&as, ai_lsi(1970));
-    aasm_emit(&as, ai_lsi(1971));
-    aasm_emit(&as, ai_lsi(1972));
-    aasm_emit(&as, ai_pop(1));
-    aasm_emit(&as, ai_llv(0));
-    aasm_emit(&as, ai_llv(2));
-    aasm_emit(&as, ai_slv(1));
-    aasm_emit(&as, ai_lsi(1972));
-    aasm_emit(&as, ai_slv(2));
-    aasm_emit(&as, ai_lsi(1970));
-    aasm_emit(&as, ai_slv(1));
-    aasm_emit(&as, ai_lsi(0xBABE));
-    aasm_emit(&as, ai_slv(0));
-    aasm_emit(&as, ai_pop(pop_num));
-    aasm_emit(&as, ai_ret());
+    aasm_emit(&as, ai_lsi(1969), 1);
+    aasm_emit(&as, ai_lsi(1970), 2);
+    aasm_emit(&as, ai_lsi(1971), 3);
+    aasm_emit(&as, ai_lsi(1972), 4);
+    aasm_emit(&as, ai_pop(1), 5);
+    aasm_emit(&as, ai_llv(0), 6);
+    aasm_emit(&as, ai_llv(2), 7);
+    aasm_emit(&as, ai_slv(1), 8);
+    aasm_emit(&as, ai_lsi(1972), 9);
+    aasm_emit(&as, ai_slv(2), 10);
+    aasm_emit(&as, ai_lsi(1970), 11);
+    aasm_emit(&as, ai_slv(1), 12);
+    aasm_emit(&as, ai_lsi(0xBABE), 13);
+    aasm_emit(&as, ai_slv(0), 14);
+    aasm_emit(&as, ai_pop(pop_num), 15);
+    aasm_emit(&as, ai_ret(), 16);
     aasm_save(&as);
 
     REQUIRE(AERR_NONE ==
@@ -628,8 +628,8 @@ TEST_CASE("dispatcher_imp")
     SECTION("no_import")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_imp(0));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(0), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -654,8 +654,8 @@ TEST_CASE("dispatcher_imp")
         aasm_add_import(&as, "mod_imp", "f0");
         aasm_add_import(&as, "mod_imp", "f1");
         aasm_add_import(&as, "mod_imp", "f2");
-        aasm_emit(&as, ai_imp(3));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(3), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -680,8 +680,8 @@ TEST_CASE("dispatcher_imp")
         aasm_add_import(&as, "mod_imp", "f0");
         aasm_add_import(&as, "mod_imp", "f1");
         aasm_add_import(&as, "mod_imp", "f2");
-        aasm_emit(&as, ai_imp(-1));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(-1), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -706,8 +706,8 @@ TEST_CASE("dispatcher_imp")
         aasm_add_import(&as, "mod_imp", "f0");
         aasm_add_import(&as, "mod_imp", "f1");
         aasm_add_import(&as, "mod_imp", "f2");
-        aasm_emit(&as, ai_imp(0));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(0), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -734,8 +734,8 @@ TEST_CASE("dispatcher_imp")
         aasm_add_import(&as, "mod_imp", "f0");
         aasm_add_import(&as, "mod_imp", "f1");
         aasm_add_import(&as, "mod_imp", "f2");
-        aasm_emit(&as, ai_imp(1));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(1), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -762,8 +762,8 @@ TEST_CASE("dispatcher_imp")
         aasm_add_import(&as, "mod_imp", "f0");
         aasm_add_import(&as, "mod_imp", "f1");
         aasm_add_import(&as, "mod_imp", "f2");
-        aasm_emit(&as, ai_imp(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_imp(2), 1);
+        aasm_emit(&as, ai_ret(), 2);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -806,12 +806,12 @@ TEST_CASE("dispatcher_jmp")
     SECTION("normal")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_jmp(2));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_lsi(3));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_jmp(2), 3);
+        aasm_emit(&as, ai_lsi(2), 4);
+        aasm_emit(&as, ai_lsi(3), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -833,12 +833,12 @@ TEST_CASE("dispatcher_jmp")
     SECTION("bad_negative_index")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_jmp(-4));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_lsi(3));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_jmp(-4), 3);
+        aasm_emit(&as, ai_lsi(2), 4);
+        aasm_emit(&as, ai_lsi(3), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -860,12 +860,12 @@ TEST_CASE("dispatcher_jmp")
     SECTION("bad_positive_index")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_jmp(3));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_lsi(3));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_jmp(3), 3);
+        aasm_emit(&as, ai_lsi(2), 4);
+        aasm_emit(&as, ai_lsi(3), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -906,12 +906,12 @@ TEST_CASE("dispatcher_jin")
     SECTION("true")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_ldb(TRUE));
-        aasm_emit(&as, ai_jin(1));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_ldb(TRUE), 3);
+        aasm_emit(&as, ai_jin(1), 4);
+        aasm_emit(&as, ai_lsi(2), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -933,12 +933,12 @@ TEST_CASE("dispatcher_jin")
     SECTION("false")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_ldb(FALSE));
-        aasm_emit(&as, ai_jin(1));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_ldb(FALSE), 3);
+        aasm_emit(&as, ai_jin(1), 4);
+        aasm_emit(&as, ai_lsi(2), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -960,12 +960,12 @@ TEST_CASE("dispatcher_jin")
     SECTION("nil")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_jin(1));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_nil(), 3);
+        aasm_emit(&as, ai_jin(1), 4);
+        aasm_emit(&as, ai_lsi(2), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -987,12 +987,12 @@ TEST_CASE("dispatcher_jin")
     SECTION("bad_negative_index")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_ldb(FALSE));
-        aasm_emit(&as, ai_jin(-5));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_ldb(FALSE), 3);
+        aasm_emit(&as, ai_jin(-5), 4);
+        aasm_emit(&as, ai_lsi(2), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -1014,12 +1014,12 @@ TEST_CASE("dispatcher_jin")
     SECTION("bad_positive_index")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_ldb(FALSE));
-        aasm_emit(&as, ai_jin(2));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_ldb(FALSE), 3);
+        aasm_emit(&as, ai_jin(2), 4);
+        aasm_emit(&as, ai_lsi(2), 5);
+        aasm_emit(&as, ai_ret(), 6);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -1041,11 +1041,11 @@ TEST_CASE("dispatcher_jin")
     SECTION("bad_condition")
     {
         aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(1));
-        aasm_emit(&as, ai_jin(2));
-        aasm_emit(&as, ai_lsi(2));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_lsi(1), 2);
+        aasm_emit(&as, ai_jin(2), 3);
+        aasm_emit(&as, ai_lsi(2), 4);
+        aasm_emit(&as, ai_ret(), 5);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -1088,18 +1088,18 @@ TEST_CASE("dispatcher_mkc_ivk")
         aasm_module_push(&as, "test_f");
         aint_t npt = aasm_push(&as);
         {
-            aasm_emit(&as, ai_llv(-1));
-            aasm_emit(&as, ai_jin(2));
-            aasm_emit(&as, ai_lsi(0xFEFE));
-            aasm_emit(&as, ai_ret());
-            aasm_emit(&as, ai_lsi(0xFEFA));
-            aasm_emit(&as, ai_ret());
+            aasm_emit(&as, ai_llv(-1), 1);
+            aasm_emit(&as, ai_jin(2), 2);
+            aasm_emit(&as, ai_lsi(0xFEFE), 3);
+            aasm_emit(&as, ai_ret(), 4);
+            aasm_emit(&as, ai_lsi(0xFEFA), 5);
+            aasm_emit(&as, ai_ret(), 6);
             aasm_pop(&as);
         }
-        aasm_emit(&as, ai_cls(npt));
-        aasm_emit(&as, ai_ldb(TRUE));
-        aasm_emit(&as, ai_ivk(1));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_cls(npt), 7);
+        aasm_emit(&as, ai_ldb(TRUE), 8);
+        aasm_emit(&as, ai_ivk(1), 9);
+        aasm_emit(&as, ai_ret(), 10);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -1123,18 +1123,18 @@ TEST_CASE("dispatcher_mkc_ivk")
         aasm_module_push(&as, "test_f");
         aint_t npt = aasm_push(&as);
         {
-            aasm_emit(&as, ai_llv(-1));
-            aasm_emit(&as, ai_jin(2));
-            aasm_emit(&as, ai_lsi(0xFEFE));
-            aasm_emit(&as, ai_ret());
-            aasm_emit(&as, ai_lsi(0xFEFA));
-            aasm_emit(&as, ai_ret());
+            aasm_emit(&as, ai_llv(-1), 1);
+            aasm_emit(&as, ai_jin(2), 2);
+            aasm_emit(&as, ai_lsi(0xFEFE), 3);
+            aasm_emit(&as, ai_ret(), 4);
+            aasm_emit(&as, ai_lsi(0xFEFA), 5);
+            aasm_emit(&as, ai_ret(), 6);
             aasm_pop(&as);
         }
-        aasm_emit(&as, ai_cls(npt));
-        aasm_emit(&as, ai_ldb(FALSE));
-        aasm_emit(&as, ai_ivk(1));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_cls(npt), 7);
+        aasm_emit(&as, ai_ldb(FALSE), 8);
+        aasm_emit(&as, ai_ivk(1), 9);
+        aasm_emit(&as, ai_ret(), 10);
         aasm_save(&as);
 
         REQUIRE(AERR_NONE ==
@@ -1174,56 +1174,56 @@ TEST_CASE("dispatcher_msbox")
 
     aasm_module_push(&as, "test_f");
 
-    aasm_emit(&as, ai_llv(-1));
-    aasm_emit(&as, ai_lsi(1));
-    aasm_emit(&as, ai_snd());
-    aasm_emit(&as, ai_llv(-1));
-    aasm_emit(&as, ai_lsi(2));
-    aasm_emit(&as, ai_snd());
-    aasm_emit(&as, ai_llv(-1));
-    aasm_emit(&as, ai_lsi(3));
-    aasm_emit(&as, ai_snd());
+    aasm_emit(&as, ai_llv(-1), 1);
+    aasm_emit(&as, ai_lsi(1), 2);
+    aasm_emit(&as, ai_snd(), 3);
+    aasm_emit(&as, ai_llv(-1), 4);
+    aasm_emit(&as, ai_lsi(2), 5);
+    aasm_emit(&as, ai_snd(), 6);
+    aasm_emit(&as, ai_llv(-1), 7);
+    aasm_emit(&as, ai_lsi(3), 8);
+    aasm_emit(&as, ai_snd(), 9);
 
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0), 10);
+    aasm_emit(&as, ai_rcv(1), 11);
+    aasm_emit(&as, ai_lsi(0), 12);
+    aasm_emit(&as, ai_rcv(1), 13);
+    aasm_emit(&as, ai_lsi(0), 14);
+    aasm_emit(&as, ai_rcv(1), 15);
 
-    aasm_emit(&as, ai_rwd());
+    aasm_emit(&as, ai_rwd(), 16);
 
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0), 17);
+    aasm_emit(&as, ai_rcv(1), 18);
+    aasm_emit(&as, ai_lsi(0), 19);
+    aasm_emit(&as, ai_rcv(1), 20);
+    aasm_emit(&as, ai_lsi(0), 21);
+    aasm_emit(&as, ai_rcv(1), 22);
 
-    aasm_emit(&as, ai_rmv());
+    aasm_emit(&as, ai_rmv(), 23);
 
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
-    aasm_emit(&as, ai_rmv());
+    aasm_emit(&as, ai_lsi(0), 24);
+    aasm_emit(&as, ai_rcv(1), 25);
+    aasm_emit(&as, ai_rmv(), 26);
 
-    aasm_emit(&as, ai_lsi(0));
-    aasm_emit(&as, ai_rcv(1));
+    aasm_emit(&as, ai_lsi(0), 27);
+    aasm_emit(&as, ai_rcv(1), 28);
 
     bool timeout = false;
 
     SECTION("timeout")
     {
         timeout = true;
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_rcv(1));
-        aasm_emit(&as, ai_ret());
-        aasm_emit(&as, ai_lsi(5));
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_lsi(0), 1);
+        aasm_emit(&as, ai_rcv(1), 2);
+        aasm_emit(&as, ai_ret(), 3);
+        aasm_emit(&as, ai_lsi(5), 4);
+        aasm_emit(&as, ai_ret(), 5);
     }
 
     SECTION("normal")
     {
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 1);
     }
 
     aasm_save(&as);

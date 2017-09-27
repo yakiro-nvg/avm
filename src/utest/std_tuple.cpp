@@ -135,11 +135,11 @@ TEST_CASE("std_tuple_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(-1), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -164,11 +164,11 @@ TEST_CASE("std_tuple_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -216,16 +216,16 @@ TEST_CASE("std_tuple_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lget = aasm_add_import(&as, "std-tuple", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -251,16 +251,16 @@ TEST_CASE("std_tuple_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lget = aasm_add_import(&as, "std-tuple", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -286,16 +286,16 @@ TEST_CASE("std_tuple_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lget = aasm_add_import(&as, "std-tuple", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_lsi(-1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -321,16 +321,16 @@ TEST_CASE("std_tuple_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lget = aasm_add_import(&as, "std-tuple", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_lsi(8), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -356,16 +356,16 @@ TEST_CASE("std_tuple_binding_get")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lget = aasm_add_import(&as, "std-tuple", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_nil(), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -413,17 +413,17 @@ TEST_CASE("std_tuple_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lset = aasm_add_import(&as, "std-tuple", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_lsi(0), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -449,17 +449,17 @@ TEST_CASE("std_tuple_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lset = aasm_add_import(&as, "std-tuple", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_lsi(0), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -485,17 +485,17 @@ TEST_CASE("std_tuple_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lset = aasm_add_import(&as, "std-tuple", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_lsi(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -521,17 +521,17 @@ TEST_CASE("std_tuple_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lset = aasm_add_import(&as, "std-tuple", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_lsi(8), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -557,17 +557,17 @@ TEST_CASE("std_tuple_binding_set")
         aint_t lnew = aasm_add_import(&as, "std-tuple", "new/1");
         aint_t lset = aasm_add_import(&as, "std-tuple", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0), 5);
+        aasm_emit(&as, ai_nil(), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 

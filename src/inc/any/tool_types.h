@@ -86,6 +86,7 @@ typedef struct {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
+    aint_t* source_lines;
     aint_t* nesteds;
 } aasm_current_t;
 

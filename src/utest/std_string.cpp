@@ -97,11 +97,11 @@ TEST_CASE("std_string_binding_length")
         aint_t cstring = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "test")));
 
-        aasm_emit(&as, ai_imp(llength));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(llength), 1);
+        aasm_emit(&as, ai_ldk(cstring), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -126,11 +126,11 @@ TEST_CASE("std_string_binding_length")
         aasm_module_push(&as, "test_f");
         aint_t llength = aasm_add_import(&as, "std-string", "length/1");
 
-        aasm_emit(&as, ai_imp(llength));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(llength), 1);
+        aasm_emit(&as, ai_nil(), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -179,11 +179,11 @@ TEST_CASE("std_string_binding_hash")
         aint_t cstring = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "test")));
 
-        aasm_emit(&as, ai_imp(lhash));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lhash), 1);
+        aasm_emit(&as, ai_ldk(cstring), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -209,11 +209,11 @@ TEST_CASE("std_string_binding_hash")
         aasm_module_push(&as, "test_f");
         aint_t lhash = aasm_add_import(&as, "std-string", "hash/1");
 
-        aasm_emit(&as, ai_imp(lhash));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lhash), 1);
+        aasm_emit(&as, ai_nil(), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -269,12 +269,12 @@ TEST_CASE("std_string_binding_get")
         SECTION("2") { idx = 2; }
         SECTION("3") { idx = 3; }
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(idx));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 1);
+        aasm_emit(&as, ai_lsi(idx), 2);
+        aasm_emit(&as, ai_ldk(cstring), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -299,12 +299,12 @@ TEST_CASE("std_string_binding_get")
         aasm_module_push(&as, "test_f");
         aint_t lget = aasm_add_import(&as, "std-string", "get/2");
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_nil());
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_nil(), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -331,12 +331,12 @@ TEST_CASE("std_string_binding_get")
         aint_t cstring = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "")));
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ldk(cstring), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -363,12 +363,12 @@ TEST_CASE("std_string_binding_get")
         aint_t cstring = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "test")));
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 1);
+        aasm_emit(&as, ai_lsi(-1), 2);
+        aasm_emit(&as, ai_ldk(cstring), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -395,12 +395,12 @@ TEST_CASE("std_string_binding_get")
         aint_t cstring = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "test")));
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_lsi(4));
-        aasm_emit(&as, ai_ldk(cstring));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 1);
+        aasm_emit(&as, ai_lsi(4), 2);
+        aasm_emit(&as, ai_ldk(cstring), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -451,12 +451,12 @@ TEST_CASE("std_string_binding_concat")
         aint_t crhs = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "KITTY")));
 
-        aasm_emit(&as, ai_imp(lconcat));
-        aasm_emit(&as, ai_ldk(crhs));
-        aasm_emit(&as, ai_ldk(clhs));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lconcat), 1);
+        aasm_emit(&as, ai_ldk(crhs), 2);
+        aasm_emit(&as, ai_ldk(clhs), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -488,12 +488,12 @@ TEST_CASE("std_string_binding_concat")
         aint_t crhs = aasm_add_constant(&as,
             ac_string(aasm_string_to_ref(&as, "KITTY")));
 
-        aasm_emit(&as, ai_imp(lconcat));
-        aasm_emit(&as, ai_ldk(crhs));
-        aasm_emit(&as, ai_ldk(clhs));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lconcat), 1);
+        aasm_emit(&as, ai_ldk(crhs), 2);
+        aasm_emit(&as, ai_ldk(clhs), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -521,12 +521,12 @@ TEST_CASE("std_string_binding_concat")
             ac_string(aasm_string_to_ref(&as, "hello.")));
         aint_t crhs = aasm_add_constant(&as, ac_integer(0));
 
-        aasm_emit(&as, ai_imp(lconcat));
-        aasm_emit(&as, ai_ldk(crhs));
-        aasm_emit(&as, ai_ldk(clhs));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lconcat), 1);
+        aasm_emit(&as, ai_ldk(crhs), 2);
+        aasm_emit(&as, ai_ldk(clhs), 3);
+        aasm_emit(&as, ai_ivk(2), 4);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 5);
         aasm_pop(&as);
         aasm_save(&as);
 

@@ -13,19 +13,19 @@ static void push_module_a(aasm_t* a)
     aasm_module_push(a, "f1");
     aasm_add_constant(a, ac_integer(0xAF1));
     aasm_add_import(a, "mod_b", "f2");
-    aasm_emit(a, ai_nop());
-    aasm_emit(a, ai_imp(0));
-    aasm_emit(a, ai_ldk(0));
-    aasm_emit(a, ai_ret());
+    aasm_emit(a, ai_nop(), 1);
+    aasm_emit(a, ai_imp(0), 2);
+    aasm_emit(a, ai_ldk(0), 3);
+    aasm_emit(a, ai_ret(), 4);
     aasm_pop(a);
 
     aasm_module_push(a, "f2");
     aasm_add_constant(a, ac_integer(0xAF2));
     aasm_add_import(a, "mod_n", "f1");
-    aasm_emit(a, ai_nop());
-    aasm_emit(a, ai_ldk(0));
-    aasm_emit(a, ai_imp(0));
-    aasm_emit(a, ai_ret());
+    aasm_emit(a, ai_nop(), 5);
+    aasm_emit(a, ai_ldk(0), 6);
+    aasm_emit(a, ai_imp(0), 7);
+    aasm_emit(a, ai_ret(), 8);
     aasm_pop(a);
 }
 
@@ -37,19 +37,19 @@ static void push_module_b(aasm_t* b)
     aasm_module_push(b, "f2");
     aasm_add_constant(b, ac_integer(0xBF2));
     aasm_add_import(b, "mod_n", "f2");
-    aasm_emit(b, ai_ldk(0));
-    aasm_emit(b, ai_imp(0));
-    aasm_emit(b, ai_nop());
-    aasm_emit(b, ai_ret());
+    aasm_emit(b, ai_ldk(0), 1);
+    aasm_emit(b, ai_imp(0), 2);
+    aasm_emit(b, ai_nop(), 3);
+    aasm_emit(b, ai_ret(), 4);
     aasm_pop(b);
 
     aasm_module_push(b, "f1");
     aasm_add_constant(b, ac_integer(0xBF1));
     aasm_add_import(b, "mod_a", "f1");
-    aasm_emit(b, ai_imp(0));
-    aasm_emit(b, ai_nop());
-    aasm_emit(b, ai_ldk(0));
-    aasm_emit(b, ai_ret());
+    aasm_emit(b, ai_imp(0), 5);
+    aasm_emit(b, ai_nop(), 6);
+    aasm_emit(b, ai_ldk(0), 7);
+    aasm_emit(b, ai_ret(), 8);
     aasm_pop(b);
 }
 
@@ -61,8 +61,8 @@ static void push_module_c(aasm_t* c)
     aasm_module_push(c, "f1");
     aasm_add_constant(c, ac_integer(0xCF1));
     aasm_add_import(c, "mod_a", "f3");
-    aasm_emit(c, ai_nop());
-    aasm_emit(c, ai_ret());
+    aasm_emit(c, ai_nop(), 1);
+    aasm_emit(c, ai_ret(), 2);
     aasm_pop(c);
 }
 
@@ -347,10 +347,10 @@ TEST_CASE("loader_link_safe_and_sweep")
     aasm_module_push(&aa, "f3");
     aasm_add_constant(&aa, ac_integer(0xAF3));
     aasm_add_import(&aa, "mod_b", "f2");
-    aasm_emit(&aa, ai_nop());
-    aasm_emit(&aa, ai_ldk(0));
-    aasm_emit(&aa, ai_imp(0));
-    aasm_emit(&aa, ai_ret());
+    aasm_emit(&aa, ai_nop(), 9);
+    aasm_emit(&aa, ai_ldk(0), 10);
+    aasm_emit(&aa, ai_imp(0), 11);
+    aasm_emit(&aa, ai_ret(), 12);
     aasm_pop(&aa);
     aasm_save(&aa);
     REQUIRE(AERR_NONE ==

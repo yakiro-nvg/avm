@@ -26,7 +26,8 @@ calc_sizes(
     *off += sizeof(aprototype_header_t) + p->strings_sz +
         sizeof(ainstruction_t) * p->num_instructions +
         sizeof(aconstant_t) * p->num_constants +
-        sizeof(aimport_t) * p->num_imports;
+        sizeof(aimport_t) * p->num_imports +
+        sizeof(aint_t) * p->num_instructions;
     if (*off > sz) return AERR_MALFORMED;
 
     for (i = 0; i < p->num_nesteds; ++i) {
@@ -79,9 +80,10 @@ create_proto(
     pt->instructions = (ainstruction_t*)(((uint8_t*)(p + 1)) + p->strings_sz);
     pt->constants = (aconstant_t*)(pt->instructions + p->num_instructions);
     pt->imports = (aimport_t*)(pt->constants + p->num_constants);
-    pt->nesteds = *next_pt; *next_pt += p->num_nesteds;
     pt->import_values = *next_imp; *next_imp += p->num_imports;
-    *off += (uint8_t*)(pt->imports + p->num_imports) - (uint8_t*)p;
+    pt->source_lines = (aint_t*)(pt->imports + p->num_imports);
+    pt->nesteds = *next_pt; *next_pt += p->num_nesteds;
+    *off += (uint8_t*)(pt->source_lines + p->num_instructions) - (uint8_t*)p;
 
     for (i = 0; i < p->num_nesteds; ++i) {
         create_proto(chunk, off, pt->nesteds + i, next_imp, next_pt);

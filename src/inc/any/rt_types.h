@@ -917,6 +917,7 @@ num of string bytes                   strings
 n * sizeof(:c:type:`ainstruction_t`)  instructions
 n * sizeof(:c:type:`aconstant_t`)     constants
 n * sizeof(:c:type:`aimport_t`)       imports
+n * sizeof(aint_t)                    source lines
 _                                     nested prototypes
 ====================================  ======================
 \endrst
@@ -953,8 +954,9 @@ typedef struct aprototype_t {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
-    struct aprototype_t* nesteds;
     avalue_t* import_values;
+    aint_t* source_lines;
+    struct aprototype_t* nesteds;
 } aprototype_t;
 
 /// Runtime byte code chunk.

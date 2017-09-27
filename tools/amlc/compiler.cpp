@@ -476,17 +476,17 @@ static std::string match_string(amlc_ctx_t& ctx)
 
 static void match_nop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_nop());
+    aasm_emit(ctx.a, ai_nop(), ctx.line);
 }
 
 static void match_brk(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_brk());
+    aasm_emit(ctx.a, ai_brk(), ctx.line);
 }
 
 static void match_pop(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_pop(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_pop(match_integer(ctx)), ctx.line);
 }
 
 static void match_ldk(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -506,12 +506,12 @@ static void match_ldk(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     } else {
         error(ctx, "unexpected character `%s`", character(*ctx.s).c_str());
     }
-    aasm_emit(ctx.a, ai_ldk(idx));
+    aasm_emit(ctx.a, ai_ldk(idx), ctx.line);
 }
 
 static void match_nil(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_nil());
+    aasm_emit(ctx.a, ai_nil(), ctx.line);
 }
 
 static void match_ldb(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
@@ -520,12 +520,12 @@ static void match_ldb(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
     if (sym != "true" && sym != "false") {
         error(ctx, "expected boolean, saw `%s`", sym.c_str());
     }
-    aasm_emit(ctx.a, ai_ldb(sym == "true" ? TRUE : FALSE));
+    aasm_emit(ctx.a, ai_ldb(sym == "true" ? TRUE : FALSE), ctx.line);
 }
 
 static void match_lsi(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_lsi(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_lsi(match_integer(ctx)), ctx.line);
 }
 
 static void match_llv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -536,7 +536,7 @@ static void match_llv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     } else {
         idx = match_integer(ctx);
     }
-    aasm_emit(ctx.a, ai_llv(idx));
+    aasm_emit(ctx.a, ai_llv(idx), ctx.line);
 }
 
 static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -547,7 +547,7 @@ static void match_slv(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     } else {
         idx = match_integer(ctx);
     }
-    aasm_emit(ctx.a, ai_slv(idx));
+    aasm_emit(ctx.a, ai_slv(idx), ctx.line);
 }
 
 static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -565,7 +565,7 @@ static void match_imp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
         name << match_integer(ctx);
     }
     aint_t idx = pool_push_import(pctx.imports, ctx.a, module, name.str());
-    aasm_emit(ctx.a, ai_imp(idx));
+    aasm_emit(ctx.a, ai_imp(idx), ctx.line);
 }
 
 static void match_cls(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -575,47 +575,47 @@ static void match_cls(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     match(ctx, '/');
     name << '/' << match_integer(ctx);
     aint_t idx = pool_push_pseudo_nested(pctx.pseudo_nesteds, name.str());
-    aasm_emit(ctx.a, ai_cls(idx));
+    aasm_emit(ctx.a, ai_cls(idx), ctx.line);
 }
 
 static void match_jmp(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_jmp(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_jmp(match_integer(ctx)), ctx.line);
 }
 
 static void match_jin(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_jin(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_jin(match_integer(ctx)), ctx.line);
 }
 
 static void match_ivk(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_ivk(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_ivk(match_integer(ctx)), ctx.line);
 }
 
 static void match_ret(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_ret());
+    aasm_emit(ctx.a, ai_ret(), ctx.line);
 }
 
 static void match_snd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_snd());
+    aasm_emit(ctx.a, ai_snd(), ctx.line);
 }
 
 static void match_rcv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_rcv(match_integer(ctx)));
+    aasm_emit(ctx.a, ai_rcv(match_integer(ctx)), ctx.line);
 }
 
 static void match_rmv(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_rmv());
+    aasm_emit(ctx.a, ai_rmv(), ctx.line);
 }
 
 static void match_rwd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 {
-    aasm_emit(ctx.a, ai_rwd());
+    aasm_emit(ctx.a, ai_rwd(), ctx.line);
 }
 
 static void match_variables(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
@@ -736,6 +736,7 @@ static void match_module(amlc_ctx_t& ctx)
     match(ctx, "module");
     skip_whitespace(ctx, false);
     aasm_prototype_t* p = aasm_prototype(ctx.a);
+    p->source = aasm_string_to_ref(ctx.a, ctx.filename.c_str());
     p->symbol = aasm_string_to_ref(ctx.a, match_symbol(ctx).c_str());
     skip_whitespace(ctx, true);
     while (*ctx.s != 0) {

@@ -82,11 +82,11 @@ TEST_CASE("db")
     REQUIRE(aasm_load(&as, NULL) == AERR_NONE);
     add_module(&as, "mod_test");
     aasm_module_push(&as, "test_f");
-    aasm_emit(&as, ai_lsi(1969));
-    aasm_emit(&as, ai_lsi(1970));
-    aasm_emit(&as, ai_lsi(1971));
-    aasm_emit(&as, ai_lsi(1972));
-    aasm_emit(&as, ai_ret());
+    aasm_emit(&as, ai_lsi(1969), 1);
+    aasm_emit(&as, ai_lsi(1970), 2);
+    aasm_emit(&as, ai_lsi(1971), 3);
+    aasm_emit(&as, ai_lsi(1972), 4);
+    aasm_emit(&as, ai_ret(), 5);
     aasm_pop(&as);
     aasm_save(&as);
 

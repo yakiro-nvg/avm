@@ -140,15 +140,15 @@ TEST_CASE("std_table_binding")
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
         aint_t lcapacity = aasm_add_import(&as, "std-table", "capacity/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lcapacity));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lcapacity), 4);
+        aasm_emit(&as, ai_llv(0), 5);
+        aasm_emit(&as, ai_ivk(1), 6);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 7);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -174,15 +174,15 @@ TEST_CASE("std_table_binding")
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
         aint_t lsize = aasm_add_import(&as, "std-table", "size/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lsize));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lsize), 4);
+        aasm_emit(&as, ai_llv(0), 5);
+        aasm_emit(&as, ai_ivk(1), 6);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 7);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -207,11 +207,11 @@ TEST_CASE("std_table_binding")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -258,11 +258,11 @@ TEST_CASE("std_table_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(-1));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(-1), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -287,11 +287,11 @@ TEST_CASE("std_table_binding_new")
         aasm_module_push(&as, "test_f");
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(0));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(0), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 4);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -349,37 +349,37 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lget = aasm_add_import(&as, "std-table", "get/2");
         aint_t lset = aasm_add_import(&as, "std-table", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[1]));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(vals[1]), 5);
+        aasm_emit(&as, ai_llv(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
+        aasm_emit(&as, ai_pop(1), 9);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[2]));
-        aasm_emit(&as, ai_llv(-2));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 10);
+        aasm_emit(&as, ai_lsi(vals[2]), 11);
+        aasm_emit(&as, ai_llv(-2), 12);
+        aasm_emit(&as, ai_llv(0), 13);
+        aasm_emit(&as, ai_ivk(3), 14);
+        aasm_emit(&as, ai_pop(1), 15);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[3]));
-        aasm_emit(&as, ai_llv(-3));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 16);
+        aasm_emit(&as, ai_lsi(vals[3]), 17);
+        aasm_emit(&as, ai_llv(-3), 18);
+        aasm_emit(&as, ai_llv(0), 19);
+        aasm_emit(&as, ai_ivk(3), 20);
+        aasm_emit(&as, ai_pop(1), 21);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_llv(-arg_idx));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 22);
+        aasm_emit(&as, ai_llv(-arg_idx), 23);
+        aasm_emit(&as, ai_llv(0), 24);
+        aasm_emit(&as, ai_ivk(2), 25);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 26);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -424,37 +424,37 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lget = aasm_add_import(&as, "std-table", "get/2");
         aint_t lset = aasm_add_import(&as, "std-table", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[1]));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(vals[1]), 5);
+        aasm_emit(&as, ai_llv(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
+        aasm_emit(&as, ai_pop(1), 9);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[2]));
-        aasm_emit(&as, ai_llv(-2));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 10);
+        aasm_emit(&as, ai_lsi(vals[2]), 11);
+        aasm_emit(&as, ai_llv(-2), 12);
+        aasm_emit(&as, ai_llv(0), 13);
+        aasm_emit(&as, ai_ivk(3), 14);
+        aasm_emit(&as, ai_pop(1), 15);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[3]));
-        aasm_emit(&as, ai_llv(-3));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 16);
+        aasm_emit(&as, ai_lsi(vals[3]), 17);
+        aasm_emit(&as, ai_llv(-3), 18);
+        aasm_emit(&as, ai_llv(0), 19);
+        aasm_emit(&as, ai_ivk(3), 20);
+        aasm_emit(&as, ai_pop(1), 21);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_llv(-arg_idx));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 22);
+        aasm_emit(&as, ai_llv(-arg_idx), 23);
+        aasm_emit(&as, ai_llv(0), 24);
+        aasm_emit(&as, ai_ivk(2), 25);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 26);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -499,37 +499,37 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lget = aasm_add_import(&as, "std-table", "get/2");
         aint_t lset = aasm_add_import(&as, "std-table", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[1]));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(vals[1]), 5);
+        aasm_emit(&as, ai_llv(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
+        aasm_emit(&as, ai_pop(1), 9);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[2]));
-        aasm_emit(&as, ai_llv(-2));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 10);
+        aasm_emit(&as, ai_lsi(vals[2]), 11);
+        aasm_emit(&as, ai_llv(-2), 12);
+        aasm_emit(&as, ai_llv(0), 13);
+        aasm_emit(&as, ai_ivk(3), 14);
+        aasm_emit(&as, ai_pop(1), 15);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[3]));
-        aasm_emit(&as, ai_llv(-3));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 16);
+        aasm_emit(&as, ai_lsi(vals[3]), 17);
+        aasm_emit(&as, ai_llv(-3), 18);
+        aasm_emit(&as, ai_llv(0), 19);
+        aasm_emit(&as, ai_ivk(3), 20);
+        aasm_emit(&as, ai_pop(1), 21);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_llv(-arg_idx));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 22);
+        aasm_emit(&as, ai_llv(-arg_idx), 23);
+        aasm_emit(&as, ai_llv(0), 24);
+        aasm_emit(&as, ai_ivk(2), 25);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 26);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -574,37 +574,37 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lget = aasm_add_import(&as, "std-table", "get/2");
         aint_t lset = aasm_add_import(&as, "std-table", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[1]));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(vals[1]), 5);
+        aasm_emit(&as, ai_llv(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
+        aasm_emit(&as, ai_pop(1), 9);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[2]));
-        aasm_emit(&as, ai_llv(-2));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 10);
+        aasm_emit(&as, ai_lsi(vals[2]), 11);
+        aasm_emit(&as, ai_llv(-2), 12);
+        aasm_emit(&as, ai_llv(0), 13);
+        aasm_emit(&as, ai_ivk(3), 14);
+        aasm_emit(&as, ai_pop(1), 15);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(vals[3]));
-        aasm_emit(&as, ai_llv(-3));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
-        aasm_emit(&as, ai_pop(1));
+        aasm_emit(&as, ai_imp(lset), 16);
+        aasm_emit(&as, ai_lsi(vals[3]), 17);
+        aasm_emit(&as, ai_llv(-3), 18);
+        aasm_emit(&as, ai_llv(0), 19);
+        aasm_emit(&as, ai_ivk(3), 20);
+        aasm_emit(&as, ai_pop(1), 21);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_llv(-arg_idx));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 22);
+        aasm_emit(&as, ai_llv(-arg_idx), 23);
+        aasm_emit(&as, ai_llv(0), 24);
+        aasm_emit(&as, ai_ivk(2), 25);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 26);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -639,17 +639,17 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
         aint_t lset = aasm_add_import(&as, "std-table", "set/3");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lset));
-        aasm_emit(&as, ai_lsi(0xFE));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(3));
+        aasm_emit(&as, ai_imp(lset), 4);
+        aasm_emit(&as, ai_lsi(0xFE), 5);
+        aasm_emit(&as, ai_llv(-1), 6);
+        aasm_emit(&as, ai_llv(0), 7);
+        aasm_emit(&as, ai_ivk(3), 8);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 9);
         aasm_pop(&as);
         aasm_save(&as);
 
@@ -683,16 +683,16 @@ TEST_CASE("std_table_binding_get_set")
         aint_t lnew = aasm_add_import(&as, "std-table", "new/1");
         aint_t lget = aasm_add_import(&as, "std-table", "get/2");
 
-        aasm_emit(&as, ai_imp(lnew));
-        aasm_emit(&as, ai_lsi(8));
-        aasm_emit(&as, ai_ivk(1));
+        aasm_emit(&as, ai_imp(lnew), 1);
+        aasm_emit(&as, ai_lsi(8), 2);
+        aasm_emit(&as, ai_ivk(1), 3);
 
-        aasm_emit(&as, ai_imp(lget));
-        aasm_emit(&as, ai_llv(-1));
-        aasm_emit(&as, ai_llv(0));
-        aasm_emit(&as, ai_ivk(2));
+        aasm_emit(&as, ai_imp(lget), 4);
+        aasm_emit(&as, ai_llv(-1), 5);
+        aasm_emit(&as, ai_llv(0), 6);
+        aasm_emit(&as, ai_ivk(2), 7);
 
-        aasm_emit(&as, ai_ret());
+        aasm_emit(&as, ai_ret(), 8);
         aasm_pop(&as);
         aasm_save(&as);
 

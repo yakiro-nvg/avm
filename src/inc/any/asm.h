@@ -37,7 +37,7 @@ aasm_cleanup(
 */
 ANY_API aint_t
 aasm_emit(
-    aasm_t* self, ainstruction_t instruction);
+    aasm_t* self, ainstruction_t instruction, aint_t source_line);
 
 /** Add new constant.
 \return The index of added constant.

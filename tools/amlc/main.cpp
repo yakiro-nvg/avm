@@ -93,12 +93,20 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
 static void on_panic(aactor_t* a, void*)
 {
     aint_t ev_idx = any_top(a);
+    if (a->frame->pt) {
+        aprototype_t& chunk = a->frame->pt->chunk->prototypes[0];
+        std::cout << chunk.strings + chunk.header->source << ":";
+        if (a->frame->ip < a->frame->pt->header->num_instructions) {
+            std::cout << a->frame->pt->source_lines[a->frame->ip] << " ";
+        } else {
+            std::cout << a->frame->pt->source_lines[a->frame->ip - 1] << " ";
+        }
+    }
+    std::cout << "panic - ";
     if (any_type(a, ev_idx).type == AVT_STRING) {
-        std::cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
-            any_to_string(a, ev_idx) << "\n";
+        std::cout << any_to_string(a, ev_idx) << "\n";
     } else {
-        std::cout << "[" << ascheduler_pid(a->owner, a) << "] panic - " <<
-            "unknown fatal error" << "\n";
+        std::cout << "unknown fatal error\n";
     }
 }
 
