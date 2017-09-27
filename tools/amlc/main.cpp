@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <stdexcept>
+#include <memory>
 
 #include <any/version.h>
 #include <any/asm.h>
@@ -17,6 +18,10 @@
 #include <any/std_array.h>
 #include <any/std_tuple.h>
 #include <any/std_table.h>
+
+#if defined(ALINUX) || defined(AAPPLE)
+#include <unistd.h>
+#endif
 
 #include "compiler.h"
 
@@ -311,7 +316,7 @@ int entry(int argc, char** argv)
                 }
                 std::unique_ptr<address_t> debug;
                 if (p["debug"].was_set()) {
-                    debug = std::make_unique<address_t>();
+                    debug.reset(new address_t());
                     auto d = p["debug"].get().string;
                     auto colon = d.find_first_of(':');
                     debug->host = d.substr(0, colon);
