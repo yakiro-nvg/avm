@@ -93,6 +93,7 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
 static void on_panic(aactor_t* a, void*)
 {
     aint_t ev_idx = any_top(a);
+    std::cout << "[" << ascheduler_pid(a->owner, a) << "] ";
     if (a->frame->pt) {
         aprototype_t& chunk = a->frame->pt->chunk->prototypes[0];
         std::cout << chunk.strings + chunk.header->source << ":";
