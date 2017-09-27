@@ -9,6 +9,7 @@
 
 // Forward declarations.
 struct aactor_t;
+struct aloader_t;
 
 // Specify the operation to be performed by the instructions.
 typedef enum {

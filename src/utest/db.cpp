@@ -1,11 +1,11 @@
 /* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
-#include "prereq.h"
-
 #define ADB_API static
 #define WBY_STATIC
 extern "C" {
 #include <db.c>
 }
+
+#include "prereq.h"
 
 #include <any/asm.h>
 #include <any/scheduler.h>

@@ -349,28 +349,28 @@ websocket_closed(
 }
 
 static void
-on_throw(
+handle_throw(
     aactor_t* a, void* ud)
 {
     // TODO
 }
 
 static void
-on_spawn(
+handle_spawn(
     aactor_t* a, void* ud)
 {
     // TODO
 }
 
 static void
-on_exit(
+handle_exit(
     aactor_t* a, void* ud)
 {
     // TODO
 }
 
 static int32_t
-on_step(
+handle_step(
     aactor_t* a, void* ud)
 {
     // TODO
@@ -378,7 +378,7 @@ on_step(
 }
 
 static void
-on_linked(
+handle_linked(
     aloader_t* l, void* ud)
 {
     AUNUSED(l);
@@ -415,11 +415,11 @@ static void
 attach(
     ascheduler_t* target, adb_t* db)
 {
-    aloader_on_linked(&target->loader, &on_linked, db);
-    ascheduler_on_throw(target, &on_throw, db);
-    ascheduler_on_spawn(target, &on_spawn, db);
-    ascheduler_on_exit (target, &on_exit,  db);
-    ascheduler_on_step (target, &on_step,  db);
+    aloader_on_linked(&target->loader, &handle_linked, db);
+    ascheduler_on_throw(target, &handle_throw, db);
+    ascheduler_on_spawn(target, &handle_spawn, db);
+    ascheduler_on_exit (target, &handle_exit,  db);
+    ascheduler_on_step (target, &handle_step,  db);
 }
 
 static void
