@@ -64,7 +64,7 @@ static void lib_fill(aactor_t* a, aint_t sz)
 {
     aint_t b_idx = any_check_index(a, 0);
     for (aint_t i = 0; i < sz; ++i) {
-        any_find(a, "std-buffer", "set/3");
+        any_import(a, "std-buffer", "set/3");
         any_push_integer(a, i % 255);
         any_push_integer(a, i);
         any_push_index(a, b_idx);
@@ -78,7 +78,7 @@ static void lib_test(aactor_t* a, aint_t sz)
 {
     aint_t b_idx = any_check_index(a, 0);
     for (aint_t i = 0; i < sz; ++i) {
-        any_find(a, "std-buffer", "get/2");
+        any_import(a, "std-buffer", "get/2");
         any_push_integer(a, i);
         any_push_index(a, b_idx);
         any_call(a, 2);
@@ -91,19 +91,19 @@ static void buffer_binding_test(aactor_t* a)
 {
     aint_t buf_sz;
 
-    any_find(a, "std-buffer", "new/1");
+    any_import(a, "std-buffer", "new/1");
     any_push_integer(a, 8);
     any_call(a, 1);
 
     aint_t b_idx = any_check_index(a, 0);
 
-    any_find(a, "std-buffer", "size/1");
+    any_import(a, "std-buffer", "size/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 0);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "capacity/1");
+    any_import(a, "std-buffer", "capacity/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 8);
@@ -112,33 +112,33 @@ static void buffer_binding_test(aactor_t* a)
     for (aint_t i = 1; i <= 100; ++i) {
         aint_t new_cap = i * 10;
 
-        any_find(a, "std-buffer", "reserve/2");
+        any_import(a, "std-buffer", "reserve/2");
         any_push_integer(a, new_cap);
         any_push_index(a, b_idx);
         any_call(a, 2);
         REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
         any_pop(a, 1);
 
-        any_find(a, "std-buffer", "capacity/1");
+        any_import(a, "std-buffer", "capacity/1");
         any_push_index(a, b_idx);
         any_call(a, 1);
         REQUIRE(any_check_integer(a, b_idx + 1) == new_cap);
         any_pop(a, 1);
     }
 
-    any_find(a, "std-buffer", "shrink_to_fit/1");
+    any_import(a, "std-buffer", "shrink_to_fit/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "size/1");
+    any_import(a, "std-buffer", "size/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 0);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "capacity/1");
+    any_import(a, "std-buffer", "capacity/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 0);
@@ -147,14 +147,14 @@ static void buffer_binding_test(aactor_t* a)
     for (aint_t i = 1; i <= 100; ++i) {
         aint_t new_sz = i * 10;
 
-        any_find(a, "std-buffer", "size/1");
+        any_import(a, "std-buffer", "size/1");
         any_push_index(a, b_idx);
         any_call(a, 1);
         buf_sz = any_check_integer(a, b_idx + 1);
         any_pop(a, 1);
         lib_test(a, buf_sz);
 
-        any_find(a, "std-buffer", "resize/2");
+        any_import(a, "std-buffer", "resize/2");
         any_push_integer(a, new_sz);
         any_push_index(a, b_idx);
         any_call(a, 2);
@@ -163,19 +163,19 @@ static void buffer_binding_test(aactor_t* a)
 
         any_buffer_resize(a, b_idx, new_sz);
 
-        any_find(a, "std-buffer", "capacity/1");
+        any_import(a, "std-buffer", "capacity/1");
         any_push_index(a, b_idx);
         any_call(a, 1);
         REQUIRE(any_check_integer(a, b_idx + 1) >= new_sz);
         any_pop(a, 1);
 
-        any_find(a, "std-buffer", "size/1");
+        any_import(a, "std-buffer", "size/1");
         any_push_index(a, b_idx);
         any_call(a, 1);
         REQUIRE(any_check_integer(a, b_idx + 1) == new_sz);
         any_pop(a, 1);
 
-        any_find(a, "std-buffer", "size/1");
+        any_import(a, "std-buffer", "size/1");
         any_push_index(a, b_idx);
         any_call(a, 1);
         buf_sz = any_check_integer(a, b_idx + 1);
@@ -183,25 +183,25 @@ static void buffer_binding_test(aactor_t* a)
         lib_fill(a, buf_sz);
     }
 
-    any_find(a, "std-buffer", "shrink_to_fit/1");
+    any_import(a, "std-buffer", "shrink_to_fit/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_type(a, b_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "size/1");
+    any_import(a, "std-buffer", "size/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 1000);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "capacity/1");
+    any_import(a, "std-buffer", "capacity/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, b_idx + 1) == 1000);
     any_pop(a, 1);
 
-    any_find(a, "std-buffer", "size/1");
+    any_import(a, "std-buffer", "size/1");
     any_push_index(a, b_idx);
     any_call(a, 1);
     buf_sz = any_check_integer(a, b_idx + 1);
@@ -300,7 +300,7 @@ TEST_CASE("std_buffer_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -329,7 +329,7 @@ TEST_CASE("std_buffer_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -381,7 +381,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -416,7 +416,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -457,7 +457,7 @@ TEST_CASE("std_buffer_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -508,7 +508,7 @@ TEST_CASE("std_buffer_binding_shrink")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -560,7 +560,7 @@ TEST_CASE("std_buffer_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -595,7 +595,7 @@ TEST_CASE("std_buffer_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -631,7 +631,7 @@ TEST_CASE("std_buffer_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -694,7 +694,7 @@ TEST_CASE("std_buffer_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -729,7 +729,7 @@ TEST_CASE("std_buffer_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -771,7 +771,7 @@ TEST_CASE("std_buffer_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -813,7 +813,7 @@ TEST_CASE("std_buffer_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -855,7 +855,7 @@ TEST_CASE("std_buffer_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -920,7 +920,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -956,7 +956,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -999,7 +999,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1042,7 +1042,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1085,7 +1085,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1128,7 +1128,7 @@ TEST_CASE("std_buffer_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1179,7 +1179,7 @@ TEST_CASE("std_buffer_binding_size")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1230,7 +1230,7 @@ TEST_CASE("std_buffer_binding_capacity")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);

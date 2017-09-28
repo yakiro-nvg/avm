@@ -20,7 +20,7 @@ static void push_array(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
@@ -31,7 +31,7 @@ static void push_array(aactor_t* a)
 
     for (aint_t i = 0; i < 100; ++i) {
         if (i % 2 == 0) {
-            any_find(a, "std-array", "set/3");
+            any_import(a, "std-array", "set/3");
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
@@ -44,7 +44,7 @@ static void push_array(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
@@ -55,7 +55,7 @@ static void push_array(aactor_t* a)
 
     for (aint_t i = 100; i < 500; ++i) {
         if (i % 2 == 0) {
-            any_find(a, "std-array", "set/3");
+            any_import(a, "std-array", "set/3");
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
@@ -68,7 +68,7 @@ static void push_array(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
@@ -79,7 +79,7 @@ static void push_array(aactor_t* a)
 
     for (aint_t i = 500; i < 1000; ++i) {
         if (i % 2 == 0) {
-            any_find(a, "std-array", "set/3");
+            any_import(a, "std-array", "set/3");
             any_push_nil(a);
             any_push_integer(a, i);
             any_push_index(a, a_idx);
@@ -98,7 +98,7 @@ static void test_array(aactor_t* a)
     for (aint_t i = 0; i < 1000; ++i) {
         if (i % 2 == 0) continue;
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
-        any_find(a, "std-array", "get/2");
+        any_import(a, "std-array", "get/2");
         any_push_integer(a, i);
         any_push_index(a, arr_idx);
         any_call(a, 2);
@@ -120,7 +120,7 @@ static void nested_test(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_native_func(a, &push_array);
         any_call(a, 0);
         any_push_integer(a, i);
@@ -131,7 +131,7 @@ static void nested_test(aactor_t* a)
 
     for (aint_t i = 0; i < 10; ++i) {
         if (i % 2 == 0) continue;
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_nil(a);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -143,7 +143,7 @@ static void nested_test(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_native_func(a, &push_array);
         any_call(a, 0);
         any_push_integer(a, i);
@@ -154,7 +154,7 @@ static void nested_test(aactor_t* a)
 
     for (aint_t i = 10; i < 50; ++i) {
         if (i % 2 == 0) continue;
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_nil(a);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -166,7 +166,7 @@ static void nested_test(aactor_t* a)
         aint_t sz = any_array_size(a, a_idx);
         REQUIRE(sz == i);
         any_array_resize(a, a_idx, sz + 1);
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_native_func(a, &push_array);
         any_call(a, 0);
         any_push_integer(a, i);
@@ -177,7 +177,7 @@ static void nested_test(aactor_t* a)
 
     for (aint_t i = 50; i < 100; ++i) {
         if (i % 2 == 0) continue;
-        any_find(a, "std-array", "set/3");
+        any_import(a, "std-array", "set/3");
         any_push_nil(a);
         any_push_integer(a, i);
         any_push_index(a, a_idx);
@@ -187,7 +187,7 @@ static void nested_test(aactor_t* a)
 
     for (aint_t i = 0; i < 100; ++i) {
         if (i % 2 != 0) {
-            any_find(a, "std-array", "get/2");
+            any_import(a, "std-array", "get/2");
             any_push_integer(a, i);
             any_push_index(a, a_idx);
             any_call(a, 2);
@@ -195,7 +195,7 @@ static void nested_test(aactor_t* a)
             any_pop(a, 1);
         } else {
             any_push_native_func(a, &test_array);
-            any_find(a, "std-array", "get/2");
+            any_import(a, "std-array", "get/2");
             any_push_integer(a, i);
             any_push_index(a, a_idx);
             any_call(a, 2);
@@ -209,76 +209,76 @@ static void nested_test(aactor_t* a)
 
 static void array_binding_test(aactor_t* a)
 {
-    any_find(a, "std-array", "new/1");
+    any_import(a, "std-array", "new/1");
     any_push_integer(a, 8);
     any_call(a, 1);
 
     aint_t a_idx = any_check_index(a, 0);
 
-    any_find(a, "std-array", "size/1");
+    any_import(a, "std-array", "size/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) == 0);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "capacity/1");
+    any_import(a, "std-array", "capacity/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) == 8);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "reserve/2");
+    any_import(a, "std-array", "reserve/2");
     any_push_integer(a, 128);
     any_push_index(a, a_idx);
     any_call(a, 2);
     REQUIRE(any_type(a, a_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "size/1");
+    any_import(a, "std-array", "size/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) == 0);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "capacity/1");
+    any_import(a, "std-array", "capacity/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) >= 128);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "resize/2");
+    any_import(a, "std-array", "resize/2");
     any_push_integer(a, 64);
     any_push_index(a, a_idx);
     any_call(a, 2);
     REQUIRE(any_type(a, a_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "size/1");
+    any_import(a, "std-array", "size/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) == 64);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "capacity/1");
+    any_import(a, "std-array", "capacity/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) >= 128);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "resize/2");
+    any_import(a, "std-array", "resize/2");
     any_push_integer(a, 256);
     any_push_index(a, a_idx);
     any_call(a, 2);
     REQUIRE(any_type(a, a_idx + 1).type == AVT_NIL);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "size/1");
+    any_import(a, "std-array", "size/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) == 256);
     any_pop(a, 1);
 
-    any_find(a, "std-array", "capacity/1");
+    any_import(a, "std-array", "capacity/1");
     any_push_index(a, a_idx);
     any_call(a, 1);
     REQUIRE(any_check_integer(a, a_idx + 1) >= 256);
@@ -378,7 +378,7 @@ TEST_CASE("std_array_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -407,7 +407,7 @@ TEST_CASE("std_array_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -459,7 +459,7 @@ TEST_CASE("std_array_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -494,7 +494,7 @@ TEST_CASE("std_array_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -535,7 +535,7 @@ TEST_CASE("std_array_binding_reserve")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -586,7 +586,7 @@ TEST_CASE("std_array_binding_shrink")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -638,7 +638,7 @@ TEST_CASE("std_array_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -673,7 +673,7 @@ TEST_CASE("std_array_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -709,7 +709,7 @@ TEST_CASE("std_array_binding_resize")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -772,7 +772,7 @@ TEST_CASE("std_array_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -807,7 +807,7 @@ TEST_CASE("std_array_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -849,7 +849,7 @@ TEST_CASE("std_array_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -891,7 +891,7 @@ TEST_CASE("std_array_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -933,7 +933,7 @@ TEST_CASE("std_array_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -998,7 +998,7 @@ TEST_CASE("std_array_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1034,7 +1034,7 @@ TEST_CASE("std_array_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1077,7 +1077,7 @@ TEST_CASE("std_array_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1120,7 +1120,7 @@ TEST_CASE("std_array_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1163,7 +1163,7 @@ TEST_CASE("std_array_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);

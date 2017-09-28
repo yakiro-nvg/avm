@@ -23,10 +23,14 @@ lprint(
         case AVT_NIL:
             out(out_ud, "nil");
             break;
-        case AVT_PID:
-            snprintf(buf, sizeof(buf), "<0x%x>", any_to_pid(a, arg_idx));
+        case AVT_PID: {
+            apid_t pid = any_to_pid(a, arg_idx);
+            snprintf(buf, sizeof(buf), "<%d.%d>",
+                apid_idx(a->owner->idx_bits, pid),
+                apid_gen(a->owner->idx_bits, a->owner->gen_bits, pid));
             out(out_ud, buf);
             break;
+        }
         case AVT_BOOLEAN:
             snprintf(buf, sizeof(buf), "%s",
                 any_to_bool(a, arg_idx) ? "true" : "false");

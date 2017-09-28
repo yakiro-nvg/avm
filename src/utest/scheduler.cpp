@@ -210,7 +210,7 @@ TEST_CASE("scheduler_on_step")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "mod_test", "test_f");
+    any_import(a, "mod_test", "test_f");
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);

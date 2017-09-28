@@ -103,7 +103,7 @@ aactor_cleanup(
 }
 
 void
-any_find(
+any_import(
     aactor_t* a, const char* module, const char* name)
 {
     avalue_t v;
@@ -355,14 +355,16 @@ aactor_heap_reserve(
     return AERR_NONE;
 }
 
-aerror_t
+void
 any_spawn(
     aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid)
 {
     aactor_t* na;
     aint_t i;
     aerror_t ec = ascheduler_new_actor(a->owner, cstack_sz, &na);
-    if (ec != AERR_NONE) return ec;
+    if (ec != AERR_NONE) {
+        any_error(a, ec, "failed to create actor");
+    }
     for (i = 0; i < nargs + 1; ++i) {
         avalue_t* v = a->stack.v + a->stack.sp - nargs - 1 + i;
         switch (v->tag.type) {
@@ -383,5 +385,4 @@ any_spawn(
     any_pop(a, nargs + 1);
     ascheduler_start(a->owner, na, nargs);
     *pid = ascheduler_pid(na->owner, na);
-    return AERR_NONE;
 }

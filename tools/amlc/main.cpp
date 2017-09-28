@@ -12,6 +12,7 @@
 #include <any/loader.h>
 #include <any/actor.h>
 #include <any/errno.h>
+#include <any/std.h>
 #include <any/std_io.h>
 #include <any/std_string.h>
 #include <any/std_buffer.h>
@@ -95,10 +96,19 @@ static void compile(const std::string& i, const std::string& o, bool verbose)
     std::cout << " -> " << o << "\n";
 }
 
+static std::string pid_string(aactor_t* a, apid_t pid)
+{
+    std::stringstream ss;
+    apid_idx_t idx = apid_idx(a->owner->idx_bits, pid);
+    apid_gen_t gen = apid_gen(a->owner->idx_bits, a->owner->gen_bits, pid);
+    ss << "<" << idx << "." << gen << ">";
+    return ss.str();
+}
+
 static void on_panic(aactor_t* a, void*)
 {
     aint_t ev_idx = any_top(a);
-    std::cout << "[" << ascheduler_pid(a->owner, a) << "] ";
+    std::cout << pid_string(a, ascheduler_pid(a->owner, a)) << " ";
     if (a->frame->pt) {
         aprototype_t& chunk = a->frame->pt->chunk->prototypes[0];
         std::cout << chunk.strings + chunk.header->source << ":";
@@ -153,13 +163,14 @@ static void execute(
         }
     }
 
+    astd_lib_add(&s.loader);
     astd_lib_add_io(
         &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
     astd_lib_add_string(&s.loader);
     astd_lib_add_buffer(&s.loader);
-    astd_lib_add_array (&s.loader);
-    astd_lib_add_tuple (&s.loader);
-    astd_lib_add_table (&s.loader);
+    astd_lib_add_array(&s.loader);
+    astd_lib_add_tuple(&s.loader);
+    astd_lib_add_table(&s.loader);
 
     for (size_t i = 0; i < chunks.size(); ++i) {
         auto& c = chunks[i];
@@ -193,15 +204,15 @@ static void execute(
     if (ec != AERR_NONE) {
         error("failed to create actor %d", ec);
     }
-    std::cout << " -> pid = " << ascheduler_pid(&s, a) << "\n";
-    any_find(a, module.c_str(), name.c_str());
+    std::cout << " -> pid = " << pid_string(a, ascheduler_pid(&s, a)) << "\n";
+    any_import(a, module.c_str(), name.c_str());
     ascheduler_start(&s, a, 0);
 
     while (alive || ascheduler_num_processes(&s) > 0) {
         if (debug) adb_run_once(&db);
         ascheduler_run_once(&s);
 #ifdef AWINDOWS
-        Sleep((DWORD)realtime_resolution * 1000);
+        Sleep(std::max<DWORD>(realtime_resolution/1000, 1));
 #else
         usleep((useconds_t)realtime_resolution);
 #endif

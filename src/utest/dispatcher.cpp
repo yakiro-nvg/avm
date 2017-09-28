@@ -34,7 +34,7 @@ TEST_CASE("dispatcher_loop")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -57,7 +57,7 @@ TEST_CASE("dispatcher_loop")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -82,7 +82,7 @@ TEST_CASE("dispatcher_loop")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -123,7 +123,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -146,7 +146,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -169,7 +169,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -197,7 +197,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -226,7 +226,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -254,7 +254,7 @@ TEST_CASE("dispatcher_ldk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -294,7 +294,7 @@ TEST_CASE("dispatcher_nil")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "mod_test", "test_f");
+    any_import(a, "mod_test", "test_f");
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -335,7 +335,7 @@ TEST_CASE("dispatcher_ldb")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -358,7 +358,7 @@ TEST_CASE("dispatcher_ldb")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -381,7 +381,7 @@ TEST_CASE("dispatcher_ldb")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -423,7 +423,7 @@ TEST_CASE("dispatcher_lsi")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -446,7 +446,7 @@ TEST_CASE("dispatcher_lsi")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -469,7 +469,7 @@ TEST_CASE("dispatcher_lsi")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -515,7 +515,7 @@ TEST_CASE("dispatcher_pop")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "mod_test", "test_f");
+    any_import(a, "mod_test", "test_f");
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -576,7 +576,7 @@ TEST_CASE("dispatcher_llv_slv")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "mod_test", "test_f");
+    any_import(a, "mod_test", "test_f");
     ascheduler_start(&s, a, 0);
 
     ascheduler_run_once(&s);
@@ -638,7 +638,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -664,7 +664,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -690,7 +690,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -716,7 +716,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -744,7 +744,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -772,7 +772,7 @@ TEST_CASE("dispatcher_imp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -820,7 +820,7 @@ TEST_CASE("dispatcher_jmp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -847,7 +847,7 @@ TEST_CASE("dispatcher_jmp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -874,7 +874,7 @@ TEST_CASE("dispatcher_jmp")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -920,7 +920,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -947,7 +947,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -974,7 +974,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1001,7 +1001,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1028,7 +1028,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1054,7 +1054,7 @@ TEST_CASE("dispatcher_jin")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1108,7 +1108,7 @@ TEST_CASE("dispatcher_mkc_ivk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1143,7 +1143,7 @@ TEST_CASE("dispatcher_mkc_ivk")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -1234,7 +1234,7 @@ TEST_CASE("dispatcher_msbox")
 
     aactor_t* a;
     REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-    any_find(a, "mod_test", "test_f");
+    any_import(a, "mod_test", "test_f");
     any_push_pid(a, ascheduler_pid(&s, a));
     ascheduler_start(&s, a, 1);
 

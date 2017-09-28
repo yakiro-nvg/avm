@@ -73,7 +73,7 @@ any_check_index(
 
 /// Lookup for a module level symbol and push it onto the stack.
 ANY_API void
-any_find(
+any_import(
     aactor_t* a, const char* module, const char* name);
 
 /** Call a function.
@@ -360,7 +360,7 @@ any_top(
 /** Spawn a new actor.
 \brief This function follow the same protocol as \ref any_call.
 */
-ANY_API aerror_t
+ANY_API void
 any_spawn(
     aactor_t* a, aint_t cstack_sz, aint_t nargs, apid_t* pid);
 

@@ -18,7 +18,7 @@ static void push_tuple(aactor_t* a, aint_t num_elements)
     REQUIRE(any_tuple_size(a, t_idx) == num_elements);
 
     for (aint_t i = 0; i < num_elements; ++i) {
-        any_find(a, "std-tuple", "set/3");
+        any_import(a, "std-tuple", "set/3");
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
         any_push_string(a, buff);
         any_push_integer(a, i);
@@ -31,14 +31,14 @@ static void push_tuple(aactor_t* a, aint_t num_elements)
         if (i % 2 == 0) {
             aint_t n = num_elements / 2;
             if (n == 0) {
-                any_find(a, "std-tuple", "set/3");
+                any_import(a, "std-tuple", "set/3");
                 any_push_nil(a);
                 any_push_integer(a, i);
                 any_push_index(a, t_idx);
                 any_call(a, 3);
                 any_pop(a, 1);
             } else {
-                any_find(a, "std-tuple", "set/3");
+                any_import(a, "std-tuple", "set/3");
                 push_tuple(a, n);
                 any_push_integer(a, i);
                 any_push_index(a, t_idx);
@@ -56,7 +56,7 @@ static void test_tuple(aactor_t* a, aint_t num_elements)
     aint_t t_idx = any_top(a);
 
     for (aint_t i = 0; i < num_elements; ++i) {
-        any_find(a, "std-tuple", "get/2");
+        any_import(a, "std-tuple", "get/2");
         any_push_integer(a, i);
         any_push_index(a, t_idx);
         any_call(a, 2);
@@ -149,7 +149,7 @@ TEST_CASE("std_tuple_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -178,7 +178,7 @@ TEST_CASE("std_tuple_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -235,7 +235,7 @@ TEST_CASE("std_tuple_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -270,7 +270,7 @@ TEST_CASE("std_tuple_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -305,7 +305,7 @@ TEST_CASE("std_tuple_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -340,7 +340,7 @@ TEST_CASE("std_tuple_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -375,7 +375,7 @@ TEST_CASE("std_tuple_binding_get")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -433,7 +433,7 @@ TEST_CASE("std_tuple_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -469,7 +469,7 @@ TEST_CASE("std_tuple_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -505,7 +505,7 @@ TEST_CASE("std_tuple_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -541,7 +541,7 @@ TEST_CASE("std_tuple_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -577,7 +577,7 @@ TEST_CASE("std_tuple_binding_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);

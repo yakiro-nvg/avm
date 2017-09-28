@@ -22,7 +22,7 @@ static void push_table(aactor_t* a, aint_t num_elements)
 
     for (aint_t i = 0; i < num_elements; ++i) {
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
-        any_find(a, "std-table", "set/3");
+        any_import(a, "std-table", "set/3");
         any_push_string(a, buff);
         any_push_string(a, buff);
         any_push_index(a, t_idx);
@@ -35,14 +35,14 @@ static void push_table(aactor_t* a, aint_t num_elements)
         if (i % 2 == 0) {
             aint_t n = num_elements / 2;
             if (n == 0) {
-                any_find(a, "std-table", "set/3");
+                any_import(a, "std-table", "set/3");
                 any_push_nil(a);
                 any_push_string(a, buff);
                 any_push_index(a, t_idx);
                 any_call(a, 3);
                 any_pop(a, 1);
             } else {
-                any_find(a, "std-table", "set/3");
+                any_import(a, "std-table", "set/3");
                 push_table(a, n);
                 any_push_string(a, buff);
                 any_push_index(a, t_idx);
@@ -61,7 +61,7 @@ static void test_table(aactor_t* a, aint_t num_elements)
 
     for (aint_t i = 0; i < num_elements; ++i) {
         snprintf(buff, sizeof(buff), "string %zd", (size_t)i);
-        any_find(a, "std-table", "get/2");
+        any_import(a, "std-table", "get/2");
         any_push_string(a, buff);
         any_push_index(a, t_idx);
         any_call(a, 2);
@@ -158,7 +158,7 @@ TEST_CASE("std_table_binding")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -192,7 +192,7 @@ TEST_CASE("std_table_binding")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -221,7 +221,7 @@ TEST_CASE("std_table_binding")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -272,7 +272,7 @@ TEST_CASE("std_table_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -301,7 +301,7 @@ TEST_CASE("std_table_binding_new")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         ascheduler_start(&s, a, 0);
 
         ascheduler_run_once(&s);
@@ -389,7 +389,7 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         any_push_pid(a, 4);
         any_push_pid(a, 3);
         any_push_pid(a, 2);
@@ -464,7 +464,7 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         any_push_integer(a, 4);
         any_push_integer(a, 3);
         any_push_integer(a, 2);
@@ -539,7 +539,7 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         any_push_real(a, 4.13);
         any_push_real(a, 3.14);
         any_push_real(a, 2.11);
@@ -614,7 +614,7 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         any_push_string(a, "4");
         any_push_string(a, "3");
         any_push_string(a, "2");
@@ -659,11 +659,11 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         SECTION("nil") { any_push_nil(a); }
         SECTION("boolean") { any_push_bool(a, FALSE); }
         SECTION("native function") { any_push_native_func(a, NULL); }
-        SECTION("byte code function") { any_find(a, "std-table", "new/1"); }
+        SECTION("byte code function") { any_import(a, "std-table", "new/1"); }
         SECTION("buffer") { any_push_buffer(a, 0); }
         SECTION("tuple") { any_push_tuple(a, 0); }
         SECTION("array") { any_push_array(a, 0); }
@@ -702,11 +702,11 @@ TEST_CASE("std_table_binding_get_set")
 
         aactor_t* a;
         REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_find(a, "mod_test", "test_f");
+        any_import(a, "mod_test", "test_f");
         SECTION("nil") { any_push_nil(a); }
         SECTION("boolean") { any_push_bool(a, FALSE); }
         SECTION("native function") { any_push_native_func(a, NULL); }
-        SECTION("byte code function") { any_find(a, "std-table", "new/1"); }
+        SECTION("byte code function") { any_import(a, "std-table", "new/1"); }
         SECTION("buffer") { any_push_buffer(a, 0); }
         SECTION("tuple") { any_push_tuple(a, 0); }
         SECTION("array") { any_push_array(a, 0); }
