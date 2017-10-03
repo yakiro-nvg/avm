@@ -60,7 +60,8 @@ TEST_CASE("std_io")
     {
         char pid_buf[64];
         apid_t pid = ascheduler_pid(&s, a);
-        snprintf(pid_buf, sizeof(pid_buf), "<0x%x>", pid);
+        snprintf(pid_buf, sizeof(pid_buf), "<%d.%d>",
+            apid_idx(s.idx_bits, pid), apid_gen(s.idx_bits, s.gen_bits, pid));
         any_push_pid(a, pid);
         ascheduler_start(&s, a, 1);
         ascheduler_run_once(&s);
