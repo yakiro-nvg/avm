@@ -19,17 +19,19 @@ struct amlc_value_t
     aint_t idx;
 };
 
-typedef std::vector<amlc_value_t> amlc_pool;
+typedef std::vector<amlc_value_t> amlc_pool_t;
 
 struct amlc_prototype_ctx_t
 {
     aint_t num_arguments;
     aint_t num_variables;
-    amlc_pool locals;
-    amlc_pool imports;
-    amlc_pool constants;
-    amlc_pool nesteds;
-    amlc_pool pseudo_nesteds;
+    amlc_pool_t locals;
+    amlc_pool_t imports;
+    amlc_pool_t constants;
+    amlc_pool_t nesteds;
+    amlc_pool_t pseudo_nesteds;
+    amlc_pool_t label_addresses;
+    std::vector<aint_t> pseudo_jumps;
 };
 
 struct amlc_ctx_t;
@@ -64,31 +66,31 @@ static void error(amlc_ctx_t& ctx, const char* fmt, ...)
     throw std::logic_error(ctx.ss.str().c_str());
 }
 
-static amlc_pool::const_iterator pool_find(
-    const amlc_pool& pool, const std::string& literal)
+static amlc_pool_t::const_iterator pool_find(
+    const amlc_pool_t& pool, const std::string& literal)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.literal == literal;
     });
 }
 
-static amlc_pool::const_iterator pool_find(
-    const amlc_pool& pool, aint_t idx)
+static amlc_pool_t::const_iterator pool_find(
+    const amlc_pool_t& pool, aint_t idx)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.idx == idx;
     });
 }
 
-static amlc_pool::iterator pool_find(
-    amlc_pool& pool, const std::string& literal)
+static amlc_pool_t::iterator pool_find(
+    amlc_pool_t& pool, const std::string& literal)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.literal == literal;
     });
 }
 
-static amlc_pool::iterator pool_find(amlc_pool& pool, aint_t idx)
+static amlc_pool_t::iterator pool_find(amlc_pool_t& pool, aint_t idx)
 {
     return find_if(pool.begin(), pool.end(), [&](const amlc_value_t& v) {
         return v.idx == idx;
@@ -96,7 +98,7 @@ static amlc_pool::iterator pool_find(amlc_pool& pool, aint_t idx)
 }
 
 static aint_t pool_push(
-    amlc_pool& pool, const std::string& literal, std::function<aint_t()> push)
+    amlc_pool_t& pool, const std::string& literal, std::function<aint_t()> push)
 {
     auto i = pool_find(pool, literal);
     if (i != pool.end()) {
@@ -111,7 +113,7 @@ static aint_t pool_push(
 }
 
 static inline void pool_push_argument(
-    amlc_ctx_t& ctx, amlc_pool& pool,
+    amlc_ctx_t& ctx, amlc_pool_t& pool,
     aint_t& num_arguments, const std::string& literal)
 {
     if (pool_find(pool, literal) != pool.end()) {
@@ -122,19 +124,29 @@ static inline void pool_push_argument(
 }
 
 static inline void pool_push_variable(
-    amlc_ctx_t& ctx, amlc_pool& pool,
+    amlc_ctx_t& ctx, amlc_pool_t& pool,
     aint_t& num_variables, const std::string& literal)
 {
     if (pool_find(pool, literal) != pool.end()) {
         error(ctx, "duplicated symbol `%s`", literal.c_str());
-    }
-    else {
+    } else {
         pool_push(pool, literal, [&] { return num_variables++; });
     }
 }
 
+static inline void pool_push_label(
+    amlc_ctx_t& ctx, amlc_pool_t& pool,
+    aint_t address, const std::string& literal)
+{
+    if (pool_find(pool, literal) != pool.end()) {
+        error(ctx, "duplicated symbol `%s`", literal.c_str());
+    } else {
+        pool_push(pool, literal, [&] { return address; });
+    }
+}
+
 static inline aint_t pool_take_local(
-    amlc_ctx_t& ctx, amlc_pool& pool, const std::string& literal)
+    amlc_ctx_t& ctx, amlc_pool_t& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&]() -> int {
         error(ctx, "undefined symbol `%s`", literal.c_str());
@@ -142,8 +154,14 @@ static inline aint_t pool_take_local(
     });
 }
 
+static inline aint_t pool_push_label_address(
+    amlc_ctx_t& ctx, amlc_pool_t& pool, const std::string& literal)
+{
+    return pool_push(pool, literal, [&] { return pool.size(); });
+}
+
 static inline aint_t pool_push_import(
-    amlc_pool& pool, aasm_t* a,
+    amlc_pool_t& pool, aasm_t* a,
     const std::string& module, const std::string& name)
 {
     auto literal = module + ':' + name;
@@ -153,7 +171,7 @@ static inline aint_t pool_push_import(
 }
 
 static inline aint_t pool_push_integer_constant(
-    amlc_pool& pool, aasm_t* a, const std::string& literal, aint_t v)
+    amlc_pool_t& pool, aasm_t* a, const std::string& literal, aint_t v)
 {
     return pool_push(pool, literal, [&] {
         return aasm_add_constant(a, ac_integer(v));
@@ -161,7 +179,7 @@ static inline aint_t pool_push_integer_constant(
 }
 
 static inline aint_t pool_push_string_constant(
-    amlc_pool& pool, aasm_t* a, const std::string& v)
+    amlc_pool_t& pool, aasm_t* a, const std::string& v)
 {
     return pool_push(pool, v, [&] {
         return aasm_add_constant(
@@ -170,7 +188,7 @@ static inline aint_t pool_push_string_constant(
 }
 
 static inline aint_t pool_push_real_constant(
-    amlc_pool& pool, aasm_t* a, const std::string& literal, areal_t v)
+    amlc_pool_t& pool, aasm_t* a, const std::string& literal, areal_t v)
 {
     return pool_push(pool, literal, [&] {
         return aasm_add_constant(a, ac_real(v));
@@ -178,20 +196,33 @@ static inline aint_t pool_push_real_constant(
 }
 
 static inline aint_t pool_push_nested(
-    amlc_pool& pool, aasm_t* a, const std::string& literal)
+    amlc_pool_t& pool, aasm_t* a, const std::string& literal)
 {
     return pool_push(pool, literal, [&] { return aasm_push(a); });
 }
 
 static inline aint_t pool_push_pseudo_nested(
-    amlc_pool& pool, const std::string& literal)
+    amlc_pool_t& pool, const std::string& literal)
 {
     return pool_push(pool, literal, [&] { return pool.size(); });
 }
 
+static void resolve_pseudo_jumps(
+    amlc_ctx_t& ctx, ainstruction_t* instructions,
+    amlc_pool_t& locals, amlc_pool_t& addresses, std::vector<aint_t>& pseudos)
+{
+    for (size_t i = 0; i < pseudos.size(); ++i) {
+        aint_t off = pseudos[i];
+        auto& ins = instructions[off];
+        auto lbl_itr = pool_find(addresses, ins.jmp.displacement);
+        auto lbl_adr = pool_take_local(ctx, locals, lbl_itr->literal);
+        ins.jmp.displacement = lbl_adr - off - 1;
+    }
+}
+
 static void resolve_pseudo_nesteds(
     amlc_ctx_t& ctx, ainstruction_t* instructions, aint_t num,
-    const amlc_pool& nesteds, const amlc_pool& pseudos)
+    const amlc_pool_t& nesteds, const amlc_pool_t& pseudos)
 {
     for (aint_t i = 0; i < num; ++i) {
         ainstruction_t& ai = instructions[i];
@@ -263,18 +294,6 @@ static inline void match(amlc_ctx_t& ctx, const char* s)
     }
     ctx.s += len;
     ctx.column += len;
-}
-
-static std::string lookahead(amlc_ctx_t& ctx, int nchars)
-{
-    ctx.ss.str(std::string());
-    for (int i = 0; i < nchars; ++i) {
-        if (!isalpha(ctx.s[i])) {
-            error(ctx, "expect alphabet, saw `%s`", character(*ctx.s).c_str());
-        }
-        ctx.ss << ctx.s[i];
-    }
-    return ctx.ss.str();
 }
 
 static void skip_whitespace(amlc_ctx_t& ctx, bool line)
@@ -578,14 +597,29 @@ static void match_cls(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     aasm_emit(ctx.a, ai_cls(idx), ctx.line);
 }
 
-static void match_jmp(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+static aint_t match_jump_disp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    aasm_emit(ctx.a, ai_jmp(match_integer(ctx)), ctx.line);
+    aint_t dsp;
+    if (isalpha(*ctx.s)) {
+        dsp = pool_push_label_address(
+            ctx, pctx.label_addresses, match_symbol(ctx));
+        auto pt = aasm_prototype(ctx.a);
+        pctx.pseudo_jumps.push_back(pt->num_instructions);
+    }
+    else {
+        dsp = match_integer(ctx);
+    }
+    return dsp;
 }
 
-static void match_jin(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+static void match_jmp(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    aasm_emit(ctx.a, ai_jin(match_integer(ctx)), ctx.line);
+    aasm_emit(ctx.a, ai_jmp(match_jump_disp(ctx, pctx)), ctx.line);
+}
+
+static void match_jin(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
+{
+    aasm_emit(ctx.a, ai_jin(match_jump_disp(ctx, pctx)), ctx.line);
 }
 
 static void match_ivk(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
@@ -620,8 +654,6 @@ static void match_rwd(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
 
 static void match_variables(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
-    match(ctx, "var");
-    skip_whitespace(ctx, true);
     match(ctx, '[');
     skip_whitespace(ctx, true);
     while (*ctx.s != ']') {
@@ -637,13 +669,21 @@ static void match_variables(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
     match(ctx, ']');
 }
 
+static void match_label(
+    amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx, const std::string& literal)
+{
+    match(ctx, ':');
+    skip_whitespace(ctx, true);
+    auto pt = aasm_prototype(ctx.a);
+    pool_push_label(
+        ctx, pctx.locals, pt->num_instructions, literal);
+}
+
 static aint_t match_prototype(amlc_ctx_t& ctx);
 
 static void match_nested_prototype(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
     std::stringstream name;
-    match(ctx, "def");
-    skip_whitespace(ctx, true);
     name << match_symbol(ctx);
     pool_push_nested(pctx.nesteds, ctx.a, name.str());
     skip_whitespace(ctx, true);
@@ -676,35 +716,45 @@ static aint_t match_prototype(amlc_ctx_t& ctx)
     match(ctx, ')');
     skip_whitespace(ctx, true);
 
-    if (lookahead(ctx, 3) == "var") {
+    auto sym = match_symbol(ctx);
+    if (sym == "var") {
+        skip_whitespace(ctx, true);
         match_variables(ctx, pctx);
         skip_whitespace(ctx, true);
+        sym = match_symbol(ctx);
     }
 
-    for (;;) {
-        auto word = lookahead(ctx, 3);
-        if (word == "end") {
-            match(ctx, "end");
+    do {
+        skip_whitespace(ctx, true);
+        if (sym == "end") {
             skip_whitespace(ctx, true);
             break;
-        } else if (word == "def") {
+        } else if (sym == "def") {
             match_nested_prototype(ctx, pctx);
             skip_whitespace(ctx, true);
             continue;
         }
-        auto handler = ctx.opcode_handlers.find(word);
+        auto handler = ctx.opcode_handlers.find(sym);
         if (handler == ctx.opcode_handlers.end()) {
-            error(ctx, "unexpected symbol `%s`", word.c_str());
+            if (*ctx.s == ':') {
+                match_label(ctx, pctx, sym);
+                skip_whitespace(ctx, true);
+            } else {
+                error(ctx, "unexpected symbol `%s`", sym.c_str());
+            }
         } else {
-            match(ctx, word.c_str());
-            skip_whitespace(ctx, true);
             handler->second(ctx, pctx);
             skip_whitespace(ctx, true);
         }
-    }
+        sym = match_symbol(ctx);
+    } while (true);
 
     auto pt = aasm_prototype(ctx.a);
     auto cu = aasm_resolve(ctx.a);
+
+    resolve_pseudo_jumps(
+        ctx, cu.instructions,
+        pctx.locals, pctx.label_addresses, pctx.pseudo_jumps);
 
     resolve_pseudo_nesteds(
         ctx, cu.instructions, pt->num_instructions,
