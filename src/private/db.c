@@ -279,6 +279,26 @@ encode_chunks(
 }
 
 static int
+post_chunk(
+    adb_t* db, struct wby_con* con)
+{
+    aerror_t ec;
+    aint_t csz = (aint_t)con->request.content_length;
+    achunk_header_t* c = (achunk_header_t*)aalloc(db, NULL, csz);
+    if (c == NULL) {
+        return simple_response(con, 503);
+    }
+    wby_read(con, c, (wby_size)csz);
+    ec = aloader_add_chunk(
+        &db->target->loader, c, csz, db->alloc, db->alloc_ud);
+    if (ec != AERR_NONE) {
+        return simple_response(con, 400);
+    } else {
+        return simple_response(con, 204);
+    }
+}
+
+static int
 handle_modules(
     adb_t* db, struct wby_con* con)
 {
@@ -287,14 +307,39 @@ handle_modules(
         int32_t first = TRUE;
         json_response_begin(con, 200, -1);
         WBY_WRITE_STATIC(con, "[");
+        encode_chunks(&l->pendings, "pending", &first, con);
         encode_chunks(&l->runnings, "running", &first, con);
         encode_chunks(&l->garbages, "garbage", &first, con);
         WBY_WRITE_STATIC(con, "]");
         wby_response_end(con);
         return 0;
-    } else {
-        return simple_response(con, 405);
     }
+    if (strcmp(con->request.method, "POST") == 0) {
+        const char* content_type = wby_find_header(con, "Content-Type");
+        if (strcmp(content_type, "application/octet-stream")) {
+            return simple_response(con, 415);
+        }
+        if (con->request.content_length == 0) {
+            return simple_response(con, 400);
+        }
+        return post_chunk(db, con);
+    }
+    return simple_response(con, 405);
+}
+
+static int
+handle_modules_link(
+    adb_t* db, struct wby_con* con)
+{
+    if (strcmp(con->request.method, "POST") == 0) {
+        aerror_t ec = aloader_link(&db->target->loader, TRUE);
+        if (ec != AERR_NONE) {
+            return simple_response(con, 422);
+        } else {
+            return simple_response(con, 204);
+        }
+    }
+    return simple_response(con, 405);
 }
 
 static int
@@ -308,9 +353,11 @@ dispatch(
         const char* uri = con->request.uri;
         if (strcmp(uri, "/modules") == 0) {
             return handle_modules(db, con);
-        } else {
-            return 1;
         }
+        if (strcmp(uri, "/modules/link") == 0) {
+            return handle_modules_link(db, con);
+        }
+        return 1;
     }
 }
 

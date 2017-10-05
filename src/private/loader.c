@@ -154,7 +154,7 @@ has_chunk(
 
 static aint_t
 resolve(
-    aloader_t* self, aprototype_t* p)
+    aloader_t* self, aprototype_t* p, int32_t unresolved_as_nil)
 {
     aint_t i;
     aerror_t ec;
@@ -171,6 +171,10 @@ resolve(
         if (ec == AERR_NONE) continue;
         ec = find_in_list(&self->runnings, m_name, n_name, val);
         if (ec == AERR_NONE) continue;
+        if (unresolved_as_nil) {
+            av_nil(val);
+            continue;
+        }
         if (self->on_unresolved) {
             self->on_unresolved(self, m_name, n_name, self->on_unresolved_ud);
         }
@@ -179,7 +183,7 @@ resolve(
 
     // recursive for children
     for (i = 0; i < p->header->num_nesteds; ++i) {
-        ec = resolve(self, p->nesteds + i);
+        ec = resolve(self, p->nesteds + i, unresolved_as_nil);
         if (ec != AERR_NONE) return ec;
     }
 
@@ -265,6 +269,17 @@ aloader_cleanup(
     free_libs(&self->libs);
 }
 
+static void
+create_module(
+    achunk_t* chunk)
+{
+    aint_t off = sizeof(achunk_header_t);
+    avalue_t* next_imp = chunk->imports;
+    aprototype_t* next_pt = chunk->prototypes;
+    aprototype_t* pt = next_pt++;
+    create_proto(chunk, &off, pt, &next_imp, &next_pt);
+}
+
 aerror_t
 aloader_add_chunk(
     aloader_t* self, achunk_header_t* chunk, aint_t chunk_sz,
@@ -294,6 +309,7 @@ aloader_add_chunk(
     c->imports = (avalue_t*)(((uint8_t*)c) + sizeof(achunk_t));
     c->prototypes = (aprototype_t*)(
         ((uint8_t*)c->imports) + num_imps * sizeof(avalue_t));
+    create_module(c);
     c->retain = FALSE;
     alist_push_back(&self->pendings, &c->node);
 
@@ -315,18 +331,6 @@ aloader_link(
     avalue_t* old_imps;
     alist_node_t* i;
 
-    // create prototypes
-    i = alist_head(&self->pendings);
-    while (!alist_is_end(&self->pendings, i)) {
-        aint_t off = sizeof(achunk_header_t);
-        achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-        avalue_t* next_imp = chunk->imports;
-        aprototype_t* next_pt = chunk->prototypes;
-        aprototype_t* pt = next_pt++;
-        create_proto(chunk, &off, pt, &next_imp, &next_pt);
-        i = i->next;
-    }
-
     // copy old chunk to garbages
     i = alist_head(&self->runnings);
     while (!alist_is_end(&self->runnings, i)) {
@@ -342,7 +346,7 @@ aloader_link(
     i = alist_head(&self->pendings);
     while (!alist_is_end(&self->pendings, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-        aerror_t ec = resolve(self, chunk->prototypes);
+        aerror_t ec = resolve(self, chunk->prototypes, FALSE);
         if (ec != AERR_NONE) {
             if (!safe) return ec;
             // rollback garbages
@@ -375,7 +379,7 @@ aloader_link(
     i = alist_head(&self->runnings);
     while (!alist_is_end(&self->runnings, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
-        aerror_t ec = resolve(self, chunk->prototypes);
+        aerror_t ec = resolve(self, chunk->prototypes, FALSE);
         if (ec != AERR_NONE) {
             if (!safe) return ec;
             // rollback running imports
@@ -401,6 +405,14 @@ aloader_link(
         i = i->next;
     }
     if (safe) self->alloc(self->alloc_ud, old_imps, 0);
+
+    // resolve garbage imports
+    i = alist_head(&self->garbages);
+    while (!alist_is_end(&self->garbages, i)) {
+        achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+        resolve(self, chunk->prototypes, TRUE);
+        i = i->next;
+    }
 
     // move pendings to runnings
     i = alist_head(&self->pendings);

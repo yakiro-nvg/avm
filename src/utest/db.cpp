@@ -54,6 +54,12 @@ static int wby_write(struct wby_con*, const void*, wby_size)
     return 0;
 }
 
+static int wby_read(struct wby_con*, void*, wby_size)
+{
+    // TODO
+    return 0;
+}
+
 static struct wby_con* wby_conn(struct wby_server*, wby_size)
 {
 	// TODO
@@ -70,6 +76,12 @@ static int wby_frame_end(struct wby_con*)
 {
 	// TODO
 	return 0;
+}
+
+static const char* wby_find_header(struct wby_con*, const char*)
+{
+    // TODO
+    return NULL;
 }
 
 TEST_CASE("db")
