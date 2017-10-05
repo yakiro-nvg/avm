@@ -84,6 +84,12 @@ static const char* wby_find_header(struct wby_con*, const char*)
     return NULL;
 }
 
+static int wby_find_query_var(const char*, const char*, char*, wby_size)
+{
+    // TODO
+    return 0;
+}
+
 TEST_CASE("db")
 {
     enum { NUM_IDX_BITS = 4 };

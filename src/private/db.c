@@ -3,6 +3,7 @@
 
 #include <any/scheduler.h>
 #include <any/loader.h>
+#include <any/actor.h>
 
 #define REQUEST_BUFF_SZ 2048
 #define IO_BUFF_SZ 8192
@@ -343,6 +344,37 @@ handle_modules_link(
 }
 
 static int
+post_actor(
+    adb_t* db, struct wby_con* con,
+    const char* module, const char* name, aint_t cstack_sz)
+{
+    aactor_t* a;
+    aerror_t ec = ascheduler_new_actor(db->target, cstack_sz, &a);
+    if (ec != AERR_NONE) {
+        return simple_response(con, 422);
+    }
+    any_import(a, module, name);
+    ascheduler_start(db->target, a, 0);
+    return simple_response(con, 204);
+}
+
+static int
+handle_actors(
+    adb_t* db, struct wby_con* con)
+{
+    if (strcmp(con->request.method, "POST") == 0) {
+        char module[64];
+        char name[64];
+        wby_find_query_var(
+            con->request.query_params, "module", module, sizeof(module));
+        wby_find_query_var(
+            con->request.query_params, "name", name, sizeof(name));
+        return post_actor(db, con, module, name, 4096000/*TODO: hard code?*/);
+    }
+    return simple_response(con, 405);
+}
+
+static int
 dispatch(
     struct wby_con* con, void* ud)
 {
@@ -356,6 +388,9 @@ dispatch(
         }
         if (strcmp(uri, "/modules/link") == 0) {
             return handle_modules_link(db, con);
+        }
+        if (strcmp(uri, "/actors") == 0) {
+            return handle_actors(db, con);
         }
         return 1;
     }
