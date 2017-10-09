@@ -13,6 +13,11 @@ ANY_API void
 astd_lib_add_buffer(
     aloader_t* l);
 
+/// Add std-buffer-bits library.
+ANY_API void
+astd_lib_add_buffer_bits(
+	aloader_t* l);
+
 /// Create a new buffer.
 ANY_API aint_t
 agc_buffer_new(
