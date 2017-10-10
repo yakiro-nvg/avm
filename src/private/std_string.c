@@ -74,28 +74,11 @@ lconcat(
     }
 }
 
-static void
-lequal(
-	aactor_t* a)
-{
-	aint_t a_lhs = any_check_index(a, -1);
-	aint_t a_rhs = any_check_index(a, -2);
-	const char* lhs = any_check_string(a, a_lhs);
-	const char* rhs = any_check_string(a, a_rhs);
-	if (strcmp(lhs, rhs) == 0) {
-		any_push_bool(a, TRUE);
-	}
-	else {
-		any_push_bool(a, FALSE);
-	}
-}
-
 static alib_func_t funcs[] = {
     { "length/1", &llength },
     { "hash/1",   &lhash },
     { "get/2",    &lget },
     { "concat/2", &lconcat },
-	{ "strcmp/2", &lequal },
     { NULL, NULL }
 };
 

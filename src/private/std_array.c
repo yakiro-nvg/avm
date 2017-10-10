@@ -144,14 +144,6 @@ lcapacity(
     any_push_integer(a, any_array_capacity(a, a_self));
 }
 
-static void
-lpush(
-	aactor_t* a)
-{
-	aint_t a_self = any_check_index(a, -1);
-	aint_t a_val = any_check_index(a, -2);
-}
-
 static alib_func_t funcs[] = {
     { "new/1",           &lnew },
     { "reserve/2",       &lreserve },
@@ -161,7 +153,6 @@ static alib_func_t funcs[] = {
     { "set/3",           &lset },
     { "size/1",          &lsize },
     { "capacity/1",      &lcapacity },
-	{ "push/2",			 &lpush },
     { NULL, NULL }
 };
 
