@@ -54,12 +54,44 @@ lspawn(
     any_push_pid(a, pid);
 }
 
+static void
+lisinteger(
+	aactor_t* a)
+{
+	aint_t a_val = any_check_index(a, -1);
+	avalue_t* v = a->stack.v + a_val;
+	ANY_ASSERT_IDX(a, a_val);
+	if (v->tag.type != AVT_INTEGER) {
+		any_push_bool(a, FALSE);
+	}
+	else {
+		any_push_bool(a, TRUE);
+	}
+}
+
+static void
+lisreal(
+	aactor_t* a)
+{
+	aint_t idx = any_check_index(a, -1);
+	avalue_t* v = a->stack.v + idx;
+	ANY_ASSERT_IDX(a, idx);
+	if (v->tag.type != AVT_REAL) {
+		any_push_bool(a, FALSE);
+	}
+	else {
+		any_push_bool(a, TRUE);
+	}
+}
+
 static alib_func_t funcs[] = {
     { "import/2", &limport },
     { "msleep/1", &lmsleep },
     { "usleep/1", &lusleep },
     { "nsleep/1", &lnsleep },
     { "spawn/1",  &lspawn },
+	{ "is_integer/1",	&lisinteger },
+	{ "is_real/1",		&lisreal },
     { NULL, NULL }
 };
 

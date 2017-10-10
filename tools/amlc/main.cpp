@@ -168,6 +168,7 @@ static void execute(
         &s.loader, [](void*, const char* str) { std::cout << str; }, NULL);
     astd_lib_add_string(&s.loader);
     astd_lib_add_buffer(&s.loader);
+	astd_lib_add_buffer_bits(&s.loader);
     astd_lib_add_array(&s.loader);
     astd_lib_add_tuple(&s.loader);
     astd_lib_add_table(&s.loader);
