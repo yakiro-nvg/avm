@@ -65,9 +65,10 @@ lset_r2i_bits(
 	aactor_t* a)
 {
 	aint_t aint_val;
-	areal_t a_val = any_check_real(a, -1);
-	areal_t a_min = any_check_real(a, -2);
-	areal_t a_rslt = any_check_real(a, -3);
+
+	areal_t a_val = any_check_real(a, any_check_index(a, -1));
+	areal_t a_min = any_check_real(a, any_check_index(a, -2));
+	areal_t a_rslt = any_check_real(a, any_check_index(a, -3));
 	aint_val = (aint_t)((a_val - a_min) / a_rslt);
 	any_push_integer(a, aint_val);
 }
