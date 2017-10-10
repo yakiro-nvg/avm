@@ -20,14 +20,16 @@ lset_int_le_bits(
 	aint_t val = any_check_integer(a, a_val);
 	aint_t idx = any_check_integer(a, a_startbit);
 	aint_t len = any_check_integer(a, a_len);
-	if (idx % 8 + len > 8)
+	aint_t bit = 0;
+	for (cnt = 0; cnt < len; cnt++)
 	{
-		b[idx/8] = b[idx/8] | ((val << (idx % 8)) & 0x00FF);
-		b[idx/8 + 1] = b[idx/8 + 1] | ((val >> (idx%8 + len - 8)) & 0x00FF);
-	}
-	else
-	{
-		b[idx / 8] = b[idx / 8] | (val << (idx % 8));
+		/* Clear bit */
+		b[(idx + cnt) / 8] &= ~(1 << (idx % 8 + (cnt%8)));
+		/* Set bit */
+		if ((val >> cnt) & 0x01 == 0x01)
+		{
+			b[(idx + cnt) / 8] |= 1 << (cnt%8);
+		}
 	}
 	any_push_nil(a);
 }
@@ -45,14 +47,15 @@ lset_int_be_bits(
 	aint_t val = any_check_integer(a, a_val);
 	aint_t idx = any_check_integer(a, a_startbit);
 	aint_t len = any_check_integer(a, a_len);
-	if (idx % 8 + len > 8)
+	for (cnt = 0; cnt < len; cnt++)
 	{
-		b[idx / 8] = b[idx / 8] | ((val << (idx % 8)) & 0x00FF);
-		b[idx / 8 + 1] = b[idx / 8 + 1] | ((val >> (idx % 8 + len - 8)) & 0x00FF);
-	}
-	else
-	{
-		b[idx / 8] = b[idx / 8] | (val << (idx % 8));
+		/* Clear bit */
+		b[(idx + cnt) / 8] &= ~(1 << (8 - (idx % 8 + (cnt % 8))));
+		/* Set bit */
+		if ((val >> cnt) & 0x01 == 0x01)
+		{
+			b[(idx + cnt) / 8] |= 1 << (8 - (cnt % 8));
+		}
 	}
 	any_push_nil(a);
 }
