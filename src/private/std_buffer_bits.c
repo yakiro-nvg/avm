@@ -8,7 +8,7 @@
 #define INIT_GROW 64
 
 static void
-lset_int_le_bits(
+lset_int_le(
 	aactor_t* a)
 {
 	aint_t cnt = 0;
@@ -35,7 +35,7 @@ lset_int_le_bits(
 }
 
 static void
-lset_int_be_bits(
+lset_int_be(
 	aactor_t* a)
 {
 	aint_t cnt = 0;
@@ -61,7 +61,7 @@ lset_int_be_bits(
 }
 
 static void
-lset_bool_bits(
+lset_bool(
 	aactor_t* a)
 {
 	aint_t a_self = any_check_index(a, -1);
@@ -82,7 +82,7 @@ lset_bool_bits(
 }
 
 static void
-lset_r2i_bits(
+lto_int(
 	aactor_t* a)
 {
 	aint_t aint_val;
@@ -96,10 +96,10 @@ lset_r2i_bits(
 
 
 static alib_func_t funcs[] = {
-	{ "setintlebit/4",      &lset_int_little_endian },
-	{ "setintbebit/4",      &lset_int_le_bits },
-	{ "setboolbit/3",      &lset_bool_bits },
-	{ "convr2i/3",			&lset_r2i_bits },
+	{ "set_int_le/4",		&lset_int_le },
+	{ "set_int_be/4",     &lset_int_be },
+	{ "set_bool/3",		&lset_bool },
+	{ "to_int/3",		&lto_int },
 	{ NULL, NULL }
 };
 

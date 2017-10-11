@@ -75,7 +75,7 @@ lconcat(
 }
 
 static void
-lequal(
+lcompare(
 	aactor_t* a)
 {
 	aint_t a_lhs = any_check_index(a, -1);
@@ -95,7 +95,7 @@ static alib_func_t funcs[] = {
     { "hash/1",   &lhash },
     { "get/2",    &lget },
     { "concat/2", &lconcat },
-	{ "strcmp/2", &lequal },
+	{ "compare/2", &lcompare },
     { NULL, NULL }
 };
 
