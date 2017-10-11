@@ -61,6 +61,27 @@ lset_int_be_bits(
 }
 
 static void
+lset_bool_bits(
+	aactor_t* a)
+{
+	aint_t a_self = any_check_index(a, -1);
+	aint_t a_val = any_check_index(a, -2);
+	aint_t a_startbit = any_check_index(a, -3);
+	uint8_t* b = any_check_buffer(a, a_self);
+	aint_t val = any_check_integer(a, a_val);
+	aint_t idx = any_check_integer(a, a_startbit);
+	if (val == 0) {
+		/* Clear bit */
+		b[idx / 8] &= ~(1 << (idx % 8));
+	}
+	else {
+		/* Set bit */
+		b[idx / 8] |= 1 << (idx % 8);
+	}
+	any_push_nil(a);
+}
+
+static void
 lset_r2i_bits(
 	aactor_t* a)
 {
@@ -75,8 +96,9 @@ lset_r2i_bits(
 
 
 static alib_func_t funcs[] = {
-	{ "setintlebit/4",      &lset_int_le_bits },
+	{ "setintlebit/4",      &lset_int_little_endian },
 	{ "setintbebit/4",      &lset_int_le_bits },
+	{ "setboolbit/3",      &lset_bool_bits },
 	{ "convr2i/3",			&lset_r2i_bits },
 	{ NULL, NULL }
 };
