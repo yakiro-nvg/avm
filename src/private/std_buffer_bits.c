@@ -4,9 +4,6 @@
 #include <any/gc.h>
 #include <any/loader.h>
 
-#define GROW_FACTOR 2
-#define INIT_GROW 64
-
 static void
 lset_int_le(
 	aactor_t* a)
