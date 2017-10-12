@@ -35,7 +35,12 @@ typedef enum {
     AOC_SND = 50,
     AOC_RCV = 51,
     AOC_RMV = 52,
-    AOC_RWD = 53
+    AOC_RWD = 53,
+
+    AOC_ADD = 60,
+    AOC_SUB = 61,
+    AOC_MUL = 62,
+    AOC_DIV = 63
 } aopcode_t;
 
 /** Base type.
@@ -329,6 +334,58 @@ typedef struct {
     uint32_t _;
 } ai_rwd_t;
 
+/** Add two numbers.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_ADD  _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_add_t;
+
+/** Subtract two numbers, top of stack is minuend.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_SUB  _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_sub_t;
+
+/** Multiply two numbers.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_MUL  _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_mul_t;
+
+/** Divide two numbers, top of the stack is numerator.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_DIV  _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_div_t;
+
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t b;
@@ -351,6 +408,10 @@ typedef union {
     ai_rcv_t rcv;
     ai_rmv_t rmv;
     ai_rwd_t rwd;
+    ai_add_t add;
+    ai_sub_t sub;
+    ai_mul_t mul;
+    ai_div_t div;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -529,6 +590,38 @@ ai_rwd()
 {
     ainstruction_t i;
     i.b.opcode = AOC_RWD;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_add()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_ADD;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_sub()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_SUB;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_mul()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_MUL;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_div()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_DIV;
     return i;
 }
 

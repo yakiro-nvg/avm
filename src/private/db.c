@@ -218,6 +218,18 @@ encode_instructions(
         case AOC_RWD:
             WBY_WRITE_STATIC(con, "rwd\"}");
             break;
+        case AOC_ADD:
+            WBY_WRITE_STATIC(con, "add\"}");
+            break;
+        case AOC_SUB:
+            WBY_WRITE_STATIC(con, "sub\"}");
+            break;
+        case AOC_MUL:
+            WBY_WRITE_STATIC(con, "mul\"}");
+            break;
+        case AOC_DIV:
+            WBY_WRITE_STATIC(con, "div\"}");
+            break;
         default:
             assert(!"bad instruction type");
         }

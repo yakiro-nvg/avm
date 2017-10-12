@@ -2,6 +2,7 @@
 #include <any/actor.h>
 
 #include <any/std_string.h>
+#include <any/std.h>
 
 static void
 fill_nil(
@@ -134,6 +135,84 @@ jmp:
         case AOC_RWD:
             any_mbox_rewind(a);
             break;
+        case AOC_ADD: {
+            aint_t cnt = any_count(a);
+            aint_t a_lhs = any_check_index(a, cnt - 1);
+            aint_t a_rhs = any_check_index(a, cnt - 2);
+            avalue_t* lhsv = aactor_at(a, a_lhs);
+            avalue_t* rhsv = aactor_at(a, a_rhs);
+            if (lhsv->tag.type == AVT_INTEGER &&
+                rhsv->tag.type == AVT_INTEGER) {
+                av_integer(rhsv, lhsv->v.integer + rhsv->v.integer);
+                any_pop(a, 1);
+            } else {
+                areal_t lhs = any_check_real(a, a_lhs);
+                areal_t rhs = any_check_real(a, a_rhs);
+                av_real(rhsv, lhs + rhs);
+                any_pop(a, 1);
+            }
+            break;
+        }
+        case AOC_SUB: {
+            aint_t cnt = any_count(a);
+            aint_t a_lhs = any_check_index(a, cnt - 1);
+            aint_t a_rhs = any_check_index(a, cnt - 2);
+            avalue_t* lhsv = aactor_at(a, a_lhs);
+            avalue_t* rhsv = aactor_at(a, a_rhs);
+            if (lhsv->tag.type == AVT_INTEGER &&
+                rhsv->tag.type == AVT_INTEGER) {
+                av_integer(rhsv, lhsv->v.integer - rhsv->v.integer);
+                any_pop(a, 1);
+            } else {
+                areal_t lhs = any_check_real(a, a_lhs);
+                areal_t rhs = any_check_real(a, a_rhs);
+                av_real(rhsv, lhs - rhs);
+                any_pop(a, 1);
+            }
+            break;
+        }
+        case AOC_MUL: {
+            aint_t cnt = any_count(a);
+            aint_t a_lhs = any_check_index(a, cnt - 1);
+            aint_t a_rhs = any_check_index(a, cnt - 2);
+            avalue_t* lhsv = aactor_at(a, a_lhs);
+            avalue_t* rhsv = aactor_at(a, a_rhs);
+            if (lhsv->tag.type == AVT_INTEGER &&
+                rhsv->tag.type == AVT_INTEGER) {
+                av_integer(rhsv, lhsv->v.integer * rhsv->v.integer);
+                any_pop(a, 1);
+            } else {
+                areal_t lhs = any_check_real(a, a_lhs);
+                areal_t rhs = any_check_real(a, a_rhs);
+                av_real(rhsv, lhs * rhs);
+                any_pop(a, 1);
+            }
+            break;
+        }
+        case AOC_DIV: {
+            aint_t cnt = any_count(a);
+            aint_t a_lhs = any_check_index(a, cnt - 1);
+            aint_t a_rhs = any_check_index(a, cnt - 2);
+            avalue_t* lhsv = aactor_at(a, a_lhs);
+            avalue_t* rhsv = aactor_at(a, a_rhs);
+            if (lhsv->tag.type == AVT_INTEGER &&
+                rhsv->tag.type == AVT_INTEGER) {
+                if (rhsv->v.integer == 0) {
+                    any_error(a, AERR_RUNTIME, "divide by zero");
+                }
+                av_integer(rhsv, lhsv->v.integer / rhsv->v.integer);
+                any_pop(a, 1);
+            } else {
+                areal_t lhs = any_check_real(a, a_lhs);
+                areal_t rhs = any_check_real(a, a_rhs);
+                if (afuzzy_equals(rhs, 0)) {
+                    any_error(a, AERR_RUNTIME, "divide by zero");
+                }
+                av_real(rhsv, lhs / rhs);
+                any_pop(a, 1);
+            }
+            break;
+        }
         default:
             any_error(a, AERR_RUNTIME, "bad instruction %u", i->b.opcode);
             break;

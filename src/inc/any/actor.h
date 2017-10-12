@@ -266,7 +266,7 @@ any_to_real(
     aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + idx;
-    return v->v.real;
+    return v->tag.type == AVT_REAL ? v->v.real : (areal_t)v->v.integer;
 }
 
 static AINLINE areal_t
@@ -275,10 +275,14 @@ any_check_real(
 {
     avalue_t* v = a->stack.v + idx;
     ANY_ASSERT_IDX(a, idx);
-    if (v->tag.type != AVT_REAL) {
-        any_error(a, AERR_RUNTIME, "not real");
+    if (v->tag.type == AVT_REAL) {
+        return v->v.real;
+    } else if (v->tag.type == AVT_INTEGER) {
+        return (areal_t)v->v.integer;
+    } else {
+        any_error(a, AERR_RUNTIME, "not number");
+        return 0;
     }
-    return v->v.real;
 }
 
 static AINLINE apid_t
