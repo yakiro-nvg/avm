@@ -983,7 +983,7 @@ TEST_CASE("std_array_binding_set")
         aasm_emit(&as, ai_pop(1), 8);
 
         aasm_emit(&as, ai_imp(lset), 9);
-        aasm_emit(&as, ai_lsi(0), 10);
+        aasm_emit(&as, ai_lsi(6), 10);
         aasm_emit(&as, ai_lsi(0), 11);
         aasm_emit(&as, ai_llv(0), 12);
         aasm_emit(&as, ai_ivk(3), 13);
@@ -1005,7 +1005,7 @@ TEST_CASE("std_array_binding_set")
 
         REQUIRE(any_count(a) == 2);
         REQUIRE(any_type(a, any_check_index(a, 1)).type == AVT_NIL);
-        REQUIRE(any_type(a, any_check_index(a, 0)).type == AVT_NIL);
+        REQUIRE(any_check_integer(a, any_check_index(a, 0)) == 6);
     }
 
     SECTION("bad_no_elements")

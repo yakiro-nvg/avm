@@ -12,6 +12,20 @@ ANY_API void
 astd_lib_add(
     aloader_t* l);
 
+/// Compare real with tolerance.
+static AINLINE int32_t
+afuzzy_equals(
+    areal_t a, areal_t b)
+{
+    areal_t precision = (areal_t)0.00001;
+    return (a - precision) < b && (a + precision) > b;
+}
+
+/// Compare two values.
+ANY_API int32_t
+any_equals(
+    aactor_t* a, avalue_t* lhs, avalue_t* rhs);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

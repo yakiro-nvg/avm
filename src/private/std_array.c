@@ -123,7 +123,7 @@ lset(
     v = aactor_at(a, a_self);
     o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
     AGC_CAST(avalue_t, &a->gc, o->buff.v.heap_idx)[idx] = *aactor_at(a, a_val);
-    any_push_nil(a);
+    aactor_push(a, aactor_at(a, a_val));
 }
 
 static void
@@ -144,6 +144,26 @@ lcapacity(
     any_push_integer(a, any_array_capacity(a, a_self));
 }
 
+static void
+lpush(
+    aactor_t* a)
+{
+    agc_array_t* o;
+    avalue_t* v;
+    aint_t a_self = any_check_index(a, -1);
+    aint_t a_val = any_check_index(a, -2);
+    aint_t sz = any_array_size(a, a_self);
+    aint_t cap = any_array_capacity(a, a_self);
+    if (sz + 1 > cap) {
+        any_array_resize(a, a_self, sz + 1);
+    }
+    v = aactor_at(a, a_self);
+    o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
+    AGC_CAST(avalue_t, &a->gc, o->buff.v.heap_idx)[sz] =
+        *aactor_at(a, a_val);
+    any_push_integer(a, sz + 1);
+}
+
 static alib_func_t funcs[] = {
     { "new/1",           &lnew },
     { "reserve/2",       &lreserve },
@@ -153,6 +173,7 @@ static alib_func_t funcs[] = {
     { "set/3",           &lset },
     { "size/1",          &lsize },
     { "capacity/1",      &lcapacity },
+    { "push/2",          &lpush },
     { NULL, NULL }
 };
 

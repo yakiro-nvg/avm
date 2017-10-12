@@ -4,6 +4,7 @@
 #include <any/gc.h>
 #include <any/loader.h>
 #include <any/std_string.h>
+#include <any/std.h>
 
 #define GROW_FACTOR 2
 #define INIT_GROW 64
@@ -58,14 +59,6 @@ check_key(
     }
 }
 
-static AINLINE int32_t
-fuzzy_equals(
-    areal_t a, areal_t b)
-{
-    areal_t precision = (areal_t)0.00001;
-    return (a - precision) < b && (a + precision) > b;
-}
-
 static avalue_t*
 search_for(
     aactor_t* a, agc_table_t* t, avalue_t* k)
@@ -89,7 +82,7 @@ search_for(
             }
             break;
         case AVT_REAL:
-            if (fuzzy_equals(pk->v.real, k->v.real)) {
+            if (afuzzy_equals(pk->v.real, k->v.real)) {
                 return pv;
             }
             break;

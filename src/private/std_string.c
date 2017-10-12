@@ -75,10 +75,10 @@ lconcat(
 }
 
 static alib_func_t funcs[] = {
-    { "length/1", &llength },
-    { "hash/1",   &lhash },
-    { "get/2",    &lget },
-    { "concat/2", &lconcat },
+    { "length/1",   &llength },
+    { "hash/1",     &lhash },
+    { "get/2",      &lget },
+    { "concat/2",   &lconcat },
     { NULL, NULL }
 };
 
