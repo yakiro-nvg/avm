@@ -16,6 +16,7 @@
 #include <any/std_io.h>
 #include <any/std_string.h>
 #include <any/std_buffer.h>
+#include <any/std_buffer_bits.h>
 #include <any/std_array.h>
 #include <any/std_tuple.h>
 #include <any/std_table.h>
