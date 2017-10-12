@@ -54,44 +54,106 @@ lspawn(
     any_push_pid(a, pid);
 }
 
-static void
-lisinteger(
-	aactor_t* a)
+static AINLINE void
+is_type(
+    aactor_t* a, atype_t type)
 {
-	aint_t a_val = any_check_index(a, -1);
-	avalue_t* v = a->stack.v + a_val;
-	ANY_ASSERT_IDX(a, a_val);
-	if (v->tag.type != AVT_INTEGER) {
-		any_push_bool(a, FALSE);
-	}
-	else {
-		any_push_bool(a, TRUE);
-	}
+    aint_t a_val = any_check_index(a, -1);
+    avalue_t* v = a->stack.v + a_val;
+    any_push_bool(a, v->tag.type == type);
 }
 
 static void
-lisreal(
-	aactor_t* a)
+lis_integer(
+    aactor_t* a)
 {
-	aint_t idx = any_check_index(a, -1);
-	avalue_t* v = a->stack.v + idx;
-	ANY_ASSERT_IDX(a, idx);
-	if (v->tag.type != AVT_REAL) {
-		any_push_bool(a, FALSE);
-	}
-	else {
-		any_push_bool(a, TRUE);
-	}
+    is_type(a, AVT_INTEGER);
 }
+
+static void
+lis_real(
+    aactor_t* a)
+{
+    is_type(a, AVT_REAL);
+}
+
+static void
+lis_boolean(
+    aactor_t* a)
+{
+    is_type(a, AVT_BOOLEAN);
+}
+
+static void
+lis_buffer(
+    aactor_t* a)
+{
+    is_type(a, AVT_BUFFER);
+}
+static void
+lis_string(
+    aactor_t* a)
+{
+    is_type(a, AVT_STRING);
+}
+static void
+lis_tuple(
+    aactor_t* a)
+{
+    is_type(a, AVT_TUPLE);
+}
+static void
+lis_array(
+    aactor_t* a)
+{
+    is_type(a, AVT_ARRAY);
+}
+
+static void
+lis_table(
+    aactor_t* a)
+{
+    is_type(a, AVT_TABLE);
+}
+
+static void
+lis_function(
+    aactor_t* a)
+{
+    aint_t a_val = any_check_index(a, -1);
+    avalue_t* v = a->stack.v + a_val;
+    any_push_bool(a,
+        v->tag.type == AVT_NATIVE_FUNC || v->tag.type == AVT_BYTE_CODE_FUNC);
+}
+
+static void
+lequals(
+    aactor_t* a)
+{
+    aint_t a_lhs = any_check_index(a, -1);
+    aint_t a_rhs = any_check_index(a, -2);
+    avalue_t* lhs = a->stack.v + a_lhs;
+    avalue_t* rhs = a->stack.v + a_rhs;
+    any_push_bool(a, any_equals(a, lhs, rhs));
+}
+
 
 static alib_func_t funcs[] = {
-    { "import/2", &limport },
-    { "msleep/1", &lmsleep },
-    { "usleep/1", &lusleep },
-    { "nsleep/1", &lnsleep },
-    { "spawn/1",  &lspawn },
-	{ "is_integer/1",	&lisinteger },
-	{ "is_real/1",		&lisreal },
+    { "import/2",       &limport },
+    { "msleep/1",       &lmsleep },
+    { "usleep/1",       &lusleep },
+    { "nsleep/1",       &lnsleep },
+    { "spawn/1",        &lspawn },
+    { "is_integer/1",   &lis_integer },
+    { "is_real/1",      &lis_real },
+    { "is_boolean/1",   &lis_boolean },
+    { "is_buffer/1",    &lis_buffer },
+    { "is_string/1",    &lis_string },
+    { "is_tuple/1",     &lis_tuple },
+    { "is_array/1",     &lis_array },
+    { "is_table/1",     &lis_table },
+    { "is_function/1",  &lis_function },
+    { "equals/2",       &lequals },
     { NULL, NULL }
 };
 
@@ -102,4 +164,26 @@ astd_lib_add(
     aloader_t* l)
 {
     aloader_add_lib(l, &mod);
+}
+
+int32_t
+any_equals(
+    aactor_t* a, avalue_t* lhs, avalue_t* rhs)
+{
+    if (lhs->tag.type != rhs->tag.type) {
+        return FALSE;
+    } else {
+        switch (lhs->tag.type) {
+        case AVT_BOOLEAN:
+            return lhs->v.boolean == rhs->v.boolean;
+        case AVT_INTEGER:
+            return lhs->v.integer == rhs->v.integer;
+        case AVT_REAL:
+            return afuzzy_equals(lhs->v.real, rhs->v.real);
+        case AVT_STRING:
+            return agc_string_compare(a, lhs, rhs) == 0;
+        default:
+            return FALSE;
+        }
+    }
 }
