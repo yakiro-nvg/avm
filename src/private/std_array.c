@@ -148,8 +148,21 @@ static void
 lpush(
 	aactor_t* a)
 {
+	agc_array_t* o;
+	avalue_t* v;
 	aint_t a_self = any_check_index(a, -1);
 	aint_t a_val = any_check_index(a, -2);
+	aint_t buff_size = any_array_size(a, a_self);
+	aint_t data_size = any_array_size(a, a_val);
+	aint_t cap = any_array_capacity(a, a_self);
+	if (buff_size + data_size > cap)
+	{
+		any_array_resize(a, a_self, buff_size + data_size);
+	}
+	v = aactor_at(a, a_self);
+	o = AGC_CAST(agc_array_t, &a->gc, v->v.heap_idx);
+	AGC_CAST(avalue_t, &a->gc, o->buff.v.heap_idx)[buff_size] = *aactor_at(a, a_val);
+	any_push_nil(a);
 }
 
 static alib_func_t funcs[] = {
