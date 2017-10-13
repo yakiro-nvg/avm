@@ -14,6 +14,26 @@ fill_nil(
     }
 }
 
+#define LOGICAL_OP(op) \
+    aint_t cnt = any_count(a); \
+    if (cnt < 2) { \
+        any_error(a, AERR_RUNTIME, "pop underflow"); \
+    } else { \
+        aint_t a_lhs = any_check_index(a, cnt - 1); \
+        aint_t a_rhs = any_check_index(a, cnt - 2); \
+        avalue_t* lhsv = aactor_at(a, a_lhs); \
+        avalue_t* rhsv = aactor_at(a, a_rhs); \
+        if (lhsv->tag.type == AVT_INTEGER && \
+            rhsv->tag.type == AVT_INTEGER) { \
+            av_boolean(rhsv, lhsv->v.integer op rhsv->v.integer); \
+        } else { \
+            areal_t lhs = any_check_real(a, a_lhs); \
+            areal_t rhs = any_check_real(a, a_rhs); \
+            av_boolean(rhsv, lhs op rhs); \
+        } \
+        a->stack.sp -= 1; \
+    }
+
 void
 actor_dispatch(
     aactor_t* a)
@@ -101,14 +121,18 @@ jmp:
             break;
         }
         case AOC_JIN: {
-            avalue_t v;
-            any_pop(a, 1);
-            v = a->stack.v[a->stack.sp];
-            if (v.tag.type != AVT_BOOLEAN && v.tag.type != AVT_NIL) {
-                any_error(a, AERR_RUNTIME, "condition must be boolean or nil");
+            aint_t cnt = any_count(a);
+            if (cnt < 1) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
+            } else {
+                aint_t a_cond = any_check_index(a, cnt - 1);
+                int32_t cond = any_to_bool(a, a_cond);
+                a->stack.sp -= 1;
+                if (cond == FALSE) {
+                    goto jmp;
+                }
             }
-            if (v.tag.type != AVT_NIL && v.v.boolean) continue;
-            goto jmp;
+            break;
         }
         case AOC_IVK:
             any_call(a, i->ivk.nargs);
@@ -119,11 +143,13 @@ jmp:
             any_mbox_send(a);
             break;
         case AOC_RCV: {
-            avalue_t timeout = a->stack.v[a->stack.sp - 1];
-            if (timeout.tag.type != AVT_INTEGER) {
-                any_error(a, AERR_RUNTIME, "timeout must be integer");
+            aint_t cnt = any_count(a);
+            if (cnt < 1) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
             } else {
-                if (any_mbox_recv(a, timeout.v.integer) == AERR_TIMEOUT) {
+                aint_t a_timeout = any_check_index(a, cnt - 1);
+                aint_t timeout = any_check_integer(a, a_timeout);
+                if (any_mbox_recv(a, timeout) == AERR_TIMEOUT) {
                     goto jmp;
                 }
             }
@@ -137,80 +163,132 @@ jmp:
             break;
         case AOC_ADD: {
             aint_t cnt = any_count(a);
-            aint_t a_lhs = any_check_index(a, cnt - 1);
-            aint_t a_rhs = any_check_index(a, cnt - 2);
-            avalue_t* lhsv = aactor_at(a, a_lhs);
-            avalue_t* rhsv = aactor_at(a, a_rhs);
-            if (lhsv->tag.type == AVT_INTEGER &&
-                rhsv->tag.type == AVT_INTEGER) {
-                av_integer(rhsv, lhsv->v.integer + rhsv->v.integer);
-                any_pop(a, 1);
+            if (cnt < 2) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
             } else {
-                areal_t lhs = any_check_real(a, a_lhs);
-                areal_t rhs = any_check_real(a, a_rhs);
-                av_real(rhsv, lhs + rhs);
-                any_pop(a, 1);
+                aint_t a_lhs = any_check_index(a, cnt - 1);
+                aint_t a_rhs = any_check_index(a, cnt - 2);
+                avalue_t* lhsv = aactor_at(a, a_lhs);
+                avalue_t* rhsv = aactor_at(a, a_rhs);
+                if (lhsv->tag.type == AVT_INTEGER &&
+                    rhsv->tag.type == AVT_INTEGER) {
+                    av_integer(rhsv, lhsv->v.integer + rhsv->v.integer);
+                } else {
+                    areal_t lhs = any_check_real(a, a_lhs);
+                    areal_t rhs = any_check_real(a, a_rhs);
+                    av_real(rhsv, lhs + rhs);
+                }
+                a->stack.sp -= 1;
             }
             break;
         }
         case AOC_SUB: {
             aint_t cnt = any_count(a);
-            aint_t a_lhs = any_check_index(a, cnt - 1);
-            aint_t a_rhs = any_check_index(a, cnt - 2);
-            avalue_t* lhsv = aactor_at(a, a_lhs);
-            avalue_t* rhsv = aactor_at(a, a_rhs);
-            if (lhsv->tag.type == AVT_INTEGER &&
-                rhsv->tag.type == AVT_INTEGER) {
-                av_integer(rhsv, lhsv->v.integer - rhsv->v.integer);
-                any_pop(a, 1);
+            if (cnt < 2) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
             } else {
-                areal_t lhs = any_check_real(a, a_lhs);
-                areal_t rhs = any_check_real(a, a_rhs);
-                av_real(rhsv, lhs - rhs);
-                any_pop(a, 1);
+                aint_t a_lhs = any_check_index(a, cnt - 1);
+                aint_t a_rhs = any_check_index(a, cnt - 2);
+                avalue_t* lhsv = aactor_at(a, a_lhs);
+                avalue_t* rhsv = aactor_at(a, a_rhs);
+                if (lhsv->tag.type == AVT_INTEGER &&
+                    rhsv->tag.type == AVT_INTEGER) {
+                    av_integer(rhsv, lhsv->v.integer - rhsv->v.integer);
+                } else {
+                    areal_t lhs = any_check_real(a, a_lhs);
+                    areal_t rhs = any_check_real(a, a_rhs);
+                    av_real(rhsv, lhs - rhs);
+                }
+                a->stack.sp -= 1;
             }
             break;
         }
         case AOC_MUL: {
             aint_t cnt = any_count(a);
-            aint_t a_lhs = any_check_index(a, cnt - 1);
-            aint_t a_rhs = any_check_index(a, cnt - 2);
-            avalue_t* lhsv = aactor_at(a, a_lhs);
-            avalue_t* rhsv = aactor_at(a, a_rhs);
-            if (lhsv->tag.type == AVT_INTEGER &&
-                rhsv->tag.type == AVT_INTEGER) {
-                av_integer(rhsv, lhsv->v.integer * rhsv->v.integer);
-                any_pop(a, 1);
+            if (cnt < 2) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
             } else {
-                areal_t lhs = any_check_real(a, a_lhs);
-                areal_t rhs = any_check_real(a, a_rhs);
-                av_real(rhsv, lhs * rhs);
-                any_pop(a, 1);
+                aint_t a_lhs = any_check_index(a, cnt - 1);
+                aint_t a_rhs = any_check_index(a, cnt - 2);
+                avalue_t* lhsv = aactor_at(a, a_lhs);
+                avalue_t* rhsv = aactor_at(a, a_rhs);
+                if (lhsv->tag.type == AVT_INTEGER &&
+                    rhsv->tag.type == AVT_INTEGER) {
+                    av_integer(rhsv, lhsv->v.integer * rhsv->v.integer);
+                } else {
+                    areal_t lhs = any_check_real(a, a_lhs);
+                    areal_t rhs = any_check_real(a, a_rhs);
+                    av_real(rhsv, lhs * rhs);
+                }
+                a->stack.sp -= 1;
             }
             break;
         }
         case AOC_DIV: {
             aint_t cnt = any_count(a);
-            aint_t a_lhs = any_check_index(a, cnt - 1);
-            aint_t a_rhs = any_check_index(a, cnt - 2);
-            avalue_t* lhsv = aactor_at(a, a_lhs);
-            avalue_t* rhsv = aactor_at(a, a_rhs);
-            if (lhsv->tag.type == AVT_INTEGER &&
-                rhsv->tag.type == AVT_INTEGER) {
-                if (rhsv->v.integer == 0) {
-                    any_error(a, AERR_RUNTIME, "divide by zero");
-                }
-                av_integer(rhsv, lhsv->v.integer / rhsv->v.integer);
-                any_pop(a, 1);
+            if (cnt < 2) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
             } else {
-                areal_t lhs = any_check_real(a, a_lhs);
-                areal_t rhs = any_check_real(a, a_rhs);
-                if (afuzzy_equals(rhs, 0)) {
-                    any_error(a, AERR_RUNTIME, "divide by zero");
+                aint_t a_lhs = any_check_index(a, cnt - 1);
+                aint_t a_rhs = any_check_index(a, cnt - 2);
+                avalue_t* lhsv = aactor_at(a, a_lhs);
+                avalue_t* rhsv = aactor_at(a, a_rhs);
+                if (lhsv->tag.type == AVT_INTEGER &&
+                    rhsv->tag.type == AVT_INTEGER) {
+                    if (rhsv->v.integer == 0) {
+                        any_error(a, AERR_RUNTIME, "divide by zero");
+                    }
+                    av_integer(rhsv, lhsv->v.integer / rhsv->v.integer);
+                } else {
+                    areal_t lhs = any_check_real(a, a_lhs);
+                    areal_t rhs = any_check_real(a, a_rhs);
+                    if (afuzzy_equals(rhs, 0)) {
+                        any_error(a, AERR_RUNTIME, "divide by zero");
+                    }
+                    av_real(rhsv, lhs / rhs);
                 }
-                av_real(rhsv, lhs / rhs);
-                any_pop(a, 1);
+                a->stack.sp -= 1;
             }
+            break;
+        }
+        case AOC_NOT: {
+            aint_t cnt = any_count(a);
+            if (cnt < 1) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
+            } else {
+                aint_t a_cond = any_check_index(a, cnt - 1);
+                avalue_t* cond = aactor_at(a, a_cond);
+                av_boolean(cond, !any_to_bool(a, a_cond));
+            }
+            break;
+        }
+        case AOC_EQ: {
+            aint_t cnt = any_count(a);
+            if (cnt < 2) {
+                any_error(a, AERR_RUNTIME, "pop underflow");
+            } else {
+                aint_t a_lhs = any_check_index(a, cnt - 1);
+                aint_t a_rhs = any_check_index(a, cnt - 2);
+                avalue_t* rhs = aactor_at(a, a_rhs);
+                av_boolean(rhs, any_equals(a, a_lhs, a_rhs));
+                a->stack.sp -= 1;
+            }
+            break;
+        }
+        case AOC_LT: {
+            LOGICAL_OP(<)
+            break;
+        }
+        case AOC_LE: {
+            LOGICAL_OP(<=)
+            break;
+        }
+        case AOC_GT: {
+            LOGICAL_OP(>)
+            break;
+        }
+        case AOC_GE: {
+            LOGICAL_OP(>=)
             break;
         }
         default:

@@ -1038,32 +1038,6 @@ TEST_CASE("dispatcher_jin")
             Catch::Equals("bad jump"));
     }
 
-    SECTION("bad_condition")
-    {
-        aasm_module_push(&as, "test_f");
-        aasm_emit(&as, ai_lsi(0), 1);
-        aasm_emit(&as, ai_lsi(1), 2);
-        aasm_emit(&as, ai_jin(2), 3);
-        aasm_emit(&as, ai_lsi(2), 4);
-        aasm_emit(&as, ai_ret(), 5);
-        aasm_save(&as);
-
-        REQUIRE(AERR_NONE ==
-            aloader_add_chunk(&s.loader, as.chunk, as.chunk_size, NULL, NULL));
-        REQUIRE(AERR_NONE == aloader_link(&s.loader, TRUE));
-
-        aactor_t* a;
-        REQUIRE(AERR_NONE == ascheduler_new_actor(&s, CSTACK_SZ, &a));
-        any_import(a, "mod_test", "test_f");
-        ascheduler_start(&s, a, 0);
-
-        ascheduler_run_once(&s);
-
-        REQUIRE(any_count(a) == 1);
-        CHECK_THAT(any_check_string(a, any_check_index(a, 0)),
-            Catch::Equals("condition must be boolean or nil"));
-    }
-
     ascheduler_cleanup(&s);
     aasm_cleanup(&as);
 }

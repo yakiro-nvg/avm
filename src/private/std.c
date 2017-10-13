@@ -5,6 +5,13 @@
 #include <any/loader.h>
 #include <any/std_string.h>
 
+static AINLINE int32_t
+is_number(
+    atype_t type)
+{
+    return type == AVT_INTEGER || type == AVT_REAL;
+}
+
 static void
 limport(
     aactor_t* a)
@@ -126,18 +133,6 @@ lis_function(
         v->tag.type == AVT_NATIVE_FUNC || v->tag.type == AVT_BYTE_CODE_FUNC);
 }
 
-static void
-lequals(
-    aactor_t* a)
-{
-    aint_t a_lhs = any_check_index(a, -1);
-    aint_t a_rhs = any_check_index(a, -2);
-    avalue_t* lhs = a->stack.v + a_lhs;
-    avalue_t* rhs = a->stack.v + a_rhs;
-    any_push_bool(a, any_equals(a, lhs, rhs));
-}
-
-
 static alib_func_t funcs[] = {
     { "import/2",       &limport },
     { "msleep/1",       &lmsleep },
@@ -153,7 +148,6 @@ static alib_func_t funcs[] = {
     { "is_array/1",     &lis_array },
     { "is_table/1",     &lis_table },
     { "is_function/1",  &lis_function },
-    { "equals/2",       &lequals },
     { NULL, NULL }
 };
 
@@ -168,10 +162,18 @@ astd_lib_add(
 
 int32_t
 any_equals(
-    aactor_t* a, avalue_t* lhs, avalue_t* rhs)
+    aactor_t* a, aint_t lhs_idx, aint_t rhs_idx)
 {
+    avalue_t* lhs = aactor_at(a, lhs_idx);
+    avalue_t* rhs = aactor_at(a, rhs_idx);
     if (lhs->tag.type != rhs->tag.type) {
-        return FALSE;
+        if (is_number(lhs->tag.type) && is_number(rhs->tag.type)) {
+            return afuzzy_equals(
+                any_to_real(a, lhs_idx),
+                any_to_real(a, rhs_idx));
+        } else {
+            return FALSE;
+        }
     } else {
         switch (lhs->tag.type) {
         case AVT_BOOLEAN:

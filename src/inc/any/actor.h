@@ -226,7 +226,11 @@ any_to_bool(
     aactor_t* a, aint_t idx)
 {
     avalue_t* v = a->stack.v + idx;
-    return v->v.boolean;
+    switch (v->tag.type) {
+    case AVT_NIL:     return FALSE;
+    case AVT_BOOLEAN: return v->v.boolean;
+    default:          return TRUE;
+    }
 }
 
 static AINLINE int32_t

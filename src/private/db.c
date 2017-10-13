@@ -230,6 +230,24 @@ encode_instructions(
         case AOC_DIV:
             WBY_WRITE_STATIC(con, "div\"}");
             break;
+        case AOC_NOT:
+            WBY_WRITE_STATIC(con, "not\"}");
+            break;
+        case AOC_EQ:
+            WBY_WRITE_STATIC(con, "eq\"}");
+            break;
+        case AOC_LT:
+            WBY_WRITE_STATIC(con, "lt\"}");
+            break;
+        case AOC_LE:
+            WBY_WRITE_STATIC(con, "le\"}");
+            break;
+        case AOC_GT:
+            WBY_WRITE_STATIC(con, "gt\"}");
+            break;
+        case AOC_GE:
+            WBY_WRITE_STATIC(con, "ge\"}");
+            break;
         default:
             assert(!"bad instruction type");
         }

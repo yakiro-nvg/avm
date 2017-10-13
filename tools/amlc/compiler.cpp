@@ -672,6 +672,36 @@ static void match_div(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
     aasm_emit(ctx.a, ai_div(), ctx.line);
 }
 
+static void match_not(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_not(), ctx.line);
+}
+
+static void match_eq(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_eq(), ctx.line);
+}
+
+static void match_lt(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_lt(), ctx.line);
+}
+
+static void match_le(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_le(), ctx.line);
+}
+
+static void match_gt(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_gt(), ctx.line);
+}
+
+static void match_ge(amlc_ctx_t& ctx, amlc_prototype_ctx_t&)
+{
+    aasm_emit(ctx.a, ai_ge(), ctx.line);
+}
+
 static void match_variables(amlc_ctx_t& ctx, amlc_prototype_ctx_t& pctx)
 {
     match(ctx, '[');
@@ -851,6 +881,12 @@ void amlc_compile(
     ADD_HANDLER(sub);
     ADD_HANDLER(mul);
     ADD_HANDLER(div);
+    ADD_HANDLER(not);
+    ADD_HANDLER(eq);
+    ADD_HANDLER(lt);
+    ADD_HANDLER(le);
+    ADD_HANDLER(gt);
+    ADD_HANDLER(ge);
 
 #undef  ADD_HANDLER
 

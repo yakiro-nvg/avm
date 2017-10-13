@@ -40,7 +40,14 @@ typedef enum {
     AOC_ADD = 60,
     AOC_SUB = 61,
     AOC_MUL = 62,
-    AOC_DIV = 63
+    AOC_DIV = 63,
+
+    AOC_NOT = 70,
+    AOC_EQ  = 71,
+    AOC_LT  = 72,
+    AOC_LE  = 73,
+    AOC_GT  = 74,
+    AOC_GE  = 75
 } aopcode_t;
 
 /** Base type.
@@ -386,6 +393,84 @@ typedef struct {
     uint32_t _;
 } ai_div_t;
 
+/** Not operator.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_NOT  _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_not_t;
+
+/** Equals operator.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_EQ   _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_eq_t;
+
+/** Less-than operator, top is left-hand side.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_LT   _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_lt_t;
+
+/** Less-than equals operator, top is left-hand side.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_LE   _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_le_t;
+
+/** Greater-than operator, top is left-hand side.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_GT   _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_gt_t;
+
+/** Greater-than equals operator, top is left-hand side.
+\rst
+=======  ============
+8 bits   24 bits
+=======  ============
+AOC_GE   _
+=======  ============
+\endrst
+*/
+typedef struct {
+    uint32_t _;
+} ai_ge_t;
+
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t b;
@@ -412,6 +497,12 @@ typedef union {
     ai_sub_t sub;
     ai_mul_t mul;
     ai_div_t div;
+    ai_not_t not;
+    ai_eq_t  eq;
+    ai_lt_t  lt;
+    ai_le_t  le;
+    ai_gt_t  gt;
+    ai_ge_t  ge;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
@@ -622,6 +713,54 @@ ai_div()
 {
     ainstruction_t i;
     i.b.opcode = AOC_DIV;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_not()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_NOT;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_eq()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_EQ;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_lt()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_LT;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_le()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_LE;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_gt()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_GT;
+    return i;
+}
+
+static AINLINE ainstruction_t
+ai_ge()
+{
+    ainstruction_t i;
+    i.b.opcode = AOC_GE;
     return i;
 }
 
