@@ -218,6 +218,36 @@ encode_instructions(
         case AOC_RWD:
             WBY_WRITE_STATIC(con, "rwd\"}");
             break;
+        case AOC_ADD:
+            WBY_WRITE_STATIC(con, "add\"}");
+            break;
+        case AOC_SUB:
+            WBY_WRITE_STATIC(con, "sub\"}");
+            break;
+        case AOC_MUL:
+            WBY_WRITE_STATIC(con, "mul\"}");
+            break;
+        case AOC_DIV:
+            WBY_WRITE_STATIC(con, "div\"}");
+            break;
+        case AOC_NOT:
+            WBY_WRITE_STATIC(con, "not\"}");
+            break;
+        case AOC_EQ:
+            WBY_WRITE_STATIC(con, "eq\"}");
+            break;
+        case AOC_LT:
+            WBY_WRITE_STATIC(con, "lt\"}");
+            break;
+        case AOC_LE:
+            WBY_WRITE_STATIC(con, "le\"}");
+            break;
+        case AOC_GT:
+            WBY_WRITE_STATIC(con, "gt\"}");
+            break;
+        case AOC_GE:
+            WBY_WRITE_STATIC(con, "ge\"}");
+            break;
         default:
             assert(!"bad instruction type");
         }

@@ -24,7 +24,7 @@ afuzzy_equals(
 /// Compare two values.
 ANY_API int32_t
 any_equals(
-    aactor_t* a, avalue_t* lhs, avalue_t* rhs);
+    aactor_t* a, aint_t lhs_idx, aint_t rhs_idx);
 
 #ifdef __cplusplus
 } // extern "C"
