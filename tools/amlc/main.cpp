@@ -200,15 +200,19 @@ static void execute(
     }
     std::cout << "linking success\n";
 
-    aactor_t* a;
-    std::cout << "spawn " << module << ":" << name << "\n";
-    ec = ascheduler_new_actor(&s, cstack_sz, &a);
-    if (ec != AERR_NONE) {
-        error("failed to create actor %d", ec);
+    if (module.length() > 0) {
+        aactor_t* a;
+        std::cout << "spawn " << module << ":" << name << "\n";
+        ec = ascheduler_new_actor(&s, cstack_sz, &a);
+        if (ec != AERR_NONE) {
+            error("failed to create actor %d", ec);
+        }
+
+        std::cout << " -> pid = " <<
+            pid_string(a, ascheduler_pid(&s, a)) << "\n";
+        any_import(a, module.c_str(), name.c_str());
+        ascheduler_start(&s, a, 0);
     }
-    std::cout << " -> pid = " << pid_string(a, ascheduler_pid(&s, a)) << "\n";
-    any_import(a, module.c_str(), name.c_str());
-    ascheduler_start(&s, a, 0);
 
     while (alive || ascheduler_num_processes(&s) > 0) {
         if (debug) adb_run_once(&db);
@@ -300,6 +304,8 @@ int entry(int argc, char** argv)
         if (!p(argc, argv)) {
             return 1;
         } else {
+            bool alive = p["alive"].was_set();
+            bool exec = p["execute"].was_set();
             if (p["compile"].was_set()) {
                 auto i = p["compile"].get().string;
                 if (i.length() <= 0) {
@@ -313,19 +319,25 @@ int entry(int argc, char** argv)
                 }
                 compile(i, o, p["verbose"].available());
             }
-            if (p["execute"].was_set()) {
-                auto e = p["execute"].get().string;
-                if (e.length() <= 0) {
-                    error("entry point missing");
-                }
-                auto sep = e.find_first_of(':');
-                if (sep == std::string::npos) {
-                    error(
-                        ("bad entry `" + e + "`, missing `:`").c_str());
-                }
-                if (sep == e.length() - 1) {
-                    error(
-                        ("bad entry `" + e + "`, missing function").c_str());
+            if (exec || alive) {
+                std::string module;
+                std::string name;
+                if (exec) {
+                    auto e = p["execute"].get().string;
+                    if (e.length() <= 0) {
+                        error("entry point missing");
+                    }
+                    auto sep = e.find_first_of(':');
+                    if (sep == std::string::npos) {
+                        error(
+                            ("bad entry `" + e + "`, missing `:`").c_str());
+                    }
+                    if (sep == e.length() - 1) {
+                        error(
+                            ("bad entry `" + e + "`, missing function").c_str());
+                    }
+                    module = e.substr(0, sep);
+                    name = e.substr(sep + 1);
                 }
                 std::unique_ptr<address_t> debug;
                 if (p["debug"].was_set()) {
@@ -337,13 +349,13 @@ int entry(int argc, char** argv)
                     debug->port = (uint16_t)atoi(port_str.c_str());
                 }
                 execute(
-                    e.substr(0, sep), e.substr(sep + 1),
+                    module, name,
                     (int8_t)p["idx_bits"].get().i32,
                     (int8_t)p["gen_bits"].get().i32,
                     (aint_t)p["cstack_sz"].get().i32,
                     p[""].to_vector<po::string>(),
                     debug.get(), p["max_conns"].get().i32,
-                    p["alive"].was_set(),
+                    alive,
                     p["rt_res"].get().i32);
             }
             return 0;
