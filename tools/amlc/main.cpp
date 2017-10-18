@@ -23,6 +23,8 @@
 
 #if defined(ALINUX) || defined(AAPPLE)
 #include <unistd.h>
+#else
+#include <mmsystem.h>
 #endif
 
 #include "compiler.h"
@@ -133,6 +135,54 @@ static void on_unresolved(
     std::cout << "unresolved import `" << module << ':' << name << "`\n";
 }
 
+#ifdef AWINDOWS
+enum exec_state_t
+{
+    ES_UNINITIALIZED,
+    ES_INITIALIZED,
+    ES_RUNNING
+};
+
+struct time_ud_t
+{
+    UINT id;
+    volatile exec_state_t state;
+    ascheduler_t* s;
+    int8_t idx_bits;
+    int8_t gen_bits;
+    bool alive;
+    bool debug;
+    adb_t* db;
+};
+
+static void CALLBACK TimeProc(
+    UINT uID, UINT, DWORD dwUser, DWORD, DWORD)
+{
+    time_ud_t* ud = (time_ud_t*)dwUser;
+    if (ud->id != uID) return;
+    switch (ud->state) {
+    case ES_UNINITIALIZED: {
+        aerror_t ec = ascheduler_init(
+            ud->s, ud->idx_bits, ud->gen_bits, &myalloc, NULL);
+        if (ec != AERR_NONE) {
+            error("failed to init scheduler %d", ec);
+        }
+        ud->state = ES_INITIALIZED;
+        break;
+    }
+    case ES_RUNNING: {
+        if (ud->alive || ascheduler_num_processes(ud->s) > 0) {
+            if (ud->debug) adb_run_once(ud->db);
+            ascheduler_run_once(ud->s);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+#endif
+
 static void execute(
     const std::string& module, const std::string& name,
     int8_t idx_bits, int8_t gen_bits, aint_t cstack_sz,
@@ -144,10 +194,28 @@ static void execute(
     ascheduler_t s;
     adb_t db;
 
+#ifdef AWINDOWS
+    TIMECAPS tc;
+    timeGetDevCaps(&tc, sizeof(TIMECAPS));
+    UINT delay = std::max<UINT>(realtime_resolution / 1000, tc.wPeriodMin);
+    timeBeginPeriod(delay);
+    time_ud_t ud;
+    ud.state = ES_UNINITIALIZED;
+    ud.s = &s;
+    ud.idx_bits = idx_bits;
+    ud.gen_bits = gen_bits;
+    ud.alive = alive;
+    ud.debug = debug;
+    ud.db = &db;
+    ud.id = timeSetEvent(
+        delay, delay, &TimeProc, (DWORD_PTR)&ud, TIME_PERIODIC);
+    while (ud.state != ES_INITIALIZED) Sleep(15);
+#else
     ec = ascheduler_init(&s, idx_bits, gen_bits, &myalloc, NULL);
     if (ec != AERR_NONE) {
         error("failed to init scheduler %d", ec);
     }
+#endif
     ascheduler_on_panic(&s, &on_panic, NULL);
     aloader_on_unresolved(&s.loader, &on_unresolved, NULL);
 
@@ -214,15 +282,18 @@ static void execute(
         ascheduler_start(&s, a, 0);
     }
 
+#ifdef AWINDOWS
+    ud.state = ES_RUNNING;
+    while (alive || ascheduler_num_processes(&s) > 0) Sleep(15);
+    timeKillEvent(ud.id);
+    timeEndPeriod(delay);
+#else
     while (alive || ascheduler_num_processes(&s) > 0) {
         if (debug) adb_run_once(&db);
         ascheduler_run_once(&s);
-#ifdef AWINDOWS
-        Sleep(std::max<DWORD>(realtime_resolution/1000, 1));
-#else
         usleep((useconds_t)realtime_resolution);
-#endif
     }
+#endif
 
     if (debug) adb_cleanup(&db);
     ascheduler_cleanup(&s);
@@ -297,7 +368,7 @@ int entry(int argc, char** argv)
         p["rt_res"]
             .description("real-time resolution hint in us")
             .type(po::i32)
-            .fallback(1);
+            .fallback(1000);
 
         p[""];
 
