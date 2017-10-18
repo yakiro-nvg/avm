@@ -47,6 +47,27 @@ static const struct wby_header JSON_HEADERS[] = {
     }
 };
 
+static const struct wby_header BINARY_HEADERS[] = {
+    { "Content-Type",
+      "application/octet-stream"
+    },
+    { "Cache-Control",
+      "no-cache"
+    },
+    { "Access-Control-Allow-Origin",
+      "*"
+    },
+    { "Access-Control-Allow-Methods",
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    },
+    { "Access-Control-Allow-Headers",
+      "Connection, Content-Type"
+    },
+    { "Access-Control-Max-Age",
+      "600"
+    }
+};
+
 static AINLINE void*
 aalloc(
     adb_t* self, void* old, const aint_t sz)
@@ -97,6 +118,15 @@ json_response_begin(
         JSON_HEADERS, ASTATIC_ARRAY_COUNT(JSON_HEADERS));
 }
 
+static void
+binary_response_begin(
+    struct wby_con* con, int status, int content_length)
+{
+    wby_response_begin(
+        con, status, content_length,
+        BINARY_HEADERS, ASTATIC_ARRAY_COUNT(BINARY_HEADERS));
+}
+
 static int
 simple_response(
     struct wby_con* con, int status)
@@ -109,204 +139,36 @@ simple_response(
 }
 
 static void
-encode_imports(
-    aimport_t* imports,
-    aint_t num, const char* strings, struct wby_con* con)
-{
-    aint_t i;
-    for (i = 0; i < num; ++i) {
-        aimport_t* imp = imports + i;
-        if (i != 0) WBY_WRITE_STATIC(con, ",");
-        wby_write_fmt(con, "{\"module\":\"%s\",\"name\":\"%s\"}",
-            strings + imp->module, strings + imp->name);
-    }
-}
-
-static void
-encode_constants(
-    aconstant_t* constants,
-    aint_t num, const char* strings, struct wby_con* con)
-{
-    aint_t i;
-    for (i = 0; i < num; ++i) {
-        aconstant_t* c = constants + i;
-        if (i != 0) WBY_WRITE_STATIC(con, ",");
-        switch (c->type) {
-        case ACT_INTEGER:
-            wby_write_fmt(con, "%d", c->integer);
-            break;
-        case ACT_STRING:
-            wby_write_fmt(con, "\"%s\"", strings + c->string);
-            break;
-        case ACT_REAL:
-            wby_write_fmt(con, "%f", c->real);
-            break;
-        default:
-            assert(!"bad constant type");
-        }
-    }
-}
-
-static void
-encode_instructions(
-    ainstruction_t* instructions, aint_t num, struct wby_con* con)
-{
-    int32_t i;
-    for (i = 0; i < num; ++i) {
-        ainstruction_t* ins = instructions + i;
-        if (i != 0) WBY_WRITE_STATIC(con, ",");
-        WBY_WRITE_STATIC(con, "{\"type\": \"");
-        switch (ins->b.opcode) {
-        case AOC_NOP:
-            WBY_WRITE_STATIC(con, "nop\"}");
-            break;
-        case AOC_BRK:
-            WBY_WRITE_STATIC(con, "brk\"}");
-            break;
-        case AOC_POP:
-            wby_write_fmt(con, "pop\",\"n\":%d}", ins->pop.n);
-            break;
-        case AOC_LDK:
-            wby_write_fmt(con, "ldk\",\"idx\":%d}", ins->ldk.idx);
-            break;
-        case AOC_NIL:
-            WBY_WRITE_STATIC(con, "nil\"}");
-            break;
-        case AOC_LDB:
-            wby_write_fmt(con, "ldb\",\"val\":%s}",
-                ins->ldb.val ? "true" : "false");
-            break;
-        case AOC_LSI:
-            wby_write_fmt(con, "lsi\",\"val\":%d}", ins->lsi.val);
-            break;
-        case AOC_LLV:
-            wby_write_fmt(con, "llv\",\"idx\":%d}", ins->llv.idx);
-            break;
-        case AOC_SLV:
-            wby_write_fmt(con, "slv\",\"idx\":%d}", ins->slv.idx);
-            break;
-        case AOC_IMP:
-            wby_write_fmt(con, "imp\",\"idx\":%d}", ins->imp.idx);
-            break;
-        case AOC_CLS:
-            wby_write_fmt(con, "cls\",\"idx\":%d}", ins->cls.idx);
-            break;
-        case AOC_JMP:
-            wby_write_fmt(con, "jmp\",\"displacement\":%d}",
-                ins->jmp.displacement);
-            break;
-        case AOC_JIN:
-            wby_write_fmt(con, "jin\",\"displacement\":%d}",
-                ins->jin.displacement);
-            break;
-        case AOC_IVK:
-            wby_write_fmt(con, "ivk\",\"nargs\":%d}", ins->ivk.nargs);
-            break;
-        case AOC_RET:
-            WBY_WRITE_STATIC(con, "ret\"}");
-            break;
-        case AOC_SND:
-            WBY_WRITE_STATIC(con, "snd\"}");
-            break;
-        case AOC_RCV:
-            wby_write_fmt(con, "rcv\",\"displacement\":%d}",
-                ins->rcv.displacement);
-            break;
-        case AOC_RMV:
-            WBY_WRITE_STATIC(con, "rmv\"}");
-            break;
-        case AOC_RWD:
-            WBY_WRITE_STATIC(con, "rwd\"}");
-            break;
-        case AOC_ADD:
-            WBY_WRITE_STATIC(con, "add\"}");
-            break;
-        case AOC_SUB:
-            WBY_WRITE_STATIC(con, "sub\"}");
-            break;
-        case AOC_MUL:
-            WBY_WRITE_STATIC(con, "mul\"}");
-            break;
-        case AOC_DIV:
-            WBY_WRITE_STATIC(con, "div\"}");
-            break;
-        case AOC_NOT:
-            WBY_WRITE_STATIC(con, "not\"}");
-            break;
-        case AOC_EQ:
-            WBY_WRITE_STATIC(con, "eq\"}");
-            break;
-        case AOC_LT:
-            WBY_WRITE_STATIC(con, "lt\"}");
-            break;
-        case AOC_LE:
-            WBY_WRITE_STATIC(con, "le\"}");
-            break;
-        case AOC_GT:
-            WBY_WRITE_STATIC(con, "gt\"}");
-            break;
-        case AOC_GE:
-            WBY_WRITE_STATIC(con, "ge\"}");
-            break;
-        default:
-            assert(!"bad instruction type");
-        }
-    }
-}
-
-static void
-encode_prototype(
-    aprototype_t* p, struct wby_con* con)
-{
-    int32_t i;
-    wby_write_fmt(con, "{\"address\":%zd,", (size_t)p);
-    if (p->header->symbol != 0) {
-        wby_write_fmt(con, "\"name\":\"%s\",",
-            p->strings + p->header->symbol);
-    }
-    WBY_WRITE_STATIC(con, "\"imports\":[");
-    encode_imports(p->imports, p->header->num_imports, p->strings, con);
-    WBY_WRITE_STATIC(con, "],\"constants\":[");
-    encode_constants(p->constants, p->header->num_constants, p->strings, con);
-    WBY_WRITE_STATIC(con, "],\"instructions\":[");
-    encode_instructions(p->instructions, p->header->num_instructions, con);
-    WBY_WRITE_STATIC(con, "],\"prototypes\":[");
-    for (i = 0; i < p->header->num_nesteds; ++i) {
-        if (i != 0) WBY_WRITE_STATIC(con, ",");
-        encode_prototype(p->nesteds + i, con);
-    }
-    WBY_WRITE_STATIC(con, "]}");
-}
-
-static void
-encode_chunk(
-    achunk_t* chunk, const char* type, struct wby_con* con)
-{
-    int32_t i;
-    aprototype_t* m = chunk->prototypes;
-    wby_write_fmt(con, "{\"address\":%zd,", (size_t)chunk);
-    wby_write_fmt(con, "\"type\":\"%s\",", type);
-    wby_write_fmt(con, "\"module\":\"%s\",", m->strings + m->header->symbol);
-    WBY_WRITE_STATIC(con, "\"prototypes\":[");
-    for (i = 0; i < m->header->num_nesteds; ++i) {
-        if (i != 0) WBY_WRITE_STATIC(con, ",");
-        encode_prototype(m->nesteds + i, con);
-    }
-    WBY_WRITE_STATIC(con, "]}");
-}
-
-static void
-encode_chunks(
+list_modules(
     alist_t* chunks, const char* type, int32_t* first, struct wby_con* con)
 {
     alist_node_t* i = alist_head(chunks);
     while (!alist_is_end(chunks, i)) {
         achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+        aprototype_t* m = chunk->prototypes;
         if (*first == FALSE) wby_write(con, ",", 1);
-        encode_chunk(chunk, type, con);
+        wby_write_fmt(con, "{\"id\":%zd,", (size_t)chunk);
+        wby_write_fmt(con, "\"type\":\"%s\",", type);
+        wby_write_fmt(con, "\"module\":\"%s\"}",
+            m->strings + m->header->symbol);
         *first = FALSE;
         i = i->next;
     }
+}
+
+static achunk_t*
+find_module_by_id(
+    alist_t* chunks, size_t id)
+{
+    alist_node_t* i = alist_head(chunks);
+    while (!alist_is_end(chunks, i)) {
+        achunk_t* chunk = ALIST_NODE_CAST(achunk_t, i);
+        aprototype_t* m = chunk->prototypes;
+        const char* module = m->strings + m->header->symbol;
+        if (id == (size_t)chunk) return chunk;
+        i = i->next;
+    }
+    return NULL;
 }
 
 static int
@@ -334,16 +196,46 @@ handle_modules(
     adb_t* db, struct wby_con* con)
 {
     if (strcmp(con->request.method, "GET") == 0) {
+        char id[64];
+        int id_len = con->request.query_params
+            ? wby_find_query_var(
+                con->request.query_params, "id", id, sizeof(id))
+            : 0;
         aloader_t* l = &db->target->loader;
-        int32_t first = TRUE;
-        json_response_begin(con, 200, -1);
-        WBY_WRITE_STATIC(con, "[");
-        encode_chunks(&l->pendings, "pending", &first, con);
-        encode_chunks(&l->runnings, "running", &first, con);
-        encode_chunks(&l->garbages, "garbage", &first, con);
-        WBY_WRITE_STATIC(con, "]");
-        wby_response_end(con);
-        return 0;
+        if (id_len == 0) {
+            int32_t first = TRUE;
+            json_response_begin(con, 200, -1);
+            WBY_WRITE_STATIC(con, "[");
+            list_modules(&l->pendings, "pending", &first, con);
+            list_modules(&l->runnings, "running", &first, con);
+            list_modules(&l->garbages, "garbage", &first, con);
+            WBY_WRITE_STATIC(con, "]");
+            wby_response_end(con);
+            return 0;
+        } else {
+            size_t id_num = 0;
+            if (sscanf(id, "%zu", &id_num) == 1) {
+                achunk_t* chunk = NULL;
+                chunk = find_module_by_id(&l->pendings, id_num);
+                if (chunk == NULL) {
+                    chunk = find_module_by_id(&l->runnings, id_num);
+                    if (chunk == NULL) {
+                        chunk = find_module_by_id(&l->garbages, id_num);
+                    }
+                }
+                if (chunk == NULL) {
+                    return simple_response(con, 404);
+                } else {
+                    int chunk_sz = (int)chunk->chunk_sz;
+                    binary_response_begin(con, 200, chunk_sz);
+                    wby_write(con, chunk->header, chunk_sz);
+                    wby_response_end(con);
+                    return 0;
+                }
+            } else {
+                return simple_response(con, 400);
+            }
+        }
     }
     if (strcmp(con->request.method, "POST") == 0) {
         const char* content_type = wby_find_header(con, "Content-Type");
