@@ -22,21 +22,7 @@ typedef struct {
     ainstruction_t jmp;
     ainstruction_t jin;
     ainstruction_t ivk;
-    ainstruction_t snd;
     ainstruction_t rcv;
-    ainstruction_t rmv;
-    ainstruction_t rwd;
-    ainstruction_t add;
-    ainstruction_t sub;
-    ainstruction_t mul;
-    ainstruction_t div;
-    ainstruction_t not;
-    ainstruction_t ne;
-    ainstruction_t eq;
-    ainstruction_t lt;
-    ainstruction_t le;
-    ainstruction_t gt;
-    ainstruction_t ge;
 
     aconstant_t cinteger;
     aconstant_t cstring;

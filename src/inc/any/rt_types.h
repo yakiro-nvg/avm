@@ -474,11 +474,8 @@ typedef struct {
 /// Variant of instruction types, instruction size is fixed 4 bytes.
 typedef union {
     ai_base_t b;
-    ai_nop_t nop;
-    ai_brk_t brk;
     ai_pop_t pop;
     ai_ldk_t ldk;
-    ai_nil_t nil;
     ai_ldb_t ldb;
     ai_lsi_t lsi;
     ai_llv_t llv;
@@ -488,21 +485,7 @@ typedef union {
     ai_jmp_t jmp;
     ai_jin_t jin;
     ai_ivk_t ivk;
-    ai_ret_t ret;
-    ai_snd_t snd;
     ai_rcv_t rcv;
-    ai_rmv_t rmv;
-    ai_rwd_t rwd;
-    ai_add_t add;
-    ai_sub_t sub;
-    ai_mul_t mul;
-    ai_div_t div;
-    ai_not_t not;
-    ai_eq_t  eq;
-    ai_lt_t  lt;
-    ai_le_t  le;
-    ai_gt_t  gt;
-    ai_ge_t  ge;
 } ainstruction_t;
 
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
