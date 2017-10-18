@@ -133,6 +133,24 @@ lis_function(
         v->tag.type == AVT_NATIVE_FUNC || v->tag.type == AVT_BYTE_CODE_FUNC);
 }
 
+static void
+lto_integer(
+    aactor_t* a)
+{
+    aint_t a_val = any_check_index(a, -1);
+    avalue_t* v = aactor_at(a, a_val);
+
+    switch (v->tag.type) {
+    case AVT_REAL:
+    case AVT_INTEGER:
+        any_push_integer(a, (aint_t)any_to_real(a, a_val));
+        break;
+    default:
+        any_error(a, AERR_RUNTIME, "not number");
+        break;
+    }
+}
+
 static alib_func_t funcs[] = {
     { "import/2",       &limport },
     { "msleep/1",       &lmsleep },
@@ -148,6 +166,7 @@ static alib_func_t funcs[] = {
     { "is_array/1",     &lis_array },
     { "is_table/1",     &lis_table },
     { "is_function/1",  &lis_function },
+    { "to_integer/1",   &lto_integer },
     { NULL, NULL }
 };
 
