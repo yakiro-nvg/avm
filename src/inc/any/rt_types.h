@@ -311,7 +311,7 @@ typedef struct {
 
 static AINLINE aint_t amsec(aint_t ms)
 {
-    return ms*1000000;
+    return ms*1000;
 }
 
 /** Remove current message which is previously peeked by \ref ai_rcv_t.
@@ -1361,7 +1361,7 @@ typedef struct ascheduler_t {
     alist_t pendings;
     alist_t runnings;
     alist_t waitings;
-    atimer_t timer;
+    aint_t timer;
     int32_t first_run;
     aon_panic_t on_panic;
     void* on_panic_ud;

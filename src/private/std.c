@@ -3,6 +3,7 @@
 
 #include <any/actor.h>
 #include <any/loader.h>
+#include <any/timer.h>
 #include <any/std_string.h>
 
 static AINLINE int32_t
@@ -28,7 +29,7 @@ lmsleep(
     aactor_t* a)
 {
     aint_t a_msecs = any_check_index(a, -1);
-    any_sleep(a, any_check_integer(a, a_msecs) * 1000000);
+    any_sleep(a, any_check_integer(a, a_msecs) * 1000);
     any_push_nil(a);
 }
 
@@ -37,17 +38,15 @@ lusleep(
     aactor_t* a)
 {
     aint_t a_usecs = any_check_index(a, -1);
-    any_sleep(a, any_check_integer(a, a_usecs) * 1000);
+    any_sleep(a, any_check_integer(a, a_usecs));
     any_push_nil(a);
 }
 
 static void
-lnsleep(
+lusecs(
     aactor_t* a)
 {
-    aint_t a_nsecs = any_check_index(a, -1);
-    any_sleep(a, any_check_integer(a, a_nsecs));
-    any_push_nil(a);
+    any_push_integer(a, atimer_usecs());
 }
 
 static void
@@ -155,7 +154,7 @@ static alib_func_t funcs[] = {
     { "import/2",       &limport },
     { "msleep/1",       &lmsleep },
     { "usleep/1",       &lusleep },
-    { "nsleep/1",       &lnsleep },
+    { "usecs/0",        &lusecs },
     { "spawn/1",        &lspawn },
     { "is_integer/1",   &lis_integer },
     { "is_real/1",      &lis_real },

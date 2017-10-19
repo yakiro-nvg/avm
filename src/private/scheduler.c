@@ -67,7 +67,7 @@ cleanup(
 
 static void
 wait_for(
-    ascheduler_t* self, aactor_t* a, aint_t nsecs, int32_t msg_wake)
+    ascheduler_t* self, aactor_t* a, aint_t usecs, int32_t msg_wake)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
     alist_node_t* next_node = p->ptask.node.next;
@@ -76,7 +76,7 @@ wait_for(
     assert(p->wait_for == 0);
     alist_node_erase(&p->ptask.node);
     alist_node_insert(&p->ptask.node, wback, wback->next);
-    p->wait_for = nsecs;
+    p->wait_for = usecs;
     p->msg_wake = msg_wake;
     atask_yield(&p->ptask.task, &next->task);
 }
@@ -159,9 +159,12 @@ ascheduler_run_once(
     cleanup(self, FALSE);
     if (self->first_run) {
         self->first_run = FALSE;
-        atimer_start(&self->timer);
+        self->timer = atimer_usecs();
     } else {
-        check_waitings(self, atimer_delta_nsecs(&self->timer));
+        aint_t now = atimer_usecs();
+        aint_t delta = now - self->timer;
+        self->timer = now;
+        check_waitings(self, delta);
     }
     run_once(self);
 }
@@ -178,16 +181,16 @@ ascheduler_yield(
 
 void
 ascheduler_sleep(
-    ascheduler_t* self, aactor_t* a, aint_t nsecs)
+    ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
-    wait_for(self, a, nsecs, FALSE);
+    wait_for(self, a, usecs, FALSE);
 }
 
 void
 ascheduler_wait(
-    ascheduler_t* self, aactor_t* a, aint_t nsecs)
+    ascheduler_t* self, aactor_t* a, aint_t usecs)
 {
-    wait_for(self, a, nsecs, TRUE);
+    wait_for(self, a, usecs, TRUE);
 }
 
 void

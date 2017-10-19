@@ -122,10 +122,10 @@ ANY_API void
 any_yield(
     aactor_t* a);
 
-/// Sleep for `nsecs`.
+/// Sleep for `usecs`.
 ANY_API void
 any_sleep(
-    aactor_t* a, aint_t nsecs);
+    aactor_t* a, aint_t usecs);
 
 /// Execute in protected mode.
 ANY_API aerror_t

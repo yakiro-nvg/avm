@@ -130,19 +130,19 @@ ANY_API void
 ascheduler_yield(
     ascheduler_t* self, aactor_t* a);
 
-/** Suspends this actor for `nsecs`.
+/** Suspends this actor for `usecs`.
 \warning Suspends NOT running actor is undefined.
 */
 ANY_API void
 ascheduler_sleep(
-    ascheduler_t* self, aactor_t* a, aint_t nsecs);
+    ascheduler_t* self, aactor_t* a, aint_t usecs);
 
-/** Wait for incoming message in `nsecs`.
+/** Wait for incoming message in `usecs`.
 \warning Suspends NOT running actor is undefined.
 */
 ANY_API void
 ascheduler_wait(
-    ascheduler_t* self, aactor_t* a, aint_t nsecs);
+    ascheduler_t* self, aactor_t* a, aint_t usecs);
 
 /// Wake-up this actor if its waiting for incoming message.
 ANY_API void

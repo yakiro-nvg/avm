@@ -266,9 +266,9 @@ any_yield(
 
 void
 any_sleep(
-    aactor_t* a, aint_t nsecs)
+    aactor_t* a, aint_t usecs)
 {
-    ascheduler_sleep(a->owner, a, nsecs);
+    ascheduler_sleep(a->owner, a, usecs);
 }
 
 aerror_t
