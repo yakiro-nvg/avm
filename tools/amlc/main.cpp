@@ -156,7 +156,7 @@ struct time_ud_t
 };
 
 static void CALLBACK TimeProc(
-    UINT uID, UINT, DWORD dwUser, DWORD, DWORD)
+    UINT uID, UINT, DWORD_PTR dwUser, DWORD_PTR, DWORD_PTR)
 {
     time_ud_t* ud = (time_ud_t*)dwUser;
     if (ud->id != uID) return;
