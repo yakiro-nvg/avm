@@ -67,7 +67,7 @@ cleanup(
 
 static void
 wait_for(
-    ascheduler_t* self, aactor_t* a, aint_t usecs, int32_t msg_wake)
+    ascheduler_t* self, aactor_t* a, aint_t usecs, int32_t wake_on_msg)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
     alist_node_t* next_node = p->ptask.node.next;
@@ -77,7 +77,7 @@ wait_for(
     alist_node_erase(&p->ptask.node);
     alist_node_insert(&p->ptask.node, wback, wback->next);
     p->wait_for = usecs;
-    p->msg_wake = msg_wake;
+    p->wake_on_msg = wake_on_msg;
     atask_yield(&p->ptask.task, &next->task);
 }
 
@@ -104,7 +104,7 @@ check_waitings(
             p->wait_for -= delta;
             if (p->wait_for <= 0) {
                 p->wait_for = 0;
-                p->msg_wake = FALSE;
+                p->wake_on_msg = FALSE;
                 add_to_runnings(self, p);
             }
         }
@@ -198,9 +198,9 @@ ascheduler_got_new_message(
     ascheduler_t* self, aactor_t* a)
 {
     aprocess_t* p = ACAST_FROM_FIELD(aprocess_t, a, actor);
-    if (p->msg_wake) {
+    if (p->wake_on_msg) {
         p->wait_for = 0;
-        p->msg_wake = FALSE;
+        p->wake_on_msg = FALSE;
         add_to_runnings(self, p);
     }
 }
@@ -229,7 +229,7 @@ ascheduler_alloc(
             p->pid = apid_from(self->idx_bits, self->gen_bits, idx, gen);
             p->dead = FALSE;
             p->wait_for = 0;
-            p->msg_wake = FALSE;
+            p->wake_on_msg = FALSE;
             ++self->num_procs;
             return p;
         }

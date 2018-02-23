@@ -1315,7 +1315,7 @@ typedef struct {
     aactor_t actor;
     aprocess_task_t ptask;
     aint_t wait_for;
-    int32_t msg_wake;
+    int32_t wake_on_msg;
 } aprocess_t;
 
 /// Fatal error handler.
