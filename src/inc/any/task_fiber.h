@@ -3,6 +3,6 @@
 
 #include <any/platform.h>
 
-typedef struct atask_t {
+typedef struct atask_s {
     LPVOID fiber;
 } atask_t;

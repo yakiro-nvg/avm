@@ -32,7 +32,7 @@ This structure representing a string table. The data for string table is
 stored directly after this header in memory and consists of a hash table
 followed by a string data block.
 */
-typedef struct {
+typedef struct astring_table_s {
     /// The total size of the allocated data, including this header.
     aint_t allocated_bytes;
     /// The number of strings in the table.
@@ -53,7 +53,7 @@ enum {
 \warning `max_*` is **read-only**.
 \ref aasm_reserve are required to extends these values.
 */
-typedef struct {
+typedef struct aasm_prototype_s {
     aint_t source;
     aint_t symbol;
     aint_t num_local_vars;
@@ -68,13 +68,13 @@ typedef struct {
 } aasm_prototype_t;
 
 /// Byte code assembler context.
-typedef struct {
+typedef struct aasm_ctx_s {
     aint_t slot;
     aint_t idx;
 } aasm_ctx_t;
 
 /// Byte code assembler reserve sizes.
-typedef struct {
+typedef struct aasm_reserve_s {
     aint_t max_instructions;
     aint_t max_constants;
     aint_t max_imports;
@@ -82,7 +82,7 @@ typedef struct {
 } aasm_reserve_t;
 
 /// Byte code assembler resolved prototype pointers.
-typedef struct {
+typedef struct aasm_current_s {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;
@@ -114,7 +114,7 @@ This struct itself is not POD, then must rely on \ref achunk_header_t as the
 portable format for exchanges. That format enable assembler as a **framework**
 to working with byte code between optimization passes.
 */
-typedef struct {
+typedef struct aasm_s {
     // allocator.
     aalloc_t alloc;
     void* alloc_ud;
@@ -149,7 +149,7 @@ the actor. Technically, debugger must touch the actor state, and vice versa. So
 a dedicated debug service is required for each scheduler, to get rid of locking
 and other threading headaches.
 */
-typedef struct {
+typedef struct adb_s {
     aalloc_t alloc;
     void* alloc_ud;
     struct wby_server wby;

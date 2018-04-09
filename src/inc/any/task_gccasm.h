@@ -4,7 +4,7 @@
 #include <any/platform.h>
 #include <any/list.h>
 
-typedef struct atask_ctx_t {
+typedef struct atask_ctx_s {
 #if defined(AARCH_I386)
 #error "TODO"
 #elif defined(AARCH_AMD64)
@@ -33,12 +33,12 @@ void* d[16];
 void* r[8];
 
 void* lr;
-void* sp;   
+void* sp;
 
 #endif
 } atask_ctx_t;
 
-typedef struct atask_t {
+typedef struct atask_s {
     atask_ctx_t ctx;
     void* stack;
 #ifdef ANY_USE_VALGRIND

@@ -21,7 +21,7 @@ static const aasm_reserve_t DEFAULT_PROTO_SZ = {
     INIT_MAX_NESTEDS
 };
 
-typedef struct {
+typedef struct resolved_proto_s {
     ainstruction_t* instructions;
     aconstant_t* constants;
     aimport_t* imports;

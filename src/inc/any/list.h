@@ -8,13 +8,13 @@ extern "C" {
 #endif
 
 // Intrusive linked list node.
-typedef struct alist_node_t {
-    struct alist_node_t* next;
-    struct alist_node_t* prev;
+typedef struct alist_node_s {
+    struct alist_node_s* next;
+    struct alist_node_s* prev;
 } alist_node_t;
 
 // Intrusive linked list.
-typedef struct {
+typedef struct alist_s {
     alist_node_t root;
 } alist_t;
 

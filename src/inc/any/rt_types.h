@@ -7,12 +7,8 @@
 #include <any/task.h>
 #include <any/timer.h>
 
-// Forward declarations.
-struct aactor_t;
-struct aloader_t;
-
 // Specify the operation to be performed by the instructions.
-typedef enum {
+typedef enum aopcode_e {
     AOC_NOP = 0,
     AOC_BRK = 1,
     AOC_POP = 2,
@@ -59,7 +55,7 @@ opcode  payload
 ======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_base_s {
     uint32_t opcode : 8;
     uint32_t _ : 24;
 } ai_base_t;
@@ -73,7 +69,7 @@ AOC_NOP  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_nop_s {
     uint32_t _;
 } ai_nop_t;
 
@@ -86,7 +82,7 @@ AOC_BRK  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_brk_s {
     uint32_t _;
 } ai_brk_t;
 
@@ -99,7 +95,7 @@ AOC_POP  n
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_pop_s {
     uint32_t _ : 8;
     int32_t n : 24;
 } ai_pop_t;
@@ -113,7 +109,7 @@ AOC_LDK  idx
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_ldk_s {
     uint32_t _ : 8;
     int32_t idx : 24;
 } ai_ldk_t;
@@ -127,7 +123,7 @@ AOC_NIL  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_nil_s {
     uint32_t _;
 } ai_nil_t;
 
@@ -140,7 +136,7 @@ AOC_LDB  val
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_ldb_s {
     uint32_t _ : 8;
     int32_t val : 24;
 } ai_ldb_t;
@@ -154,7 +150,7 @@ AOC_LSI  val
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_lsi_s {
     uint32_t _ : 8;
     int32_t val : 24;
 } ai_lsi_t;
@@ -168,7 +164,7 @@ AOC_LLV  idx
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_llv_s {
     uint32_t _ : 8;
     int32_t idx : 24;
 } ai_llv_t;
@@ -182,7 +178,7 @@ AOC_SLV  idx
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_slv_s {
     uint32_t _ : 8;
     int32_t idx : 24;
 } ai_slv_t;
@@ -196,7 +192,7 @@ AOC_IMP  idx
 =======  =======
 \endrst
 */
-typedef struct  {
+typedef struct ai_imp_s {
     uint32_t _ : 8;
     int32_t idx : 24;
 } ai_imp_t;
@@ -210,7 +206,7 @@ AOC_cls  idx
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_cls_s {
     uint32_t _ : 8;
     int32_t idx : 24;
 } ai_cls_t;
@@ -224,7 +220,7 @@ AOC_JMP  displacement
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_jmp_s {
     uint32_t _ : 8;
     int32_t displacement : 24;
 } ai_jmp_t;
@@ -239,7 +235,7 @@ AOC_JIN  displacement
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_jin_s {
     uint32_t _ : 8;
     int32_t displacement : 24;
 } ai_jin_t;
@@ -255,7 +251,7 @@ AOC_IVK  nargs
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_ivk_s {
     uint32_t _ : 8;
     int32_t nargs : 24;
 } ai_ivk_t;
@@ -270,7 +266,7 @@ AOC_RET  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_ret_s {
     uint32_t _;
 } ai_ret_t;
 
@@ -283,7 +279,7 @@ AOC_SND  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_snd_s {
     uint32_t _;
 } ai_snd_t;
 
@@ -301,7 +297,7 @@ AOC_RCV  displacement
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_rcv_s {
     uint32_t _ : 8;
     int32_t displacement : 24;
 } ai_rcv_t;
@@ -324,7 +320,7 @@ AOC_RMV  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_rmv_s {
     uint32_t _;
 } ai_rmv_t;
 
@@ -337,7 +333,7 @@ AOC_RMV  _
 =======  =======
 \endrst
 */
-typedef struct {
+typedef struct ai_rwd_s {
     uint32_t _;
 } ai_rwd_t;
 
@@ -350,7 +346,7 @@ AOC_ADD  _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_add_s {
     uint32_t _;
 } ai_add_t;
 
@@ -363,7 +359,7 @@ AOC_SUB  _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_sub_s {
     uint32_t _;
 } ai_sub_t;
 
@@ -376,7 +372,7 @@ AOC_MUL  _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_mul_s {
     uint32_t _;
 } ai_mul_t;
 
@@ -389,7 +385,7 @@ AOC_DIV  _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_div_s {
     uint32_t _;
 } ai_div_t;
 
@@ -402,7 +398,7 @@ AOC_NOT  _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_not_s {
     uint32_t _;
 } ai_not_t;
 
@@ -415,7 +411,7 @@ AOC_EQ   _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_eq_s {
     uint32_t _;
 } ai_eq_t;
 
@@ -428,7 +424,7 @@ AOC_LT   _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_lt_s {
     uint32_t _;
 } ai_lt_t;
 
@@ -441,7 +437,7 @@ AOC_LE   _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_le_s {
     uint32_t _;
 } ai_le_t;
 
@@ -454,7 +450,7 @@ AOC_GT   _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_gt_s {
     uint32_t _;
 } ai_gt_t;
 
@@ -467,7 +463,7 @@ AOC_GE   _
 =======  ============
 \endrst
 */
-typedef struct {
+typedef struct ai_ge_s {
     uint32_t _;
 } ai_ge_t;
 
@@ -788,10 +784,10 @@ apid_gen(
 }
 
 /// Native function.
-typedef void(*anative_func_t)(struct aactor_t*);
+typedef void(*anative_func_t)(struct aactor_s*);
 
 // Constant types.
-typedef enum {
+typedef enum actype_e {
     ACT_INTEGER,
     ACT_STRING,
     ACT_REAL
@@ -800,7 +796,7 @@ typedef enum {
 #pragma pack(push, 1)
 
 /// Prototype constant.
-typedef struct APACKED {
+typedef struct APACKED aconstant_s {
     uint32_t type;
     /// ACT_INTEGER.
     aint_t integer;
@@ -844,7 +840,7 @@ ac_real(
 }
 
 /// Value tags.
-typedef enum {
+typedef enum atype_s {
     /// No value.
     AVT_NIL,
     /// Process identifier.
@@ -876,14 +872,14 @@ typedef enum {
 } atype_t;
 
 /// Value tag.
-typedef struct {
+typedef struct avalue_tag_s {
     int8_t type;
     int8_t collectable;
     int8_t _[2];
 } avalue_tag_t;
 
 /// Tagged value.
-typedef struct {
+typedef struct avalue_s {
     avalue_tag_t tag;
     union {
         /// \ref AVT_PID.
@@ -897,7 +893,7 @@ typedef struct {
         /// \ref AVT_NATIVE.
         anative_func_t func;
         /// \ref AVT_AVM.
-        struct aprototype_t* avm_func;
+        struct aprototype_s* avm_func;
         /// Collectable value.
         aint_t heap_idx;
     } v;
@@ -959,7 +955,7 @@ av_native_func(
 
 static inline void
 av_byte_code_func(
-    avalue_t* v, struct aprototype_t* f)
+    avalue_t* v, struct aprototype_s* f)
 {
     v->tag.type = AVT_BYTE_CODE_FUNC;
     v->tag.collectable = FALSE;
@@ -976,7 +972,7 @@ av_collectable(
 }
 
 /// Garbage collector.
-typedef struct {
+typedef struct agc_s {
     aalloc_t alloc;
     void* alloc_ud;
     uint8_t* cur_heap;
@@ -987,7 +983,7 @@ typedef struct {
 } agc_t;
 
 /// Collectable value header.
-typedef struct {
+typedef struct agc_header_s {
     atype_t type;
     aint_t sz;
     aint_t forwared;
@@ -997,37 +993,37 @@ typedef struct {
     ((T*)((gc)->cur_heap + idx + sizeof(agc_header_t)))
 
 /// Collectable buffer.
-typedef struct {
+typedef struct agc_buffer_s {
     aint_t cap;
     aint_t sz;
     avalue_t buff;
 } agc_buffer_t;
 
 /// Combination of hash and length.
-typedef struct {
+typedef struct ahash_and_length_s {
     uint32_t hash;
     aint_t length;
 } ahash_and_length_t;
 
 /// Collectable string.
-typedef struct {
+typedef struct agc_string_s {
     ahash_and_length_t hal;
 } agc_string_t;
 
 /// Collectable tuple.
-typedef struct {
+typedef struct agc_tuple_s {
     aint_t sz;
 } agc_tuple_t;
 
 /// Collectable array.
-typedef struct {
+typedef struct agc_array_s {
     aint_t cap;
     aint_t sz;
     avalue_t buff;
 } agc_array_t;
 
 /// Collectable table.
-typedef struct {
+typedef struct agc_table_s {
     aint_t cap;
     aint_t sz;
     avalue_t buff;
@@ -1062,7 +1058,7 @@ bytes  description          value
 \endrst
 \note The header portion is not affected by endianess.
 */
-typedef struct APACKED {
+typedef struct APACKED achunk_header_s {
     uint8_t  signature[4];
     uint32_t major_ver       : 4;
     uint32_t minor_ver       : 4;
@@ -1078,7 +1074,7 @@ typedef struct APACKED {
 ASTATIC_ASSERT(sizeof(achunk_header_t) == 12);
 
 /// Function import.
-typedef struct {
+typedef struct aimport_s {
     aint_t module;
     aint_t name;
 } aimport_t;
@@ -1138,7 +1134,7 @@ _                                     nested prototypes
 ====================================  ======================
 \endrst
 */
-typedef struct {
+typedef struct aprototype_header_s {
     aint_t source;
     aint_t symbol;
     aint_t strings_sz;
@@ -1150,21 +1146,21 @@ typedef struct {
 } aprototype_header_t;
 
 /// Lib function.
-typedef struct {
+typedef struct alib_func_s {
     const char* name;
     anative_func_t func;
 } alib_func_t;
 
 /// Lib module.
-typedef struct alib_t {
+typedef struct alib_s {
     const char* name;
     const alib_func_t* funcs;
     alist_node_t node;
 } alib_t;
 
 /// Runtime prototype.
-typedef struct aprototype_t {
-    struct achunk_t* chunk;
+typedef struct aprototype_s {
+    struct achunk_s* chunk;
     aprototype_header_t* header;
     const char* strings;
     ainstruction_t* instructions;
@@ -1172,11 +1168,11 @@ typedef struct aprototype_t {
     aimport_t* imports;
     avalue_t* import_values;
     aint_t* source_lines;
-    struct aprototype_t* nesteds;
+    struct aprototype_s* nesteds;
 } aprototype_t;
 
 /// Runtime byte code chunk.
-typedef struct achunk_t {
+typedef struct achunk_s {
     achunk_header_t* header;
     aint_t chunk_sz;
     aalloc_t alloc;
@@ -1189,11 +1185,11 @@ typedef struct achunk_t {
 
 /// On linking failed.
 typedef void(*aon_unresolved_t)(
-    struct aloader_t* loader, const char* m, const char* n, void* ud);
+    struct aloader_s* loader, const char* m, const char* n, void* ud);
 
 /// On successfully linked.
 typedef void(*aon_linked_t)(
-    struct aloader_t* loader, void* ud);
+    struct aloader_s* loader, void* ud);
 
 /** Byte code loader.
 \brief
@@ -1208,7 +1204,7 @@ state is `garbage`, as the name suggested, is out-of-date but still be there so
 already referenced may continue to work. `aloader_sweep` could be used to free
 these chunks.
 */
-typedef struct aloader_t {
+typedef struct aloader_s {
     aalloc_t alloc;
     void* alloc_ud;
     alist_t pendings;
@@ -1222,7 +1218,7 @@ typedef struct aloader_t {
 } aloader_t;
 
 /// Value stack.
-typedef struct {
+typedef struct astack_s {
     aalloc_t alloc;
     void* alloc_ud;
     avalue_t* v;
@@ -1231,13 +1227,13 @@ typedef struct {
 } astack_t;
 
 /// Process flags.
-typedef enum {
+typedef enum apflags_e {
     APF_EXIT = 1 << 0
-} APFLAGS;
+} apflags_t;
 
 /// Process stack frame.
-typedef struct aframe_t {
-    struct aframe_t* prev;
+typedef struct aframe_s {
+    struct aframe_s* prev;
     aprototype_t* pt;
     aint_t ip;
     aint_t bp;
@@ -1245,8 +1241,8 @@ typedef struct aframe_t {
 } aframe_t;
 
 /// Error catching points.
-typedef struct acatch_t {
-    struct acatch_t* prev;
+typedef struct acatch_s {
+    struct acatch_s* prev;
     aerror_t status;
     jmp_buf jbuff;
 } acatch_t;
@@ -1289,11 +1285,11 @@ index  description  pointer
 =====  ===========  =======
 \endrst
 */
-typedef struct aactor_t {
+typedef struct aactor_s {
     int32_t flags;
     aalloc_t alloc;
     void* alloc_ud;
-    struct ascheduler_t* owner;
+    struct ascheduler_s* owner;
     acatch_t* error_jmp;
     aframe_t* frame;
     astack_t stack;
@@ -1303,13 +1299,13 @@ typedef struct aactor_t {
 } aactor_t;
 
 /// Process task.
-typedef struct {
+typedef struct aprocess_task_s {
     alist_node_t node;
     atask_t task;
 } aprocess_task_t;
 
 /// Light-weight process.
-typedef struct {
+typedef struct aprocess_s {
     int32_t dead;
     apid_t pid;
     aactor_t actor;
@@ -1320,24 +1316,24 @@ typedef struct {
 
 /// Fatal error handler.
 typedef void(*aon_panic_t)(
-    struct aactor_t*, void* ud);
+    struct aactor_s*, void* ud);
 
 /// Exception error handler.
 typedef void(*aon_throw_t)(
-    struct aactor_t*, void* ud);
+    struct aactor_s*, void* ud);
 
 /// New actor spawned handler.
 typedef void(*aon_spawn_t)(
-    struct aactor_t*, void* ud);
+    struct aactor_s*, void* ud);
 
 /// Current actor is going to die.
 typedef void(*aon_exit_t)(
-    struct aactor_t*, void* ud);
+    struct aactor_s*, void* ud);
 
 /// Before an instruction is executed,
 /// return TRUE to move forward.
 typedef int32_t(*aon_step_t)(
-    struct aactor_t*, void* ud);
+    struct aactor_s*, void* ud);
 
 /** Process scheduler.
 \brief
@@ -1348,7 +1344,7 @@ native function and across native function is just mandatory use cases in AVM.
 A new \ref atask_t is required for each new actor. That allows AVM to save the
 context of a actor and comeback later, in native side.
 */
-typedef struct ascheduler_t {
+typedef struct ascheduler_s {
     aalloc_t alloc;
     void* alloc_ud;
     aprocess_t* procs;
