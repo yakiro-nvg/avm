@@ -105,7 +105,7 @@ aasm_resolve(
     aasm_t* self);
 
 /// Get prototype at `slot`.
-static AINLINE aasm_prototype_t*
+static inline aasm_prototype_t*
 aasm_prototype_at(
     aasm_t* self, aint_t slot)
 {

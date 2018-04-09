@@ -14,7 +14,7 @@ void
 actor_dispatch(
     aactor_t* a);
 
-static AINLINE void*
+static inline void*
 aalloc(
     aactor_t* self, void* old, const aint_t sz)
 {
@@ -29,7 +29,7 @@ call(
     any_call(self, *(aint_t*)ud);
 }
 
-static AINLINE void
+static inline void
 save_ctx(
     aactor_t* a, aframe_t* frame, aint_t nargs)
 {
@@ -39,7 +39,7 @@ save_ctx(
     frame->nargs = nargs;
 }
 
-static AINLINE void
+static inline void
 load_ctx(
     aactor_t* a)
 {

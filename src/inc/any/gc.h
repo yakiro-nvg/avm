@@ -18,7 +18,7 @@ agc_cleanup(
     agc_t* self);
 
 /// Check if there are enough space for `n` new object.
-static AINLINE int32_t
+static inline int32_t
 agc_check(
     agc_t* self, aint_t sz, aint_t n)
 {
@@ -47,7 +47,7 @@ agc_collect(
     agc_t* self, avalue_t** roots, aint_t* num_roots);
 
 /// Get current heap size.
-static AINLINE aint_t
+static inline aint_t
 agc_heap_size(
     agc_t* self)
 {

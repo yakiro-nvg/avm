@@ -8,7 +8,7 @@ void ASTDCALL
 actor_entry(
     void* ud);
 
-static AINLINE void*
+static inline void*
 aalloc(
     ascheduler_t* self, void* old, const aint_t sz)
 {
@@ -81,7 +81,7 @@ wait_for(
     atask_yield(&p->ptask.task, &next->task);
 }
 
-static AINLINE void
+static inline void
 add_to_runnings(
     ascheduler_t* self, aprocess_t* p)
 {
@@ -112,7 +112,7 @@ check_waitings(
     }
 }
 
-static AINLINE void
+static inline void
 run_once(
     ascheduler_t* self)
 {

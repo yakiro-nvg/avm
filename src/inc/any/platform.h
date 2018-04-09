@@ -54,10 +54,8 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 
 #ifdef AMSVC
 #define APACKED
-#define AINLINE __inline
 #elif defined(ACLANG) || defined(AGNUC)
 #define APACKED __attribute__((packed))
-#define AINLINE inline
 #endif
 
 #ifndef TRUE

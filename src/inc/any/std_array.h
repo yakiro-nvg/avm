@@ -19,7 +19,7 @@ agc_array_new(
     aactor_t* a, aint_t cap, avalue_t* v);
 
 /// Push new array onto the stack.
-static AINLINE void
+static inline void
 any_push_array(
     aactor_t* a, aint_t cap)
 {
@@ -30,7 +30,7 @@ any_push_array(
 }
 
 /// Check if that is array.
-static AINLINE void
+static inline void
 any_check_array(
     aactor_t* a, aint_t idx)
 {
@@ -40,7 +40,7 @@ any_check_array(
 }
 
 /// Returns the number of elements.
-static AINLINE aint_t
+static inline aint_t
 any_array_size(
     aactor_t* a, aint_t idx)
 {
@@ -51,7 +51,7 @@ any_array_size(
 }
 
 /// Returns the capacity.
-static AINLINE aint_t
+static inline aint_t
 any_array_capacity(
     aactor_t* a, aint_t idx)
 {

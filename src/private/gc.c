@@ -4,21 +4,21 @@
 #define GROW_FACTOR 2
 #define NOT_FORWARED -1
 
-static AINLINE void*
+static inline void*
 aalloc(
     agc_t* self, void* old, const aint_t sz)
 {
     return self->alloc(self->alloc_ud, old, sz);
 }
 
-static AINLINE uint8_t*
+static inline uint8_t*
 low_heap(
     agc_t* self)
 {
     return self->cur_heap < self->new_heap ? self->cur_heap : self->new_heap;
 }
 
-static AINLINE void
+static inline void
 swap(
     agc_t* self)
 {
@@ -27,7 +27,7 @@ swap(
     self->new_heap = tmp;
 }
 
-static AINLINE void
+static inline void
 copy(
     agc_t* self, avalue_t* v)
 {
@@ -44,7 +44,7 @@ copy(
     v->v.heap_idx = ogch->forwared;
 }
 
-static AINLINE void
+static inline void
 copy_tuple(
     agc_t* self, agc_tuple_t* o)
 {
@@ -55,7 +55,7 @@ copy_tuple(
     }
 }
 
-static AINLINE void
+static inline void
 copy_array(
     agc_t* self, agc_array_t* o)
 {
@@ -66,7 +66,7 @@ copy_array(
     }
 }
 
-static AINLINE void
+static inline void
 copy_table(
     agc_t* self, agc_table_t* o)
 {
@@ -78,7 +78,7 @@ copy_table(
     }
 }
 
-static AINLINE void
+static inline void
 scan(
     agc_t* self, agc_header_t* gch)
 {

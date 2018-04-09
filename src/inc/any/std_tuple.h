@@ -19,7 +19,7 @@ agc_tuple_new(
     aactor_t* a, aint_t sz, avalue_t* v);
 
 /// Push new tuple onto the stack.
-static AINLINE void
+static inline void
 any_push_tuple(
     aactor_t* a, aint_t sz)
 {
@@ -30,7 +30,7 @@ any_push_tuple(
 }
 
 /// Check if that is tuple.
-static AINLINE void
+static inline void
 any_check_tuple(
     aactor_t* a, aint_t idx)
 {
@@ -40,7 +40,7 @@ any_check_tuple(
 }
 
 /// Returns the number of elements.
-static AINLINE aint_t
+static inline aint_t
 any_tuple_size(
     aactor_t* a, aint_t idx)
 {

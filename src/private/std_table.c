@@ -48,7 +48,7 @@ static const int32_t VALID_KEYS[] = {
 
 ASTATIC_ASSERT(__AVT_LAST__ == ASTATIC_ARRAY_COUNT(VALID_KEYS) - 1);
 
-static AINLINE void
+static inline void
 check_key(
     aactor_t* a, avalue_t* k)
 {

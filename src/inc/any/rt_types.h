@@ -309,7 +309,7 @@ typedef struct {
 #define AINFINITE  (-1)
 #define ADONT_WAIT (0)
 
-static AINLINE aint_t amsec(aint_t ms)
+static inline aint_t amsec(aint_t ms)
 {
     return ms*1000;
 }
@@ -491,7 +491,7 @@ typedef union {
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
 
 // Instruction constructors.
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_nop()
 {
     ainstruction_t i;
@@ -499,7 +499,7 @@ ai_nop()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_brk()
 {
     ainstruction_t i;
@@ -507,7 +507,7 @@ ai_brk()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_pop(
     aint_t n)
 {
@@ -517,7 +517,7 @@ ai_pop(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_ldk(
     aint_t idx)
 {
@@ -527,7 +527,7 @@ ai_ldk(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_nil()
 {
     ainstruction_t i;
@@ -535,7 +535,7 @@ ai_nil()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_ldb(
     int32_t val)
 {
@@ -545,7 +545,7 @@ ai_ldb(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_lsi(
     aint_t val)
 {
@@ -555,7 +555,7 @@ ai_lsi(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_llv(
     aint_t idx)
 {
@@ -565,7 +565,7 @@ ai_llv(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_slv(
     aint_t idx)
 {
@@ -575,7 +575,7 @@ ai_slv(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_imp(
     aint_t idx)
 {
@@ -585,7 +585,7 @@ ai_imp(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_cls(
     aint_t idx)
 {
@@ -595,7 +595,7 @@ ai_cls(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_jmp(
     aint_t displacement)
 {
@@ -605,7 +605,7 @@ ai_jmp(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_jin(
     aint_t displacement)
 {
@@ -615,7 +615,7 @@ ai_jin(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_ivk(
     aint_t nargs)
 {
@@ -625,7 +625,7 @@ ai_ivk(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_ret()
 {
     ainstruction_t i;
@@ -633,7 +633,7 @@ ai_ret()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_snd()
 {
     ainstruction_t i;
@@ -641,7 +641,7 @@ ai_snd()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_rcv(
     aint_t displacement)
 {
@@ -651,7 +651,7 @@ ai_rcv(
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_rmv()
 {
     ainstruction_t i;
@@ -659,7 +659,7 @@ ai_rmv()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_rwd()
 {
     ainstruction_t i;
@@ -667,7 +667,7 @@ ai_rwd()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_add()
 {
     ainstruction_t i;
@@ -675,7 +675,7 @@ ai_add()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_sub()
 {
     ainstruction_t i;
@@ -683,7 +683,7 @@ ai_sub()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_mul()
 {
     ainstruction_t i;
@@ -691,7 +691,7 @@ ai_mul()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_div()
 {
     ainstruction_t i;
@@ -699,7 +699,7 @@ ai_div()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_not()
 {
     ainstruction_t i;
@@ -707,7 +707,7 @@ ai_not()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_eq()
 {
     ainstruction_t i;
@@ -715,7 +715,7 @@ ai_eq()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_lt()
 {
     ainstruction_t i;
@@ -723,7 +723,7 @@ ai_lt()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_le()
 {
     ainstruction_t i;
@@ -731,7 +731,7 @@ ai_le()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_gt()
 {
     ainstruction_t i;
@@ -739,7 +739,7 @@ ai_gt()
     return i;
 }
 
-static AINLINE ainstruction_t
+static inline ainstruction_t
 ai_ge()
 {
     ainstruction_t i;
@@ -762,7 +762,7 @@ typedef uint32_t apid_gen_t;
 enum { APID_BITS = sizeof(apid_t)*8 };
 
 /// Make a pid from index and generation.
-static AINLINE apid_t
+static inline apid_t
 apid_from(
     int8_t idx_bits, int8_t gen_bits, apid_idx_t idx, apid_gen_t gen)
 {
@@ -772,7 +772,7 @@ apid_from(
 }
 
 /// Get index part.
-static AINLINE apid_idx_t
+static inline apid_idx_t
 apid_idx(
     int8_t idx_bits, apid_t pid)
 {
@@ -780,7 +780,7 @@ apid_idx(
 }
 
 /// Get generation part.
-static AINLINE apid_gen_t
+static inline apid_gen_t
 apid_gen(
     int8_t idx_bits, int8_t gen_bits, apid_t pid)
 {
@@ -813,7 +813,7 @@ typedef struct APACKED {
 #pragma pack(pop)
 
 // Constant constructors.
-static AINLINE aconstant_t
+static inline aconstant_t
 ac_integer(
     aint_t val)
 {
@@ -823,7 +823,7 @@ ac_integer(
     return c;
 }
 
-static AINLINE aconstant_t
+static inline aconstant_t
 ac_string(
     aint_t string)
 {
@@ -833,7 +833,7 @@ ac_string(
     return c;
 }
 
-static AINLINE aconstant_t
+static inline aconstant_t
 ac_real(
     areal_t val)
 {
@@ -904,7 +904,7 @@ typedef struct {
 } avalue_t;
 
 // Value constructors.
-static AINLINE void
+static inline void
 av_nil(
     avalue_t* v)
 {
@@ -912,7 +912,7 @@ av_nil(
     v->tag.collectable = FALSE;
 }
 
-static AINLINE void
+static inline void
 av_pid(
     avalue_t* v, apid_t pid)
 {
@@ -921,7 +921,7 @@ av_pid(
     v->v.pid = pid;
 }
 
-static AINLINE void
+static inline void
 av_boolean(
     avalue_t* v, int32_t b)
 {
@@ -930,7 +930,7 @@ av_boolean(
     v->v.boolean = b;
 }
 
-static AINLINE void
+static inline void
 av_integer(
     avalue_t* v, aint_t i)
 {
@@ -939,7 +939,7 @@ av_integer(
     v->v.integer = i;
 }
 
-static AINLINE void
+static inline void
 av_real(
     avalue_t* v, areal_t r)
 {
@@ -948,7 +948,7 @@ av_real(
     v->v.real = r;
 }
 
-static AINLINE void
+static inline void
 av_native_func(
     avalue_t* v, anative_func_t f)
 {
@@ -957,7 +957,7 @@ av_native_func(
     v->v.func = f;
 }
 
-static AINLINE void
+static inline void
 av_byte_code_func(
     avalue_t* v, struct aprototype_t* f)
 {
@@ -966,7 +966,7 @@ av_byte_code_func(
     v->v.avm_func = f;
 }
 
-static AINLINE void
+static inline void
 av_collectable(
     avalue_t* v, atype_t type, aint_t heap_idx)
 {
@@ -1083,7 +1083,7 @@ typedef struct {
     aint_t name;
 } aimport_t;
 
-static AINLINE aimport_t
+static inline aimport_t
 aimport(
     aint_t module, aint_t name)
 {

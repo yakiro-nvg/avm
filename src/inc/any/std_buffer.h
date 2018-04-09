@@ -19,7 +19,7 @@ agc_buffer_new(
     aactor_t* a, aint_t cap, avalue_t* v);
 
 /// Push new buffer onto the stack.
-static AINLINE void
+static inline void
 any_push_buffer(
     aactor_t* a, aint_t cap)
 {
@@ -30,7 +30,7 @@ any_push_buffer(
 }
 
 /// Get buffer pointer.
-static AINLINE uint8_t*
+static inline uint8_t*
 any_to_buffer(
     aactor_t* a, aint_t idx)
 {
@@ -41,7 +41,7 @@ any_to_buffer(
 }
 
 /// Check if that is buffer.
-static AINLINE uint8_t*
+static inline uint8_t*
 any_check_buffer(
     aactor_t* a, aint_t idx)
 {
@@ -55,7 +55,7 @@ any_check_buffer(
 }
 
 /// Returns size of buffer in bytes.
-static AINLINE aint_t
+static inline aint_t
 any_buffer_size(
     aactor_t* a, aint_t idx)
 {
@@ -66,7 +66,7 @@ any_buffer_size(
 }
 
 /// Returns capacity of buffer in bytes.
-static AINLINE aint_t
+static inline aint_t
 any_buffer_capacity(
     aactor_t* a, aint_t idx)
 {

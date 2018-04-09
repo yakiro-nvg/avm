@@ -22,7 +22,7 @@ ascheduler_init(
     aalloc_t alloc, void* alloc_ud);
 
 /// Register fatal error handler.
-static AINLINE void
+static inline void
 ascheduler_on_panic(
     ascheduler_t* self, aon_panic_t handler, void* ud)
 {
@@ -31,7 +31,7 @@ ascheduler_on_panic(
 }
 
 /// Register exception error handler.
-static AINLINE void
+static inline void
 ascheduler_on_throw(
     ascheduler_t* self, aon_throw_t handler, void* ud)
 {
@@ -40,7 +40,7 @@ ascheduler_on_throw(
 }
 
 /// Register spawning handler.
-static AINLINE void
+static inline void
 ascheduler_on_spawn(
     ascheduler_t* self, aon_spawn_t handler, void* ud)
 {
@@ -49,7 +49,7 @@ ascheduler_on_spawn(
 }
 
 /// Register exit handler.
-static AINLINE void
+static inline void
 ascheduler_on_exit(
     ascheduler_t* self, aon_exit_t handler, void* ud)
 {
@@ -58,7 +58,7 @@ ascheduler_on_exit(
 }
 
 /// Register debug step handler.
-static AINLINE void
+static inline void
 ascheduler_on_step(
     ascheduler_t* self, aon_step_t handler, void* ud)
 {
@@ -74,7 +74,7 @@ ascheduler_cleanup(
 /** Get alive actor by pid.
 \return NULL if that is not found or died.
 */
-static AINLINE aactor_t*
+static inline aactor_t*
 ascheduler_actor(
     ascheduler_t* self, apid_t pid)
 {
@@ -93,7 +93,7 @@ ascheduler_alloc(
     ascheduler_t* self);
 
 /// Returns this process to the pool.
-static AINLINE void
+static inline void
 ascheduler_free(
     ascheduler_t* self, aprocess_t* p)
 {
@@ -102,7 +102,7 @@ ascheduler_free(
 }
 
 /// Returns number of living processes.
-static AINLINE aint_t
+static inline aint_t
 ascheduler_num_processes(
     ascheduler_t* self)
 {
@@ -110,7 +110,7 @@ ascheduler_num_processes(
 }
 
 /// Get pid of this actor.
-static AINLINE apid_t
+static inline apid_t
 ascheduler_pid(
     ascheduler_t* self, aactor_t* a)
 {

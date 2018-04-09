@@ -13,7 +13,7 @@ astd_lib_add(
     aloader_t* l);
 
 /// Compare real with tolerance.
-static AINLINE int32_t
+static inline int32_t
 afuzzy_equals(
     areal_t a, areal_t b)
 {

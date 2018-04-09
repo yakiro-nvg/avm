@@ -18,7 +18,7 @@ aloader_cleanup(
     aloader_t* self);
 
 /// Register linking error handler.
-static AINLINE void
+static inline void
 aloader_on_unresolved(
     aloader_t* self, aon_unresolved_t handler, void* ud)
 {
@@ -27,7 +27,7 @@ aloader_on_unresolved(
 }
 
 /// Register linking success handler.
-static AINLINE void
+static inline void
 aloader_on_linked(
     aloader_t* self, aon_linked_t handler, void* ud)
 {

@@ -28,7 +28,7 @@ set_capacity(
     av_collectable(&o->buff, AVT_FIXED_BUFFER, bi);
 }
 
-static AINLINE void
+static inline void
 check_index(
     aactor_t* a, aint_t idx, aint_t sz)
 {

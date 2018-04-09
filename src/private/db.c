@@ -68,7 +68,7 @@ static const struct wby_header BINARY_HEADERS[] = {
     }
 };
 
-static AINLINE void*
+static inline void*
 aalloc(
     adb_t* self, void* old, const aint_t sz)
 {

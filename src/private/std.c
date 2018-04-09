@@ -6,7 +6,7 @@
 #include <any/timer.h>
 #include <any/std_string.h>
 
-static AINLINE int32_t
+static inline int32_t
 is_number(
     atype_t type)
 {
@@ -60,7 +60,7 @@ lspawn(
     any_push_pid(a, pid);
 }
 
-static AINLINE void
+static inline void
 is_type(
     aactor_t* a, atype_t type)
 {

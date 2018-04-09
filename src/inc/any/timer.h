@@ -9,7 +9,7 @@ extern "C" {
 
 #if defined(AWINDOWS)
 
-static AINLINE aint_t
+static inline aint_t
 atimer_usecs()
 {
     LARGE_INTEGER c, f;
@@ -25,7 +25,7 @@ atimer_usecs()
 #endif
 #include <time.h>
 
-static AINLINE aint_t
+static inline aint_t
 atimer_usecs()
 {
     struct timespec c;
@@ -39,7 +39,7 @@ atimer_usecs()
 
 typedef uint64_t atimer_t;
 
-static AINLINE aint_t
+static inline aint_t
 atimer_usecs()
 {
     uint64_t c = mach_absolute_time();

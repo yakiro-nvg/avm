@@ -11,35 +11,35 @@ typedef struct {
     aint_t offset;
 } hash_slot_t;
 
-static AINLINE hash_slot_t*
+static inline hash_slot_t*
 hashtable(
     astring_table_t* self)
 {
     return (hash_slot_t*)(self + 1);
 }
 
-static AINLINE char*
+static inline char*
 strings(
     astring_table_t* self)
 {
     return (char*)(hashtable(self) + self->num_hash_slots);
 }
 
-static AINLINE const hash_slot_t*
+static inline const hash_slot_t*
 hashtable_const(
     const astring_table_t* self)
 {
     return (const hash_slot_t*)(self + 1);
 }
 
-static AINLINE const char*
+static inline const char*
 strings_const(
     const astring_table_t* self)
 {
     return (const char*)(hashtable_const(self) + self->num_hash_slots);
 }
 
-static AINLINE aint_t
+static inline aint_t
 available_string_bytes(
     astring_table_t* self)
 {

@@ -19,7 +19,7 @@ agc_table_new(
     aactor_t* a, aint_t cap, avalue_t* v);
 
 /// Push new table onto the stack.
-static AINLINE void
+static inline void
 any_push_table(
     aactor_t* a, aint_t cap)
 {
@@ -30,7 +30,7 @@ any_push_table(
 }
 
 /// Check if that is table.
-static AINLINE void
+static inline void
 any_check_table(
     aactor_t* a, aint_t idx)
 {
@@ -40,7 +40,7 @@ any_check_table(
 }
 
 /// Returns the number of elements.
-static AINLINE aint_t
+static inline aint_t
 any_table_size(
     aactor_t* a, aint_t idx)
 {
@@ -51,7 +51,7 @@ any_table_size(
 }
 
 /// Returns the capacity.
-static AINLINE aint_t
+static inline aint_t
 any_table_capacity(
     aactor_t* a, aint_t idx)
 {

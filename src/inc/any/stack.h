@@ -8,7 +8,7 @@ extern "C" {
 #endif
 
 /// Initialize as a new stack.
-static AINLINE aerror_t
+static inline aerror_t
 astack_init(
     astack_t* self, aint_t cap, aalloc_t alloc, void* alloc_ud)
 {
@@ -21,7 +21,7 @@ astack_init(
 }
 
 /// Release all allocated memory.
-static AINLINE void
+static inline void
 astack_cleanup(
     astack_t* self)
 {

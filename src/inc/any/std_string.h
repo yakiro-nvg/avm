@@ -19,7 +19,7 @@ ahash_and_length(
     const char* s);
 
 /// Get NULL terminated string pointer.
-static AINLINE const char*
+static inline const char*
 agc_string_to_cstr(
     aactor_t* a, avalue_t* v)
 {
@@ -33,7 +33,7 @@ agc_string_new(
     aactor_t* a, const char* s, avalue_t* v);
 
 /// Compare two strings.
-static AINLINE aint_t
+static inline aint_t
 agc_string_compare(
     aactor_t* a, avalue_t* lhs, avalue_t* rhs)
 {
@@ -47,7 +47,7 @@ agc_string_compare(
 }
 
 /// Push new string onto the stack.
-static AINLINE void
+static inline void
 any_push_string(
     aactor_t* a, const char* s)
 {
@@ -58,7 +58,7 @@ any_push_string(
 }
 
 /// Get NULL terminated string pointer.
-static AINLINE const char*
+static inline const char*
 any_to_string(
     aactor_t* a, aint_t idx)
 {
@@ -68,7 +68,7 @@ any_to_string(
 }
 
 /// Get NULL terminated string pointer.
-static AINLINE const char*
+static inline const char*
 any_check_string(
     aactor_t* a, aint_t idx)
 {
@@ -82,7 +82,7 @@ any_check_string(
 }
 
 /// Returns number of characters.
-static AINLINE aint_t
+static inline aint_t
 any_string_length(
     aactor_t* a, aint_t idx)
 {
@@ -92,7 +92,7 @@ any_string_length(
 }
 
 /// Returns the hashed value.
-static AINLINE aint_t
+static inline aint_t
 any_string_hash(
     aactor_t* a, aint_t idx)
 {

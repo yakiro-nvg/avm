@@ -4,7 +4,7 @@
 #include <any/gc.h>
 #include <any/loader.h>
 
-static AINLINE void
+static inline void
 check_index(
     aactor_t* a, aint_t idx, aint_t len)
 {

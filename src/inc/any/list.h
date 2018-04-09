@@ -19,7 +19,7 @@ typedef struct {
 } alist_t;
 
 /// Initialize as a new list.
-static AINLINE void
+static inline void
 alist_init(
     alist_t* self)
 {
@@ -28,7 +28,7 @@ alist_init(
 }
 
 /// Add node between next and previous.
-static AINLINE void
+static inline void
 alist_node_insert(
     alist_node_t* self, alist_node_t* prev, alist_node_t* next)
 {
@@ -39,7 +39,7 @@ alist_node_insert(
 }
 
 /// Add node to head of list.
-static AINLINE void
+static inline void
 alist_push_head(
     alist_t* self, alist_node_t* node)
 {
@@ -47,7 +47,7 @@ alist_push_head(
 }
 
 /// Add node to back of list.
-static AINLINE void
+static inline void
 alist_push_back(
     alist_t* self, alist_node_t* node)
 {
@@ -55,7 +55,7 @@ alist_push_back(
 }
 
 /// Remove node from list.
-static AINLINE void
+static inline void
 alist_node_erase(
     alist_node_t* self)
 {
@@ -68,7 +68,7 @@ alist_node_erase(
 }
 
 /// Returns the fist node.
-static AINLINE alist_node_t*
+static inline alist_node_t*
 alist_head(
     alist_t* self)
 {
@@ -76,7 +76,7 @@ alist_head(
 }
 
 /// Returns the last node.
-static AINLINE alist_node_t*
+static inline alist_node_t*
 alist_back(
     alist_t* self)
 {
@@ -84,7 +84,7 @@ alist_back(
 }
 
 /// Check whether node is end.
-static AINLINE int32_t
+static inline int32_t
 alist_is_end(
     alist_t* self, alist_node_t* node)
 {

@@ -38,7 +38,7 @@ aactor_heap_reserve(
     aactor_t* self, aint_t more, aint_t n);
 
 /// Push a value onto the stack, should be internal used.
-static AINLINE void
+static inline void
 aactor_push(
     aactor_t* self, avalue_t* v)
 {
@@ -50,7 +50,7 @@ aactor_push(
 }
 
 /// Returns value at `idx` on the stack.
-static AINLINE avalue_t*
+static inline avalue_t*
 aactor_at(
     aactor_t* self, aint_t idx)
 {
@@ -59,7 +59,7 @@ aactor_at(
 }
 
 /// Get the absolute index.
-static AINLINE aint_t
+static inline aint_t
 any_check_index(
     aactor_t* self, aint_t idx)
 {
@@ -138,7 +138,7 @@ any_throw(
     aactor_t* a, aerror_t ec);
 
 /// Get the value tag of the value at `idx`.
-static AINLINE avalue_tag_t
+static inline avalue_tag_t
 any_type(
     aactor_t* a, aint_t idx)
 {
@@ -147,7 +147,7 @@ any_type(
 }
 
 // Stack manipulations.
-static AINLINE void
+static inline void
 any_pop(
     aactor_t* a, aint_t n)
 {
@@ -159,7 +159,7 @@ any_pop(
     }
 }
 
-static AINLINE void
+static inline void
 any_push_nil(
     aactor_t* a)
 {
@@ -168,7 +168,7 @@ any_push_nil(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_bool(
     aactor_t* a, int32_t b)
 {
@@ -177,7 +177,7 @@ any_push_bool(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_integer(
     aactor_t* a, aint_t i)
 {
@@ -186,7 +186,7 @@ any_push_integer(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_real(
     aactor_t* a, areal_t r)
 {
@@ -195,7 +195,7 @@ any_push_real(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_pid(
     aactor_t* a, apid_t pid)
 {
@@ -204,7 +204,7 @@ any_push_pid(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_native_func(
     aactor_t* a, anative_func_t f)
 {
@@ -213,7 +213,7 @@ any_push_native_func(
     aactor_push(a, &v);
 }
 
-static AINLINE void
+static inline void
 any_push_index(
     aactor_t* a, aint_t idx)
 {
@@ -221,7 +221,7 @@ any_push_index(
     aactor_push(a, a->stack.v + idx);
 }
 
-static AINLINE int32_t
+static inline int32_t
 any_to_bool(
     aactor_t* a, aint_t idx)
 {
@@ -233,7 +233,7 @@ any_to_bool(
     }
 }
 
-static AINLINE int32_t
+static inline int32_t
 any_check_bool(
     aactor_t* a, aint_t idx)
 {
@@ -245,7 +245,7 @@ any_check_bool(
     return v->v.boolean;
 }
 
-static AINLINE aint_t
+static inline aint_t
 any_to_integer(
     aactor_t* a, aint_t idx)
 {
@@ -253,7 +253,7 @@ any_to_integer(
     return v->v.integer;
 }
 
-static AINLINE aint_t
+static inline aint_t
 any_check_integer(
     aactor_t* a, aint_t idx)
 {
@@ -265,7 +265,7 @@ any_check_integer(
     return v->v.integer;
 }
 
-static AINLINE areal_t
+static inline areal_t
 any_to_real(
     aactor_t* a, aint_t idx)
 {
@@ -273,7 +273,7 @@ any_to_real(
     return v->tag.type == AVT_REAL ? v->v.real : (areal_t)v->v.integer;
 }
 
-static AINLINE areal_t
+static inline areal_t
 any_check_real(
     aactor_t* a, aint_t idx)
 {
@@ -289,7 +289,7 @@ any_check_real(
     }
 }
 
-static AINLINE apid_t
+static inline apid_t
 any_to_pid(
     aactor_t* a, aint_t idx)
 {
@@ -297,7 +297,7 @@ any_to_pid(
     return v->v.pid;
 }
 
-static AINLINE apid_t
+static inline apid_t
 any_check_pid(
     aactor_t* a, aint_t idx)
 {
@@ -309,7 +309,7 @@ any_check_pid(
     return v->v.pid;
 }
 
-static AINLINE anative_func_t
+static inline anative_func_t
 any_to_native_func(
     aactor_t* a, aint_t idx)
 {
@@ -317,7 +317,7 @@ any_to_native_func(
     return a->stack.v[idx].v.func;
 }
 
-static AINLINE void
+static inline void
 any_remove(
     aactor_t* a, aint_t idx)
 {
@@ -332,7 +332,7 @@ any_remove(
         sizeof(avalue_t)*(size_t)num_tails);
 }
 
-static AINLINE void
+static inline void
 any_insert(
     aactor_t* a, aint_t idx)
 {
@@ -342,7 +342,7 @@ any_insert(
 }
 
 /// Returns number of passed arguments.
-static AINLINE aint_t
+static inline aint_t
 any_nargs(
     aactor_t* a)
 {
@@ -350,7 +350,7 @@ any_nargs(
 }
 
 /// Returns the stack size.
-static AINLINE aint_t
+static inline aint_t
 any_count(
     aactor_t* a)
 {
@@ -358,7 +358,7 @@ any_count(
 }
 
 /// Returns the stack top.
-static AINLINE aint_t
+static inline aint_t
 any_top(
     aactor_t* a)
 {
