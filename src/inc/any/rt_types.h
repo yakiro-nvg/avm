@@ -1269,7 +1269,7 @@ and scheduling is low. Therefore, a massive amount of actor could be spawned.
 Besides of the native C stack, AVM also using a dedicated, dynamic sized stack
 for `avalue_t`. Indexing for this stack is relative to current function frame.
 Negative value is used to point to the argument, that must be passed in reversed
-order. Underflow always result as a nil value.
+order.
 
 \rst
 =====  ===========  =======
