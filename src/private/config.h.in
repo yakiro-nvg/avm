@@ -1,4 +1,0 @@
-#pragma once
-
-#define ANY_SHARED
-#define ANY_TASK_${TASK_BACKEND_STRING}
