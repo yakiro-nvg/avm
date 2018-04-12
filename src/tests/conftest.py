@@ -37,7 +37,7 @@ def merge(path):
         source = [x.strip() for x in lines[0].split(":", 2)][2][7:]
         if source.startswith(AVM_INC) or source.startswith(AVM_PRI):
             relative = os.path.relpath(source, AVM_DIR)
-            lines = ['0:0:Source:' + relative] + map(zero_uncovered_line, lines[5:])
+            lines = ['0:0:Source:avm/' + relative] + map(zero_uncovered_line, lines[5:])
             name = os.path.basename(path)
             merged_path = os.path.join(MERGED_COV_DIR, name)
             if os.path.exists(merged_path):
@@ -69,6 +69,7 @@ def gcov(f):
 
 def pytest_configure():
     sys.path.append(os.path.join(PATH, '../..'))
+    sys.path.append(os.path.join(PATH, '..'))
 
 def pytest_sessionfinish(session, exitstatus):
     if exitstatus == 0:
