@@ -12,9 +12,6 @@ notifications:
     on_build_success: true
     on_build_failure: true
 
-matrix:
-  fast_finish: true
-
 environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
