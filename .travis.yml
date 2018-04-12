@@ -124,8 +124,11 @@ before_install:
       brew update
       brew outdated cmake || brew upgrade cmake
     fi
-    pip install first pyllist hypothesis pycparser
     set +e
+
+install:
+  - |
+    pip install --user first pyllist hypothesis pycparser
 
 before_script:
   - |
