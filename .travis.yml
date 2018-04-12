@@ -128,7 +128,7 @@ before_install:
 
 install:
   - |
-    pip install --user first pyllist hypothesis pycparser
+    pip install --user pytest first pyllist hypothesis pycparser
 
 before_script:
   - |
