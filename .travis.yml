@@ -1,0 +1,153 @@
+language: cpp
+sudo: false
+dist: trusty
+
+notifications:
+  webhooks:
+    - secure: "jPW63N8mmDanG8WkMiq1tdpfOz+F85W5/iAtupntrbO93dSLv8eNEhIfH1yQNE8ezKx3DRO8VJcu4wRHZb3U5sNjBTp23u7UWqsWPgvvO5vcNrPboxDpDizEiptF2W6kejQptR/LD5Yo+VqAw6Y40ldSCIcQakfiyyQ2H5bsXg9nHvZP1s0jOGx4DBJxL2JhZ2Q1nijEPetWczp2ji17yxgieTGBUCIimcQTqgsGbbdWNYqEDyFHmErgoHJIYhQGryvjGK+FYrDbCKtqKypFG/nWFLgEsE09PfhRCZ0Gb5yBne9iMxCgKi8yREJhlF9gotXtuJdWRyr7/0n4M47GljqIVaz3QRFqEfd93K+3is2BwhkhKqC1JL8SSX1gohpnOGUsSm3ENMNN3GChhcmhFS6tYNg0BJjRPn8otEaUY3y4i/cy6S/4SZngziCA+ufZLffX9r7p3TYp/s/916gnZakBw3q9ZlGfUV0rOt2MGbksKti1uEcySRwkip9mLp0Ni7iKkmJBzTqfISXPBK18rVOT4t+4bEphtf/OURY8b+Cbxw/lqtIQnYpNfNoPNfphGn3+wyxPx1Qq4A7oiGz0Pe08kX+gygNctWCPCD9la9Sd85p6kfviUqFjbZcGj09YyOx/h3dYYOq5TqyF07vNXoF+yQjFBuOcIv+X87G5uQc="
+  on_success: change
+  on_failure: always
+  on_start: change
+  on_cancel: always
+  on_error: always
+
+env:
+  - secure: "KoulqEdp3Lt+c/NyRWI60tojOTzJdc39AuAmFCLO2Vc/vOAbCh9OSrdcsFfBIK0nxAYsTnc8fZSR8/j9lZJofE5prmSVpilxQIYlVxT9VEBy8TtRi7Re0XtNQ5nbcpdakzwtDkgnsYaZLqv/5cwtvBwTRBgrmeiEGI5umO045QcHDjbd0dbkDDMJn9r7WoAPKoklHRZBPOpV8+Fm7Z3W+sALDI/cUJ3LIIrq8/SSSGFD2+bxAcqmVCTfZW6ioIa6d9LOrVHN6pWv/GuA5Yr3Gyw6rztGEUW+QOeXufQBDDW+nrIyejNDV5M4giU5IPlh1rpXJCTuLMB8O6dLFhIUqlenaLk9UNFAgkNRpo+un/fnMZdIuFF8+igKtbT/3twM3m0bdRlSJiU6D6S9g7DcpsoYcfzPreFzoUnlZn8qsoCh+2DtfJMqENuQT/EQsoaB/2Ly2tqS2sRBMfufowOHSagHvBFrdgXi5ml7fWIVxb7iBrhTB2b1YB6/KozAlNUMBYBlh+JwWcz82c8HD6gkiJfHmDq7ivO2ndVrxnj8XahnAy8iCx+5H7+ThY43AbVjXU+sCKmk2M/153T7MiBvnFA6tcmw/pG7ev8JyY6jFHebotRwz3Vx/aLpJgJ7QnRwwjUTi7K+GLvJmZDYdMk4DcV0lMEQNThiGZJa9S0CNw8="
+
+matrix:
+  include:
+    # 1/ Linux Clang Builds
+    - os: linux
+      compiler: clang
+      addons: &clang35
+        apt:
+          sources: ['llvm-toolchain-precise-3.5', 'ubuntu-toolchain-r-test']
+          packages: ['cmake', 'clang-3.5']
+      env: COMPILER='clang++-3.5' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: clang
+      addons: *clang35
+      env: COMPILER='clang++-3.5' BUILD_TYPE='Debug'
+
+    - os: linux
+      compiler: clang
+      addons: &clang36
+        apt:
+          sources: ['llvm-toolchain-precise-3.6', 'ubuntu-toolchain-r-test']
+          packages: ['cmake', 'clang-3.6']
+      env: COMPILER='clang++-3.6' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: clang
+      addons: *clang36
+      env: COMPILER='clang++-3.6' BUILD_TYPE='Debug'
+
+    - os: linux
+      compiler: clang
+      addons: &clang37
+        apt:
+          sources: ['llvm-toolchain-precise-3.7', 'ubuntu-toolchain-r-test']
+          packages: ['cmake', 'clang-3.7']
+      env: COMPILER='clang++-3.7' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: clang
+      addons: *clang37
+      env: COMPILER='clang++-3.7' BUILD_TYPE='Debug'
+
+    # 2/ Linux GCC Builds
+    - os: linux
+      compiler: gcc
+      addons: &gcc48
+        apt:
+         sources: ['ubuntu-toolchain-r-test']
+         packages: ['cmake', 'g++-4.8']
+      env: COMPILER='g++-4.8' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: gcc
+      addons: *gcc48
+      env: COMPILER='g++-4.8' BUILD_TYPE='Debug'
+
+    - os: linux
+      compiler: gcc
+      addons: &gcc49
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-4.9']
+      env: COMPILER='g++-4.9' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: gcc
+      addons: *gcc49
+      env: COMPILER='g++-4.9' BUILD_TYPE='Debug'
+
+
+    - os: linux
+      compiler: gcc
+      addons: &gcc5
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-5']
+      env: COMPILER='g++-5' BUILD_TYPE='Release'
+
+    - os: linux
+      compiler: gcc
+      addons: *gcc5
+      env: COMPILER='g++-5' BUILD_TYPE='Debug'
+
+    # 3/ OSX Clang Builds
+    - os: osx
+      osx_image: xcode6.4
+      compiler: clang
+      env: COMPILER='clang++' BUILD_TYPE='Debug'
+
+    - os: osx
+      osx_image: xcode6.4
+      compiler: clang
+      env: COMPILER='clang++' BUILD_TYPE='Release'
+
+    # 4/ Coverage Build
+    - os: linux
+      compiler: gcc
+      addons:
+        apt:
+          sources: ['ubuntu-toolchain-r-test']
+          packages: ['cmake', 'g++-4.9', 'lcov']
+      env: COMPILER='g++-4.9' BUILD_TYPE='Debug' AVM_COVERAGE=1
+
+before_install:
+  - |
+    set -e
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      brew update
+      brew outdated cmake || brew upgrade cmake
+    fi
+    pip install -r first pyllist hypothesis pycparser
+    set +e
+
+before_script:
+  - |
+    set -e
+    export CXX=${COMPILER}
+    cd ${TRAVIS_BUILD_DIR}
+    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    cd .build
+    set +e
+
+script:
+  - |
+    set -e
+    make -j 2
+    cd ../src
+    pytest
+    set +e
+
+after_success:
+  - |
+    set -e
+    if [[ "${AVM_COVERAGE}" == 1 ]]; then
+      bash <(curl -s https://codecov.io/bash) -X gcov
+    fi
+    set +e
