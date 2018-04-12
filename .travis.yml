@@ -12,7 +12,8 @@ notifications:
   on_error: always
 
 env:
-  - secure: "KoulqEdp3Lt+c/NyRWI60tojOTzJdc39AuAmFCLO2Vc/vOAbCh9OSrdcsFfBIK0nxAYsTnc8fZSR8/j9lZJofE5prmSVpilxQIYlVxT9VEBy8TtRi7Re0XtNQ5nbcpdakzwtDkgnsYaZLqv/5cwtvBwTRBgrmeiEGI5umO045QcHDjbd0dbkDDMJn9r7WoAPKoklHRZBPOpV8+Fm7Z3W+sALDI/cUJ3LIIrq8/SSSGFD2+bxAcqmVCTfZW6ioIa6d9LOrVHN6pWv/GuA5Yr3Gyw6rztGEUW+QOeXufQBDDW+nrIyejNDV5M4giU5IPlh1rpXJCTuLMB8O6dLFhIUqlenaLk9UNFAgkNRpo+un/fnMZdIuFF8+igKtbT/3twM3m0bdRlSJiU6D6S9g7DcpsoYcfzPreFzoUnlZn8qsoCh+2DtfJMqENuQT/EQsoaB/2Ly2tqS2sRBMfufowOHSagHvBFrdgXi5ml7fWIVxb7iBrhTB2b1YB6/KozAlNUMBYBlh+JwWcz82c8HD6gkiJfHmDq7ivO2ndVrxnj8XahnAy8iCx+5H7+ThY43AbVjXU+sCKmk2M/153T7MiBvnFA6tcmw/pG7ev8JyY6jFHebotRwz3Vx/aLpJgJ7QnRwwjUTi7K+GLvJmZDYdMk4DcV0lMEQNThiGZJa9S0CNw8="
+  global:
+    - secure: "anDk0w/fa6xl+AgOiGu1EYgDlPX3GNHsG4eQM4eIF1xCS21WHNNkMe+j4/8R9dyAXDTIRI4RHwoUisbcL6Xbahx7Zz5RkZ7/ZAJXOkyuu4DnNx0iF4U707di4l7n9nu1cTERqLNj4kkcPTymqPdbJ2VXRGXwzY1ffH7XtWBO2PR+rrPlUW53YU8Y90DQ5L7WzlQy53r9kWmCGcSBXAlTZpRFD45hfyuEiOJ++NvmQ/jfJ5Cc5JHGg9/15gzc8gdXVEaZiE/g8Go67EG1JhnOWKsVxhncbFW1Ez0hGqvrB+naHDW0CIiHl4IShJihyAoU4dF9a60jBCW4qDvoNPkddEgV98FumbWQITbsgtwjAoTbx3TFtRIymUaWKrDNgPdq9JBRuwRL89puSLVr4UNwBk1i/6clextNNvmOGZvcFUHAd0koNwU0MbQp9EPnlGZOv0t3B8QjIGPPpQ/tTheHjm4ehvxWhGoWjfTGDJhRN489XhZBxaG3HB7D3/7y1zhCbeAbza14Wh17l0qpLYf85YOYWxohQYxJPZunZUuYu8YQ2p28P5ZJl2E5XEQnFkiED0RP+wp0aVZjr91YRqX+PjigWXy8/+/y4EKkHi3S7+nvhtjlCwRoMl+5NA0ZxhzxGGVoBonurPXKHp9BGM84NeL6TgM9yTTI7fQCcCRBp8o="
 
 matrix:
   include:
@@ -128,7 +129,7 @@ before_install:
 
 install:
   - |
-    pip install --user pytest cffi first pyllist hypothesis pycparser
+    pip install --user -r requirements.txt
 
 before_script:
   - |
