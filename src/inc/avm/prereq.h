@@ -28,7 +28,7 @@
 #   error "unknown compiler"
 #endif
 
-#ifdef AMSVC
+#if !defined(ATEST) && defined(AMSVC)
 #include <avm/msvc_stdint.h>
 #else
 #include <stdint.h>

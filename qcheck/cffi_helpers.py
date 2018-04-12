@@ -23,8 +23,9 @@ PATH = os.path.dirname(__file__)
 def to_cdef(filename, typedefs):
     ast = parse_file(
         filename,
+        cpp_path='clang',
         cpp_args=[
-            '-DATEST',
+            '-E', '-DATEST',
             '-I' + os.path.join(PATH, '../externals/pycparser/utils/fake_libc_include'),
             '-I' + os.path.join(PATH, '../src/inc'),
             '-I' + os.path.join(PATH, '../src/private'),
