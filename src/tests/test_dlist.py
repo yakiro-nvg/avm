@@ -9,7 +9,7 @@ PATH = os.path.dirname(__file__)
 
 class DoublyLinkedListTest(RuleBasedStateMachine):
     m = load_ffi(os.path.join(PATH, 'test_dlist.c'), [
-        'abool', 'anode_t', 'value_t'
+        'anode_t', 'value_t'
     ])
     ffi = m.ffi
     lib = m.lib

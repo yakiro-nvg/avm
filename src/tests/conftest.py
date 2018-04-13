@@ -16,20 +16,24 @@ os.mkdir(MERGED_COV_DIR)
 def zero_uncovered_line(line):
     s, l, c = line.split(":", 2)
     s = s.strip(); l = l.strip()
-    if s == '-': s = '0'
+    if s[0] == '#': s = '0'
     return '%s:%s:%s' % (s, l, c)
 
 def uncovered_zero_line(line):
     s, l, c = line.split(":", 2)
     s = s.strip(); l = l.strip()
-    if s == '0': s = '-'
+    if s == '0': s = '#'
     return '%s:%s:%s' % (s, l, c)
 
 def merge_line(pair):
     s0, l0, c0 = pair[0].split(":", 2)
     s1, l1, c1 = pair[1].split(":", 2)
     assert(l0 == l1 and c0 == c1)
-    return '%s:%s:%s' % (int(s0) + int(s1), l0, c0)
+    if s0 == '-':
+        assert(s1 == '-')
+        return '%s:%s:%s' % (s0, l0, c0)
+    else:
+        return '%s:%s:%s' % (int(s0) + int(s1), l0, c0)
 
 def merge(path):
     with open(path, 'r') as f:
@@ -37,7 +41,7 @@ def merge(path):
         source = [x.strip() for x in lines[0].split(":", 2)][2][7:]
         if source.startswith(AVM_INC) or source.startswith(AVM_PRI):
             relative = os.path.relpath(source, AVM_DIR)
-            lines = ['0:0:Source:avm/' + relative] + map(zero_uncovered_line, lines[5:])
+            lines = ['-:0:Source:avm/' + relative] + map(zero_uncovered_line, lines[5:])
             name = os.path.basename(path)
             merged_path = os.path.join(MERGED_COV_DIR, name)
             if os.path.exists(merged_path):
