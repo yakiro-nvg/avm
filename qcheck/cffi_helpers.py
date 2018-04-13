@@ -21,9 +21,13 @@ class DefGeneratorVisitor(c_ast.NodeVisitor):
 PATH = os.path.dirname(__file__)
 
 def to_cdef(filename, typedefs):
+    typedefs = [
+        'u8', 'u16', 'u32', 'u64', 's8', 's16', 's32', 's64',
+        'f32', 'f64', 'abool', 'aresult_t', 'aalloc_t'
+    ] + typedefs
     ast = parse_file(
         filename,
-        cpp_path='clang',
+        cpp_path='clang' if os.name == 'nt' else 'gcc',
         cpp_args=[
             '-E', '-DATEST',
             '-I' + os.path.join(PATH, '../externals/pycparser/utils/fake_libc_include'),
