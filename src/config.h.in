@@ -1,0 +1,7 @@
+// Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
+#ifndef _AVM_CONFIG_H_
+#define _AVM_CONFIG_H_
+
+#define ASHARED
+
+#endif // !_AVM_CONFIG_H_
