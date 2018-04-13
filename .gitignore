@@ -10,6 +10,4 @@ __pycache__/
 *.pyc
 *.gcda
 _ffi_*
-yacctab.py
-parser.out
 src/inc/avm/config.h
