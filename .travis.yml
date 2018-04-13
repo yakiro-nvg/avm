@@ -1,158 +1,18 @@
 language: cpp
-sudo: false
-dist: trusty
-
-notifications:
-  webhooks:
-    - secure: "jPW63N8mmDanG8WkMiq1tdpfOz+F85W5/iAtupntrbO93dSLv8eNEhIfH1yQNE8ezKx3DRO8VJcu4wRHZb3U5sNjBTp23u7UWqsWPgvvO5vcNrPboxDpDizEiptF2W6kejQptR/LD5Yo+VqAw6Y40ldSCIcQakfiyyQ2H5bsXg9nHvZP1s0jOGx4DBJxL2JhZ2Q1nijEPetWczp2ji17yxgieTGBUCIimcQTqgsGbbdWNYqEDyFHmErgoHJIYhQGryvjGK+FYrDbCKtqKypFG/nWFLgEsE09PfhRCZ0Gb5yBne9iMxCgKi8yREJhlF9gotXtuJdWRyr7/0n4M47GljqIVaz3QRFqEfd93K+3is2BwhkhKqC1JL8SSX1gohpnOGUsSm3ENMNN3GChhcmhFS6tYNg0BJjRPn8otEaUY3y4i/cy6S/4SZngziCA+ufZLffX9r7p3TYp/s/916gnZakBw3q9ZlGfUV0rOt2MGbksKti1uEcySRwkip9mLp0Ni7iKkmJBzTqfISXPBK18rVOT4t+4bEphtf/OURY8b+Cbxw/lqtIQnYpNfNoPNfphGn3+wyxPx1Qq4A7oiGz0Pe08kX+gygNctWCPCD9la9Sd85p6kfviUqFjbZcGj09YyOx/h3dYYOq5TqyF07vNXoF+yQjFBuOcIv+X87G5uQc="
-  on_success: change
-  on_failure: always
-  on_start: change
-  on_cancel: always
-  on_error: always
-
+compiler: gcc
 env:
   global:
-    - secure: "anDk0w/fa6xl+AgOiGu1EYgDlPX3GNHsG4eQM4eIF1xCS21WHNNkMe+j4/8R9dyAXDTIRI4RHwoUisbcL6Xbahx7Zz5RkZ7/ZAJXOkyuu4DnNx0iF4U707di4l7n9nu1cTERqLNj4kkcPTymqPdbJ2VXRGXwzY1ffH7XtWBO2PR+rrPlUW53YU8Y90DQ5L7WzlQy53r9kWmCGcSBXAlTZpRFD45hfyuEiOJ++NvmQ/jfJ5Cc5JHGg9/15gzc8gdXVEaZiE/g8Go67EG1JhnOWKsVxhncbFW1Ez0hGqvrB+naHDW0CIiHl4IShJihyAoU4dF9a60jBCW4qDvoNPkddEgV98FumbWQITbsgtwjAoTbx3TFtRIymUaWKrDNgPdq9JBRuwRL89puSLVr4UNwBk1i/6clextNNvmOGZvcFUHAd0koNwU0MbQp9EPnlGZOv0t3B8QjIGPPpQ/tTheHjm4ehvxWhGoWjfTGDJhRN489XhZBxaG3HB7D3/7y1zhCbeAbza14Wh17l0qpLYf85YOYWxohQYxJPZunZUuYu8YQ2p28P5ZJl2E5XEQnFkiED0RP+wp0aVZjr91YRqX+PjigWXy8/+/y4EKkHi3S7+nvhtjlCwRoMl+5NA0ZxhzxGGVoBonurPXKHp9BGM84NeL6TgM9yTTI7fQCcCRBp8o="
-
-matrix:
-  include:
-    # 1/ Linux Clang Builds
-    - os: linux
-      compiler: clang
-      addons: &clang35
-        apt:
-          sources: ['llvm-toolchain-precise-3.5', 'ubuntu-toolchain-r-test']
-          packages: ['cmake', 'clang-3.5']
-      env: COMPILER='clang++-3.5' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: clang
-      addons: *clang35
-      env: COMPILER='clang++-3.5' BUILD_TYPE='Debug'
-
-    - os: linux
-      compiler: clang
-      addons: &clang36
-        apt:
-          sources: ['llvm-toolchain-precise-3.6', 'ubuntu-toolchain-r-test']
-          packages: ['cmake', 'clang-3.6']
-      env: COMPILER='clang++-3.6' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: clang
-      addons: *clang36
-      env: COMPILER='clang++-3.6' BUILD_TYPE='Debug'
-
-    - os: linux
-      compiler: clang
-      addons: &clang37
-        apt:
-          sources: ['llvm-toolchain-precise-3.7', 'ubuntu-toolchain-r-test']
-          packages: ['cmake', 'clang-3.7']
-      env: COMPILER='clang++-3.7' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: clang
-      addons: *clang37
-      env: COMPILER='clang++-3.7' BUILD_TYPE='Debug'
-
-    # 2/ Linux GCC Builds
-    - os: linux
-      compiler: gcc
-      addons: &gcc48
-        apt:
-         sources: ['ubuntu-toolchain-r-test']
-         packages: ['cmake', 'g++-4.8']
-      env: COMPILER='g++-4.8' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: gcc
-      addons: *gcc48
-      env: COMPILER='g++-4.8' BUILD_TYPE='Debug'
-
-    - os: linux
-      compiler: gcc
-      addons: &gcc49
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-4.9']
-      env: COMPILER='g++-4.9' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: gcc
-      addons: *gcc49
-      env: COMPILER='g++-4.9' BUILD_TYPE='Debug'
-
-
-    - os: linux
-      compiler: gcc
-      addons: &gcc5
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-5']
-      env: COMPILER='g++-5' BUILD_TYPE='Release'
-
-    - os: linux
-      compiler: gcc
-      addons: *gcc5
-      env: COMPILER='g++-5' BUILD_TYPE='Debug'
-
-    # 3/ OSX Clang Builds
-    - os: osx
-      osx_image: xcode6.4
-      compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Debug'
-
-    - os: osx
-      osx_image: xcode6.4
-      compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Release'
-
-    # 4/ Coverage Build
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-4.9', 'lcov']
-      env: COMPILER='g++-4.9' BUILD_TYPE='Debug' AVM_COVERAGE=1
-
+    secure: kRyyGUp/tYg/5eis8k3ocI1meBNZG5bvoFqtnmRuWUsTHu4Y6b/0DWjXbMS3TxUXVfJmvrgMDPAlFcUCF7vm/PMmB0BJccU7LWg6I5+VLj+SeP9rt6fqzy0yfWJYBIR+KFUL+7nv8QeFZEt8hnTUOMFLZ1Nc06XFCYsaXQheSGtxETGUxn+/UkxDI3bDeud6INUlkj7alHq9Fjmje+AHZ/ePxbMiMtA3F43alOuz4uhCkc6srI3jDPIiRqc8acPz5jp9AjQfTfRwO8NQXQou2ByujwDX7gkgBwNoXXKXdPnaCRuCwM9gLmqsZQv7M6CTzABVpu7ICoHERIDTHjWGvnskQyM3fzHoDKNjaKPiAbQBcffx4GlQBprhfd6HifljGBIszhfqpCkA7Yx8sMYJuad4l1ePZJ40d8YmafLoNaXGklb0pR2MfHevDlkULuhmOl370xtjEeKfN1hZjCIqB76PEHYmfAncv4A5zYU8zqqj0/vABgcP2XCrLuR7q+D/HAvVxfU+268O9R8ACOpv8Xsq/3v0k8KeSh2ddPEK+Rq/d76Kdp+Bu5EQEzYhjLUDvws7WUMWygRGLu3ARvnSrUjLfWQVUwPXnbaMCZylodwyUTO7eC3pNDtps7uEtAg1C3/BFWfpurfMyYyhaq9Ro+HFyJrMuO75hp/q4vwAUqo=
 before_install:
-  - |
-    set -e
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      brew update
-      brew outdated cmake || brew upgrade cmake
-      brew install python
-    fi
-    set +e
-
-install:
-  - |
-    pip install --user -r requirements.txt
-
-before_script:
-  - |
-    set -e
-    export CXX=${COMPILER}
-    cd ${TRAVIS_BUILD_DIR}
-    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
-    cd .build
-    set +e
-
-script:
-  - |
-    set -e
-    make -j 2
-    cd ../src
-    pytest
-    set +e
-
-after_success:
-  - |
-    set -e
-    if [[ "${AVM_COVERAGE}" == 1 ]]; then
-      bash <(curl -s https://codecov.io/bash) -X gcov
-    fi
-    set +e
+- echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END
+  CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+addons:
+  coverity_scan:
+    project:
+      name: innostory/any-vm
+    build_command_prepend: "cmake . -DCMAKE_BUILD_TYPE=Debug"
+    build_command: "make"
+    notification_email: giangnv.is@gmail.com
+    branch_pattern: coverity_scan
+before_script: ""
+script: ""
