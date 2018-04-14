@@ -19,12 +19,6 @@ def zero_uncovered_line(line):
     if s[0] == '#': s = '0'
     return '%s:%s:%s' % (s, l, c)
 
-def uncovered_zero_line(line):
-    s, l, c = line.split(":", 2)
-    s = s.strip(); l = l.strip()
-    if s == '0': s = '#'
-    return '%s:%s:%s' % (s, l, c)
-
 def merge_line(pair):
     s0, l0, c0 = pair[0].split(":", 2)
     s1, l1, c1 = pair[1].split(":", 2)
@@ -79,12 +73,5 @@ def pytest_sessionfinish(session, exitstatus):
     if exitstatus == 0:
         for path in glob(os.path.join(PATH, '../_ffi_*.gcda')):
             gcov(path)
-        for path in glob(os.path.join(MERGED_COV_DIR, '*.gcov')):
-            lines = None
-            with open(path, 'r') as f:
-                lines = f.read().splitlines()
-            lines = map(uncovered_zero_line, lines)
-            with open(path, 'w') as f:
-                f.write('\n'.join(lines))
         if os.path.exists(COV_DIR):
             shutil.rmtree(COV_DIR)
