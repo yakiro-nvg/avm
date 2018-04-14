@@ -61,4 +61,4 @@ def load_ffi(filename, typedefs):
             extra_compile_args=cargs, extra_link_args=largs)
         ffi.compile()
         m = importlib.import_module(name)
-    return m
+        return m
