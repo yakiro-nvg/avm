@@ -1,2 +1,2 @@
 #include <dlist.h>
-#include <stack.h>
+#include <stack.c>
