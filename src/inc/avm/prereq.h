@@ -103,6 +103,33 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 #endif
 
+#ifdef ADEBUG
+#include <stdio.h>
+#define AASSERT(c, m) \
+    do { \
+        if (!(c)) { \
+            fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", \
+                __FILE__, __LINE__, __func__, m); \
+            abort(); \
+        } \
+    } while(FALSE)
+#define AUNREACHABLE() \
+    do { \
+        fprintf(stderr, "[%s:%d] This code should not be reached in %s(): %s\n", \
+                __FILE__, __LINE__, __func__); \
+        abort(); \
+    } while(FALSE)
+#else
+#define AASSERT(c, m) do {} while (FALSE)
+#if defined(AMSVC)
+#define AUNREACHABLE() __assume(0)
+#elif defined(AGNUC) || defined (ACLANG)
+#define AUNREACHABLE() __builtin_unreachable()
+#else
+#deifne AUNREACHABLE()
+#endif
+#endif
+
 #define AUNUSED(x) ((void)x)
 #define AFROM_FIELD(T, n, field) ((T*)(((uint8_t*)n) - offsetof(T, field)))
 
