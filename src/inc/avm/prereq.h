@@ -105,6 +105,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 
 #ifdef ADEBUG
 #include <stdio.h>
+#include <stdlib.h>
 #define AASSERT(c, m) \
     do { \
         if (!(c)) { \
@@ -126,7 +127,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #elif defined(AGNUC) || defined (ACLANG)
 #define AUNREACHABLE() __builtin_unreachable()
 #else
-#deifne AUNREACHABLE()
+#define AUNREACHABLE()
 #endif
 #endif
 
