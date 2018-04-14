@@ -28,7 +28,11 @@
 #   error "unknown compiler"
 #endif
 
-#if !defined(ATEST) && defined(AMSVC)
+#if defined(ATEST) && defined(AMSVC)
+#undef AMSVC
+#endif
+
+#ifdef AMSVC
 #include <avm/msvc_stdint.h>
 #else
 #include <stdint.h>
@@ -92,7 +96,39 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
 #ifndef AINLINE
+#ifdef AMSVC
+#define AINLINE static __inline
+#else
 #define AINLINE static inline
+#endif
+#endif
+
+#ifdef ADEBUG
+#include <stdio.h>
+#include <stdlib.h>
+#define AASSERT(c, m) \
+    do { \
+        if (!(c)) { \
+            fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", \
+                __FILE__, __LINE__, __func__, m); \
+            abort(); \
+        } \
+    } while(FALSE)
+#define AUNREACHABLE() \
+    do { \
+        fprintf(stderr, "[%s:%d] This code should not be reached in %s(): %s\n", \
+                __FILE__, __LINE__, __func__); \
+        abort(); \
+    } while(FALSE)
+#else
+#define AASSERT(c, m) do {} while (FALSE)
+#if defined(AMSVC)
+#define AUNREACHABLE() __assume(0)
+#elif defined(AGNUC) || defined (ACLANG)
+#define AUNREACHABLE() __builtin_unreachable()
+#else
+#define AUNREACHABLE()
+#endif
 #endif
 
 #define AUNUSED(x) ((void)x)
@@ -105,7 +141,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 otherwise realloc.
 */
 typedef struct aalloc_s {
-    void*(*realloc)(struct aalloc_s* a, void* old, u32 sz);
+    void*(*realloc)(struct aalloc_s *a, void *old, u32 sz);
 } aalloc_t;
 #define AMAKE(a, T)         ((T*)(a->realloc(a, NULL, sizeof(T))))
 #define AFREE(a, p)         a->realloc(a, p, 0)

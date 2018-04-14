@@ -1,0 +1,86 @@
+// Auto-generated, don't edit.
+// Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
+#ifndef _AVM_${STACK_TYPE_UPPER}_STACK_H_
+#define _AVM_${STACK_TYPE_UPPER}_STACK_H_
+
+#include <avm/prereq.h>
+#include <avm/errno.h>
+#include "${STACK_TYPE}.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// Dynamic sized stack.
+typedef struct a${STACK_TYPE}_stack_s {
+    aalloc_t *a;
+    a${STACK_TYPE}_t *items;
+    u32 item_sz;
+    u32 sp;
+    u32 cap;
+} a${STACK_TYPE}_stack_t;
+
+/// Initialize as a new stack.
+AINLINE aresult_t
+a${STACK_TYPE}_stack_init(
+    a${STACK_TYPE}_stack_t *s, aalloc_t *a, u32 capacity)
+{
+    s->a = a;
+    s->sp = 0;
+    s->cap = capacity;
+    s->items = (a${STACK_TYPE}_t*)AREALLOC(a, NULL, sizeof(a${STACK_TYPE}_t)*capacity);
+    return s->items ? AR_SUCCESS : AR_MEMORY;
+}
+
+/// Release all allocated memory.
+AINLINE void
+a${STACK_TYPE}_stack_cleanup(
+    a${STACK_TYPE}_stack_t *s)
+{
+    AFREE(s->a, s->items);
+    s->items = NULL;
+}
+
+/// Reallocate stack for `more` capacity.
+aresult_t
+a${STACK_TYPE}_stack_grow(
+    a${STACK_TYPE}_stack_t *s, u32 more);
+
+/// Ensures that there are `more` capacity.
+AINLINE aresult_t
+a${STACK_TYPE}_stack_reserve(
+    a${STACK_TYPE}_stack_t *s, u32 more)
+{
+    return (s->sp + more <= s->cap) ?
+        AR_SUCCESS : a${STACK_TYPE}_stack_grow(s, more);
+}
+
+/// Push `v` to the stack.
+AINLINE aresult_t
+a${STACK_TYPE}_stack_push(
+    a${STACK_TYPE}_stack_t *s, const a${STACK_TYPE}_t *v)
+{
+    const aresult_t r = a${STACK_TYPE}_stack_reserve(s, 1);
+    if (AFAILED(r)) return r;
+    s->items[s->sp++] = *v;
+    return AR_SUCCESS;
+}
+
+/// Push `v` to the stack `n` times.
+AINLINE aresult_t
+a${STACK_TYPE}_stack_fill(
+    a${STACK_TYPE}_stack_t *s, const a${STACK_TYPE}_t *v, u32 n)
+{
+    const aresult_t r = a${STACK_TYPE}_stack_reserve(s, n);
+    if (AFAILED(r)) return r;
+    else {
+        u32 i; for (i = 0; i < n; ++i) s->items[s->sp++] = *v;
+    }
+    return AR_SUCCESS;
+}
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif // !_AVM_${STACK_TYPE_UPPER}_STACK_H_

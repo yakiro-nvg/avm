@@ -1,5 +1,7 @@
 .idea/
+.vscode/
 .build/
+build/
 .pytest_cache/
 __pycache__/
 .hypothesis/
@@ -10,6 +12,4 @@ __pycache__/
 *.pyc
 *.gcda
 _ffi_*
-yacctab.py
-parser.out
 src/inc/avm/config.h

@@ -24,7 +24,7 @@ def to_cdef(filename, typedefs):
     typedefs = [
         'u8', 'u16', 'u32', 'u64', 's8', 's16', 's32', 's64',
         'f32', 'f64', 'abool', 'aresult_t', 'aalloc_t'
-    ] + typedefs
+    ] + (typedefs or [])
     ast = parse_file(
         filename,
         cpp_path='clang' if os.name == 'nt' else 'gcc',
@@ -61,4 +61,4 @@ def load_ffi(filename, typedefs):
             extra_compile_args=cargs, extra_link_args=largs)
         ffi.compile()
         m = importlib.import_module(name)
-    return m
+        return m
