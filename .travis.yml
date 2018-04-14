@@ -138,6 +138,6 @@ after_success:
   - |
     set -e
     if [[ "${AVM_COVERAGE}" == 1 ]]; then
-      bash <(curl -s https://codecov.io/bash) -X gcov
+      bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy
     fi
     set +e
