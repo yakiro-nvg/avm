@@ -113,7 +113,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 otherwise realloc.
 */
 typedef struct aalloc_s {
-    void*(*realloc)(struct aalloc_s* a, void* old, u32 sz);
+    void*(*realloc)(struct aalloc_s *a, void *old, u32 sz);
 } aalloc_t;
 #define AMAKE(a, T)         ((T*)(a->realloc(a, NULL, sizeof(T))))
 #define AFREE(a, p)         a->realloc(a, p, 0)
