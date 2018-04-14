@@ -98,17 +98,6 @@ matrix:
       addons: *gcc5
       env: COMPILER='g++-5' BUILD_TYPE='Debug'
 
-    # 3/ OSX Clang Builds
-    - os: osx
-      osx_image: xcode8.3
-      compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Debug'
-
-    - os: osx
-      osx_image: xcode8.3
-      compiler: clang
-      env: COMPILER='clang++' BUILD_TYPE='Release'
-
     # 4/ Coverage Build
     - os: linux
       compiler: gcc
@@ -117,14 +106,6 @@ matrix:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['cmake', 'g++-4.9', 'lcov']
       env: COMPILER='g++-4.9' BUILD_TYPE='Debug' AVM_COVERAGE=1
-
-before_install:
-  - |
-    set -e
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      rvm get head
-    fi
-    set +e
 
 install:
   - |
