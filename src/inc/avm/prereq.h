@@ -92,7 +92,11 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
 #ifndef AINLINE
+#ifdef AMSVC
+#define AINLINE static __inline
+#else
 #define AINLINE static inline
+#endif
 #endif
 
 #define AUNUSED(x) ((void)x)
