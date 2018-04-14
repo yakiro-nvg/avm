@@ -120,11 +120,13 @@ matrix:
 
 install:
   - |
+    set -e
     if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
       pip2 install --user -r requirements.txt
     else
       pip  install --user -r requirements.txt
     fi
+    set +e
 
 before_script:
   - |
