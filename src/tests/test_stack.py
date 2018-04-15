@@ -7,7 +7,7 @@ PATH = os.path.dirname(__file__)
 
 class DynamicStackTest(RuleBasedStateMachine):
     m = load_ffi(os.path.join(PATH, 'test_stack.c'), [
-        'anode_t', 'avalue_t', 'avalue_stack_t'
+        'avalue_t', 'avalue_stack_t'
     ])
     ffi = m.ffi
     lib = m.lib
