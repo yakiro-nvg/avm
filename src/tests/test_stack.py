@@ -18,30 +18,46 @@ class DynamicStackTest(RuleBasedStateMachine):
         self.values = []
         self.mstack = []
         self.vstack = self.ffi.new('avalue_stack_t*')
-        assert(self.lib.stack_init(self.vstack, 2) == self.lib.AR_SUCCESS)
-        assert(self.vstack.cap == 2)
+        r = self.lib.stack_init(self.vstack, 2)
+        assert(r == self.lib.AR_SUCCESS)
+        assert(self.vstack.capacity >= 2)
 
     @rule(target=values, v=floats(allow_nan=False))
     def v(self, v):
         return v
 
+    @rule()
+    def cleanup(self):
+        self.lib.avalue_stack_cleanup(self.vstack)
+        assert(self.vstack.capacity == 0)
+        assert(self.vstack.count == 0)
+        del self.mstack[:]
+
+    @rule()
+    def shrink(self):
+        old_cap = self.vstack.capacity
+        self.lib.avalue_stack_shrink(self.vstack)
+        assert(self.vstack.capacity <= old_cap)
+        assert(self.vstack.capacity >= self.vstack.count)
+
     @rule(n=integers(min_value=0, max_value=10000))
-    def grow(self, n):
-        cap = self.vstack.cap
-        r = self.lib.avalue_stack_grow(self.vstack, n)
+    def realloc(self, n):
+        old_cap = self.vstack.capacity
+        r = self.lib.avalue_stack_realloc(self.vstack, n)
         if r == self.lib.AR_SUCCESS:
-            assert(self.vstack.sp + n <= self.vstack.cap)
+            assert(self.vstack.capacity >= n)
+            del self.mstack[self.vstack.count:]
         else:
-            assert(cap == self.vstack.cap)
+            assert(self.vstack.capacity == old_cap)
 
     @rule(n=integers(min_value=0, max_value=10000))
     def reserve(self, n):
-        cap = self.vstack.cap
+        old_cap = self.vstack.capacity
         r = self.lib.avalue_stack_reserve(self.vstack, n)
         if r == self.lib.AR_SUCCESS:
-            assert(self.vstack.sp + n <= self.vstack.cap)
+            assert(self.vstack.count + n <= self.vstack.capacity)
         else:
-            assert(cap == self.vstack.cap)
+            assert(self.vstack.capacity == old_cap)
 
     @rule(v=values)
     def push(self, v):
@@ -62,7 +78,7 @@ class DynamicStackTest(RuleBasedStateMachine):
 
     @invariant()
     def same_contents(self):
-        assert(len(self.mstack) == self.vstack.sp)
+        assert(len(self.mstack) == self.vstack.count)
         for i in range(len(self.mstack)):
             assert(self.vstack.items[i] == self.mstack[i])
 

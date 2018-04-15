@@ -4,13 +4,17 @@
 #include "utils.h"
 
 aresult_t
-a${STACK_TYPE}_stack_grow(
-    a${STACK_TYPE}_stack_t *s, u32 more)
+a${STACK_TYPE}_stack_realloc(
+    a${STACK_TYPE}_stack_t *s, u32 capacity)
 {
-    const u32 new_cap = apowof2_ceil(s->cap + more);
-    void *const items = AREALLOC(s->a, s->items, sizeof(a${STACK_TYPE}_t)*new_cap);
-    if (!items) return AR_MEMORY;
-    s->items = (a${STACK_TYPE}_t*)items;
-    s->cap = new_cap;
+    const u32 new_cap = apowof2_ceil(capacity);
+    if (new_cap != 0) {
+        void *const items = AREALLOC(
+            s->a, s->items, sizeof(a${STACK_TYPE}_t)*new_cap);
+        if (!items) return AR_MEMORY;
+        s->items = (a${STACK_TYPE}_t*)items;
+        s->capacity = new_cap;
+        s->count = AMIN(s->count, s->capacity);
+    }
     return AR_SUCCESS;
 }

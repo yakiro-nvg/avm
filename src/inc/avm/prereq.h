@@ -104,6 +104,9 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 #endif
 
+#define AMIN(x, y) (((x) < (y)) ? (x) : (y))
+#define AMAX(x, y) (((x) > (y)) ? (x) : (y))
+
 #ifdef ADEBUG
 #include <stdio.h>
 #include <stdlib.h>
@@ -111,6 +114,14 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
     do { \
         if (!(c)) { \
             fprintf(stderr, "[%s:%d] Assert failed in %s(): %s\n", \
+                __FILE__, __LINE__, __func__, m); \
+            abort(); \
+        } \
+    } while(FALSE)
+#define AVERIFY(c, m) \
+    do { \
+        if (!(c)) { \
+            fprintf(stderr, "[%s:%d] Verify failed in %s(): %s\n", \
                 __FILE__, __LINE__, __func__, m); \
             abort(); \
         } \
@@ -123,6 +134,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
     } while(FALSE)
 #else
 #define AASSERT(c, m) do {} while (FALSE)
+#define AVERIFY(c, m) (c)
 #if defined(AMSVC)
 #define AUNREACHABLE() __assume(0)
 #elif defined(AGNUC) || defined (ACLANG)

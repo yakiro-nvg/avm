@@ -15,10 +15,14 @@ extern "C" {
 typedef struct avalue_stack_s {
     aalloc_t *a;
     avalue_t *items;
-    u32 item_sz;
-    u32 sp;
-    u32 cap;
+    u32 count;
+    u32 capacity;
 } avalue_stack_t;
+
+/// Reallocate stack for `capacity`, `count` maybe adjusted.
+aresult_t
+avalue_stack_realloc(
+    avalue_stack_t *s, u32 capacity);
 
 /// Initialize as a new stack.
 AINLINE aresult_t
@@ -26,10 +30,10 @@ avalue_stack_init(
     avalue_stack_t *s, aalloc_t *a, u32 capacity)
 {
     s->a = a;
-    s->sp = 0;
-    s->cap = capacity;
-    s->items = (avalue_t*)AREALLOC(a, NULL, sizeof(avalue_t)*capacity);
-    return s->items ? AR_SUCCESS : AR_MEMORY;
+    s->items = NULL;
+    s->count = 0;
+    s->capacity = 0;
+    return avalue_stack_realloc(s, capacity);
 }
 
 /// Release all allocated memory.
@@ -39,20 +43,28 @@ avalue_stack_cleanup(
 {
     AFREE(s->a, s->items);
     s->items = NULL;
+    s->count = 0;
+    s->capacity = 0;
 }
 
-/// Reallocate stack for `more` capacity.
-aresult_t
-avalue_stack_grow(
-    avalue_stack_t *s, u32 more);
+/// Shrink the stack to reclaim memory.
+AINLINE void
+avalue_stack_shrink(
+    avalue_stack_t *s)
+{
+    AVERIFY(
+        ASUCCESS(avalue_stack_realloc(s, s->count)),
+        "failed to reallocate to a smaller capacity?");
+}
 
 /// Ensures that there are `more` capacity.
 AINLINE aresult_t
 avalue_stack_reserve(
     avalue_stack_t *s, u32 more)
 {
-    return (s->sp + more <= s->cap) ?
-        AR_SUCCESS : avalue_stack_grow(s, more);
+    const u32 required = s->count + more;
+    return required <= s->capacity ?
+        AR_SUCCESS : avalue_stack_realloc(s, required);
 }
 
 /// Push `v` to the stack.
@@ -62,7 +74,7 @@ avalue_stack_push(
 {
     const aresult_t r = avalue_stack_reserve(s, 1);
     if (AFAILED(r)) return r;
-    s->items[s->sp++] = *v;
+    s->items[s->count++] = *v;
     return AR_SUCCESS;
 }
 
@@ -71,11 +83,10 @@ AINLINE aresult_t
 avalue_stack_fill(
     avalue_stack_t *s, const avalue_t *v, u32 n)
 {
+    u32 i;
     const aresult_t r = avalue_stack_reserve(s, n);
     if (AFAILED(r)) return r;
-    else {
-        u32 i; for (i = 0; i < n; ++i) s->items[s->sp++] = *v;
-    }
+    else for (i = 0; i < n; ++i) s->items[s->count++] = *v;
     return AR_SUCCESS;
 }
 
