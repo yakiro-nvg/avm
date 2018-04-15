@@ -12,6 +12,7 @@
 #else
 #define ASTATIC_ASSERT(c) static_assert(c, #c)
 #endif
+#define __func__ __FUNCTION__
 #endif
 #pragma warning(disable: 4127) // conditional expression is constant
 #elif defined(__clang__)
