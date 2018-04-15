@@ -4,6 +4,10 @@ void*
 stack_realloc(
     aalloc_t *a, void *old, u32 sz)
 {
+    if (sz == 0) {
+        free(old);
+        return NULL;
+    }
     return sz <= 10000 ? realloc(old, sz) : NULL;
 }
 
