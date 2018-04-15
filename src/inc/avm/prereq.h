@@ -162,6 +162,7 @@ typedef struct aalloc_s {
 
 #define AVERSION_MAJOR 0
 #define AVERSION_MINOR 2
+#define AVERSION_PATCH 0
 #define AVERSION_NAME "LITTLE.bang"
 
 #endif // !_AVM_PREREQ_H_
