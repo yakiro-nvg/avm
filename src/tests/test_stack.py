@@ -1,7 +1,7 @@
 import os
 from qcheck.cffi_helpers import load_ffi
-from hypothesis.strategies import *
-from hypothesis.stateful import *
+from hypothesis.strategies import floats, integers
+from hypothesis.stateful import rule, invariant, RuleBasedStateMachine, Bundle
 
 PATH = os.path.dirname(__file__)
 
@@ -73,7 +73,7 @@ class DynamicStackTest(RuleBasedStateMachine):
         r = self.lib.avalue_stack_fill(self.vstack, x, n)
         if r == self.lib.AR_SUCCESS:
             self.values.append(x)
-            for i in range(n):
+            for _ in range(n):
                 self.mstack.append(v)
 
     @invariant()

@@ -1,6 +1,6 @@
 import os
 from qcheck.cffi_helpers import load_ffi
-from hypothesis.strategies import *
+from hypothesis.strategies import integers
 from hypothesis import given
 
 PATH = os.path.dirname(__file__)

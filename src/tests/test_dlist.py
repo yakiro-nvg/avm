@@ -1,8 +1,8 @@
 import os, math
 from first import first
 from qcheck.cffi_helpers import load_ffi
-from hypothesis.strategies import *
-from hypothesis.stateful import *
+from hypothesis.strategies import floats
+from hypothesis.stateful import rule, invariant, RuleBasedStateMachine, Bundle
 from pyllist import dllist
 
 PATH = os.path.dirname(__file__)
