@@ -89,7 +89,7 @@ and must have a zero symbol.
 
 Small integer may be encoded directly in the `AOC_LSI` instruction, but for more
 complex, non trivial data likes constant, string and import we need a dedicated
-corresponding pool for each type. That must be reffered using index as well. The
+corresponding pool for each type. That must be referred using index as well. The
 reason behind this decision is simple, we don't want to be messed with variable
 sized instruction and unaligned access. Constant is IEEE 754 double that must be
 8 bytes aligned. Constant string is boxed by NaN, with the payload is an index
