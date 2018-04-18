@@ -1,4 +1,7 @@
-import os, sys, shutil
+"""Test postprocessing"""
+import os
+import sys
+import shutil
 import subprocess
 from glob import glob
 
@@ -14,22 +17,26 @@ if os.path.exists(MERGED_COV_DIR):
 os.mkdir(MERGED_COV_DIR)
 
 def zero_uncovered_line(line):
+    """Turn uncovered '#' to '0'"""
     s, l, c = line.split(":", 2)
-    s = s.strip(); l = l.strip()
-    if s[0] == '#': s = '0'
+    s = s.strip()
+    l = l.strip()
+    if s[0] == '#':
+        s = '0'
     return '%s:%s:%s' % (s, l, c)
 
 def merge_line(pair):
+    """Merge (sum) line coverage"""
     s0, l0, c0 = pair[0].split(":", 2)
     s1, l1, c1 = pair[1].split(":", 2)
     assert(l0 == l1 and c0 == c1)
     if s0 == '-':
-        assert(s1 == '-')
+        assert s1 == '-'
         return '%s:%s:%s' % (s0, l0, c0)
-    else:
-        return '%s:%s:%s' % (int(s0) + int(s1), l0, c0)
+    return '%s:%s:%s' % (int(s0) + int(s1), l0, c0)
 
 def merge(path):
+    """Merge (sum) file coverage"""
     with open(path, 'r') as f:
         lines = f.read().splitlines()
         source = [x.strip() for x in lines[0].split(":", 2)][2][7:]
@@ -41,22 +48,22 @@ def merge(path):
             if os.path.exists(merged_path):
                 with open(merged_path, 'r') as mf:
                     mf_lines = mf.read().splitlines()
-                    assert(len(lines) == len(mf_lines))
+                    assert len(lines) == len(mf_lines)
                     lines = map(merge_line, zip(lines, mf_lines))
             with open(merged_path, 'w') as mf:
                 mf.write('\n'.join(lines))
 
 def gcov(f):
+    """Generate coverage for a file"""
     cwd = os.getcwd()
     if os.path.exists(COV_DIR):
         shutil.rmtree(COV_DIR)
     os.mkdir(COV_DIR)
     os.chdir(COV_DIR)
     command = ["gcov", f]
-    p = subprocess.Popen(
-        command,
-        stdout = subprocess.PIPE,
-        stderr = subprocess.STDOUT)
+    p = subprocess.Popen(command,
+                         stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT)
     p.wait()
     os.chdir(cwd)
     messages = p.stdout.read()
@@ -66,10 +73,12 @@ def gcov(f):
         merge(i)
 
 def pytest_configure():
+    """Set import search paths"""
     sys.path.append(os.path.join(PATH, '../..'))
     sys.path.append(os.path.join(PATH, '..'))
 
 def pytest_sessionfinish(session, exitstatus):
+    """Generate test coverage"""
     if exitstatus == 0:
         for path in glob(os.path.join(PATH, '../_ffi_*.gcda')):
             gcov(path)
