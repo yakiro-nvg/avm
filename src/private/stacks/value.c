@@ -1,7 +1,7 @@
 // Auto-generated, don't edit.
 // Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
-#include "value_stack.h"
-#include "utils.h"
+#include "value.h"
+#include "../utils.h"
 
 aresult_t
 avalue_stack_realloc(

@@ -1,9 +1,9 @@
 // Auto-generated, don't edit.
 // Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
-#ifndef _AVM_${TYPE_UPPER}_STACK_H_
-#define _AVM_${TYPE_UPPER}_STACK_H_
+#ifndef _AVM_INSTRUCTION_STACK_H_
+#define _AVM_INSTRUCTION_STACK_H_
 
-#include "${TYPE_HEADER}"
+#include "../opcode.h"
 #include <avm/errno.h>
 
 #ifdef __cplusplus
@@ -11,34 +11,34 @@ extern "C" {
 #endif
 
 /// Dynamic sized stack.
-typedef struct a${TYPE_SIMPLE_NAME}_stack_s {
+typedef struct ainstruction_stack_s {
     aalloc_t *a;
-    ${TYPE_NAME} *items;
+    ainstruction_t *items;
     u32 count;
     u32 capacity;
-} a${TYPE_SIMPLE_NAME}_stack_t;
+} ainstruction_stack_t;
 
 /// Reallocate stack for `capacity`, `count` maybe adjusted.
 aresult_t
-a${TYPE_SIMPLE_NAME}_stack_realloc(
-    a${TYPE_SIMPLE_NAME}_stack_t *s, u32 capacity);
+ainstruction_stack_realloc(
+    ainstruction_stack_t *s, u32 capacity);
 
 /// Initialize as a new stack.
 AINLINE aresult_t
-a${TYPE_SIMPLE_NAME}_stack_init(
-    a${TYPE_SIMPLE_NAME}_stack_t *s, aalloc_t *a, u32 capacity)
+ainstruction_stack_init(
+    ainstruction_stack_t *s, aalloc_t *a, u32 capacity)
 {
     s->a = a;
     s->items = NULL;
     s->count = 0;
     s->capacity = 0;
-    return a${TYPE_SIMPLE_NAME}_stack_realloc(s, capacity);
+    return ainstruction_stack_realloc(s, capacity);
 }
 
 /// Release all allocated memory.
 AINLINE void
-a${TYPE_SIMPLE_NAME}_stack_cleanup(
-    a${TYPE_SIMPLE_NAME}_stack_t *s)
+ainstruction_stack_cleanup(
+    ainstruction_stack_t *s)
 {
     AFREE(s->a, s->items);
     s->items = NULL;
@@ -48,30 +48,30 @@ a${TYPE_SIMPLE_NAME}_stack_cleanup(
 
 /// Shrink the stack to reclaim memory.
 AINLINE void
-a${TYPE_SIMPLE_NAME}_stack_shrink(
-    a${TYPE_SIMPLE_NAME}_stack_t *s)
+ainstruction_stack_shrink(
+    ainstruction_stack_t *s)
 {
     AVERIFY(
-        ASUCCESS(a${TYPE_SIMPLE_NAME}_stack_realloc(s, s->count)),
+        ASUCCESS(ainstruction_stack_realloc(s, s->count)),
         "failed to reallocate to a smaller capacity?");
 }
 
 /// Ensures that there are `more` capacity.
 AINLINE aresult_t
-a${TYPE_SIMPLE_NAME}_stack_reserve(
-    a${TYPE_SIMPLE_NAME}_stack_t *s, u32 more)
+ainstruction_stack_reserve(
+    ainstruction_stack_t *s, u32 more)
 {
     const u32 required = s->count + more;
     return required <= s->capacity ?
-        AR_SUCCESS : a${TYPE_SIMPLE_NAME}_stack_realloc(s, required);
+        AR_SUCCESS : ainstruction_stack_realloc(s, required);
 }
 
 /// Push `v` to the stack.
 AINLINE aresult_t
-a${TYPE_SIMPLE_NAME}_stack_push(
-    a${TYPE_SIMPLE_NAME}_stack_t *s, const ${TYPE_NAME} *v)
+ainstruction_stack_push(
+    ainstruction_stack_t *s, const ainstruction_t *v)
 {
-    const aresult_t r = a${TYPE_SIMPLE_NAME}_stack_reserve(s, 1);
+    const aresult_t r = ainstruction_stack_reserve(s, 1);
     if (AFAILED(r)) return r;
     s->items[s->count++] = *v;
     return AR_SUCCESS;
@@ -79,11 +79,11 @@ a${TYPE_SIMPLE_NAME}_stack_push(
 
 /// Push `v` to the stack `n` times.
 AINLINE aresult_t
-a${TYPE_SIMPLE_NAME}_stack_fill(
-    a${TYPE_SIMPLE_NAME}_stack_t *s, const ${TYPE_NAME} *v, u32 n)
+ainstruction_stack_fill(
+    ainstruction_stack_t *s, const ainstruction_t *v, u32 n)
 {
     u32 i;
-    const aresult_t r = a${TYPE_SIMPLE_NAME}_stack_reserve(s, n);
+    const aresult_t r = ainstruction_stack_reserve(s, n);
     if (AFAILED(r)) return r;
     else for (i = 0; i < n; ++i) s->items[s->count++] = *v;
     return AR_SUCCESS;
@@ -93,4 +93,4 @@ a${TYPE_SIMPLE_NAME}_stack_fill(
 } // extern "C"
 #endif
 
-#endif // !_AVM_${TYPE_UPPER}_STACK_H_
+#endif // !_AVM_INSTRUCTION_STACK_H_
