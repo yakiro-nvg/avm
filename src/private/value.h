@@ -6,5 +6,9 @@
 
 /// NaN boxed value.
 typedef f64 avalue_t;
+AALIGNAS(avalue_t, 8);
+
+/// Value size is fixed 8 bytes.
+ASTATIC_ASSERT(sizeof(avalue_t) == 8);
 
 #endif // !_AVM_VALUE_H_

@@ -9,6 +9,7 @@ typedef union aconstant_u {
     f64 f;
     u64 u;
 } aconstant_t;
+AALIGNAS(aconstant_t, 8);
 
 /// Constant size is fixed 8 bytes.
 ASTATIC_ASSERT(sizeof(aconstant_t) == 8);
@@ -18,8 +19,9 @@ typedef struct aimport_s {
     u16 module;
     u16 symbol;
 } aimport_t;
+AALIGNAS(aimport_t, 4);
 
-// Import size is fixed 4 bytes.
+/// Import size is fixed 4 bytes.
 ASTATIC_ASSERT(sizeof(aimport_t) == 4);
 
 /** Byte code chunk.

@@ -1,6 +1,6 @@
 // Auto-generated, don't edit.
 // Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
-#include "value.h"
+#include "value_stack.h"
 #include "../utils.h"
 
 aresult_t
@@ -9,12 +9,14 @@ avalue_stack_realloc(
 {
     const u32 new_cap = apowof2_ceil(capacity);
     if (new_cap != 0) {
-        void *const items = AREALLOC(
-            s->a, s->items, sizeof(avalue_t)*new_cap);
+        void *const items = AMAKE_ARRAY(
+            s->a, avalue_t, new_cap);
         if (!items) return AR_MEMORY;
+        s->count = AMIN(s->count, s->capacity);
+        memcpy(items, s->items, sizeof(avalue_t)*s->count);
+        AFREE(s->a, s->items);
         s->items = (avalue_t*)items;
         s->capacity = new_cap;
-        s->count = AMIN(s->count, s->capacity);
     }
     return AR_SUCCESS;
 }

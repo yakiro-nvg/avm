@@ -33,6 +33,18 @@
 #undef AMSVC
 #endif
 
+#ifndef ASTATIC
+#define ASTATIC static
+#endif
+
+#ifndef AINLINE
+#ifdef AMSVC
+#define AINLINE static __inline
+#else
+#define AINLINE static inline
+#endif
+#endif
+
 #ifdef AMSVC
 #include <avm/msvc_stdint.h>
 #else
@@ -50,7 +62,7 @@ typedef float    f32;
 typedef double   f64;
 typedef int32_t  abool;
 
-#ifdef  ATEST
+#ifdef ATEST
 #undef  ASTATIC_ASSERT
 #define ASTATIC_ASSERT(x)
 #endif
@@ -72,7 +84,7 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #endif
 
 #ifndef AAPI
-#   ifndef ASHARED
+#   ifndef AVM_SHARED
 #       define AAPI
 #   elif defined(AMSVC)
 #       ifndef AEXPORT
@@ -96,20 +108,15 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 #define NULL 0
 #endif
 
-#ifndef AINLINE
-#ifdef AMSVC
-#define AINLINE static __inline
-#else
-#define AINLINE static inline
-#endif
-#endif
-
 #define AMIN(x, y) (((x) < (y)) ? (x) : (y))
 #define AMAX(x, y) (((x) > (y)) ? (x) : (y))
 
-#ifdef ADEBUG
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <string.h>
+
+#ifdef ADEBUG
 #define AASSERT(c, m) \
     do { \
         if (!(c)) { \
@@ -154,11 +161,39 @@ ASTATIC_ASSERT(sizeof(void*) == 4);
 otherwise realloc.
 */
 typedef struct aalloc_s {
-    void*(*realloc)(struct aalloc_s *a, void *old, u32 sz);
+    void*(*malloc)(struct aalloc_s *a, u32 sz, u32 align);
+    void(*dealloc)(struct aalloc_s *a, void* p);
 } aalloc_t;
-#define AMAKE(a, T)         ((T*)(a->realloc(a, NULL, sizeof(T))))
-#define AFREE(a, p)         a->realloc(a, p, 0)
-#define AREALLOC(a, p, sz)  a->realloc(a, p, sz)
+
+#define AMAKE(a, T) ((T*)a->malloc(a, sizeof(T), alignof_##T()))
+#define AMAKE_ARRAY(a, T, n) ((T*)a->malloc(a, sizeof(T)*n, alignof_##T()))
+#define AFREE(a, p) a->dealloc(a, p)
+
+AINLINE void*
+align_forward(
+    void* p, u32 align)
+{
+    const uintptr_t pi = (uintptr_t)p;
+    const u32 mod = pi % align;
+    return mod == 0 ? (void*)pi : (void*)(pi + align - mod);
+}
+
+#define AALIGNAS(T, a) \
+    AINLINE u32 alignof_##T() { return a; }
+
+/// Primitives alignments
+AALIGNAS(char, 1);
+AALIGNAS(s8, 4);
+AALIGNAS(s16, 4);
+AALIGNAS(s32, 4);
+AALIGNAS(s64, 8);
+AALIGNAS(u8, 4);
+AALIGNAS(u16, 4);
+AALIGNAS(u32, 4);
+AALIGNAS(u64, 8);
+AALIGNAS(f32, 4);
+AALIGNAS(f64, 8);
+AALIGNAS(abool, 4);
 
 #define AVERSION_MAJOR 0
 #define AVERSION_MINOR 2

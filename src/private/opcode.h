@@ -321,6 +321,7 @@ typedef union {
     ai_jin_t jin;
     ai_ivk_t ivk;
 } ainstruction_t;
+AALIGNAS(ainstruction_t, 4);
 
 // Instruction size is fixed 4 bytes.
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);

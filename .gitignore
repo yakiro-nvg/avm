@@ -1,15 +1,4 @@
 .idea/
 .vscode/
 .build/
-build/
-.pytest_cache/
-__pycache__/
-.hypothesis/
-.gcov/
-.merged_gcov/
-*.o
-*.so
-*.pyc
-*.gcda
-_ffi_*
 src/inc/avm/config.h
