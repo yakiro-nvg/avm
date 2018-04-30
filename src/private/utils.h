@@ -4,6 +4,10 @@
 
 #include <avm/prereq.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// Compute the next highest power of 2 of 32-bit `v`.
 /// http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2Float
 AINLINE u32
@@ -20,5 +24,9 @@ apowof2_ceil(
     v++;
     return v;
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // !_AVM_UTILS_H_

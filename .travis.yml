@@ -122,7 +122,12 @@ before_script:
     set -e
     export CXX=${COMPILER}
     cd ${TRAVIS_BUILD_DIR}
-    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE}
+    if [[ "${AVM_COVERAGE}" == 1 ]]; then
+      export AVM_COVERAGE="On"
+    else
+      export AVM_COVERAGE="Off"
+    fi
+    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DAVM_ENABLE_COVERAGE=${AVM_COVERAGE}
     cd .build
     set +e
 
@@ -131,13 +136,15 @@ script:
     set -e
     make -j 2
     cd ../src
-    pytest
+    CTEST_OUTPUT_ON_FAILURE=1 ctest
     set +e
 
 after_success:
   - |
     set -e
-    if [[ "${AVM_COVERAGE}" == 1 ]]; then
-      bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy
+    if [[ "${AVM_COVERAGE}" == "On" ]]; then
+      make gcov
+      make lcov
+      bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy || echo "Codecov did not collect coverage reports"
     fi
     set +e

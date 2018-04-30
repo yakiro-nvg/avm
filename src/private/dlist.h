@@ -83,6 +83,14 @@ alist_not_end(
     return l != n;
 }
 
+/// Check whether `n` is a valid node.
+AINLINE abool
+alist_end(
+    anode_t *l, anode_t *n)
+{
+    return l == n;
+}
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

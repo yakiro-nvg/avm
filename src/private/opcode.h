@@ -4,6 +4,10 @@
 
 #include <avm/prereq.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// Specify the operation to be performed by the instructions.
 typedef enum aopcode_e {
     AOC_NOP = 0,
@@ -321,9 +325,13 @@ typedef union {
     ai_jin_t jin;
     ai_ivk_t ivk;
 } ainstruction_t;
-AALIGNAS(ainstruction_t, 4);
+AALIGNAS(ainstruction_t, 4)
 
 // Instruction size is fixed 4 bytes.
 ASTATIC_ASSERT(sizeof(ainstruction_t) == 4);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // !_AVM_OPCODE_H_

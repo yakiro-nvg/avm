@@ -42,10 +42,10 @@ configuration:
 
 install:
   - git submodule update --init --recursive
-  - pip install -r requirements.txt
   - cmake -G "%TOOLSET%"
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
   - cd src
-  - pytest
+  - set CTEST_OUTPUT_ON_FAILURE=1
+  - ctest -C %CONFIGURATION%

@@ -19,18 +19,22 @@
 #define ACLANG (((__clang_major__)*100) + \
     (__clang_minor__*10) + \
      __clang_patchlevel__)
+#ifdef __cplusplus
+#define ASTATIC_ASSERT(c) static_assert(c, #c)
+#else
 #define ASTATIC_ASSERT(c) _Static_assert(c, #c)
+#endif
 #elif defined(__GNUC__)
 #define AGNUC (((__GNUC__)*100) + \
     (__GNUC_MINOR__*10) + \
      __GNUC_PATCHLEVEL__)
+#ifdef __cplusplus
+#define ASTATIC_ASSERT(c) static_assert(c, #c)
+#else
 #define ASTATIC_ASSERT(c) _Static_assert(c, #c)
+#endif
 #else
 #   error "unknown compiler"
-#endif
-
-#if defined(ATEST) && defined(AMSVC)
-#undef AMSVC
 #endif
 
 #ifndef ASTATIC
@@ -45,7 +49,7 @@
 #endif
 #endif
 
-#ifdef AMSVC
+#if defined(AMSVC) && AMSVC <= 1500
 #include <avm/msvc_stdint.h>
 #else
 #include <stdint.h>
@@ -61,11 +65,6 @@ typedef int64_t  s64;
 typedef float    f32;
 typedef double   f64;
 typedef int32_t  abool;
-
-#ifdef ATEST
-#undef  ASTATIC_ASSERT
-#define ASTATIC_ASSERT(x)
-#endif
 
 #if defined(__WIN32__) || defined(_WIN32)
 #define AWINDOWS
@@ -162,7 +161,7 @@ otherwise realloc.
 */
 typedef struct aalloc_s {
     void*(*malloc)(struct aalloc_s *a, u32 sz, u32 align);
-    void(*dealloc)(struct aalloc_s *a, void* p);
+    void(*dealloc)(struct aalloc_s *a, void *p);
 } aalloc_t;
 
 #define AMAKE(a, T) ((T*)a->malloc(a, sizeof(T), alignof_##T()))
@@ -182,18 +181,18 @@ align_forward(
     AINLINE u32 alignof_##T() { return a; }
 
 /// Primitives alignments
-AALIGNAS(char, 1);
-AALIGNAS(s8, 4);
-AALIGNAS(s16, 4);
-AALIGNAS(s32, 4);
-AALIGNAS(s64, 8);
-AALIGNAS(u8, 4);
-AALIGNAS(u16, 4);
-AALIGNAS(u32, 4);
-AALIGNAS(u64, 8);
-AALIGNAS(f32, 4);
-AALIGNAS(f64, 8);
-AALIGNAS(abool, 4);
+AALIGNAS(char, 1)
+AALIGNAS(s8, 4)
+AALIGNAS(s16, 4)
+AALIGNAS(s32, 4)
+AALIGNAS(s64, 8)
+AALIGNAS(u8, 4)
+AALIGNAS(u16, 4)
+AALIGNAS(u32, 4)
+AALIGNAS(u64, 8)
+AALIGNAS(f32, 4)
+AALIGNAS(f64, 8)
+AALIGNAS(abool, 4)
 
 #define AVERSION_MAJOR 0
 #define AVERSION_MINOR 2

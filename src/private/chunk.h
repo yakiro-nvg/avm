@@ -4,12 +4,16 @@
 
 #include <avm/prereq.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /// NaN boxed constant.
 typedef union aconstant_u {
     f64 f;
     u64 u;
 } aconstant_t;
-AALIGNAS(aconstant_t, 8);
+AALIGNAS(aconstant_t, 8)
 
 /// Constant size is fixed 8 bytes.
 ASTATIC_ASSERT(sizeof(aconstant_t) == 8);
@@ -19,7 +23,7 @@ typedef struct aimport_s {
     u16 module;
     u16 symbol;
 } aimport_t;
-AALIGNAS(aimport_t, 4);
+AALIGNAS(aimport_t, 4)
 
 /// Import size is fixed 4 bytes.
 ASTATIC_ASSERT(sizeof(aimport_t) == 4);
@@ -136,5 +140,9 @@ typedef struct acode_proto_s {
 
 // Prototype header size is fixed 16 bytes.
 ASTATIC_ASSERT(sizeof(acode_proto_t) == 16);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // !_AVM_CHUNK_H_
