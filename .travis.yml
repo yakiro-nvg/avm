@@ -107,16 +107,6 @@ matrix:
           packages: ['cmake', 'g++-4.9', 'lcov']
       env: COMPILER='g++-4.9' BUILD_TYPE='Debug' AVM_COVERAGE=1
 
-install:
-  - |
-    set -e
-    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
-      pip2 install --user -r requirements.txt
-    else
-      pip  install --user -r requirements.txt
-    fi
-    set +e
-
 before_script:
   - |
     set -e
@@ -135,7 +125,6 @@ script:
   - |
     set -e
     make -j 2
-    cd ../src
     CTEST_OUTPUT_ON_FAILURE=1 ctest
     set +e
 

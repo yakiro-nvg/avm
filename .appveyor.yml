@@ -46,6 +46,5 @@ install:
 
 build_script:
   - cmake --build . --config %CONFIGURATION%
-  - cd src
   - set CTEST_OUTPUT_ON_FAILURE=1
   - ctest -C %CONFIGURATION%
