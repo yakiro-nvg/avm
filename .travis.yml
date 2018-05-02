@@ -90,9 +90,9 @@ matrix:
       compiler: gcc
       addons:
         apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['cmake', 'g++-4.9', 'lcov']
-      env: COMPILER='g++-4.9' BUILD_TYPE='Debug' AVM_COVERAGE=1
+          sources: *all_sources
+          packages: ['cmake', 'g++-7', 'lcov']
+      env: COMPILER='g++-7' BUILD_TYPE='Debug' AVM_COVERAGE=1
 
 before_script:
   - |
