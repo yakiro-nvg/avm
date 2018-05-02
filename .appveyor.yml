@@ -53,7 +53,7 @@ install:
   - cmake -G "%TOOLSET%" -DAVM_ENABLE_UTEST="%UTEST%""
 
 build_script:
-  - ps:
+  - ps: |
     cmake --build . --config %CONFIGURATION%
     if ($UTEST$=="On") {
       set CTEST_OUTPUT_ON_FAILURE=1
