@@ -14,7 +14,7 @@ include(ParseAndAddCatchTests)
 ParseAndAddCatchTests(utest)
 set_property(TARGET utest PROPERTY CXX_STANDARD 11)
 
-if (AVM_ENABLE_COVERAGE)
+if(AVM_ENABLE_COVERAGE)
     set(ENABLE_COVERAGE ON CACHE BOOL "Enable coverage build." FORCE)
     find_package(codecov)
     add_coverage(utest)

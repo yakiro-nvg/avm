@@ -16,23 +16,31 @@ environment:
   matrix:
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 14 2015'
+    UTEST: On
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 14 2015 Win64'
+    UTEST: On
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 12 2013'
+    UTEST: Off
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 12 2013 Win64'
+    UTEST: Off
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 11 2012'
+    UTEST: Off
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 11 2012 Win64'
+    UTEST: Off
 
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 10 2010'
+    UTEST: Off
   - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
     TOOLSET: 'Visual Studio 10 2010 Win64'
+    UTEST: Off
 
 configuration:
   - Debug
@@ -42,9 +50,12 @@ configuration:
 
 install:
   - git submodule update --init --recursive
-  - cmake -G "%TOOLSET%"
+  - cmake -G "%TOOLSET%" -DAVM_ENABLE_UTEST="%UTEST%""
 
 build_script:
-  - cmake --build . --config %CONFIGURATION%
-  - set CTEST_OUTPUT_ON_FAILURE=1
-  - ctest -C %CONFIGURATION%
+  - |
+    cmake --build . --config %CONFIGURATION%
+    if "%UTEST%"=="On" (
+      set CTEST_OUTPUT_ON_FAILURE=1
+      ctest -C %CONFIGURATION%
+    )

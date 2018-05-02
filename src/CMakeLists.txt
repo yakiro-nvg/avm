@@ -1,2 +1,7 @@
+option(AVM_ENABLE_UTEST "Build unit testing" OFF)
+
 add_subdirectory(private)
-add_subdirectory(utest)
+
+if(AVM_ENABLE_COVERAGE)
+    add_subdirectory(utest)
+endif()
