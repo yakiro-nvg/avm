@@ -90,7 +90,7 @@ matrix:
       compiler: gcc
       addons:
         apt:
-          sources: *all_sources
+          sources: ['ubuntu-toolchain-r-test']
           packages: ['cmake', 'g++-7', 'lcov']
       env: COMPILER='g++-7' BUILD_TYPE='Debug' AVM_COVERAGE=1
 
