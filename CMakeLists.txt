@@ -12,5 +12,9 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 set(AVM_ROOT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DADEBUG")
 
+option(AVM_ENABLE_UTEST "Build unit testing" OFF)
+if(AVM_ENABLE_UTEST)
 add_subdirectory(externals/rapidcheck)
+endif()
+
 add_subdirectory(src)
