@@ -55,7 +55,7 @@ install:
 build_script:
   - |
     cmake --build . --config %CONFIGURATION%
-    if "%UTEST%"=="On" (
+    if %UTEST%=="On" (
       set CTEST_OUTPUT_ON_FAILURE=1
       ctest -C %CONFIGURATION%
     )
