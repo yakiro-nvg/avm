@@ -1,6 +1,6 @@
 project(avm)
 
-option(AVM_BUILD_STATIC_LIBS "Build the static library" ON)
+option(AVM_BUILD_STATIC_LIBS "Build the static library" OFF)
 
 include_directories(${AVM_ROOT_DIRECTORY}/src/inc)
 

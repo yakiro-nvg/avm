@@ -14,7 +14,7 @@ set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DADEBUG")
 
 option(AVM_ENABLE_UTEST "Build unit testing" OFF)
 if(AVM_ENABLE_UTEST)
-add_subdirectory(externals/rapidcheck)
+    add_subdirectory(externals/rapidcheck)
 endif()
 
 add_subdirectory(src)
