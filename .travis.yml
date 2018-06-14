@@ -11,10 +11,6 @@ notifications:
   on_cancel: always
   on_error: always
 
-env:
-  global:
-    - secure: "anDk0w/fa6xl+AgOiGu1EYgDlPX3GNHsG4eQM4eIF1xCS21WHNNkMe+j4/8R9dyAXDTIRI4RHwoUisbcL6Xbahx7Zz5RkZ7/ZAJXOkyuu4DnNx0iF4U707di4l7n9nu1cTERqLNj4kkcPTymqPdbJ2VXRGXwzY1ffH7XtWBO2PR+rrPlUW53YU8Y90DQ5L7WzlQy53r9kWmCGcSBXAlTZpRFD45hfyuEiOJ++NvmQ/jfJ5Cc5JHGg9/15gzc8gdXVEaZiE/g8Go67EG1JhnOWKsVxhncbFW1Ez0hGqvrB+naHDW0CIiHl4IShJihyAoU4dF9a60jBCW4qDvoNPkddEgV98FumbWQITbsgtwjAoTbx3TFtRIymUaWKrDNgPdq9JBRuwRL89puSLVr4UNwBk1i/6clextNNvmOGZvcFUHAd0koNwU0MbQp9EPnlGZOv0t3B8QjIGPPpQ/tTheHjm4ehvxWhGoWjfTGDJhRN489XhZBxaG3HB7D3/7y1zhCbeAbza14Wh17l0qpLYf85YOYWxohQYxJPZunZUuYu8YQ2p28P5ZJl2E5XEQnFkiED0RP+wp0aVZjr91YRqX+PjigWXy8/+/y4EKkHi3S7+nvhtjlCwRoMl+5NA0ZxhzxGGVoBonurPXKHp9BGM84NeL6TgM9yTTI7fQCcCRBp8o="
-
 matrix:
   include:
     # 1/ Linux Clang Builds
@@ -71,7 +67,6 @@ matrix:
       addons: *gcc49
       env: COMPILER='g++-4.9' BUILD_TYPE='Debug'
 
-
     - os: linux
       compiler: gcc
       addons: &gcc5
@@ -85,28 +80,12 @@ matrix:
       addons: *gcc5
       env: COMPILER='g++-5' BUILD_TYPE='Debug'
 
-    # 4/ Coverage Build
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty
-          packages: ['cmake', 'clang-3.8', 'lcov']
-      env: COMPILER='clang++-3.8' BUILD_TYPE='Debug' AVM_COVERAGE=1
-
 before_script:
   - |
     set -e
     export CXX=${COMPILER}
     cd ${TRAVIS_BUILD_DIR}
-    if [[ "${AVM_COVERAGE}" == 1 ]]; then
-      export AVM_COVERAGE="On"
-    else
-      export AVM_COVERAGE="Off"
-    fi
-    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DAVM_ENABLE_UTEST=On -DAVM_ENABLE_COVERAGE=${AVM_COVERAGE}
+    cmake -H./ -B.build -DCMAKE_BUILD_TYPE=${BUILD_TYPE} -DAVM_ENABLE_UTEST=On
     cd .build
     set +e
 
@@ -115,14 +94,4 @@ script:
     set -e
     make -j 2
     CTEST_OUTPUT_ON_FAILURE=1 ctest
-    set +e
-
-after_success:
-  - |
-    set -e
-    if [[ "${AVM_COVERAGE}" == "On" ]]; then
-      make gcov
-      make lcov
-      bash <(curl -s https://codecov.io/bash) -X gcov -X coveragepy || echo "Codecov did not collect coverage reports"
-    fi
     set +e

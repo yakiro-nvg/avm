@@ -1,6 +1,3 @@
 [submodule "externals/catch2"]
 	path = externals/catch2
 	url = https://github.com/catchorg/Catch2.git
-[submodule "externals/rapidcheck"]
-	path = externals/rapidcheck
-	url = https://github.com/emil-e/rapidcheck.git
