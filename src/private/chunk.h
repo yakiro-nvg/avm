@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
+// Copyright (c) 2017-2018 Giang "Yakiro" Nguyen. All rights reserved.
 #ifndef _AVM_CHUNK_H_
 #define _AVM_CHUNK_H_
 

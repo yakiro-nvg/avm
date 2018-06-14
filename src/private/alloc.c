@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2018 Nguyen Viet Giang. All rights reserved.
+// Copyright (c) 2017-2018 Giang "Yakiro" Nguyen. All rights reserved.
 #include <avm/alloc.h>
 
 // borrowed from: https://bitbucket.org/bitsquid/foundation/

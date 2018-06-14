@@ -1,4 +1,4 @@
-/* Copyright (c) 2017 Nguyen Viet Giang. All rights reserved. */
+/* Copyright (c) 2017 Giang "Yakiro" Nguyen. All rights reserved. */
 #ifndef _AVM_ERRNO_H_
 #define _AVM_ERRNO_H_
 
